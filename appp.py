@@ -1593,10 +1593,10 @@ with st.sidebar:
     ):
 
         def logout_user():
-    try:
-        supabase.auth.sign_out()
-    except Exception:
-        pass
+    try:    
+        supabase.auth.sign_out()        
+    except Exception:    
+        pass        
 
     st.session_state.user = None
     st.session_state.auth_session = None
