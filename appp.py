@@ -1396,13 +1396,9 @@ def clear_master():
 #                    LOGIN
 # ============================================================
 
-def login_user(
-    email,
-    password
-):
+def login_user(email, password):
 
     try:
-
         response = (
             supabase
             .auth
@@ -1414,26 +1410,31 @@ def login_user(
             )
         )
 
-        if not response.user:
+        if not response.user or not response.session:
+            return False, "Invalid email or password."
 
-            return False, (
-                "Invalid email or password."
-            )
-
+        # Store logged-in user
         st.session_state.user = response.user
 
+        # Store session
+        st.session_state.auth_session = response.session
+
+        # IMPORTANT:
+        # Attach the authenticated user's JWT to PostgREST.
+        supabase.postgrest.auth(
+            response.session.access_token
+        )
+
+        # Check admin status
         st.session_state.is_admin = (
             is_admin_user(
                 response.user.id
             )
         )
 
-        return True, (
-            "Login successful."
-        )
+        return True, "Login successful."
 
     except Exception as e:
-
         return False, str(e)
 
 
@@ -1445,6 +1446,7 @@ def logout_user():
         pass
 
     st.session_state.user = None
+    st.session_state.auth_session = None
     st.session_state.is_admin = False
 
     st.rerun()
