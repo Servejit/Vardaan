@@ -1564,9 +1564,27 @@ else:
         "USER ACCESS — Read-only"
     )
 
+```python
+# ============================================================
+#                    LOGOUT FUNCTION
+# ============================================================
+
+def logout_user():
+
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+        pass
+
+    st.session_state.user = None
+    st.session_state.auth_session = None
+    st.session_state.is_admin = False
+
+    st.rerun()
+
 
 # ============================================================
-#                    SIDEBAR
+#                         SIDEBAR
 # ============================================================
 
 with st.sidebar:
@@ -1592,27 +1610,7 @@ with st.sidebar:
         use_container_width=True
     ):
 
-        def logout_user():
-    try:    
-        supabase.auth.sign_out()        
-    except Exception:    
-        pass        
-
-    st.session_state.user = None
-    st.session_state.auth_session = None
-    st.session_state.is_admin = False
-
-    st.rerun()
-
-
-# Later in the page
-
-if st.button(
-    "Logout",
-    use_container_width=True
-):
-
-    logout_user()
+        logout_user()
 
 
 # ============================================================
