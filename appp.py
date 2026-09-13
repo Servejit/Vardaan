@@ -1593,7 +1593,6 @@ with st.sidebar:
     ):
 
         def logout_user():
-
     try:
         supabase.auth.sign_out()
     except Exception:
