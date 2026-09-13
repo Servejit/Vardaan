@@ -102,7 +102,37 @@ supabase = create_client(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 )
+def restore_supabase_session():
 
+    try:
+        session = st.session_state.get(
+            "auth_session"
+        )
+
+        if session is None:
+            return False
+
+        access_token = session.access_token
+        refresh_token = session.refresh_token
+
+        if not access_token:
+            return False
+
+        # Restore Supabase Auth session
+        supabase.auth.set_session(
+            access_token,
+            refresh_token
+        )
+
+        # Explicitly attach JWT to database requests
+        supabase.postgrest.auth(
+            access_token
+        )
+
+        return True
+
+    except Exception:
+        return False
 
 # ============================================================
 #                    CONSTANTS
