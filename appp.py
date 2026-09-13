@@ -1606,6 +1606,16 @@ with st.sidebar:
     st.rerun()
 
 
+# Later in the page
+
+if st.button(
+    "Logout",
+    use_container_width=True
+):
+
+    logout_user()
+
+
 # ============================================================
 #                    ADMIN PANEL
 # ============================================================
