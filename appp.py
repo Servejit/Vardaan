@@ -1592,7 +1592,18 @@ with st.sidebar:
         use_container_width=True
     ):
 
-        logout_user()
+        def logout_user():
+
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+        pass
+
+    st.session_state.user = None
+    st.session_state.auth_session = None
+    st.session_state.is_admin = False
+
+    st.rerun()
 
 
 # ============================================================
