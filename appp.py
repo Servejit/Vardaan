@@ -1475,7 +1475,6 @@ def login_user(email, password):
     except Exception as e:
 
         return False, str(e)
-    st.rerun()
 
 
 # ============================================================
