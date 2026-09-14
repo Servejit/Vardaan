@@ -2,6 +2,10 @@ import io
 import streamlit as st
 from supabase import create_client
 
+# ============================================================
+# SETTINGS
+# ============================================================
+
 st.set_page_config(
     page_title="6thSense Excel Manager",
     page_icon="📊",
@@ -12,16 +16,24 @@ BUCKET = "excel-files"
 FILE = "master.xlsx"
 
 
+# ============================================================
+# SUPABASE
+# ============================================================
+
 @st.cache_resource
-def supabase_client():
+def get_supabase():
     return create_client(
         st.secrets["SUPABASE_URL"],
         st.secrets["SUPABASE_KEY"]
     )
 
 
-supabase = supabase_client()
+supabase = get_supabase()
 
+
+# ============================================================
+# SESSION
+# ============================================================
 
 if "user" not in st.session_state:
     st.session_state.user = None
@@ -30,38 +42,59 @@ if "profile" not in st.session_state:
     st.session_state.profile = None
 
 
-def profile(user_id):
-    r = (
-        supabase.table("profiles")
-        .select("id,email,role,is_active")
-        .eq("id", user_id)
-        .eq("is_active", True)
-        .maybe_single()
-        .execute()
-    )
-    return r.data
+# ============================================================
+# PROFILE
+# ============================================================
 
+def get_profile(user_id):
 
-def admin():
-    p = st.session_state.profile
-    return bool(
-        p and
-        p.get("role") == "admin" and
-        p.get("is_active") is True
-    )
-
-
-def login(email, password):
     try:
+        r = (
+            supabase.table("profiles")
+            .select("id,email,role,is_active")
+            .eq("id", user_id)
+            .eq("is_active", True)
+            .limit(1)
+            .execute()
+        )
+
+        if not r or not r.data:
+            return None
+
+        return r.data[0]
+
+    except Exception:
+        return None
+
+
+def is_admin():
+
+    p = st.session_state.profile
+
+    return bool(
+        p
+        and p.get("role") == "admin"
+        and p.get("is_active") is True
+    )
+
+
+# ============================================================
+# LOGIN
+# ============================================================
+
+def login_user(email, password):
+
+    try:
+
         r = supabase.auth.sign_in_with_password({
             "email": email.strip(),
             "password": password
         })
 
-        if not r.user:
+        if not r or not r.user:
             return False, "Login failed."
 
-        p = profile(r.user.id)
+        p = get_profile(r.user.id)
 
         if not p:
             supabase.auth.sign_out()
@@ -69,13 +102,20 @@ def login(email, password):
 
         st.session_state.user = r.user
         st.session_state.profile = p
+
         return True, "Login successful."
 
     except Exception as e:
+
         return False, str(e)
 
 
-def logout():
+# ============================================================
+# LOGOUT
+# ============================================================
+
+def logout_user():
+
     try:
         supabase.auth.sign_out()
     except Exception:
@@ -83,18 +123,35 @@ def logout():
 
     st.session_state.user = None
     st.session_state.profile = None
+
     st.rerun()
 
 
-def get_file():
+# ============================================================
+# DOWNLOAD EXCEL
+# ============================================================
+
+def get_excel():
+
     try:
-        return supabase.storage.from_(BUCKET).download(FILE)
+
+        return supabase.storage.from_(BUCKET).download(
+            FILE
+        )
+
     except Exception:
+
         return None
 
 
-def save_file(data):
+# ============================================================
+# UPLOAD / REPLACE EXCEL
+# ============================================================
+
+def save_excel(data):
+
     try:
+
         supabase.storage.from_(BUCKET).upload(
             FILE,
             data,
@@ -104,120 +161,184 @@ def save_file(data):
                 "upsert": True
             }
         )
-        return True, ""
-    except Exception as e:
-        return False, str(e)
 
+        return True, "Success"
 
-def delete_file():
-    try:
-        supabase.storage.from_(BUCKET).remove([FILE])
-        return True, ""
     except Exception as e:
+
         return False, str(e)
 
 
 # ============================================================
-# LOGIN
+# DELETE EXCEL
+# ============================================================
+
+def delete_excel():
+
+    try:
+
+        supabase.storage.from_(BUCKET).remove(
+            [FILE]
+        )
+
+        return True, "Deleted"
+
+    except Exception as e:
+
+        return False, str(e)
+
+
+# ============================================================
+# LOGIN SCREEN
 # ============================================================
 
 if st.session_state.user is None:
 
     st.title("6thSense Excel Manager")
+
     st.subheader("Login")
 
-    with st.form("login"):
+    with st.form("login_form"):
 
-        email = st.text_input("Email")
+        email = st.text_input(
+            "Email"
+        )
+
         password = st.text_input(
             "Password",
             type="password"
         )
 
-        submit = st.form_submit_button(
+        login_button = st.form_submit_button(
             "Login",
             use_container_width=True
         )
 
-    if submit:
+    if login_button:
 
         if not email or not password:
-            st.error("Enter email and password.")
+
+            st.error(
+                "Please enter email and password."
+            )
 
         else:
-            ok, msg = login(email, password)
 
-            if ok:
+            success, message = login_user(
+                email,
+                password
+            )
+
+            if success:
+
                 st.rerun()
+
             else:
-                st.error(msg)
+
+                st.error(message)
 
     st.stop()
 
 
 # ============================================================
-# USER
+# LOGGED-IN USER
 # ============================================================
 
 user = st.session_state.user
 
 st.title("6thSense Excel Manager")
-st.caption(f"Logged in as: {user.email}")
 
-if admin():
+st.caption(
+    f"Logged in as: {user.email}"
+)
+
+if is_admin():
+
     st.success("ADMIN ACCESS")
-else:
-    st.info("USER ACCESS — Read only")
 
+else:
+
+    st.info("USER ACCESS — READ ONLY")
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
 
 with st.sidebar:
 
-    st.write(f"**User:** {user.email}")
-    st.write(f"**Role:** {'Admin' if admin() else 'User'}")
+    st.write(
+        f"**User:** {user.email}"
+    )
+
+    st.write(
+        f"**Role:** {'Admin' if is_admin() else 'User'}"
+    )
+
+    st.divider()
 
     if st.button(
         "Logout",
         use_container_width=True
     ):
-        logout()
+
+        logout_user()
 
 
 # ============================================================
-# MASTER FILE
+# MASTER EXCEL
 # ============================================================
 
 st.header("Master Excel File")
 
-data = get_file()
+excel_data = get_excel()
 
 
 # ============================================================
 # NO FILE
 # ============================================================
 
-if data is None:
+if excel_data is None:
 
-    st.warning("No master Excel file available.")
+    st.warning(
+        "No master Excel file is currently available."
+    )
 
-    if admin():
+    if is_admin():
 
-        upload = st.file_uploader(
-            "Upload Master Excel",
+        st.subheader(
+            "Upload Master Excel"
+        )
+
+        uploaded = st.file_uploader(
+            "Choose Excel file",
             type=["xlsx"]
         )
 
-        if upload and st.button(
-            "Upload Master File",
-            use_container_width=True
-        ):
+        if uploaded:
 
-            ok, msg = save_file(upload.getvalue())
+            if st.button(
+                "Upload Master File",
+                use_container_width=True
+            ):
 
-            if ok:
-                st.success("File uploaded.")
-                st.rerun()
-            else:
-                st.error(msg)
+                success, message = save_excel(
+                    uploaded.getvalue()
+                )
+
+                if success:
+
+                    st.success(
+                        "Master Excel uploaded successfully."
+                    )
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        f"Upload failed: {message}"
+                    )
 
     st.stop()
 
@@ -226,54 +347,85 @@ if data is None:
 # DOWNLOAD
 # ============================================================
 
-st.success("Master Excel file available.")
+st.success(
+    "Master Excel file is available."
+)
 
 st.download_button(
-    "⬇️ Download Master Excel",
-    data=data,
+    label="⬇️ Download Master Excel",
+    data=excel_data,
     file_name="master.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    mime=(
+        "application/vnd.openxmlformats-officedocument."
+        "spreadsheetml.sheet"
+    ),
     use_container_width=True
 )
 
 
 # ============================================================
-# ADMIN
+# ADMIN CONTROLS
 # ============================================================
 
-if admin():
+if is_admin():
 
     st.divider()
+
     st.header("Admin Controls")
 
-    # Replace
-    st.subheader("Replace Master Excel")
 
-    new_file = st.file_uploader(
-        "Choose new Excel file",
-        type=["xlsx"],
-        key="replace"
+    # ========================================================
+    # REPLACE
+    # ========================================================
+
+    st.subheader(
+        "Replace Master Excel"
     )
 
-    if new_file and st.button(
-        "Replace Master File",
-        use_container_width=True
-    ):
+    replacement = st.file_uploader(
+        "Choose new Excel file",
+        type=["xlsx"],
+        key="replacement"
+    )
 
-        ok, msg = save_file(new_file.getvalue())
+    if replacement:
 
-        if ok:
-            st.success("Master file replaced.")
-            st.rerun()
-        else:
-            st.error(msg)
+        if st.button(
+            "Replace Master File",
+            use_container_width=True
+        ):
 
-    # Delete
+            success, message = save_excel(
+                replacement.getvalue()
+            )
+
+            if success:
+
+                st.success(
+                    "Master Excel replaced successfully."
+                )
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    f"Replacement failed: {message}"
+                )
+
+
+    # ========================================================
+    # DELETE
+    # ========================================================
+
     st.divider()
-    st.subheader("Delete Master File")
+
+    st.subheader(
+        "Delete Master File"
+    )
 
     st.warning(
-        "This will remove the file for all users."
+        "Deleting this file will remove it for all users."
     )
 
     if st.button(
@@ -281,39 +433,60 @@ if admin():
         use_container_width=True
     ):
 
-        ok, msg = delete_file()
+        success, message = delete_excel()
 
-        if ok:
-            st.success("Master file deleted.")
+        if success:
+
+            st.success(
+                "Master Excel deleted."
+            )
+
             st.rerun()
-        else:
-            st.error(msg)
 
-    # Modify
+        else:
+
+            st.error(
+                f"Delete failed: {message}"
+            )
+
+
+    # ========================================================
+    # MODIFY
+    # ========================================================
+
     st.divider()
-    st.subheader("Modify Excel")
+
+    st.subheader(
+        "Modify Excel"
+    )
 
     try:
 
         import pandas as pd
 
-        xls = pd.ExcelFile(
-            io.BytesIO(data),
+        workbook = pd.ExcelFile(
+            io.BytesIO(excel_data),
             engine="openpyxl"
         )
 
-        sheet = st.selectbox(
-            "Worksheet",
-            xls.sheet_names
+        sheets = workbook.sheet_names
+
+        selected_sheet = st.selectbox(
+            "Select worksheet",
+            sheets
         )
 
         df = pd.read_excel(
-            io.BytesIO(data),
-            sheet_name=sheet,
+            io.BytesIO(excel_data),
+            sheet_name=selected_sheet,
             engine="openpyxl"
         )
 
-        edited = st.data_editor(
+        st.write(
+            f"Editing: **{selected_sheet}**"
+        )
+
+        edited_df = st.data_editor(
             df,
             use_container_width=True,
             num_rows="dynamic"
@@ -331,45 +504,61 @@ if admin():
                 engine="openpyxl"
             ) as writer:
 
-                edited.to_excel(
+                edited_df.to_excel(
                     writer,
-                    sheet_name=sheet,
+                    sheet_name=selected_sheet,
                     index=False
                 )
 
-                for s in xls.sheet_names:
+                for sheet in sheets:
 
-                    if s == sheet:
+                    if sheet == selected_sheet:
                         continue
 
-                    other = pd.read_excel(
-                        io.BytesIO(data),
-                        sheet_name=s,
+                    other_df = pd.read_excel(
+                        io.BytesIO(excel_data),
+                        sheet_name=sheet,
                         engine="openpyxl"
                     )
 
-                    other.to_excel(
+                    other_df.to_excel(
                         writer,
-                        sheet_name=s,
+                        sheet_name=sheet,
                         index=False
                     )
 
-            ok, msg = save_file(
+            success, message = save_excel(
                 output.getvalue()
             )
 
-            if ok:
-                st.success("Excel saved.")
+            if success:
+
+                st.success(
+                    "Modified Excel saved successfully."
+                )
+
                 st.rerun()
+
             else:
-                st.error(msg)
+
+                st.error(
+                    f"Save failed: {message}"
+                )
 
     except Exception as e:
-        st.error(f"Excel error: {e}")
+
+        st.error(
+            f"Excel error: {e}"
+        )
+
+
+# ============================================================
+# NORMAL USER
+# ============================================================
 
 else:
 
     st.info(
         "You have read-only access. "
         "You can view and download the master Excel file."
-      )
+    )
