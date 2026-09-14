@@ -2,7 +2,6 @@
 # 20-DAY SUPPORT / RESISTANCE ZONE SCANNER
 # GOOGLE COLAB
 # ============================================================
-
 !pip -q install openpyxl pandas numpy
 
 import openpyxl
