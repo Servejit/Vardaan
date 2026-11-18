@@ -2162,10 +2162,10 @@ if page == "Index":
                                                 accent = "#CFFFE4"
                                                 emblem = "♛  ✦  BUY SIGNAL"
                                             else:
-                                                background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
-                                                border = "#F2C16B"
+                                                background = "linear-gradient(125deg,#3B1D08 0%,#A85B12 28%,#D18A2E 50%,#8A460D 76%,#422008 100%)"
+                                                border = "#F8D27A"
                                                 glow = "rgba(255,139,55,.38)"
-                                                accent = "#FFE0B8"
+                                                accent = "#FFE7B5"
                                                 emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
@@ -3834,10 +3834,10 @@ elif page == "Index 2":
                                                 accent = "#CFFFE4"
                                                 emblem = "♛  ✦  BUY SIGNAL"
                                             else:
-                                                background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
-                                                border = "#F2C16B"
+                                                background = "linear-gradient(125deg,#3B1D08 0%,#A85B12 28%,#D18A2E 50%,#8A460D 76%,#422008 100%)"
+                                                border = "#F8D27A"
                                                 glow = "rgba(255,139,55,.38)"
-                                                accent = "#FFE0B8"
+                                                accent = "#FFE7B5"
                                                 emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
