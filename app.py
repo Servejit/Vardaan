@@ -766,37 +766,39 @@ with st.sidebar:
         key="main_dashboard_default_index"
     )
 
-# One shared upload control for both Index dashboards. The uploaded bytes
-# remain in this user's session and are reused when switching Index / Index 2.
-shared_index_upload = st.file_uploader(
-    "Upload Index File (shared by Index and Index 2)",
-    type=["xlsx", "csv"],
-    key=f"shared_index_excel_upload_{user.id}"
-)
-if shared_index_upload is not None:
-    shared_file_bytes = shared_index_upload.getvalue()
-    shared_file_name = shared_index_upload.name
-    if (
-        shared_file_bytes != st.session_state.get("index_file_bytes")
-        or shared_file_name != st.session_state.get("index_file_name")
-    ):
-        for candidate_key in (
-            "trade_candidates_H2L", "trade_candidates_L2H",
-            "trade_candidates_index2_H2L", "trade_candidates_index2_L2H",
+# Show the single shared Index uploader only on the two Index dashboards.
+# The uploaded file remains in this user's session and is reused by Index / Index 2.
+index_upload = None
+if page in ("Index", "Index 2"):
+    shared_index_upload = st.file_uploader(
+        "Upload Index File (shared by Index and Index 2)",
+        type=["xlsx", "csv"],
+        key=f"shared_index_excel_upload_{user.id}"
+    )
+    if shared_index_upload is not None:
+        shared_file_bytes = shared_index_upload.getvalue()
+        shared_file_name = shared_index_upload.name
+        if (
+            shared_file_bytes != st.session_state.get("index_file_bytes")
+            or shared_file_name != st.session_state.get("index_file_name")
         ):
-            st.session_state.pop(candidate_key, None)
-        for signal_key in (
-            "independent_signal_active_index1_H2L",
-            "independent_signal_active_index1_L2H",
-            "independent_signal_active_index2_H2L",
-            "independent_signal_active_index2_L2H",
-        ):
-            st.session_state.pop(signal_key, None)
-    st.session_state["index_file_bytes"] = shared_file_bytes
-    st.session_state["index_file_name"] = shared_file_name
-    st.session_state["index_file_owner_id"] = str(user.id)
+            for candidate_key in (
+                "trade_candidates_H2L", "trade_candidates_L2H",
+                "trade_candidates_index2_H2L", "trade_candidates_index2_L2H",
+            ):
+                st.session_state.pop(candidate_key, None)
+            for signal_key in (
+                "independent_signal_active_index1_H2L",
+                "independent_signal_active_index1_L2H",
+                "independent_signal_active_index2_H2L",
+                "independent_signal_active_index2_L2H",
+            ):
+                st.session_state.pop(signal_key, None)
+        st.session_state["index_file_bytes"] = shared_file_bytes
+        st.session_state["index_file_name"] = shared_file_name
+        st.session_state["index_file_owner_id"] = str(user.id)
 
-index_upload = shared_index_upload
+    index_upload = shared_index_upload
 
 # ============================================================
 # INDEX DASHBOARD
