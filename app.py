@@ -1,4 +1,5 @@
 import io
+import re
 import streamlit as st
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -83,6 +84,93 @@ def delete_master():
     admin.storage.from_(BUCKET).remove(
         [MASTER_FILE]
     )
+
+
+def normalize_stock_symbol(value):
+    """Normalize NSE symbols and Master sheet identifiers for matching."""
+    if value is None:
+        return ""
+    symbol = str(value).strip().upper()
+    symbol = re.sub(r"\\.NS$", "", symbol)
+    symbol = re.sub(r"[^A-Z0-9&-]", "", symbol)
+    return symbol
+
+
+def get_top_stocks_master_values(top_stocks, master_bytes):
+    """
+    Match the top stocks against column A in the summary sheet of master.xlsx.
+    Headers are on row 1 and stock data begins on row 2.
+    """
+    output_columns = [
+        "Sum O2L.10",
+        "Sum O2H.10",
+        "16< D-B / Avg.4",
+        "16> C-B / Avg.4",
+    ]
+    if not master_bytes:
+        return [], "Master Excel is not available in Supabase."
+
+    try:
+        workbook = load_workbook(
+            io.BytesIO(master_bytes),
+            data_only=True,
+            read_only=True
+        )
+        if "summary" not in workbook.sheetnames:
+            return [], "The Master Excel does not contain the required 'summary' sheet."
+
+        worksheet = workbook["summary"]
+        headers = {
+            str(cell.value).strip(): cell.column
+            for cell in worksheet[1]
+            if cell.value is not None
+        }
+        missing = [name for name in output_columns if name not in headers]
+        if missing:
+            return [], "Missing column(s) in Master Excel summary: " + ", ".join(missing)
+
+        master_rows = {}
+        for row in worksheet.iter_rows(min_row=2, values_only=True):
+            if not row:
+                continue
+            symbol = normalize_stock_symbol(row[0] if len(row) else None)
+            if symbol:
+                master_rows[symbol] = row
+
+        results = []
+        for _, stock in top_stocks.iterrows():
+            symbol = normalize_stock_symbol(stock.get("NSE Symbol"))
+            master_row = master_rows.get(symbol)
+            result = {"NSE Symbol": stock.get("NSE Symbol")}
+            if master_row is None:
+                for column_name in output_columns:
+                    result[column_name] = "Not found"
+            else:
+                for column_name in output_columns[:2]:
+                    column_index = headers[column_name] - 1
+                    result[column_name] = (
+                        master_row[column_index]
+                        if column_index < len(master_row) else None
+                    )
+
+                # For these two columns, display only the value(s) inside parentheses.
+                for column_name in output_columns[2:]:
+                    column_index = headers[column_name] - 1
+                    raw_value = (
+                        master_row[column_index]
+                        if column_index < len(master_row) else None
+                    )
+                    matches = re.findall(r"\\(([^()]*)\\)", str(raw_value or ""))
+                    result[column_name] = ", ".join(
+                        value.strip() for value in matches if value.strip()
+                    ) if matches else ""
+
+            results.append(result)
+
+        workbook.close()
+        return results, None
+    except Exception as error:
+        return [], f"Could not read Master Excel: {error}"
 
 
 def logout():
@@ -986,6 +1074,42 @@ if page == "Index":
                             f"Today's quotes available for {available_count} "
                             f"of {len(quote_df)} constituent stocks."
                         )
+
+                        # Select the four highest positive/available % Chg values.
+                        top_four = (
+                            quote_df.dropna(subset=["% Chg"])
+                            .sort_values("% Chg", ascending=False)
+                            .head(4)
+                            .copy()
+                        )
+
+                        st.subheader("Top 4 Stocks by % Chg — Master Excel Details")
+                        if top_four.empty:
+                            st.info("No stocks have a valid % Chg value yet.")
+                        else:
+                            with st.spinner("Matching top stocks with Supabase Master Excel..."):
+                                master_bytes_for_top = get_master()
+                                master_values, master_error = get_top_stocks_master_values(
+                                    top_four,
+                                    master_bytes_for_top
+                                )
+
+                            if master_error:
+                                st.warning(master_error)
+                            elif master_values:
+                                master_values_df = pd.DataFrame(master_values)
+                                st.dataframe(
+                                    master_values_df,
+                                    use_container_width=True,
+                                    hide_index=True,
+                                    column_config={
+                                        "NSE Symbol": st.column_config.TextColumn(width="small"),
+                                        "Sum O2L.10": st.column_config.TextColumn(width="small"),
+                                        "Sum O2H.10": st.column_config.TextColumn(width="small"),
+                                        "16< D-B / Avg.4": st.column_config.TextColumn(width="small"),
+                                        "16> C-B / Avg.4": st.column_config.TextColumn(width="small"),
+                                    }
+                                )
 
                     if hasattr(st, "fragment"):
                         st.fragment(run_every="60s")(render_today_quotes)()
