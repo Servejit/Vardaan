@@ -2225,153 +2225,6 @@ if page == "Index":
                                         dependent_sell_signal_placeholder, "L2H"
                                     )
 
-                                    # DEPENDENT METALLIC SIGNALS
-                                    # Original logic: market-average absolute bias selects the side;
-                                    # lowest rank is compared across H2L and L2H; fourth-place
-                                    # confirmation can block; rank must be below 80; price-distance
-                                    # confirmation remains 0.20% from High/Low.
-                                    dependent_h2l = st.session_state.get("trade_candidates_index2_H2L", [])
-                                    dependent_l2h = st.session_state.get("trade_candidates_index2_L2H", [])
-                                    dependent_all = dependent_h2l + dependent_l2h
-                                    dependent_winner = None
-                                    dependent_lowest_rank = min(
-                                        (item.get("rank") for item in dependent_all
-                                         if item.get("rank") is not None),
-                                        default=None
-                                    )
-                                    if (
-                                        dependent_lowest_rank is not None
-                                        and dominant_market_side in ("H2L", "L2H")
-                                    ):
-                                        dependent_best = [
-                                            item for item in dependent_all
-                                            if item.get("rank") == dependent_lowest_rank
-                                        ]
-                                        dependent_confirmation_blocks = any(
-                                            item.get("confirmation_only", False)
-                                            for item in dependent_best
-                                        )
-                                        dependent_eligible = [
-                                            item for item in dependent_best
-                                            if not item.get("confirmation_only", False)
-                                            and item.get("rank", 999) < 80
-                                        ]
-                                        if (
-                                            not dependent_confirmation_blocks
-                                            and len(dependent_eligible) == 1
-                                            and dependent_eligible[0].get("side") == dominant_market_side
-                                        ):
-                                            possible_winner = dependent_eligible[0]
-                                            possible_price = possible_winner.get("price")
-                                            possible_high = possible_winner.get("high")
-                                            possible_low = possible_winner.get("low")
-                                            if possible_winner.get("side") == "H2L":
-                                                dependent_distance_ok = (
-                                                    possible_price is not None
-                                                    and possible_high is not None
-                                                    and possible_high > 0
-                                                    and ((possible_high - possible_price) / possible_high) >= 0.002
-                                                )
-                                            else:
-                                                dependent_distance_ok = (
-                                                    possible_price is not None
-                                                    and possible_low is not None
-                                                    and possible_low > 0
-                                                    and ((possible_price - possible_low) / possible_low) >= 0.002
-                                                )
-                                            if dependent_distance_ok:
-                                                dependent_winner = possible_winner
-
-                                    def render_metallic_dependent_card(placeholder, side):
-                                        is_winner = (
-                                            dependent_winner is not None
-                                            and dependent_winner.get("side") == side
-                                        )
-                                        if is_winner:
-                                            action = "BUY" if side == "H2L" else "SELL"
-                                            entry = dependent_winner["price"]
-                                            target = entry * (1.0035 if side == "H2L" else 0.9965)
-                                            rank_text = f'{dependent_winner["rank"]:g}'
-                                            symbol_text = dependent_winner["symbol"]
-                                            target_text = "+0.35%" if side == "H2L" else "-0.35%"
-                                            if side == "H2L":
-                                                background = "linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%)"
-                                                border = "#E6C76A"
-                                                glow = "rgba(31,220,132,.38)"
-                                                accent = "#CFFFE4"
-                                                emblem = "♛  ✦  METALLIC BUY"
-                                            else:
-                                                background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
-                                                border = "#F2C16B"
-                                                glow = "rgba(255,139,55,.38)"
-                                                accent = "#FFE0B8"
-                                                emblem = "♛  ✦  METALLIC SELL"
-                                            placeholder.markdown(
-                                                f"""
-                                                <div style="
-                                                    position:relative; overflow:hidden;
-                                                    background:{background};
-                                                    border:1.5px solid {border};
-                                                    border-radius:20px;
-                                                    padding:16px 18px 15px;
-                                                    margin:5px 0 14px;
-                                                    color:#fff;
-                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,
-                                                               0 8px 25px {glow},
-                                                               0 0 22px {glow};
-                                                ">
-                                                  <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:{accent};">
-                                                    {emblem}
-                                                  </div>
-                                                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
-                                                    <div>
-                                                      <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">{action}</div>
-                                                      <div style="font-size:1.16rem;font-weight:850;color:{accent};">{symbol_text}</div>
-                                                      <div style="font-size:.72rem;opacity:.82;margin-top:4px;">DEPENDENT · MARKET BIAS CONFIRMED</div>
-                                                    </div>
-                                                    <div style="text-align:right;">
-                                                      <div style="font-size:.68rem;opacity:.8;">ENTRY PRICE</div>
-                                                      <div style="font-size:1.42rem;font-weight:900;">₹{entry:,.2f}</div>
-                                                    </div>
-                                                  </div>
-                                                  <div style="height:1px;background:linear-gradient(90deg,transparent,{border},transparent);margin:12px 0;"></div>
-                                                  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET ({target_text})</div>
-                                                      <div style="font-size:1.12rem;font-weight:900;color:{accent};">₹{target:,.2f}</div></div>
-                                                    <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">CROSS-SIDE LOWEST RANK</div>
-                                                      <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
-                                                  </div>
-                                                  <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
-                                                              background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
-                                                </div>
-                                                """,
-                                                unsafe_allow_html=True
-                                            )
-                                        else:
-                                            placeholder.markdown(
-                                                """
-                                                <div style="
-                                                    min-height:145px;display:flex;align-items:center;justify-content:center;
-                                                    text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#d7e0e9;background:linear-gradient(135deg,#172331,#243447);
-                                                    border:1px solid #526579;box-shadow:0 5px 16px rgba(0,0,0,.16);
-                                                    font-weight:750;">
-                                                    <div>◇ &nbsp; NO DEPENDENT SIGNAL<br>
-                                                    <span style="font-size:.76rem;font-weight:500;opacity:.8;">
-                                                    Waiting for average bias, cross-side rank and confirmation
-                                                    </span></div>
-                                                </div>
-                                                """,
-                                                unsafe_allow_html=True
-                                            )
-
-                                    render_metallic_dependent_card(
-                                        dependent_buy_signal_placeholder, "H2L"
-                                    )
-                                    render_metallic_dependent_card(
-                                        dependent_sell_signal_placeholder, "L2H"
-                                    )
-
                                     if master_error:
                                         st.warning(master_error)
                                     elif master_values:
@@ -3882,6 +3735,153 @@ elif page == "Index 2":
                                             """,
                                             unsafe_allow_html=True
                                         )
+
+                                    # DEPENDENT METALLIC SIGNALS
+                                    # Original logic: market-average absolute bias selects the side;
+                                    # lowest rank is compared across H2L and L2H; fourth-place
+                                    # confirmation can block; rank must be below 80; price-distance
+                                    # confirmation remains 0.20% from High/Low.
+                                    dependent_h2l = st.session_state.get("trade_candidates_index2_H2L", [])
+                                    dependent_l2h = st.session_state.get("trade_candidates_index2_L2H", [])
+                                    dependent_all = dependent_h2l + dependent_l2h
+                                    dependent_winner = None
+                                    dependent_lowest_rank = min(
+                                        (item.get("rank") for item in dependent_all
+                                         if item.get("rank") is not None),
+                                        default=None
+                                    )
+                                    if (
+                                        dependent_lowest_rank is not None
+                                        and dominant_market_side in ("H2L", "L2H")
+                                    ):
+                                        dependent_best = [
+                                            item for item in dependent_all
+                                            if item.get("rank") == dependent_lowest_rank
+                                        ]
+                                        dependent_confirmation_blocks = any(
+                                            item.get("confirmation_only", False)
+                                            for item in dependent_best
+                                        )
+                                        dependent_eligible = [
+                                            item for item in dependent_best
+                                            if not item.get("confirmation_only", False)
+                                            and item.get("rank", 999) < 80
+                                        ]
+                                        if (
+                                            not dependent_confirmation_blocks
+                                            and len(dependent_eligible) == 1
+                                            and dependent_eligible[0].get("side") == dominant_market_side
+                                        ):
+                                            possible_winner = dependent_eligible[0]
+                                            possible_price = possible_winner.get("price")
+                                            possible_high = possible_winner.get("high")
+                                            possible_low = possible_winner.get("low")
+                                            if possible_winner.get("side") == "H2L":
+                                                dependent_distance_ok = (
+                                                    possible_price is not None
+                                                    and possible_high is not None
+                                                    and possible_high > 0
+                                                    and ((possible_high - possible_price) / possible_high) >= 0.002
+                                                )
+                                            else:
+                                                dependent_distance_ok = (
+                                                    possible_price is not None
+                                                    and possible_low is not None
+                                                    and possible_low > 0
+                                                    and ((possible_price - possible_low) / possible_low) >= 0.002
+                                                )
+                                            if dependent_distance_ok:
+                                                dependent_winner = possible_winner
+
+                                    def render_metallic_dependent_card(placeholder, side):
+                                        is_winner = (
+                                            dependent_winner is not None
+                                            and dependent_winner.get("side") == side
+                                        )
+                                        if is_winner:
+                                            action = "BUY" if side == "H2L" else "SELL"
+                                            entry = dependent_winner["price"]
+                                            target = entry * (1.0035 if side == "H2L" else 0.9965)
+                                            rank_text = f'{dependent_winner["rank"]:g}'
+                                            symbol_text = dependent_winner["symbol"]
+                                            target_text = "+0.35%" if side == "H2L" else "-0.35%"
+                                            if side == "H2L":
+                                                background = "linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%)"
+                                                border = "#E6C76A"
+                                                glow = "rgba(31,220,132,.38)"
+                                                accent = "#CFFFE4"
+                                                emblem = "♛  ✦  METALLIC BUY"
+                                            else:
+                                                background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
+                                                border = "#F2C16B"
+                                                glow = "rgba(255,139,55,.38)"
+                                                accent = "#FFE0B8"
+                                                emblem = "♛  ✦  METALLIC SELL"
+                                            placeholder.markdown(
+                                                f"""
+                                                <div style="
+                                                    position:relative; overflow:hidden;
+                                                    background:{background};
+                                                    border:1.5px solid {border};
+                                                    border-radius:20px;
+                                                    padding:16px 18px 15px;
+                                                    margin:5px 0 14px;
+                                                    color:#fff;
+                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,
+                                                               0 8px 25px {glow},
+                                                               0 0 22px {glow};
+                                                ">
+                                                  <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:{accent};">
+                                                    {emblem}
+                                                  </div>
+                                                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
+                                                    <div>
+                                                      <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">{action}</div>
+                                                      <div style="font-size:1.16rem;font-weight:850;color:{accent};">{symbol_text}</div>
+                                                      <div style="font-size:.72rem;opacity:.82;margin-top:4px;">DEPENDENT · MARKET BIAS CONFIRMED</div>
+                                                    </div>
+                                                    <div style="text-align:right;">
+                                                      <div style="font-size:.68rem;opacity:.8;">ENTRY PRICE</div>
+                                                      <div style="font-size:1.42rem;font-weight:900;">₹{entry:,.2f}</div>
+                                                    </div>
+                                                  </div>
+                                                  <div style="height:1px;background:linear-gradient(90deg,transparent,{border},transparent);margin:12px 0;"></div>
+                                                  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET ({target_text})</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;color:{accent};">₹{target:,.2f}</div></div>
+                                                    <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">CROSS-SIDE LOWEST RANK</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
+                                                  </div>
+                                                  <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
+                                                              background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
+                                                </div>
+                                                """,
+                                                unsafe_allow_html=True
+                                            )
+                                        else:
+                                            placeholder.markdown(
+                                                """
+                                                <div style="
+                                                    min-height:145px;display:flex;align-items:center;justify-content:center;
+                                                    text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
+                                                    color:#d7e0e9;background:linear-gradient(135deg,#172331,#243447);
+                                                    border:1px solid #526579;box-shadow:0 5px 16px rgba(0,0,0,.16);
+                                                    font-weight:750;">
+                                                    <div>◇ &nbsp; NO DEPENDENT SIGNAL<br>
+                                                    <span style="font-size:.76rem;font-weight:500;opacity:.8;">
+                                                    Waiting for average bias, cross-side rank and confirmation
+                                                    </span></div>
+                                                </div>
+                                                """,
+                                                unsafe_allow_html=True
+                                            )
+
+                                    render_metallic_dependent_card(
+                                        dependent_buy_signal_placeholder, "H2L"
+                                    )
+                                    render_metallic_dependent_card(
+                                        dependent_sell_signal_placeholder, "L2H"
+                                    )
 
                                     if master_error:
                                         st.warning(master_error)
