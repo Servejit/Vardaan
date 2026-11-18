@@ -911,88 +911,282 @@ if page == "Index":
     
                     @st.cache_data(ttl=3600, show_spinner=False)
                     def get_index_constituents(index_name):
-                        api_headers = {"User-Agent": "Mozilla/5.0"}
-                        base_url = "https://api.dharun.dev/v1/indices"
-                        response = requests.get(
-                            base_url,
-                            headers=api_headers,
-                            timeout=20
-                        )
-                        response.raise_for_status()
-                        index_items = response.json().get("data", [])
-    
+                        """
+                        Load current constituents for an index using a layered
+                        fallback: India API archive, NSE's public index API,
+                        then official Nifty Indices CSV files.
+                        """
+                        import io
+                        import requests
+                        import pandas as pd
+
                         def clean_name(value):
                             return " ".join(
-                                str(value).upper().replace("-", " ").split()
+                                re.sub(r"[^A-Z0-9]+", " ", str(value).upper()).split()
                             )
-    
-                        wanted_name = clean_name(index_name)
-                        matched = next(
-                            (
-                                item for item in index_items
-                                if clean_name(item.get("name", "")) == wanted_name
-                            ),
-                            None
-                        )
-    
-                        if matched is None:
-                            # Handle common NIFTY label variations.
-                            aliases = {
-                                "NIFTY IT": "Nifty IT",
-                                "NIFTY 50": "Nifty 50",
-                                "NIFTY BANK": "Nifty Bank",
-                                "NIFTY NEXT 50": "Nifty Next 50",
-                                "NIFTY 100": "Nifty 100",
-                                "NIFTY 200": "Nifty 200",
-                                "NIFTY 500": "Nifty 500",
-                                "NIFTY MIDCAP 50": "Nifty Midcap 50",
-                                "NIFTY MIDCAP 100": "Nifty Midcap 100",
-                                "NIFTY MIDCAP 150": "Nifty Midcap 150",
-                                "NIFTY SMALLCAP 50": "Nifty Smallcap 50",
-                                "NIFTY SMALLCAP 100": "Nifty Smallcap 100",
-                                "NIFTY SMALLCAP 250": "Nifty Smallcap 250"
-                            }
-                            alias_name = aliases.get(wanted_name)
-                            if alias_name:
-                                matched = next(
-                                    (
-                                        item for item in index_items
-                                        if clean_name(item.get("name", "")) ==
-                                        clean_name(alias_name)
-                                    ),
-                                    None
+
+                        def build_members(rows):
+                            members = []
+                            for row in rows:
+                                symbol = str(
+                                    row.get("symbol")
+                                    or row.get("Symbol")
+                                    or row.get("SYMBOL")
+                                    or ""
+                                ).strip()
+                                if not symbol or clean_name(symbol) == clean_name(index_name):
+                                    continue
+                                meta = row.get("meta") or {}
+                                company = (
+                                    row.get("company")
+                                    or row.get("Company Name")
+                                    or row.get("Company")
+                                    or meta.get("companyName")
+                                    or meta.get("company")
+                                    or ""
                                 )
-    
-                        if matched is None:
-                            raise ValueError(
-                                f"No constituent archive match was found for {index_name}."
+                                industry = (
+                                    row.get("industry")
+                                    or row.get("Industry")
+                                    or meta.get("industry")
+                                    or ""
+                                )
+                                members.append({
+                                    "No.": len(members) + 1,
+                                    "NSE Symbol": symbol,
+                                    "Company": str(company).strip(),
+                                    "Industry": str(industry).strip()
+                                })
+                            return members
+
+                        wanted_name = clean_name(index_name)
+                        errors = []
+
+                        # Source 1: India API archive (fast and already used by the app).
+                        try:
+                            api_headers = {"User-Agent": "Mozilla/5.0"}
+                            base_url = "https://api.dharun.dev/v1/indices"
+                            response = requests.get(
+                                base_url, headers=api_headers, timeout=20
                             )
-    
-                        detail_response = requests.get(
-                            f"{base_url}/{matched['id']}",
-                            headers=api_headers,
-                            timeout=20
-                        )
-                        detail_response.raise_for_status()
-                        payload = detail_response.json().get("data", {})
-                        members = payload.get("members", [])
-    
-                        if not members:
-                            raise ValueError(
-                                f"The constituent list for {index_name} is empty."
+                            response.raise_for_status()
+                            index_items = response.json().get("data", [])
+                            matched = next(
+                                (
+                                    item for item in index_items
+                                    if clean_name(item.get("name", "")) == wanted_name
+                                ),
+                                None
                             )
-    
-                        return [
-                            {
-                                "No.": number,
-                                "NSE Symbol": member.get("symbol"),
-                                "Company": member.get("company"),
-                                "Industry": member.get("industry", "")
+                            if matched is None:
+                                aliases = {
+                                    "NIFTY IT": "NIFTY IT",
+                                    "NIFTY 50": "NIFTY 50",
+                                    "NIFTY BANK": "NIFTY BANK",
+                                    "NIFTY NEXT 50": "NIFTY NEXT 50",
+                                    "NIFTY 100": "NIFTY 100",
+                                    "NIFTY 200": "NIFTY 200",
+                                    "NIFTY 500": "NIFTY 500",
+                                    "NIFTY MIDCAP 50": "NIFTY MIDCAP 50",
+                                    "NIFTY MIDCAP 100": "NIFTY MIDCAP 100",
+                                    "NIFTY MIDCAP 150": "NIFTY MIDCAP 150",
+                                    "NIFTY SMALLCAP 50": "NIFTY SMALLCAP 50",
+                                    "NIFTY SMALLCAP 100": "NIFTY SMALLCAP 100",
+                                    "NIFTY SMALLCAP 250": "NIFTY SMALLCAP 250"
+                                }
+                                alias_name = aliases.get(wanted_name)
+                                if alias_name:
+                                    matched = next(
+                                        (
+                                            item for item in index_items
+                                            if clean_name(item.get("name", "")) ==
+                                            clean_name(alias_name)
+                                        ),
+                                        None
+                                    )
+                            if matched is not None:
+                                detail_response = requests.get(
+                                    f"{base_url}/{matched['id']}",
+                                    headers=api_headers,
+                                    timeout=20
+                                )
+                                detail_response.raise_for_status()
+                                payload = detail_response.json().get("data", {})
+                                members = build_members(payload.get("members", []))
+                                if members:
+                                    return members
+                                errors.append("India API returned no constituent rows.")
+                            else:
+                                errors.append("Index is not listed in the India API archive.")
+                        except Exception as api_error:
+                            errors.append(f"India API: {api_error}")
+
+                        # Source 2: NSE public index constituents endpoint.
+                        try:
+                            session = requests.Session()
+                            nse_headers = {
+                                "User-Agent": (
+                                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                    "Chrome/131.0.0.0 Safari/537.36"
+                                ),
+                                "Accept": "application/json, text/plain, */*",
+                                "Accept-Language": "en-US,en;q=0.9",
+                                "Referer": "https://www.nseindia.com/"
                             }
-                            for number, member in enumerate(members, start=1)
-                            if member.get("symbol")
+                            session.get(
+                                "https://www.nseindia.com/",
+                                headers=nse_headers,
+                                timeout=15
+                            )
+                            nse_name = " ".join(str(index_name).upper().split())
+                            nse_response = session.get(
+                                "https://www.nseindia.com/api/equity-stockIndices",
+                                params={"index": nse_name},
+                                headers=nse_headers,
+                                timeout=20
+                            )
+                            nse_response.raise_for_status()
+                            nse_rows = nse_response.json().get("data", [])
+                            members = build_members(nse_rows)
+                            if members:
+                                return members
+                            errors.append("NSE API returned no constituent rows.")
+                        except Exception as nse_error:
+                            errors.append(f"NSE API: {nse_error}")
+
+                        # Source 3: official NSE Indices constituent CSV.
+                        # Explicit filenames cover indices whose official naming
+                        # does not follow a simple slug convention.
+                        official_files = {
+                            "NIFTY 50": "ind_nifty50list.csv",
+                            "NIFTY NEXT 50": "ind_niftynext50list.csv",
+                            "NIFTY BANK": "ind_niftybanklist.csv",
+                            "NIFTY IT": "ind_niftyitlist.csv",
+                            "NIFTY PHARMA": "ind_niftypharmalist.csv",
+                            "NIFTY FMCG": "ind_niftyfmcglist.csv",
+                            "NIFTY AUTO": "ind_niftyautolist.csv",
+                            "NIFTY CHEMICALS": "ind_niftyChemicals_list.csv",
+                            "NIFTY 100": "ind_nifty100list.csv",
+                            "NIFTY 200": "ind_nifty200list.csv",
+                            "NIFTY 500": "ind_nifty500list.csv",
+                            "NIFTY MIDCAP 50": "ind_niftymidcap50list.csv",
+                            "NIFTY MIDCAP 100": "ind_niftymidcap100list.csv",
+                            "NIFTY MIDCAP 150": "ind_niftymidcap150list.csv",
+                            "NIFTY SMALLCAP 50": "ind_niftysmallcap50list.csv",
+                            "NIFTY SMALLCAP 100": "ind_niftysmallcap100list.csv",
+                            "NIFTY SMALLCAP 250": "ind_niftysmallcap250list.csv",
+                            "NIFTY METAL": "ind_niftymetallist.csv",
+                            "NIFTY REALTY": "ind_niftyrealtylist.csv",
+                            "NIFTY PSU BANK": "ind_niftypsubanklist.csv",
+                            "NIFTY PRIVATE BANK": "ind_nifty_privatebanklist.csv",
+                            "NIFTY FINANCIAL SERVICES": "ind_niftyfinancialserviceslist.csv",
+                            "NIFTY CONSUMER DURABLES": "ind_niftyconsumerdurableslist.csv",
+                            "NIFTY OIL AND GAS": "ind_niftyoilgaslist.csv",
+                            "NIFTY CEMENT": "ind_niftycementlist.csv",
+                            "NIFTY CAPITAL GOODS": "ind_niftycapitalgoodslist.csv",
+                            "NIFTY HEALTHCARE": "ind_niftyhealthcarelist.csv",
+                            "NIFTY HOSPITALS": "ind_niftyhospitalslist.csv",
+                            "NIFTY NBFC": "ind_niftynbfclist.csv",
+                            "NIFTY INSURANCE": "ind_niftyinsurancelist.csv",
+                            "NIFTY POWER": "ind_niftypowerlist.csv",
+                            "NIFTY MEDIA": "ind_niftymedialist.csv"
+                        }
+                        csv_filename = official_files.get(wanted_name)
+                        if not csv_filename:
+                            # Try common official filename patterns for other
+                            # Nifty indices, including archive-host variants.
+                            slug = re.sub(r"[^a-z0-9]+", "", wanted_name.lower())
+                            slug = re.sub(r"^nifty", "nifty", slug)
+                            csv_candidates = [
+                                f"ind_{slug}list.csv",
+                                f"ind_{slug}_list.csv"
+                            ]
+                        else:
+                            csv_candidates = [csv_filename]
+
+                        csv_hosts = [
+                            "https://www.niftyindices.com/IndexConstituent/",
+                            "https://niftyindices.com/IndexConstituent/",
+                            "https://nsearchives.nseindia.com/content/indices/"
                         ]
-    
+                        csv_headers = {
+                            "User-Agent": (
+                                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                "Chrome/131.0.0.0 Safari/537.36"
+                            ),
+                            "Accept": "text/csv,application/csv,*/*;q=0.8",
+                            "Referer": "https://www.niftyindices.com/"
+                        }
+                        for host in csv_hosts:
+                            for filename in csv_candidates:
+                                try:
+                                    csv_response = requests.get(
+                                        host + filename,
+                                        headers=csv_headers,
+                                        timeout=20
+                                    )
+                                    csv_response.raise_for_status()
+                                    frame = pd.read_csv(
+                                        io.BytesIO(csv_response.content)
+                                    )
+                                    frame.columns = [
+                                        str(column).replace("\ufeff", "").strip()
+                                        for column in frame.columns
+                                    ]
+                                    symbol_column = next(
+                                        (
+                                            column for column in frame.columns
+                                            if clean_name(column) in
+                                            {"SYMBOL", "NSE SYMBOL", "TRADING SYMBOL"}
+                                        ),
+                                        None
+                                    )
+                                    if symbol_column is None or frame.empty:
+                                        continue
+                                    company_column = next(
+                                        (
+                                            column for column in frame.columns
+                                            if clean_name(column) in
+                                            {"COMPANY NAME", "COMPANY", "NAME"}
+                                        ),
+                                        None
+                                    )
+                                    industry_column = next(
+                                        (
+                                            column for column in frame.columns
+                                            if clean_name(column) == "INDUSTRY"
+                                        ),
+                                        None
+                                    )
+                                    csv_rows = []
+                                    for _, csv_row in frame.iterrows():
+                                        csv_rows.append({
+                                            "symbol": csv_row.get(symbol_column, ""),
+                                            "company": (
+                                                csv_row.get(company_column, "")
+                                                if company_column else ""
+                                            ),
+                                            "industry": (
+                                                csv_row.get(industry_column, "")
+                                                if industry_column else ""
+                                            )
+                                        })
+                                    members = build_members(csv_rows)
+                                    if members:
+                                        return members
+                                except Exception as csv_error:
+                                    errors.append(
+                                        f"{filename} from {host}: {csv_error}"
+                                    )
+
+                        raise ValueError(
+                            f"Could not load constituents for {index_name} from "
+                            "the available India API, NSE API, or official NSE Indices "
+                            "CSV sources. " + " | ".join(errors[-4:])
+                        )
+
                     try:
                         with st.spinner(
                             f"Loading NSE constituents for {selected_name}..."
