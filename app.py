@@ -831,15 +831,51 @@ if page == "Index":
             highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
 
             st.divider()
-            st.subheader("Index Selection & Constituents")
+            st.subheader("Priority Stock Analysis")
             st.caption(
-                "Automatically selects the lowest H2L% index where CURRENT is above 10,000."
+                "Your key watchlist comes first: H2L Top 4 gainers and L2H Bottom 4 "
+                "stocks, with Master Excel metrics and panel-specific ranks. "
+                "Full constituent and quote lists remain available below."
             )
 
             st.markdown("""
             <style>
-            .st-key-h2l_panel { background-color: #eaf7ec; border: 1px solid #b9dfc0; border-radius: 14px; padding: 1rem; }
-            .st-key-l2h_panel { background-color: #fff2e2; border: 1px solid #f2d0a8; border-radius: 14px; padding: 1rem; }
+            .st-key-h2l_panel {
+                background: linear-gradient(145deg, #f3fbf5 0%, #e8f5eb 100%);
+                border: 1px solid #b8d9c0;
+                border-left: 5px solid #25834a;
+                border-radius: 16px;
+                padding: 1.25rem 1.35rem;
+                margin: 0.8rem 0 1.2rem 0;
+                box-shadow: 0 5px 18px rgba(27, 83, 48, 0.06);
+            }
+            .st-key-l2h_panel {
+                background: linear-gradient(145deg, #fff9f1 0%, #fff0df 100%);
+                border: 1px solid #efd1ad;
+                border-left: 5px solid #c87925;
+                border-radius: 16px;
+                padding: 1.25rem 1.35rem;
+                margin: 0.8rem 0 1.2rem 0;
+                box-shadow: 0 5px 18px rgba(126, 76, 24, 0.06);
+            }
+            .st-key-h2l_panel [data-testid="stMetric"],
+            .st-key-l2h_panel [data-testid="stMetric"] {
+                background: rgba(255,255,255,0.78);
+                border: 1px solid rgba(100,110,100,0.13);
+                border-radius: 12px;
+                padding: 0.75rem 0.9rem;
+            }
+            .st-key-h2l_panel [data-testid="stDataFrame"],
+            .st-key-l2h_panel [data-testid="stDataFrame"] {
+                border: 1px solid rgba(100,110,100,0.16);
+                border-radius: 11px;
+                overflow: hidden;
+            }
+            .st-key-h2l_panel button,
+            .st-key-l2h_panel button {
+                border-radius: 9px;
+                font-weight: 600;
+            }
             </style>
             """, unsafe_allow_html=True)
             with st.container(key="h2l_panel"):
@@ -965,16 +1001,20 @@ if page == "Index":
                                 selected_name
                             )
     
-                        st.dataframe(
-                            selected_constituents,
-                            use_container_width=True,
-                            hide_index=True
-                        )
-                        st.caption(
-                            "Constituent list sourced from NSE Indices published data "
-                            "through the India API index archive. Membership lists may "
-                            "update periodically."
-                        )
+                        with st.expander(
+                            f"View all {len(selected_constituents)} H2L index constituents",
+                            expanded=False
+                        ):
+                            st.dataframe(
+                                selected_constituents,
+                                use_container_width=True,
+                                hide_index=True
+                            )
+                            st.caption(
+                                "Constituent list sourced from NSE Indices published data "
+                                "through the India API index archive. Membership lists may "
+                                "update periodically."
+                            )
     
                         st.markdown(f"**{selected_name} — Today's Stock Details**")
                         market_timezone = ZoneInfo("Asia/Kolkata")
@@ -1169,42 +1209,46 @@ if page == "Index":
                                     if pd.notna(value) else None
                                 )
     
-                            st.dataframe(
-                                quote_df,
-                                use_container_width=True,
-                                hide_index=True,
-                                column_config={
-                                    "NSE Symbol": st.column_config.TextColumn(
-                                        "NSE Symbol",
-                                        width="small"
-                                    ),
-                                    "Price": st.column_config.NumberColumn(
-                                        "Price",
-                                        format="₹%.2f",
-                                        width="small"
-                                    ),
-                                    "Open": st.column_config.NumberColumn(
-                                        "Open",
-                                        format="₹%.2f",
-                                        width="small"
-                                    ),
-                                    "High": st.column_config.NumberColumn(
-                                        "High",
-                                        format="₹%.2f",
-                                        width="small"
-                                    ),
-                                    "Low": st.column_config.NumberColumn(
-                                        "Low",
-                                        format="₹%.2f",
-                                        width="small"
-                                    ),
-                                    "% Chg": st.column_config.NumberColumn(
-                                        "% Chg",
-                                        format="%.2f%%",
-                                        width="small"
-                                    )
-                                }
-                            )
+                            with st.expander(
+                                f"View all {len(quote_df)} live quote rows",
+                                expanded=False
+                            ):
+                                st.dataframe(
+                                    quote_df,
+                                    use_container_width=True,
+                                    hide_index=True,
+                                    column_config={
+                                        "NSE Symbol": st.column_config.TextColumn(
+                                            "NSE Symbol",
+                                            width="small"
+                                        ),
+                                        "Price": st.column_config.NumberColumn(
+                                            "Price",
+                                            format="₹%.2f",
+                                            width="small"
+                                        ),
+                                        "Open": st.column_config.NumberColumn(
+                                            "Open",
+                                            format="₹%.2f",
+                                            width="small"
+                                        ),
+                                        "High": st.column_config.NumberColumn(
+                                            "High",
+                                            format="₹%.2f",
+                                            width="small"
+                                        ),
+                                        "Low": st.column_config.NumberColumn(
+                                            "Low",
+                                            format="₹%.2f",
+                                            width="small"
+                                        ),
+                                        "% Chg": st.column_config.NumberColumn(
+                                            "% Chg",
+                                            format="%.2f%%",
+                                            width="small"
+                                        )
+                                    }
+                                )
     
                             available_count = int(quote_df["Price"].notna().sum())
                             st.caption(
@@ -1228,8 +1272,12 @@ if page == "Index":
                                 if selection_mode == "bottom"
                                 else "Top 4 Stocks by % Chg"
                             )
-                            st.subheader(
-                                f"{index_name} — {selection_title} — Master Excel Details"
+                            st.markdown(
+                                f"#### {selection_title} · {index_name}"
+                            )
+                            st.caption(
+                                "Priority list · Sorted by today's % Chg · "
+                                "Master Excel values and rank shown alongside"
                             )
                             if selected_four.empty:
                                 st.info("No stocks have a valid % Chg value yet.")
@@ -1255,6 +1303,7 @@ if page == "Index":
                                         master_values_df,
                                         use_container_width=True,
                                         hide_index=True,
+                                        height=230,
                                         column_config={
                                             "NSE Symbol": st.column_config.TextColumn(width="small"),
                                             "% Chg": st.column_config.NumberColumn(
@@ -1313,7 +1362,7 @@ if page == "Index":
                         ).strip().upper()
     
                         st.divider()
-                        st.subheader("Highest L2H% Index & Bottom 4 Stocks")
+                        st.markdown("### L2H · Bottom 4 Stocks")
                         l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
                         l2h_col1.metric("Selected INDEX", highest_l2h_name)
                         l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
@@ -1332,15 +1381,19 @@ if page == "Index":
                                     highest_l2h_name
                                 )
     
-                            st.dataframe(
-                                highest_l2h_constituents,
-                                use_container_width=True,
-                                hide_index=True
-                            )
-                            st.caption(
-                                "Constituent list sourced from NSE Indices published data "
-                                "through the India API index archive."
-                            )
+                            with st.expander(
+                                f"View all {len(highest_l2h_constituents)} L2H index constituents",
+                                expanded=False
+                            ):
+                                st.dataframe(
+                                    highest_l2h_constituents,
+                                    use_container_width=True,
+                                    hide_index=True
+                                )
+                                st.caption(
+                                    "Constituent list sourced from NSE Indices published data "
+                                    "through the India API index archive."
+                                )
                             st.markdown(
                                 f"**{highest_l2h_name} — Today's Stock Details**"
                             )
