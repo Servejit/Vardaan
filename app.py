@@ -87,11 +87,13 @@ def delete_master():
 
 
 def normalize_stock_symbol(value):
-    """Normalize NSE symbols and Master sheet identifiers for matching."""
+    """Normalize common NSE symbol formats before matching Master column A."""
     if value is None:
         return ""
     symbol = str(value).strip().upper()
+    symbol = re.sub(r"^NSE\s*[:_-]\s*", "", symbol)
     symbol = re.sub(r"\.NS$", "", symbol)
+    symbol = re.sub(r"-(EQ|BE|SM)$", "", symbol)
     symbol = re.sub(r"[^A-Z0-9&-]", "", symbol)
     return symbol
 
