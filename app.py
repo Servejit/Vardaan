@@ -505,6 +505,85 @@ user = st.session_state.user
 profile = st.session_state.profile
 is_admin = st.session_state.is_admin
 
+# ============================================================
+# BLUE & SILVER DASHBOARD THEME
+# Green H2L and orange L2H priority panels keep their own colors.
+# ============================================================
+
+st.markdown("""
+<style>
+/* Cool silver canvas and restrained blue accents for the general UI. */
+.stApp {
+    background: linear-gradient(135deg, #f7f9fc 0%, #edf2f8 52%, #f8fafc 100%);
+}
+[data-testid="stHeader"] {
+    background: rgba(247, 249, 252, 0.88);
+}
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #eaf0f7 0%, #f5f7fa 100%);
+    border-right: 1px solid #d5deea;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] label {
+    color: #263b55;
+}
+h1, h2, h3 {
+    color: #183b63;
+    letter-spacing: -0.025em;
+}
+h2, h3 {
+    border-bottom: 1px solid #d7e0eb;
+    padding-bottom: 0.35rem;
+}
+[data-testid="stMetric"] {
+    background: linear-gradient(145deg, #ffffff 0%, #eef3f8 100%);
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    box-shadow: 0 3px 12px rgba(34, 65, 100, 0.045);
+}
+[data-testid="stDataFrame"],
+[data-testid="stTable"] {
+    border: 1px solid #d6dfeb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.stButton > button,
+.stDownloadButton > button,
+[data-testid="stFormSubmitButton"] > button {
+    border: 1px solid #9db5d1;
+    border-radius: 9px;
+    color: #173e68;
+    background: linear-gradient(180deg, #ffffff 0%, #e8eef6 100%);
+    font-weight: 600;
+}
+.stButton > button:hover,
+.stDownloadButton > button:hover,
+[data-testid="stFormSubmitButton"] > button:hover {
+    border-color: #4779ad;
+    color: #12365c;
+    background: #dce8f5;
+}
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stSelectbox"] > div,
+[data-testid="stFileUploader"] section {
+    border-color: #cbd7e5;
+}
+hr {
+    border-color: #d4deea;
+}
+[data-testid="stExpander"] {
+    border: 1px solid #d5dfeb;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.58);
+}
+[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title(
     "6thSense Excel Manager"
 )
