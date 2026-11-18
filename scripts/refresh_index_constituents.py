@@ -263,15 +263,21 @@ def main():
                 if old_symbols:
                     record["previous_symbols"] = old_symbols
             archive["indices"][key] = record
-            refreshed += 1
+            if changed:
+                refreshed += 1
+            else:
+                unchanged += 1
             print(f"  OK: {len(members)} stocks; {'changed' if changed else 'unchanged'}")
         except Exception as exc:
             record = dict(previous)
             record.update({
                 "index_name": index_name,
                 "status": "stale-preserved" if previous.get("members") else "unavailable",
-                "last_verified_at": now_iso(),
+                # Do not advance last_verified_at after a failed download.
+                # This keeps failed/new indices eligible for retry on the next
+                # daily workflow run instead of waiting another 15 days.
                 "last_error": str(exc)[:1200],
+                "last_failed_at": now_iso(),
             })
             archive["indices"][key] = record
             unavailable += 1
