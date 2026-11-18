@@ -633,7 +633,8 @@ with st.sidebar:
     page = st.radio(
         "Dashboard",
         ["Master Excel", "Index"],
-        key="main_dashboard"
+        index=1,
+        key="main_dashboard_default_index"
     )
 
 
