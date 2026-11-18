@@ -22,11 +22,9 @@ EXCEL_MIME = (
     "spreadsheetml.sheet"
 )
 
-sb = create_client(
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    options=ClientOptions(flow_type="pkce")
-)
+# Authentication clients must be isolated per Streamlit browser session.
+# A module-global Supabase Auth client can share/overwrite tokens when users
+# log in concurrently on the same Streamlit worker.
 
 # SERVICE client is used for admin/profile/storage operations.
 admin = create_client(
@@ -52,6 +50,18 @@ if "recovery" not in st.session_state:
 
 if "session_login_started_at" not in st.session_state:
     st.session_state.session_login_started_at = None
+
+# Each browser session owns its own Supabase Auth client and token state.
+# The service-role client below remains server-side and is used only for
+# controlled admin/profile/storage operations.
+if "_supabase_auth_client" not in st.session_state:
+    st.session_state["_supabase_auth_client"] = create_client(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        options=ClientOptions(flow_type="pkce")
+    )
+
+sb = st.session_state["_supabase_auth_client"]
 
 
 # ============================================================
