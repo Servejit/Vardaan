@@ -1670,12 +1670,24 @@ if page == "Index":
                                     to_number(row.get("Price"))
                                     for _, row in quote_df.iterrows()
                                 }
+                                quote_high_by_symbol = {
+                                    str(row.get("NSE Symbol", "")).strip().upper():
+                                    to_number(row.get("High"))
+                                    for _, row in quote_df.iterrows()
+                                }
+                                quote_low_by_symbol = {
+                                    str(row.get("NSE Symbol", "")).strip().upper():
+                                    to_number(row.get("Low"))
+                                    for _, row in quote_df.iterrows()
+                                }
                                 side_candidates = []
                                 if not master_error and master_values:
                                     for stock_position, item in enumerate(master_values):
                                         symbol = str(item.get("NSE Symbol", "")).strip()
                                         rank_value = to_number(item.get(rank_column))
                                         current_price = quote_price_by_symbol.get(symbol.upper())
+                                        current_high = quote_high_by_symbol.get(symbol.upper())
+                                        current_low = quote_low_by_symbol.get(symbol.upper())
                                         if (
                                             symbol
                                             and rank_value is not None
@@ -1686,6 +1698,8 @@ if page == "Index":
                                                 "symbol": symbol,
                                                 "rank": rank_value,
                                                 "price": current_price,
+                                                "high": current_high,
+                                                "low": current_low,
                                                 "confirmation_only": stock_position >= 3
                                             })
 
@@ -1730,10 +1744,35 @@ if page == "Index":
                                         if len(eligible_winners) == 1:
                                             winning_candidate = eligible_winners[0]
 
+                                # Price-location confirmation:
+                                # BUY only when current price is at least 0.20% below
+                                # today's High; SELL only when current price is at
+                                # least 0.20% above today's Low.
+                                price_location_confirmed = False
+                                if winning_candidate is not None:
+                                    signal_price = winning_candidate.get("price")
+                                    signal_high = winning_candidate.get("high")
+                                    signal_low = winning_candidate.get("low")
+                                    if signal_side == "H2L":
+                                        price_location_confirmed = (
+                                            signal_price is not None
+                                            and signal_high is not None
+                                            and signal_high > 0
+                                            and ((signal_high - signal_price) / signal_high) >= 0.002
+                                        )
+                                    else:
+                                        price_location_confirmed = (
+                                            signal_price is not None
+                                            and signal_low is not None
+                                            and signal_low > 0
+                                            and ((signal_price - signal_low) / signal_low) >= 0.002
+                                        )
+
                                 if (
                                     winning_candidate is not None
                                     and winning_candidate["side"] == signal_side
                                     and dominant_market_side == signal_side
+                                    and price_location_confirmed
                                 ):
                                     signal_symbol = winning_candidate["symbol"]
                                     entry_price = winning_candidate["price"]
