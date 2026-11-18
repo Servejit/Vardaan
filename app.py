@@ -185,9 +185,10 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
             if symbol:
                 master_rows[symbol] = row
 
-        # Rank every stock using the requested source column:
-        # H2L uses Sum O2L.10; L2H uses Sum O2H.10.
-        # Higher numeric values receive rank 1; ties share the same rank.
+        # Rank every stock using the requested panel-specific direction:
+        # H2L uses Sum O2L.10 with the LOWEST value ranked 1.
+        # L2H uses Sum O2H.10 with the HIGHEST value ranked 1.
+        # Ties share the same competition rank.
         rank_source_index = header_columns[rank_source_column] - 1
 
         def numeric_value(value):
@@ -209,7 +210,10 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
             if numeric_rank_value is not None:
                 ranked_values.append((numeric_rank_value, master_symbol))
 
-        ranked_values.sort(key=lambda item: item[0], reverse=True)
+        ranked_values.sort(
+            key=lambda item: item[0],
+            reverse=(rank_source_column != "Sum O2L.10")
+        )
         master_ranks = {}
         previous_value = None
         current_rank = 0
