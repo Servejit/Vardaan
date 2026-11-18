@@ -79,7 +79,7 @@ def get_profile(uid):
 CONSTITUENT_MANIFEST_PATH = "index-constituents/manifest.json"
 CONSTITUENT_ARCHIVE_PATH = "index-constituents/constituents.json"
 
-@st.cache_data(ttl=900, max_entries=4, show_spinner=False)
+@st.cache_data(ttl=86400, max_entries=4, show_spinner=False)
 def load_constituent_archive():
     """Cache the shared constituent archive to avoid repeated Supabase reads."""
     try:
@@ -100,7 +100,7 @@ def save_constituent_archive(archive):
     )
     load_constituent_archive.clear()
 
-@st.cache_data(ttl=900, max_entries=4, show_spinner=False)
+@st.cache_data(ttl=86400, max_entries=4, show_spinner=False)
 def load_constituent_manifest():
     """Cache the eligible-index manifest instead of downloading it on every rerun."""
     try:
@@ -1236,7 +1236,10 @@ if page == "Index":
                         from datetime import datetime
                         from zoneinfo import ZoneInfo
         
-                        @st.cache_data(ttl=3600, show_spinner=False)
+                        # Index membership changes infrequently. Keep each resolved
+                        # constituent list cached for 30 days to avoid repeated
+                        # external-provider calls and Supabase reads.
+                        @st.cache_data(ttl=2592000, max_entries=256, show_spinner=False)
                         def get_index_constituents(index_name):
                             """
                             Load current constituents for an index using a layered
@@ -1295,14 +1298,31 @@ if page == "Index":
                             wanted_name = clean_name(index_name)
                             errors = []
     
-                            # Reuse the durable Supabase archive before requesting external sources.
+                            # Reuse recently verified membership from the durable archive.
+                            # Revalidate at most every 30 days; if all providers fail,
+                            # the last known membership remains available as a fallback.
+                            saved_record = None
                             try:
                                 saved_archive = load_constituent_archive()
                                 saved_record = saved_archive.get("indices", {}).get(wanted_name)
                                 if saved_record and saved_record.get("members"):
-                                    return saved_record["members"]
+                                    verified_text = saved_record.get("last_verified_at")
+                                    verified_at = (
+                                        datetime.fromisoformat(
+                                            verified_text.replace("Z", "+00:00")
+                                        )
+                                        if verified_text else None
+                                    )
+                                    if verified_at is not None:
+                                        if verified_at.tzinfo is None:
+                                            verified_at = verified_at.replace(tzinfo=timezone.utc)
+                                        age_seconds = (
+                                            datetime.now(timezone.utc) - verified_at
+                                        ).total_seconds()
+                                        if age_seconds < 30 * 24 * 60 * 60:
+                                            return saved_record["members"]
                             except Exception:
-                                pass
+                                saved_record = None
     
                             def persist_members(members, source_name):
                                 return save_index_constituents(index_name, members, source_name)
@@ -1600,6 +1620,11 @@ if page == "Index":
                                             f"{filename} from {host}: {csv_error}"
                                         )
     
+                            # Do not make the dashboard unavailable merely because
+                            # a provider is temporarily down. Retain last known membership.
+                            if saved_record and saved_record.get("members"):
+                                return saved_record["members"]
+
                             raise ValueError(
                                 f"Could not load constituents for {index_name} from "
                                 "the available India API, NSE API, or official NSE Indices "
@@ -2943,7 +2968,10 @@ elif page == "Index 2":
                         from datetime import datetime
                         from zoneinfo import ZoneInfo
         
-                        @st.cache_data(ttl=3600, show_spinner=False)
+                        # Index membership changes infrequently. Keep each resolved
+                        # constituent list cached for 30 days to avoid repeated
+                        # external-provider calls and Supabase reads.
+                        @st.cache_data(ttl=2592000, max_entries=256, show_spinner=False)
                         def get_index_constituents(index_name):
                             """
                             Load current constituents for an index using a layered
@@ -3002,14 +3030,31 @@ elif page == "Index 2":
                             wanted_name = clean_name(index_name)
                             errors = []
     
-                            # Reuse the durable Supabase archive before requesting external sources.
+                            # Reuse recently verified membership from the durable archive.
+                            # Revalidate at most every 30 days; if all providers fail,
+                            # the last known membership remains available as a fallback.
+                            saved_record = None
                             try:
                                 saved_archive = load_constituent_archive()
                                 saved_record = saved_archive.get("indices", {}).get(wanted_name)
                                 if saved_record and saved_record.get("members"):
-                                    return saved_record["members"]
+                                    verified_text = saved_record.get("last_verified_at")
+                                    verified_at = (
+                                        datetime.fromisoformat(
+                                            verified_text.replace("Z", "+00:00")
+                                        )
+                                        if verified_text else None
+                                    )
+                                    if verified_at is not None:
+                                        if verified_at.tzinfo is None:
+                                            verified_at = verified_at.replace(tzinfo=timezone.utc)
+                                        age_seconds = (
+                                            datetime.now(timezone.utc) - verified_at
+                                        ).total_seconds()
+                                        if age_seconds < 30 * 24 * 60 * 60:
+                                            return saved_record["members"]
                             except Exception:
-                                pass
+                                saved_record = None
     
                             def persist_members(members, source_name):
                                 return save_index_constituents(index_name, members, source_name)
@@ -3307,6 +3352,11 @@ elif page == "Index 2":
                                             f"{filename} from {host}: {csv_error}"
                                         )
     
+                            # Do not make the dashboard unavailable merely because
+                            # a provider is temporarily down. Retain last known membership.
+                            if saved_record and saved_record.get("members"):
+                                return saved_record["members"]
+
                             raise ValueError(
                                 f"Could not load constituents for {index_name} from "
                                 "the available India API, NSE API, or official NSE Indices "
