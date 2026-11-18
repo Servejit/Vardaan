@@ -1,6 +1,7 @@
 import io
 import re
 import json
+import time
 from datetime import datetime, timezone
 import streamlit as st
 from openpyxl import load_workbook
@@ -48,6 +49,9 @@ if "is_admin" not in st.session_state:
 
 if "recovery" not in st.session_state:
     st.session_state.recovery = False
+
+if "session_login_started_at" not in st.session_state:
+    st.session_state.session_login_started_at = None
 
 
 # ============================================================
@@ -392,7 +396,25 @@ def logout():
     st.session_state.profile = None
     st.session_state.is_admin = False
     st.session_state.recovery = False
+    st.session_state.session_login_started_at = None
+    st.session_state.pop("session_expired_notice", None)
     st.rerun()
+
+
+def expire_login_session():
+    """Sign out the current user after the one-hour login limit."""
+    try:
+        sb.auth.sign_out()
+    except Exception:
+        pass
+
+    clear_index_session_data()
+    st.session_state.user = None
+    st.session_state.profile = None
+    st.session_state.is_admin = False
+    st.session_state.recovery = False
+    st.session_state.session_login_started_at = None
+    st.session_state.session_expired_notice = True
 
 
 # ============================================================
@@ -474,6 +496,15 @@ if st.session_state.recovery:
 # LOGIN
 # ============================================================
 
+# Enforce an absolute one-hour login period for every account, including admins.
+login_started_at = st.session_state.get("session_login_started_at")
+if (
+    st.session_state.user is not None
+    and login_started_at is not None
+    and time.time() - login_started_at >= 60 * 60
+):
+    expire_login_session()
+
 if st.session_state.user is None:
 
     st.title(
@@ -481,6 +512,9 @@ if st.session_state.user is None:
     )
 
     st.subheader("Login")
+
+    if st.session_state.pop("session_expired_notice", False):
+        st.info("Your 1-hour login session has expired. Please log in again.")
 
     with st.form("login_form"):
 
@@ -529,6 +563,8 @@ if st.session_state.user is None:
                 st.session_state.is_admin = (
                     prof["role"] == "admin"
                 )
+                st.session_state.session_login_started_at = time.time()
+                st.session_state.pop("session_expired_notice", None)
 
                 st.rerun()
 
@@ -592,6 +628,21 @@ if st.session_state.user is None:
 user = st.session_state.user
 profile = st.session_state.profile
 is_admin = st.session_state.is_admin
+
+# Check the one-hour limit automatically every 30 seconds while the app is open.
+@st.fragment(run_every="30s")
+def session_timeout_monitor():
+    started_at = st.session_state.get("session_login_started_at")
+    if (
+        st.session_state.get("user") is not None
+        and started_at is not None
+        and time.time() - started_at >= 60 * 60
+    ):
+        expire_login_session()
+        st.rerun()
+
+
+session_timeout_monitor()
 
 # ============================================================
 # BLUE & SILVER DASHBOARD THEME
@@ -696,8 +747,10 @@ with st.sidebar:
     )
 
     if st.button(
-        "Logout",
-        use_container_width=True
+        "Log out",
+        use_container_width=True,
+        type="primary",
+        key="sidebar_logout_button"
     ):
         logout()
 
