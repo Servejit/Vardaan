@@ -2593,10 +2593,15 @@ elif page == "Index 2":
         key=f"index_excel_upload_{session_user_id}"
     )
 
-    # Separate signal areas keep BUY and SELL visible together at the top.
+    # Independent signals remain first; dependent metallic signals appear beneath them.
     signal_columns = st.columns(2)
     buy_signal_placeholder = signal_columns[0].empty()
     sell_signal_placeholder = signal_columns[1].empty()
+
+    st.markdown("##### ✨ Dependent Signals · Average + Cross-Side Lowest Rank")
+    dependent_signal_columns = st.columns(2)
+    dependent_buy_signal_placeholder = dependent_signal_columns[0].empty()
+    dependent_sell_signal_placeholder = dependent_signal_columns[1].empty()
 
     with st.expander("More dashboard details", expanded=False, key="index2_more_details"):
         try:
