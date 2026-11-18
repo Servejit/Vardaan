@@ -3738,8 +3738,14 @@ elif page == "Index 2":
                                                 0%, 100% {{ transform: scale(1); filter: brightness(1); }}
                                                 50% {{ transform: scale(1.008); filter: brightness(1.12); }}
                                             }}
+                                            @keyframes prioritySignalShimmer {{
+                                                0% {{ background-position: 0% 50%; }}
+                                                50% {{ background-position: 100% 50%; }}
+                                                100% {{ background-position: 0% 50%; }}
+                                            }}
                                             .priority-trade-signal {{
-                                                animation: prioritySignalPulse 1.3s ease-in-out infinite;
+                                                background-size: 200% 200%;
+                                                animation: prioritySignalPulse 1.3s ease-in-out infinite, prioritySignalShimmer 6s ease-in-out infinite;
                                                 border-radius: 14px;
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
@@ -3919,9 +3925,22 @@ elif page == "Index 2":
                                                 emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
+                                                <style>
+                                                @keyframes dependentSignalShimmer {{
+                                                    0% {{ background-position: 0% 50%; filter:brightness(1); }}
+                                                    50% {{ background-position: 100% 50%; filter:brightness(1.12); }}
+                                                    100% {{ background-position: 0% 50%; filter:brightness(1); }}
+                                                }}
+                                                @keyframes dependentSignalFloat {{
+                                                    0%,100% {{ transform:translateY(0); }}
+                                                    50% {{ transform:translateY(-2px); }}
+                                                }}
+                                                </style>
                                                 <div style="
                                                     position:relative; overflow:hidden;
                                                     background:{background};
+                                                    background-size:200% 200%;
+                                                    animation:dependentSignalShimmer 6s ease-in-out infinite, dependentSignalFloat 2.8s ease-in-out infinite;
                                                     border:1.5px solid {border};
                                                     border-radius:20px;
                                                     padding:16px 18px 15px;
