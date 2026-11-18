@@ -1,3 +1,5 @@
 streamlit
 openpyxl
 supabase
+yfinance
+pandas
