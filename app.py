@@ -2152,13 +2152,13 @@ if page == "Index":
                                                 border = "#E6C76A"
                                                 glow = "rgba(31,220,132,.38)"
                                                 accent = "#CFFFE4"
-                                                emblem = "♛  ✦  METALLIC BUY"
+                                                emblem = "♛  ✦  BUY SIGNAL"
                                             else:
                                                 background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
                                                 border = "#F2C16B"
                                                 glow = "rgba(255,139,55,.38)"
                                                 accent = "#FFE0B8"
-                                                emblem = "♛  ✦  METALLIC SELL"
+                                                emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
                                                 <div style="
@@ -3810,13 +3810,13 @@ elif page == "Index 2":
                                                 border = "#E6C76A"
                                                 glow = "rgba(31,220,132,.38)"
                                                 accent = "#CFFFE4"
-                                                emblem = "♛  ✦  METALLIC BUY"
+                                                emblem = "♛  ✦  BUY SIGNAL"
                                             else:
                                                 background = "linear-gradient(125deg,#3a1709 0%,#9b4518 48%,#4b210d 100%)"
                                                 border = "#F2C16B"
                                                 glow = "rgba(255,139,55,.38)"
                                                 accent = "#FFE0B8"
-                                                emblem = "♛  ✦  METALLIC SELL"
+                                                emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
                                                 <div style="
