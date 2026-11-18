@@ -2251,32 +2251,54 @@ if page == "Index":
                                                 """
                                                 <style>
                                                 @keyframes dependentNoSignalGlow {
-                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
-                                                    50% { box-shadow:0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
+                                                    0%,100% { box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 25px rgba(255,255,255,.12),0 0 22px rgba(220,235,255,.10); }
+                                                    50% { box-shadow:0 0 0 1px rgba(255,255,255,.20) inset,0 8px 30px rgba(255,255,255,.24),0 0 28px rgba(220,235,255,.20); }
                                                 }
-                                                @keyframes dependentNoSignalShimmer {
+                                                @keyframes dependentSignalShimmer {
                                                     0% { background-position:0% 50%; filter:brightness(1); }
-                                                    50% { background-position:100% 50%; filter:brightness(1.18); }
+                                                    50% { background-position:100% 50%; filter:brightness(1.12); }
                                                     100% { background-position:0% 50%; filter:brightness(1); }
                                                 }
-                                                @keyframes dependentNoSignalFloat {
+                                                @keyframes dependentSignalFloat {
                                                     0%,100% { transform:translateY(0); }
                                                     50% { transform:translateY(-2px); }
                                                 }
                                                 </style>
                                                 <div style="
-                                                    min-height:145px;display:flex;align-items:center;justify-content:center;
-                                                    text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#ffffff;background:linear-gradient(115deg,#090909 0%,#242424 28%,#111111 52%,#303030 70%,#090909 100%);
-                                                    background-size:220% 220%;
-                                                    border:1px solid #f5f5f5;
-                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 24px rgba(0,0,0,.48);
-                                                    animation:dependentNoSignalGlow 3s ease-in-out infinite,dependentNoSignalShimmer 6s ease-in-out infinite,dependentNoSignalFloat 2.8s ease-in-out infinite;
-                                                    font-weight:750;">
-                                                    <div>✦ &nbsp; WAIT · NO SIGNAL<br>
-                                                    <span style="font-size:.76rem;font-weight:500;color:#d4d4d4;">
-                                                    No qualifying dependent signal found<br>Awaiting next opportunity
-                                                    </span></div>
+                                                    position:relative;overflow:hidden;
+                                                    background:linear-gradient(125deg,#050505 0%,#202020 32%,#101010 58%,#292929 78%,#050505 100%);
+                                                    background-size:200% 200%;
+                                                    animation:dependentSignalShimmer 6s ease-in-out infinite,dependentSignalFloat 2.8s ease-in-out infinite,dependentNoSignalGlow 3s ease-in-out infinite;
+                                                    border:1.5px solid #F2F2F2;
+                                                    border-radius:20px;
+                                                    padding:16px 18px 15px;
+                                                    margin:5px 0 14px;
+                                                    color:#fff;
+                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 25px rgba(255,255,255,.12),0 0 22px rgba(220,235,255,.10);
+                                                ">
+                                                  <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:#F2F2F2;">
+                                                    ♛  ✦  WAIT · NO SIGNAL
+                                                  </div>
+                                                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
+                                                    <div>
+                                                      <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">WAIT</div>
+                                                      <div style="font-size:1.16rem;font-weight:850;color:#E8E8E8;">NO SIGNAL</div>
+                                                      <div style="font-size:.72rem;opacity:.82;margin-top:4px;">DEPENDENT · MARKET BIAS NOT CONFIRMED</div>
+                                                    </div>
+                                                    <div style="text-align:right;">
+                                                      <div style="font-size:.68rem;opacity:.8;">CURRENT STATUS</div>
+                                                      <div style="font-size:1.25rem;font-weight:900;color:#F2F2F2;">AWAITING</div>
+                                                    </div>
+                                                  </div>
+                                                  <div style="height:1px;background:linear-gradient(90deg,transparent,#F2F2F2,transparent);margin:12px 0;"></div>
+                                                  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                                                    <div><div style="font-size:.67rem;opacity:.8;">SIGNAL TYPE</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;color:#F2F2F2;">DEPENDENT</div></div>
+                                                    <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">NEXT ACTION</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;">WAIT FOR SETUP</div></div>
+                                                  </div>
+                                                  <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
+                                                              background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
                                                 </div>
                                                 """,
                                                 unsafe_allow_html=True
@@ -3936,32 +3958,54 @@ elif page == "Index 2":
                                                 """
                                                 <style>
                                                 @keyframes dependentNoSignalGlow {
-                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
-                                                    50% { box-shadow:0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
+                                                    0%,100% { box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 25px rgba(255,255,255,.12),0 0 22px rgba(220,235,255,.10); }
+                                                    50% { box-shadow:0 0 0 1px rgba(255,255,255,.20) inset,0 8px 30px rgba(255,255,255,.24),0 0 28px rgba(220,235,255,.20); }
                                                 }
-                                                @keyframes dependentNoSignalShimmer {
+                                                @keyframes dependentSignalShimmer {
                                                     0% { background-position:0% 50%; filter:brightness(1); }
-                                                    50% { background-position:100% 50%; filter:brightness(1.18); }
+                                                    50% { background-position:100% 50%; filter:brightness(1.12); }
                                                     100% { background-position:0% 50%; filter:brightness(1); }
                                                 }
-                                                @keyframes dependentNoSignalFloat {
+                                                @keyframes dependentSignalFloat {
                                                     0%,100% { transform:translateY(0); }
                                                     50% { transform:translateY(-2px); }
                                                 }
                                                 </style>
                                                 <div style="
-                                                    min-height:145px;display:flex;align-items:center;justify-content:center;
-                                                    text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#ffffff;background:linear-gradient(115deg,#090909 0%,#242424 28%,#111111 52%,#303030 70%,#090909 100%);
-                                                    background-size:220% 220%;
-                                                    border:1px solid #f5f5f5;
-                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 24px rgba(0,0,0,.48);
-                                                    animation:dependentNoSignalGlow 3s ease-in-out infinite,dependentNoSignalShimmer 6s ease-in-out infinite,dependentNoSignalFloat 2.8s ease-in-out infinite;
-                                                    font-weight:750;">
-                                                    <div>✦ &nbsp; WAIT · NO SIGNAL<br>
-                                                    <span style="font-size:.76rem;font-weight:500;color:#d4d4d4;">
-                                                    No qualifying dependent signal found<br>Awaiting next opportunity
-                                                    </span></div>
+                                                    position:relative;overflow:hidden;
+                                                    background:linear-gradient(125deg,#050505 0%,#202020 32%,#101010 58%,#292929 78%,#050505 100%);
+                                                    background-size:200% 200%;
+                                                    animation:dependentSignalShimmer 6s ease-in-out infinite,dependentSignalFloat 2.8s ease-in-out infinite,dependentNoSignalGlow 3s ease-in-out infinite;
+                                                    border:1.5px solid #F2F2F2;
+                                                    border-radius:20px;
+                                                    padding:16px 18px 15px;
+                                                    margin:5px 0 14px;
+                                                    color:#fff;
+                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 25px rgba(255,255,255,.12),0 0 22px rgba(220,235,255,.10);
+                                                ">
+                                                  <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:#F2F2F2;">
+                                                    ♛  ✦  WAIT · NO SIGNAL
+                                                  </div>
+                                                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
+                                                    <div>
+                                                      <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">WAIT</div>
+                                                      <div style="font-size:1.16rem;font-weight:850;color:#E8E8E8;">NO SIGNAL</div>
+                                                      <div style="font-size:.72rem;opacity:.82;margin-top:4px;">DEPENDENT · MARKET BIAS NOT CONFIRMED</div>
+                                                    </div>
+                                                    <div style="text-align:right;">
+                                                      <div style="font-size:.68rem;opacity:.8;">CURRENT STATUS</div>
+                                                      <div style="font-size:1.25rem;font-weight:900;color:#F2F2F2;">AWAITING</div>
+                                                    </div>
+                                                  </div>
+                                                  <div style="height:1px;background:linear-gradient(90deg,transparent,#F2F2F2,transparent);margin:12px 0;"></div>
+                                                  <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                                                    <div><div style="font-size:.67rem;opacity:.8;">SIGNAL TYPE</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;color:#F2F2F2;">DEPENDENT</div></div>
+                                                    <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">NEXT ACTION</div>
+                                                      <div style="font-size:1.12rem;font-weight:900;">WAIT FOR SETUP</div></div>
+                                                  </div>
+                                                  <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
+                                                              background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
                                                 </div>
                                                 """,
                                                 unsafe_allow_html=True
