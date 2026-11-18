@@ -105,10 +105,10 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
     Stock symbols are matched against column A.
     """
     output_columns = [
-        "Sum O2L.10",
         "Sum O2H.10",
-        "16< D-B / Avg.4",
+        "Sum O2L.10",
         "16> C-B / Avg.4",
+        "16< D-B / Avg.4",
     ]
     if not master_bytes:
         return [], "Master Excel is not available in Supabase."
@@ -174,9 +174,9 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
             if symbol:
                 master_rows[symbol] = row
 
-        # Rank every stock in the Master sheet by numeric Sum O2L.10,
-        # ascending (smallest value = rank 1). Ties share the same rank.
-        sum_o2l_column = header_columns["Sum O2L.10"] - 1
+        # Rank every stock in the Master sheet by numeric Sum O2H.10,
+        # descending (highest value = rank 1). Ties share the same rank.
+        sum_o2h_column = header_columns["Sum O2H.10"] - 1
 
         def numeric_value(value):
             if value is None:
@@ -190,14 +190,14 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
         ranked_values = []
         for master_symbol, master_row in master_rows.items():
             raw_rank_value = (
-                master_row[sum_o2l_column]
-                if sum_o2l_column < len(master_row) else None
+                master_row[sum_o2h_column]
+                if sum_o2h_column < len(master_row) else None
             )
             numeric_rank_value = numeric_value(raw_rank_value)
             if numeric_rank_value is not None:
                 ranked_values.append((numeric_rank_value, master_symbol))
 
-        ranked_values.sort(key=lambda item: item[0])
+        ranked_values.sort(key=lambda item: item[0], reverse=True)
         master_ranks = {}
         previous_value = None
         current_rank = 0
@@ -240,9 +240,9 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
                     except (TypeError, ValueError):
                         result[column_name] = raw_value
 
-                # Rank this stock by its Sum O2L.10 value across all matched
-                # Master rows: lowest numeric value receives rank 1.
-                result["Sum O2L.10 Rank"] = master_ranks.get(symbol, "")
+                # Rank this stock by its Sum O2H.10 value across all Master rows:
+                # highest numeric value receives rank 1.
+                result["Sum O2H.10 Rank"] = master_ranks.get(symbol, "")
 
                 # Show only text/numbers enclosed in parentheses in the last two columns.
                 for column_name in output_columns[2:]:
@@ -1219,8 +1219,8 @@ if page == "Index":
                                     hide_index=True,
                                     column_config={
                                         "NSE Symbol": st.column_config.TextColumn(width="small"),
-                                        "Sum O2L.10 Rank": st.column_config.NumberColumn(
-                                            "Sum O2L.10 Rank",
+                                        "Sum O2H.10 Rank": st.column_config.NumberColumn(
+                                            "Sum O2H.10 Rank",
                                             format="%d",
                                             width="small"
                                         ),
