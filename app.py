@@ -788,17 +788,22 @@ if page == "Index":
             # Automatically identify the index with the lowest H2L%
             # among indices whose CURRENT value is above 10,000.
             eligible_indices = []
+            highest_l2h_indices = []
             for record in display_records:
                 current_value = to_number(record.get("CURRENT"))
                 h2l_value = to_number(record.get("H2L%"))
+                l2h_value = to_number(record.get("L2H%"))
                 if (
                     current_value is not None
                     and current_value > 10000
                     and h2l_value is not None
                 ):
                     eligible_indices.append((h2l_value, record))
+                if l2h_value is not None:
+                    highest_l2h_indices.append((l2h_value, record))
 
             eligible_indices.sort(key=lambda item: item[0])
+            highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
 
             st.divider()
             st.subheader("Index Selection & Constituents")
@@ -952,13 +957,13 @@ if page == "Index":
                         "the dashboard is open. Use the button for an immediate refresh."
                     )
 
-                    def render_today_quotes():
+                    def render_today_quotes(constituents, index_name, refresh_key, selection_mode):
                         quote_symbols = [
-                            item["NSE Symbol"] for item in selected_constituents
+                            item["NSE Symbol"] for item in constituents
                         ]
                         refresh_quotes = st.button(
                             "Refresh Today's Stock Details",
-                            key="refresh_dynamic_index_quotes"
+                            key=refresh_key
                         )
 
                         @st.cache_data(ttl=60, show_spinner=False)
@@ -1107,7 +1112,7 @@ if page == "Index":
                             get_dynamic_index_quotes.clear()
 
                         with st.spinner(
-                            f"Loading today's {selected_name} stock quotes..."
+                            f"Loading today's {index_name} stock quotes..."
                         ):
                             quote_rows, quote_timestamp = get_dynamic_index_quotes(
                                 tuple(quote_symbols),
@@ -1175,23 +1180,33 @@ if page == "Index":
                             f"of {len(quote_df)} constituent stocks."
                         )
 
-                        # Select the four highest positive/available % Chg values.
-                        top_four = (
+                        # Select the top or bottom four stocks by today's % Chg.
+                        selected_four = (
                             quote_df.dropna(subset=["% Chg"])
-                            .sort_values("% Chg", ascending=False)
+                            .sort_values(
+                                "% Chg",
+                                ascending=(selection_mode == "bottom")
+                            )
                             .head(4)
                             .copy()
                         )
 
-                        st.subheader("Top 4 Stocks by % Chg — Master Excel Details")
-                        if top_four.empty:
+                        selection_title = (
+                            "Bottom 4 Stocks by % Chg"
+                            if selection_mode == "bottom"
+                            else "Top 4 Stocks by % Chg"
+                        )
+                        st.subheader(
+                            f"{index_name} — {selection_title} — Master Excel Details"
+                        )
+                        if selected_four.empty:
                             st.info("No stocks have a valid % Chg value yet.")
                         else:
-                            with st.spinner("Matching top stocks with Supabase Master Excel..."):
-                                master_bytes_for_top = get_master()
+                            with st.spinner("Matching selected stocks with Supabase Master Excel..."):
+                                master_bytes_for_selection = get_master()
                                 master_values, master_error = get_top_stocks_master_values(
-                                    top_four,
-                                    master_bytes_for_top
+                                    selected_four,
+                                    master_bytes_for_selection
                                 )
 
                             if master_error:
@@ -1217,9 +1232,84 @@ if page == "Index":
                                 )
 
                     if hasattr(st, "fragment"):
-                        st.fragment(run_every="60s")(render_today_quotes)()
+                        st.fragment(run_every="60s")(
+                            render_today_quotes
+                        )(
+                            selected_constituents,
+                            selected_name,
+                            "refresh_dynamic_index_quotes",
+                            "top"
+                        )
                     else:
-                        render_today_quotes()
+                        render_today_quotes(
+                            selected_constituents,
+                            selected_name,
+                            "refresh_dynamic_index_quotes",
+                            "top"
+                        )
+
+                # Second independent selection: highest L2H% index.
+                if highest_l2h_indices:
+                    selected_l2h, highest_l2h_index = highest_l2h_indices[0]
+                    highest_l2h_name = str(
+                        highest_l2h_index.get("INDEX", "")
+                    ).strip().upper()
+
+                    st.divider()
+                    st.subheader("Highest L2H% Index & Bottom 4 Stocks")
+                    l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
+                    l2h_col1.metric("Selected INDEX", highest_l2h_name)
+                    l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
+                    l2h_current = to_number(highest_l2h_index.get("CURRENT"))
+                    l2h_col3.metric(
+                        "CURRENT",
+                        f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
+                    )
+
+                    st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                    try:
+                        with st.spinner(
+                            f"Loading NSE constituents for {highest_l2h_name}..."
+                        ):
+                            highest_l2h_constituents = get_index_constituents(
+                                highest_l2h_name
+                            )
+
+                        st.dataframe(
+                            highest_l2h_constituents,
+                            use_container_width=True,
+                            hide_index=True
+                        )
+                        st.caption(
+                            "Constituent list sourced from NSE Indices published data "
+                            "through the India API index archive."
+                        )
+                        st.markdown(
+                            f"**{highest_l2h_name} — Today's Stock Details**"
+                        )
+                        if hasattr(st, "fragment"):
+                            st.fragment(run_every="60s")(
+                                render_today_quotes
+                            )(
+                                highest_l2h_constituents,
+                                highest_l2h_name,
+                                "refresh_highest_l2h_quotes",
+                                "bottom"
+                            )
+                        else:
+                            render_today_quotes(
+                                highest_l2h_constituents,
+                                highest_l2h_name,
+                                "refresh_highest_l2h_quotes",
+                                "bottom"
+                            )
+                    except Exception as highest_l2h_error:
+                        st.error(
+                            f"Could not load constituents or stock details for "
+                            f"{highest_l2h_name}: {highest_l2h_error}"
+                        )
+                else:
+                    st.info("No index has a valid L2H% value.")
 
                 except Exception as constituent_error:
                     st.error(
