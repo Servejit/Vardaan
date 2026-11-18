@@ -833,520 +833,528 @@ if page == "Index":
                 "Automatically selects the lowest H2L% index where CURRENT is above 10,000."
             )
 
-            if eligible_indices:
-                selected_h2l, selected_index = eligible_indices[0]
-                selected_name = str(selected_index.get("INDEX", "")).strip().upper()
-                selected_current = to_number(selected_index.get("CURRENT"))
-                selected_high = to_number(selected_index.get("HIGH"))
-                selected_low = to_number(selected_index.get("LOW"))
-
-                select_col1, select_col2, select_col3, select_col4 = st.columns(4)
-                select_col1.metric("Selected INDEX", selected_name)
-                select_col2.metric(
-                    "CURRENT",
-                    f"{selected_current:,.2f}" if selected_current is not None else "N/A"
-                )
-                select_col3.metric(
-                    "H2L%",
-                    f"{selected_h2l:+.2f}%"
-                )
-                select_col4.metric(
-                    "HIGH",
-                    f"{selected_high:,.2f}" if selected_high is not None else "N/A"
-                )
-
-                # Fetch constituents for whichever index the uploaded file selects.
-                st.markdown(f"**{selected_name} — Constituent Stocks**")
-                import requests
-                import pandas as pd
-                import yfinance as yf
-                from datetime import datetime
-                from zoneinfo import ZoneInfo
-
-                @st.cache_data(ttl=3600, show_spinner=False)
-                def get_index_constituents(index_name):
-                    api_headers = {"User-Agent": "Mozilla/5.0"}
-                    base_url = "https://api.dharun.dev/v1/indices"
-                    response = requests.get(
-                        base_url,
-                        headers=api_headers,
-                        timeout=20
-                    )
-                    response.raise_for_status()
-                    index_items = response.json().get("data", [])
-
-                    def clean_name(value):
-                        return " ".join(
-                            str(value).upper().replace("-", " ").split()
-                        )
-
-                    wanted_name = clean_name(index_name)
-                    matched = next(
-                        (
-                            item for item in index_items
-                            if clean_name(item.get("name", "")) == wanted_name
-                        ),
-                        None
-                    )
-
-                    if matched is None:
-                        # Handle common NIFTY label variations.
-                        aliases = {
-                            "NIFTY IT": "Nifty IT",
-                            "NIFTY 50": "Nifty 50",
-                            "NIFTY BANK": "Nifty Bank",
-                            "NIFTY NEXT 50": "Nifty Next 50",
-                            "NIFTY 100": "Nifty 100",
-                            "NIFTY 200": "Nifty 200",
-                            "NIFTY 500": "Nifty 500",
-                            "NIFTY MIDCAP 50": "Nifty Midcap 50",
-                            "NIFTY MIDCAP 100": "Nifty Midcap 100",
-                            "NIFTY MIDCAP 150": "Nifty Midcap 150",
-                            "NIFTY SMALLCAP 50": "Nifty Smallcap 50",
-                            "NIFTY SMALLCAP 100": "Nifty Smallcap 100",
-                            "NIFTY SMALLCAP 250": "Nifty Smallcap 250"
-                        }
-                        alias_name = aliases.get(wanted_name)
-                        if alias_name:
-                            matched = next(
-                                (
-                                    item for item in index_items
-                                    if clean_name(item.get("name", "")) ==
-                                    clean_name(alias_name)
-                                ),
-                                None
-                            )
-
-                    if matched is None:
-                        raise ValueError(
-                            f"No constituent archive match was found for {index_name}."
-                        )
-
-                    detail_response = requests.get(
-                        f"{base_url}/{matched['id']}",
-                        headers=api_headers,
-                        timeout=20
-                    )
-                    detail_response.raise_for_status()
-                    payload = detail_response.json().get("data", {})
-                    members = payload.get("members", [])
-
-                    if not members:
-                        raise ValueError(
-                            f"The constituent list for {index_name} is empty."
-                        )
-
-                    return [
-                        {
-                            "No.": number,
-                            "NSE Symbol": member.get("symbol"),
-                            "Company": member.get("company"),
-                            "Industry": member.get("industry", "")
-                        }
-                        for number, member in enumerate(members, start=1)
-                        if member.get("symbol")
-                    ]
-
-                try:
-                    with st.spinner(
-                        f"Loading NSE constituents for {selected_name}..."
-                    ):
-                        selected_constituents = get_index_constituents(
-                            selected_name
-                        )
-
-                    st.dataframe(
-                        selected_constituents,
-                        use_container_width=True,
-                        hide_index=True
-                    )
-                    st.caption(
-                        "Constituent list sourced from NSE Indices published data "
-                        "through the India API index archive. Membership lists may "
-                        "update periodically."
-                    )
-
-                    st.markdown(f"**{selected_name} — Today's Stock Details**")
-                    market_timezone = ZoneInfo("Asia/Kolkata")
-                    market_date = datetime.now(market_timezone).date()
-                    st.caption(
-                        f"Market date: {market_date.strftime('%d %b %Y')} (India). "
-                        "Quotes from Yahoo Finance may be delayed."
-                    )
-
-                    st.caption(
-                        "Stock details refresh automatically every 60 seconds while "
-                        "the dashboard is open. Use the button for an immediate refresh."
-                    )
-
-                    def render_today_quotes(constituents, index_name, refresh_key, selection_mode):
-                        quote_symbols = [
-                            item["NSE Symbol"] for item in constituents
-                        ]
-                        refresh_quotes = st.button(
-                            "Refresh Today's Stock Details",
-                            key=refresh_key
-                        )
-
-                        @st.cache_data(ttl=60, show_spinner=False)
-                        def get_dynamic_index_quotes(symbols, requested_market_date):
-                            from concurrent.futures import ThreadPoolExecutor, as_completed
-
-                            # The caller passes an ISO date string; convert it to
-                            # a date object before comparing with pandas index dates.
-                            requested_date = datetime.fromisoformat(
-                                requested_market_date
-                            ).date()
-
-                            def get_one_symbol(symbol):
-                                ticker = f"{symbol}.NS"
-                                row = {
-                                    "NSE Symbol": symbol,
-                                    "Price": None,
-                                    "Open": None,
-                                    "High": None,
-                                    "Low": None,
-                                    "% Chg": None
-                                }
-
-                                try:
-                                    stock = yf.Ticker(ticker)
-                                    intraday = stock.history(
-                                        period="5d",
-                                        interval="5m",
-                                        auto_adjust=False,
-                                        actions=False,
-                                        prepost=False
-                                    )
-                                    daily = stock.history(
-                                        period="10d",
-                                        interval="1d",
-                                        auto_adjust=False,
-                                        actions=False
-                                    )
-
-                                    if intraday is None or intraday.empty:
-                                        return row, None
-
-                                    intraday = intraday.dropna(how="all").copy()
-                                    if intraday.index.tz is None:
-                                        intraday.index = intraday.index.tz_localize(
-                                            "Asia/Kolkata"
-                                        )
-                                    else:
-                                        intraday.index = intraday.index.tz_convert(
-                                            "Asia/Kolkata"
-                                        )
-
-                                    today = intraday[
-                                        intraday.index.date == requested_date
-                                    ].dropna(how="all")
-
-                                    if today.empty:
-                                        return row, None
-
-                                    opens = today["Open"].dropna()
-                                    highs = today["High"].dropna()
-                                    lows = today["Low"].dropna()
-                                    closes = today["Close"].dropna()
-
-                                    if (
-                                        opens.empty or highs.empty
-                                        or lows.empty or closes.empty
-                                    ):
-                                        return row, None
-
-                                    previous_close = None
-                                    if daily is not None and not daily.empty:
-                                        daily = daily.dropna(how="all").copy()
-                                        if daily.index.tz is None:
-                                            daily.index = daily.index.tz_localize(
-                                                "Asia/Kolkata"
-                                            )
-                                        else:
-                                            daily.index = daily.index.tz_convert(
-                                                "Asia/Kolkata"
-                                            )
-                                        previous = daily[
-                                            daily.index.date < requested_date
-                                        ]["Close"].dropna()
-                                        if not previous.empty:
-                                            previous_close = float(previous.iloc[-1])
-
-                                    price = float(closes.iloc[-1])
-                                    row.update({
-                                        "Price": price,
-                                        "Open": float(opens.iloc[0]),
-                                        "High": float(highs.max()),
-                                        "Low": float(lows.min()),
-                                        "% Chg": (
-                                            ((price - previous_close) / previous_close) * 100
-                                            if previous_close not in (None, 0) else None
-                                        )
-                                    })
-                                    return row, closes.index[-1]
-
-                                except Exception:
-                                    # Keep other constituents visible if one ticker
-                                    # is unavailable or Yahoo temporarily rate-limits it.
-                                    return row, None
-
-                            rows = []
-                            latest_quote_time = None
-                            max_workers = min(8, max(1, len(symbols)))
-
-                            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                                futures = {
-                                    executor.submit(get_one_symbol, symbol): symbol
-                                    for symbol in symbols
-                                }
-                                results = {}
-                                for future in as_completed(futures):
-                                    symbol = futures[future]
-                                    try:
-                                        results[symbol] = future.result()
-                                    except Exception:
-                                        results[symbol] = ({
-                                            "NSE Symbol": symbol,
-                                            "Price": None,
-                                            "Open": None,
-                                            "High": None,
-                                            "Low": None,
-                                            "% Chg": None
-                                        }, None)
-
-                            for symbol in symbols:
-                                row, quote_time = results[symbol]
-                                rows.append(row)
-                                if quote_time is not None and (
-                                    latest_quote_time is None
-                                    or quote_time > latest_quote_time
-                                ):
-                                    latest_quote_time = quote_time
-
-                            timestamp = (
-                                latest_quote_time.strftime("%d %b %Y, %I:%M %p IST")
-                                if latest_quote_time is not None else None
-                            )
-                            return rows, timestamp
-
-                        if refresh_quotes:
-                            get_dynamic_index_quotes.clear()
-
-                        with st.spinner(
-                            f"Loading today's {index_name} stock quotes..."
-                        ):
-                            quote_rows, quote_timestamp = get_dynamic_index_quotes(
-                                tuple(quote_symbols),
-                                market_date.isoformat()
-                            )
-
-                        if quote_timestamp:
-                            st.caption(f"Latest quote timestamp: {quote_timestamp}")
-                        else:
-                            st.warning(
-                                "Today's intraday quotes have not been returned by "
-                                "the market-data provider. The table will not substitute "
-                                "yesterday's prices."
-                            )
-
-                        quote_df = pd.DataFrame(quote_rows)
-                        for numeric_column in [
-                            "Price", "Open", "High", "Low", "% Chg"
-                        ]:
-                            quote_df[numeric_column] = quote_df[numeric_column].map(
-                                lambda value: round(value, 2)
-                                if pd.notna(value) else None
-                            )
-
-                        st.dataframe(
-                            quote_df,
-                            use_container_width=True,
-                            hide_index=True,
-                            column_config={
-                                "NSE Symbol": st.column_config.TextColumn(
-                                    "NSE Symbol",
-                                    width="small"
-                                ),
-                                "Price": st.column_config.NumberColumn(
-                                    "Price",
-                                    format="₹%.2f",
-                                    width="small"
-                                ),
-                                "Open": st.column_config.NumberColumn(
-                                    "Open",
-                                    format="₹%.2f",
-                                    width="small"
-                                ),
-                                "High": st.column_config.NumberColumn(
-                                    "High",
-                                    format="₹%.2f",
-                                    width="small"
-                                ),
-                                "Low": st.column_config.NumberColumn(
-                                    "Low",
-                                    format="₹%.2f",
-                                    width="small"
-                                ),
-                                "% Chg": st.column_config.NumberColumn(
-                                    "% Chg",
-                                    format="%.2f%%",
-                                    width="small"
-                                )
-                            }
-                        )
-
-                        available_count = int(quote_df["Price"].notna().sum())
-                        st.caption(
-                            f"Today's quotes available for {available_count} "
-                            f"of {len(quote_df)} constituent stocks."
-                        )
-
-                        # Select the top or bottom four stocks by today's % Chg.
-                        selected_four = (
-                            quote_df.dropna(subset=["% Chg"])
-                            .sort_values(
-                                "% Chg",
-                                ascending=(selection_mode == "bottom")
-                            )
-                            .head(4)
-                            .copy()
-                        )
-
-                        selection_title = (
-                            "Bottom 4 Stocks by % Chg"
-                            if selection_mode == "bottom"
-                            else "Top 4 Stocks by % Chg"
-                        )
-                        st.subheader(
-                            f"{index_name} — {selection_title} — Master Excel Details"
-                        )
-                        if selected_four.empty:
-                            st.info("No stocks have a valid % Chg value yet.")
-                        else:
-                            with st.spinner("Matching selected stocks with Supabase Master Excel..."):
-                                master_bytes_for_selection = get_master()
-                                rank_source_column = (
-                                    "Sum O2L.10"
-                                    if selection_mode == "top"
-                                    else "Sum O2H.10"
-                                )
-                                master_values, master_error = get_top_stocks_master_values(
-                                    selected_four,
-                                    master_bytes_for_selection,
-                                    rank_source_column
-                                )
-
-                            if master_error:
-                                st.warning(master_error)
-                            elif master_values:
-                                master_values_df = pd.DataFrame(master_values)
-                                st.dataframe(
-                                    master_values_df,
-                                    use_container_width=True,
-                                    hide_index=True,
-                                    column_config={
-                                        "NSE Symbol": st.column_config.TextColumn(width="small"),
-                                        f"{rank_source_column} Rank": st.column_config.NumberColumn(
-                                            f"{rank_source_column} Rank",
-                                            format="%d",
-                                            width="small"
-                                        ),
-                                        "Sum O2L.10": st.column_config.TextColumn(width="small"),
-                                        "Sum O2H.10": st.column_config.TextColumn(width="small"),
-                                        "16< D-B / Avg.4": st.column_config.TextColumn(width="small"),
-                                        "16> C-B / Avg.4": st.column_config.TextColumn(width="small"),
-                                    }
-                                )
-
-                    if hasattr(st, "fragment"):
-                        st.fragment(run_every="60s")(
-                            render_today_quotes
-                        )(
-                            selected_constituents,
-                            selected_name,
-                            "refresh_dynamic_index_quotes",
-                            "top"
-                        )
-                    else:
-                        render_today_quotes(
-                            selected_constituents,
-                            selected_name,
-                            "refresh_dynamic_index_quotes",
-                            "top"
-                        )
-
-                except Exception as constituent_error:
-                    st.error(
-                        f"Could not load constituents or stock details for "
-                        f"{selected_name}: {constituent_error}"
-                    )
-                    st.caption(
-                        "The selected index remains visible above. Please try "
-                        "again later if the constituent data provider is unavailable."
-                    )
-
-                # Second independent selection: highest L2H% index.
-                if highest_l2h_indices:
-                    selected_l2h, highest_l2h_index = highest_l2h_indices[0]
-                    highest_l2h_name = str(
-                        highest_l2h_index.get("INDEX", "")
-                    ).strip().upper()
-
-                    st.divider()
-                    st.subheader("Highest L2H% Index & Bottom 4 Stocks")
-                    l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
-                    l2h_col1.metric("Selected INDEX", highest_l2h_name)
-                    l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
-                    l2h_current = to_number(highest_l2h_index.get("CURRENT"))
-                    l2h_col3.metric(
+            st.markdown("""
+            <style>
+            .st-key-h2l_panel { background-color: #eaf7ec; border: 1px solid #b9dfc0; border-radius: 14px; padding: 1rem; }
+            .st-key-l2h_panel { background-color: #fff2e2; border: 1px solid #f2d0a8; border-radius: 14px; padding: 1rem; }
+            </style>
+            """, unsafe_allow_html=True)
+            with st.container(key="h2l_panel"):
+                if eligible_indices:
+                    selected_h2l, selected_index = eligible_indices[0]
+                    selected_name = str(selected_index.get("INDEX", "")).strip().upper()
+                    selected_current = to_number(selected_index.get("CURRENT"))
+                    selected_high = to_number(selected_index.get("HIGH"))
+                    selected_low = to_number(selected_index.get("LOW"))
+    
+                    select_col1, select_col2, select_col3, select_col4 = st.columns(4)
+                    select_col1.metric("Selected INDEX", selected_name)
+                    select_col2.metric(
                         "CURRENT",
-                        f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
+                        f"{selected_current:,.2f}" if selected_current is not None else "N/A"
                     )
-
-                    st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                    select_col3.metric(
+                        "H2L%",
+                        f"{selected_h2l:+.2f}%"
+                    )
+                    select_col4.metric(
+                        "HIGH",
+                        f"{selected_high:,.2f}" if selected_high is not None else "N/A"
+                    )
+    
+                    # Fetch constituents for whichever index the uploaded file selects.
+                    st.markdown(f"**{selected_name} — Constituent Stocks**")
+                    import requests
+                    import pandas as pd
+                    import yfinance as yf
+                    from datetime import datetime
+                    from zoneinfo import ZoneInfo
+    
+                    @st.cache_data(ttl=3600, show_spinner=False)
+                    def get_index_constituents(index_name):
+                        api_headers = {"User-Agent": "Mozilla/5.0"}
+                        base_url = "https://api.dharun.dev/v1/indices"
+                        response = requests.get(
+                            base_url,
+                            headers=api_headers,
+                            timeout=20
+                        )
+                        response.raise_for_status()
+                        index_items = response.json().get("data", [])
+    
+                        def clean_name(value):
+                            return " ".join(
+                                str(value).upper().replace("-", " ").split()
+                            )
+    
+                        wanted_name = clean_name(index_name)
+                        matched = next(
+                            (
+                                item for item in index_items
+                                if clean_name(item.get("name", "")) == wanted_name
+                            ),
+                            None
+                        )
+    
+                        if matched is None:
+                            # Handle common NIFTY label variations.
+                            aliases = {
+                                "NIFTY IT": "Nifty IT",
+                                "NIFTY 50": "Nifty 50",
+                                "NIFTY BANK": "Nifty Bank",
+                                "NIFTY NEXT 50": "Nifty Next 50",
+                                "NIFTY 100": "Nifty 100",
+                                "NIFTY 200": "Nifty 200",
+                                "NIFTY 500": "Nifty 500",
+                                "NIFTY MIDCAP 50": "Nifty Midcap 50",
+                                "NIFTY MIDCAP 100": "Nifty Midcap 100",
+                                "NIFTY MIDCAP 150": "Nifty Midcap 150",
+                                "NIFTY SMALLCAP 50": "Nifty Smallcap 50",
+                                "NIFTY SMALLCAP 100": "Nifty Smallcap 100",
+                                "NIFTY SMALLCAP 250": "Nifty Smallcap 250"
+                            }
+                            alias_name = aliases.get(wanted_name)
+                            if alias_name:
+                                matched = next(
+                                    (
+                                        item for item in index_items
+                                        if clean_name(item.get("name", "")) ==
+                                        clean_name(alias_name)
+                                    ),
+                                    None
+                                )
+    
+                        if matched is None:
+                            raise ValueError(
+                                f"No constituent archive match was found for {index_name}."
+                            )
+    
+                        detail_response = requests.get(
+                            f"{base_url}/{matched['id']}",
+                            headers=api_headers,
+                            timeout=20
+                        )
+                        detail_response.raise_for_status()
+                        payload = detail_response.json().get("data", {})
+                        members = payload.get("members", [])
+    
+                        if not members:
+                            raise ValueError(
+                                f"The constituent list for {index_name} is empty."
+                            )
+    
+                        return [
+                            {
+                                "No.": number,
+                                "NSE Symbol": member.get("symbol"),
+                                "Company": member.get("company"),
+                                "Industry": member.get("industry", "")
+                            }
+                            for number, member in enumerate(members, start=1)
+                            if member.get("symbol")
+                        ]
+    
                     try:
                         with st.spinner(
-                            f"Loading NSE constituents for {highest_l2h_name}..."
+                            f"Loading NSE constituents for {selected_name}..."
                         ):
-                            highest_l2h_constituents = get_index_constituents(
-                                highest_l2h_name
+                            selected_constituents = get_index_constituents(
+                                selected_name
                             )
-
+    
                         st.dataframe(
-                            highest_l2h_constituents,
+                            selected_constituents,
                             use_container_width=True,
                             hide_index=True
                         )
                         st.caption(
                             "Constituent list sourced from NSE Indices published data "
-                            "through the India API index archive."
+                            "through the India API index archive. Membership lists may "
+                            "update periodically."
                         )
-                        st.markdown(
-                            f"**{highest_l2h_name} — Today's Stock Details**"
+    
+                        st.markdown(f"**{selected_name} — Today's Stock Details**")
+                        market_timezone = ZoneInfo("Asia/Kolkata")
+                        market_date = datetime.now(market_timezone).date()
+                        st.caption(
+                            f"Market date: {market_date.strftime('%d %b %Y')} (India). "
+                            "Quotes from Yahoo Finance may be delayed."
                         )
+    
+                        st.caption(
+                            "Stock details refresh automatically every 60 seconds while "
+                            "the dashboard is open. Use the button for an immediate refresh."
+                        )
+    
+                        def render_today_quotes(constituents, index_name, refresh_key, selection_mode):
+                            quote_symbols = [
+                                item["NSE Symbol"] for item in constituents
+                            ]
+                            refresh_quotes = st.button(
+                                "Refresh Today's Stock Details",
+                                key=refresh_key
+                            )
+    
+                            @st.cache_data(ttl=60, show_spinner=False)
+                            def get_dynamic_index_quotes(symbols, requested_market_date):
+                                from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+                                # The caller passes an ISO date string; convert it to
+                                # a date object before comparing with pandas index dates.
+                                requested_date = datetime.fromisoformat(
+                                    requested_market_date
+                                ).date()
+    
+                                def get_one_symbol(symbol):
+                                    ticker = f"{symbol}.NS"
+                                    row = {
+                                        "NSE Symbol": symbol,
+                                        "Price": None,
+                                        "Open": None,
+                                        "High": None,
+                                        "Low": None,
+                                        "% Chg": None
+                                    }
+    
+                                    try:
+                                        stock = yf.Ticker(ticker)
+                                        intraday = stock.history(
+                                            period="5d",
+                                            interval="5m",
+                                            auto_adjust=False,
+                                            actions=False,
+                                            prepost=False
+                                        )
+                                        daily = stock.history(
+                                            period="10d",
+                                            interval="1d",
+                                            auto_adjust=False,
+                                            actions=False
+                                        )
+    
+                                        if intraday is None or intraday.empty:
+                                            return row, None
+    
+                                        intraday = intraday.dropna(how="all").copy()
+                                        if intraday.index.tz is None:
+                                            intraday.index = intraday.index.tz_localize(
+                                                "Asia/Kolkata"
+                                            )
+                                        else:
+                                            intraday.index = intraday.index.tz_convert(
+                                                "Asia/Kolkata"
+                                            )
+    
+                                        today = intraday[
+                                            intraday.index.date == requested_date
+                                        ].dropna(how="all")
+    
+                                        if today.empty:
+                                            return row, None
+    
+                                        opens = today["Open"].dropna()
+                                        highs = today["High"].dropna()
+                                        lows = today["Low"].dropna()
+                                        closes = today["Close"].dropna()
+    
+                                        if (
+                                            opens.empty or highs.empty
+                                            or lows.empty or closes.empty
+                                        ):
+                                            return row, None
+    
+                                        previous_close = None
+                                        if daily is not None and not daily.empty:
+                                            daily = daily.dropna(how="all").copy()
+                                            if daily.index.tz is None:
+                                                daily.index = daily.index.tz_localize(
+                                                    "Asia/Kolkata"
+                                                )
+                                            else:
+                                                daily.index = daily.index.tz_convert(
+                                                    "Asia/Kolkata"
+                                                )
+                                            previous = daily[
+                                                daily.index.date < requested_date
+                                            ]["Close"].dropna()
+                                            if not previous.empty:
+                                                previous_close = float(previous.iloc[-1])
+    
+                                        price = float(closes.iloc[-1])
+                                        row.update({
+                                            "Price": price,
+                                            "Open": float(opens.iloc[0]),
+                                            "High": float(highs.max()),
+                                            "Low": float(lows.min()),
+                                            "% Chg": (
+                                                ((price - previous_close) / previous_close) * 100
+                                                if previous_close not in (None, 0) else None
+                                            )
+                                        })
+                                        return row, closes.index[-1]
+    
+                                    except Exception:
+                                        # Keep other constituents visible if one ticker
+                                        # is unavailable or Yahoo temporarily rate-limits it.
+                                        return row, None
+    
+                                rows = []
+                                latest_quote_time = None
+                                max_workers = min(8, max(1, len(symbols)))
+    
+                                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                                    futures = {
+                                        executor.submit(get_one_symbol, symbol): symbol
+                                        for symbol in symbols
+                                    }
+                                    results = {}
+                                    for future in as_completed(futures):
+                                        symbol = futures[future]
+                                        try:
+                                            results[symbol] = future.result()
+                                        except Exception:
+                                            results[symbol] = ({
+                                                "NSE Symbol": symbol,
+                                                "Price": None,
+                                                "Open": None,
+                                                "High": None,
+                                                "Low": None,
+                                                "% Chg": None
+                                            }, None)
+    
+                                for symbol in symbols:
+                                    row, quote_time = results[symbol]
+                                    rows.append(row)
+                                    if quote_time is not None and (
+                                        latest_quote_time is None
+                                        or quote_time > latest_quote_time
+                                    ):
+                                        latest_quote_time = quote_time
+    
+                                timestamp = (
+                                    latest_quote_time.strftime("%d %b %Y, %I:%M %p IST")
+                                    if latest_quote_time is not None else None
+                                )
+                                return rows, timestamp
+    
+                            if refresh_quotes:
+                                get_dynamic_index_quotes.clear()
+    
+                            with st.spinner(
+                                f"Loading today's {index_name} stock quotes..."
+                            ):
+                                quote_rows, quote_timestamp = get_dynamic_index_quotes(
+                                    tuple(quote_symbols),
+                                    market_date.isoformat()
+                                )
+    
+                            if quote_timestamp:
+                                st.caption(f"Latest quote timestamp: {quote_timestamp}")
+                            else:
+                                st.warning(
+                                    "Today's intraday quotes have not been returned by "
+                                    "the market-data provider. The table will not substitute "
+                                    "yesterday's prices."
+                                )
+    
+                            quote_df = pd.DataFrame(quote_rows)
+                            for numeric_column in [
+                                "Price", "Open", "High", "Low", "% Chg"
+                            ]:
+                                quote_df[numeric_column] = quote_df[numeric_column].map(
+                                    lambda value: round(value, 2)
+                                    if pd.notna(value) else None
+                                )
+    
+                            st.dataframe(
+                                quote_df,
+                                use_container_width=True,
+                                hide_index=True,
+                                column_config={
+                                    "NSE Symbol": st.column_config.TextColumn(
+                                        "NSE Symbol",
+                                        width="small"
+                                    ),
+                                    "Price": st.column_config.NumberColumn(
+                                        "Price",
+                                        format="₹%.2f",
+                                        width="small"
+                                    ),
+                                    "Open": st.column_config.NumberColumn(
+                                        "Open",
+                                        format="₹%.2f",
+                                        width="small"
+                                    ),
+                                    "High": st.column_config.NumberColumn(
+                                        "High",
+                                        format="₹%.2f",
+                                        width="small"
+                                    ),
+                                    "Low": st.column_config.NumberColumn(
+                                        "Low",
+                                        format="₹%.2f",
+                                        width="small"
+                                    ),
+                                    "% Chg": st.column_config.NumberColumn(
+                                        "% Chg",
+                                        format="%.2f%%",
+                                        width="small"
+                                    )
+                                }
+                            )
+    
+                            available_count = int(quote_df["Price"].notna().sum())
+                            st.caption(
+                                f"Today's quotes available for {available_count} "
+                                f"of {len(quote_df)} constituent stocks."
+                            )
+    
+                            # Select the top or bottom four stocks by today's % Chg.
+                            selected_four = (
+                                quote_df.dropna(subset=["% Chg"])
+                                .sort_values(
+                                    "% Chg",
+                                    ascending=(selection_mode == "bottom")
+                                )
+                                .head(4)
+                                .copy()
+                            )
+    
+                            selection_title = (
+                                "Bottom 4 Stocks by % Chg"
+                                if selection_mode == "bottom"
+                                else "Top 4 Stocks by % Chg"
+                            )
+                            st.subheader(
+                                f"{index_name} — {selection_title} — Master Excel Details"
+                            )
+                            if selected_four.empty:
+                                st.info("No stocks have a valid % Chg value yet.")
+                            else:
+                                with st.spinner("Matching selected stocks with Supabase Master Excel..."):
+                                    master_bytes_for_selection = get_master()
+                                    rank_source_column = (
+                                        "Sum O2L.10"
+                                        if selection_mode == "top"
+                                        else "Sum O2H.10"
+                                    )
+                                    master_values, master_error = get_top_stocks_master_values(
+                                        selected_four,
+                                        master_bytes_for_selection,
+                                        rank_source_column
+                                    )
+    
+                                if master_error:
+                                    st.warning(master_error)
+                                elif master_values:
+                                    master_values_df = pd.DataFrame(master_values)
+                                    st.dataframe(
+                                        master_values_df,
+                                        use_container_width=True,
+                                        hide_index=True,
+                                        column_config={
+                                            "NSE Symbol": st.column_config.TextColumn(width="small"),
+                                            f"{rank_source_column} Rank": st.column_config.NumberColumn(
+                                                f"{rank_source_column} Rank",
+                                                format="%d",
+                                                width="small"
+                                            ),
+                                            "Sum O2L.10": st.column_config.TextColumn(width="small"),
+                                            "Sum O2H.10": st.column_config.TextColumn(width="small"),
+                                            "16< D-B / Avg.4": st.column_config.TextColumn(width="small"),
+                                            "16> C-B / Avg.4": st.column_config.TextColumn(width="small"),
+                                        }
+                                    )
+    
                         if hasattr(st, "fragment"):
                             st.fragment(run_every="60s")(
                                 render_today_quotes
                             )(
-                                highest_l2h_constituents,
-                                highest_l2h_name,
-                                "refresh_highest_l2h_quotes",
-                                "bottom"
+                                selected_constituents,
+                                selected_name,
+                                "refresh_dynamic_index_quotes",
+                                "top"
                             )
                         else:
                             render_today_quotes(
-                                highest_l2h_constituents,
-                                highest_l2h_name,
-                                "refresh_highest_l2h_quotes",
-                                "bottom"
+                                selected_constituents,
+                                selected_name,
+                                "refresh_dynamic_index_quotes",
+                                "top"
                             )
-                    except Exception as highest_l2h_error:
+    
+                    except Exception as constituent_error:
                         st.error(
                             f"Could not load constituents or stock details for "
-                            f"{highest_l2h_name}: {highest_l2h_error}"
+                            f"{selected_name}: {constituent_error}"
                         )
-            else:
+                        st.caption(
+                            "The selected index remains visible above. Please try "
+                            "again later if the constituent data provider is unavailable."
+                        )
+    
+                    # Second independent selection: highest L2H% index.
+                with st.container(key="l2h_panel"):
+                        if highest_l2h_indices:
+                            selected_l2h, highest_l2h_index = highest_l2h_indices[0]
+                            highest_l2h_name = str(
+                                highest_l2h_index.get("INDEX", "")
+                            ).strip().upper()
+        
+                            st.divider()
+                            st.subheader("Highest L2H% Index & Bottom 4 Stocks")
+                            l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
+                            l2h_col1.metric("Selected INDEX", highest_l2h_name)
+                            l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
+                            l2h_current = to_number(highest_l2h_index.get("CURRENT"))
+                            l2h_col3.metric(
+                                "CURRENT",
+                                f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
+                            )
+        
+                            st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                            try:
+                                with st.spinner(
+                                    f"Loading NSE constituents for {highest_l2h_name}..."
+                                ):
+                                    highest_l2h_constituents = get_index_constituents(
+                                        highest_l2h_name
+                                    )
+        
+                                st.dataframe(
+                                    highest_l2h_constituents,
+                                    use_container_width=True,
+                                    hide_index=True
+                                )
+                                st.caption(
+                                    "Constituent list sourced from NSE Indices published data "
+                                    "through the India API index archive."
+                                )
+                                st.markdown(
+                                    f"**{highest_l2h_name} — Today's Stock Details**"
+                                )
+                                if hasattr(st, "fragment"):
+                                    st.fragment(run_every="60s")(
+                                        render_today_quotes
+                                    )(
+                                        highest_l2h_constituents,
+                                        highest_l2h_name,
+                                        "refresh_highest_l2h_quotes",
+                                        "bottom"
+                                    )
+                                else:
+                                    render_today_quotes(
+                                        highest_l2h_constituents,
+                                        highest_l2h_name,
+                                        "refresh_highest_l2h_quotes",
+                                        "bottom"
+                                    )
+                            except Exception as highest_l2h_error:
+                                st.error(
+                                    f"Could not load constituents or stock details for "
+                                    f"{highest_l2h_name}: {highest_l2h_error}"
+                                )
+                else:
                 st.info(
                     "No index has CURRENT above 10,000 with a valid H2L% value."
                 )
