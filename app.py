@@ -1180,7 +1180,7 @@ if page == "Index":
                                     "Company": str(company).strip(),
                                     "Industry": str(industry).strip()
                                 })
-                            return persist_members(members, "India API archive")
+                            return members
 
                         wanted_name = clean_name(index_name)
                         errors = []
@@ -1249,7 +1249,7 @@ if page == "Index":
                                 payload = detail_response.json().get("data", {})
                                 members = build_members(payload.get("members", []))
                                 if members:
-                                    return persist_members(members, "NSE equity-stockIndices API")
+                                    return persist_members(members, "India API archive")
                                 errors.append("India API returned no constituent rows.")
                             else:
                                 errors.append("Index is not listed in the India API archive.")
@@ -1285,7 +1285,7 @@ if page == "Index":
                             nse_rows = nse_response.json().get("data", [])
                             members = build_members(nse_rows)
                             if members:
-                                return persist_members(members, "Official NSE Indices CSV")
+                                return persist_members(members, "NSE equity-stockIndices API")
                             errors.append("NSE API returned no constituent rows.")
                         except Exception as nse_error:
                             errors.append(f"NSE API: {nse_error}")
@@ -1484,7 +1484,7 @@ if page == "Index":
                                         })
                                     members = build_members(csv_rows)
                                     if members:
-                                        return members
+                                        return persist_members(members, "Official NSE Indices CSV")
                                 except Exception as csv_error:
                                     errors.append(
                                         f"{filename} from {host}: {csv_error}"
@@ -2702,7 +2702,7 @@ elif page == "Index 2":
                                     "Company": str(company).strip(),
                                     "Industry": str(industry).strip()
                                 })
-                            return persist_members(members, "India API archive")
+                            return members
 
                         wanted_name = clean_name(index_name)
                         errors = []
@@ -2771,7 +2771,7 @@ elif page == "Index 2":
                                 payload = detail_response.json().get("data", {})
                                 members = build_members(payload.get("members", []))
                                 if members:
-                                    return persist_members(members, "NSE equity-stockIndices API")
+                                    return persist_members(members, "India API archive")
                                 errors.append("India API returned no constituent rows.")
                             else:
                                 errors.append("Index is not listed in the India API archive.")
@@ -2807,7 +2807,7 @@ elif page == "Index 2":
                             nse_rows = nse_response.json().get("data", [])
                             members = build_members(nse_rows)
                             if members:
-                                return persist_members(members, "Official NSE Indices CSV")
+                                return persist_members(members, "NSE equity-stockIndices API")
                             errors.append("NSE API returned no constituent rows.")
                         except Exception as nse_error:
                             errors.append(f"NSE API: {nse_error}")
@@ -3006,7 +3006,7 @@ elif page == "Index 2":
                                         })
                                     members = build_members(csv_rows)
                                     if members:
-                                        return members
+                                        return persist_members(members, "Official NSE Indices CSV")
                                 except Exception as csv_error:
                                     errors.append(
                                         f"{filename} from {host}: {csv_error}"
