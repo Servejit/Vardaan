@@ -2005,20 +2005,31 @@ if page == "Index":
                                             """,
                                             unsafe_allow_html=True
                                         )
-                                    elif (
-                                        winning_candidate is None
-                                        and len(all_ranked_candidates) > 0
-                                        and len({
-                                            item["side"] for item in all_ranked_candidates
-                                            if item["rank"] == min(
-                                                candidate["rank"] for candidate in all_ranked_candidates
-                                            )
-                                        }) > 1
-                                    ):
-                                        trade_signal_placeholder.info(
-                                            "The lowest rank is tied between H2L and L2H lists. "
-                                            "No trade signal is shown."
+                                    elif winning_candidate is None or winning_candidate["side"] == signal_side:
+                                        # Show a neutral blue card whenever this dashboard has no
+                                        # qualifying BUY/SELL setup. The opposite panel must not
+                                        # overwrite a signal belonging to that other panel.
+                                        trade_signal_placeholder.markdown(
+                                            """
+                                            <div style="
+                                                background: linear-gradient(115deg, #145a9e, #287fc4);
+                                                border: 1px solid #79b8ec;
+                                                border-radius: 14px;
+                                                padding: 1rem 1.15rem;
+                                                margin: 0.7rem 0 1rem 0;
+                                                color: #ffffff;
+                                                font-weight: 800;
+                                                font-size: 1.05rem;
+                                                text-align: center;
+                                                box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
+                                            ">
+                                                No Buy/Sell Stock Found,<br>
+                                                Try again later
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True
                                         )
+
                                     # Do not let the other panel's independent 60-second
                                     # fragment overwrite the shared signal card. Only the
                                     # fragment for the winning side may render the signal.
@@ -3522,20 +3533,31 @@ elif page == "Index 2":
                                             """,
                                             unsafe_allow_html=True
                                         )
-                                    elif (
-                                        winning_candidate is None
-                                        and len(all_ranked_candidates) > 0
-                                        and len({
-                                            item["side"] for item in all_ranked_candidates
-                                            if item["rank"] == min(
-                                                candidate["rank"] for candidate in all_ranked_candidates
-                                            )
-                                        }) > 1
-                                    ):
-                                        trade_signal_placeholder.info(
-                                            "The lowest rank is tied between H2L and L2H lists. "
-                                            "No trade signal is shown."
+                                    elif winning_candidate is None or winning_candidate["side"] == signal_side:
+                                        # Show a neutral blue card whenever this dashboard has no
+                                        # qualifying BUY/SELL setup. The opposite panel must not
+                                        # overwrite a signal belonging to that other panel.
+                                        trade_signal_placeholder.markdown(
+                                            """
+                                            <div style="
+                                                background: linear-gradient(115deg, #145a9e, #287fc4);
+                                                border: 1px solid #79b8ec;
+                                                border-radius: 14px;
+                                                padding: 1rem 1.15rem;
+                                                margin: 0.7rem 0 1rem 0;
+                                                color: #ffffff;
+                                                font-weight: 800;
+                                                font-size: 1.05rem;
+                                                text-align: center;
+                                                box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
+                                            ">
+                                                No Buy/Sell Stock Found,<br>
+                                                Try again later
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True
                                         )
+
                                     # Do not let the other panel's independent 60-second
                                     # fragment overwrite the shared signal card. Only the
                                     # fragment for the winning side may render the signal.
