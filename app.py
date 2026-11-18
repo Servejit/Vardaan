@@ -976,7 +976,7 @@ if page == "Index":
                                 "% Chg": st.column_config.NumberColumn(
                                     "% Chg",
                                     format="%.2f%%",
-                                    width="medium"
+                                    width="small"
                                 )
                             }
                         )
