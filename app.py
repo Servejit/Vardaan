@@ -1900,6 +1900,7 @@ if page == "Index":
                                             eligible_winners = [
                                                 item for item in lowest_rank_candidates
                                                 if not item.get("confirmation_only", False)
+                                                and item["rank"] < 80
                                             ]
                                             if len(eligible_winners) == 1:
                                                 winning_candidate = eligible_winners[0]
@@ -3428,6 +3429,7 @@ elif page == "Index 2":
                                             eligible_winners = [
                                                 item for item in lowest_rank_candidates
                                                 if not item.get("confirmation_only", False)
+                                                and item["rank"] < 80
                                             ]
                                             if len(eligible_winners) == 1:
                                                 winning_candidate = eligible_winners[0]
