@@ -216,8 +216,11 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
             result = {"NSE Symbol": display_symbol}
 
             if master_row is None:
-                for column_name in output_columns:
-                    result[column_name] = "Not found"
+                result["Sum O2H.10"] = "Not found"
+                result["Sum O2L.10"] = "Not found"
+                result["Sum O2H.10 Rank"] = ""
+                result["16> C-B / Avg.4"] = "Not found"
+                result["16< D-B / Avg.4"] = "Not found"
             else:
                 matched_count += 1
                 for column_name in output_columns[:2]:
