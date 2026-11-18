@@ -2094,49 +2094,8 @@ if page == "Index":
                                             unsafe_allow_html=True
                                         )
                                     else:
-                                        trade_signal_placeholder.markdown(
-                                            """
-                                            <style>
-                                            @keyframes noSignalGlow {
-                                                0%, 100% { box-shadow: 0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
-                                                50% { box-shadow: 0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
-                                            }
-                                            @keyframes noSignalShimmer {
-                                                0% { background-position: 0% 50%; filter:brightness(1); }
-                                                50% { background-position: 100% 50%; filter:brightness(1.18); }
-                                                100% { background-position: 0% 50%; filter:brightness(1); }
-                                            }
-                                            @keyframes noSignalFloat {
-                                                0%,100% { transform:translateY(0); }
-                                                50% { transform:translateY(-2px); }
-                                            }
-                                            </style>
-                                            <div style="
-                                                background: linear-gradient(115deg, #090909 0%, #242424 28%, #111111 52%, #303030 70%, #090909 100%);
-                                                background-size: 220% 220%;
-                                                border: 1px solid #f5f5f5;
-                                                box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 8px 24px rgba(0,0,0,.48);
-                                                border-radius: 14px;
-                                                padding: 1rem 1.15rem;
-                                                margin: 0.7rem 0 1rem 0;
-                                                color: #ffffff;
-                                                font-weight: 800;
-                                                font-size: 1.0rem;
-                                                text-align: center;
-                                                min-height: 145px;
-                                                display: flex;
-                                                align-items: center;
-                                                justify-content: center;
-                                                animation: noSignalGlow 3s ease-in-out infinite, noSignalShimmer 6s ease-in-out infinite, noSignalFloat 2.8s ease-in-out infinite;
-                                            ">
-                                                <div>✦ WAIT · NO SIGNAL<br>
-                                                <span style="font-size:.78rem;font-weight:500;color:#d4d4d4;">
-                                                No qualifying signal found<br>Awaiting next opportunity
-                                                </span></div>
-                                            </div>
-                                            """,
-                                            unsafe_allow_html=True
-                                        )
+                                        # No-signal display is handled once by the dependent-style card below.
+                                        trade_signal_placeholder.empty()
 
                                     st.session_state[f"independent_signal_active_index1_{signal_side}"] = bool(
                                         winning_candidate is not None and price_location_confirmed
@@ -2287,7 +2246,7 @@ if page == "Index":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
-                                        elif not any_signal_found:
+                                        elif not any_signal_found and side == "H2L":
                                             placeholder.markdown(
                                                 """
                                                 <style>
@@ -3820,49 +3779,8 @@ elif page == "Index 2":
                                             unsafe_allow_html=True
                                         )
                                     else:
-                                        trade_signal_placeholder.markdown(
-                                            """
-                                            <style>
-                                            @keyframes noSignalGlow {
-                                                0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
-                                                50% { box-shadow:0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
-                                            }
-                                            @keyframes noSignalShimmer {
-                                                0% { background-position:0% 50%; filter:brightness(1); }
-                                                50% { background-position:100% 50%; filter:brightness(1.18); }
-                                                100% { background-position:0% 50%; filter:brightness(1); }
-                                            }
-                                            @keyframes noSignalFloat {
-                                                0%,100% { transform:translateY(0); }
-                                                50% { transform:translateY(-2px); }
-                                            }
-                                            </style>
-                                            <div style="
-                                                background: linear-gradient(115deg, #090909 0%, #242424 28%, #111111 52%, #303030 70%, #090909 100%);
-                                                background-size:220% 220%;
-                                                border:1px solid #f5f5f5;
-                                                box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 24px rgba(0,0,0,.48);
-                                                border-radius: 14px;
-                                                padding: 1rem 1.15rem;
-                                                margin: 0.7rem 0 1rem 0;
-                                                color: #ffffff;
-                                                font-weight: 800;
-                                                font-size: 1.0rem;
-                                                text-align: center;
-                                                min-height: 145px;
-                                                display: flex;
-                                                align-items: center;
-                                                justify-content: center;
-                                                animation:noSignalGlow 3s ease-in-out infinite, noSignalShimmer 6s ease-in-out infinite, noSignalFloat 2.8s ease-in-out infinite;
-                                            ">
-                                                <div>✦ WAIT · NO SIGNAL<br>
-                                                <span style="font-size:.78rem;font-weight:500;color:#d4d4d4;">
-                                                No qualifying signal found<br>Awaiting next opportunity
-                                                </span></div>
-                                            </div>
-                                            """,
-                                            unsafe_allow_html=True
-                                        )
+                                        # No-signal display is handled once by the dependent-style card below.
+                                        trade_signal_placeholder.empty()
 
                                     st.session_state[f"independent_signal_active_index2_{signal_side}"] = bool(
                                         winning_candidate is not None and price_location_confirmed
@@ -4013,7 +3931,7 @@ elif page == "Index 2":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
-                                        elif not any_signal_found:
+                                        elif not any_signal_found and side == "H2L":
                                             placeholder.markdown(
                                                 """
                                                 <style>
