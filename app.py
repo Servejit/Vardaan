@@ -666,6 +666,10 @@ if page == "Index":
         key=f"index_excel_upload_{session_user_id}"
     )
 
+    # The trade signal is rendered here so it stays directly below the uploader,
+    # rather than inside either H2L or L2H analysis panel.
+    trade_signal_placeholder = st.empty()
+
     try:
         # Keep the latest Index upload in this user's Streamlit session only.
         # It is never written to Supabase or shared with other users.
@@ -1382,7 +1386,13 @@ if page == "Index":
                             "the dashboard is open. Use the button for an immediate refresh."
                         )
     
-                        def render_today_quotes(constituents, index_name, refresh_key, selection_mode):
+                        def render_today_quotes(
+                            constituents,
+                            index_name,
+                            refresh_key,
+                            selection_mode,
+                            trade_signal_placeholder
+                        ):
                             quote_symbols = [
                                 item["NSE Symbol"] for item in constituents
                             ]
@@ -1721,8 +1731,7 @@ if page == "Index":
 
                                 if (
                                     winning_candidate is not None
-                                    and winning_candidate["side"] == signal_side
-                                    and dominant_market_side == signal_side
+                                    and dominant_market_side == winning_candidate["side"]
                                 ):
                                     signal_symbol = winning_candidate["symbol"]
                                     entry_price = winning_candidate["price"]
@@ -1741,7 +1750,7 @@ if page == "Index":
                                         entry_label = "Sell Entry"
                                         target_label = "Target (-0.35%)"
 
-                                    st.markdown(
+                                    trade_signal_placeholder.markdown(
                                         f"""
                                         <style>
                                         @keyframes prioritySignalPulse {{
@@ -1805,7 +1814,7 @@ if page == "Index":
                                         )
                                     }) > 1
                                 ):
-                                    st.info(
+                                    trade_signal_placeholder.info(
                                         "The lowest rank is tied between H2L and L2H lists. "
                                         "No trade signal is shown."
                                     )
@@ -1814,10 +1823,10 @@ if page == "Index":
                                     and dominant_market_side == winning_candidate["side"]
                                     and winning_candidate["side"] != signal_side
                                 ):
-                                    st.caption(
+                                    trade_signal_placeholder.caption(
                                         f"Lowest rank across both lists belongs to "
                                         f"{winning_candidate['side']} ({winning_candidate['symbol']}); "
-                                        "its panel will display the signal."
+                                        "the eligible signal is shown above the analysis panels."
                                     )
 
                                 if master_error:
@@ -1855,14 +1864,16 @@ if page == "Index":
                                 selected_constituents,
                                 selected_name,
                                 "refresh_dynamic_index_quotes",
-                                "top"
+                                "top",
+                                trade_signal_placeholder
                             )
                         else:
                             render_today_quotes(
                                 selected_constituents,
                                 selected_name,
                                 "refresh_dynamic_index_quotes",
-                                "top"
+                                "top",
+                                trade_signal_placeholder
                             )
     
                     except Exception as constituent_error:
@@ -1929,14 +1940,16 @@ if page == "Index":
                                     highest_l2h_constituents,
                                     highest_l2h_name,
                                     "refresh_highest_l2h_quotes",
-                                    "bottom"
+                                    "bottom",
+                                    trade_signal_placeholder
                                 )
                             else:
                                 render_today_quotes(
                                     highest_l2h_constituents,
                                     highest_l2h_name,
                                     "refresh_highest_l2h_quotes",
-                                    "bottom"
+                                    "bottom",
+                                    trade_signal_placeholder
                                 )
                         except Exception as highest_l2h_error:
                             st.error(
