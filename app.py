@@ -340,138 +340,184 @@ with st.sidebar:
 
 if page == "Index":
 
+    import csv
+
     st.header("Index Dashboard")
     st.caption(
-        "Upload an Excel file to explore its sheets. "
-        "This file is processed in Streamlit only and is not saved to Supabase."
+        "Upload an Excel (.xlsx) or CSV (.csv) file. "
+        "The uploaded file is processed in Streamlit memory and is not saved to Supabase."
     )
 
     index_upload = st.file_uploader(
-        "Upload Index Excel File",
-        type=["xlsx"],
+        "Upload Index File",
+        type=["xlsx", "csv"],
         key="index_excel_upload"
     )
 
     if index_upload is None:
-        st.info("Upload an .xlsx file to start the Index dashboard.")
+        st.info("Upload your Index Excel or CSV file to start.")
         st.stop()
 
     try:
-        index_bytes = index_upload.getvalue()
-        index_wb = load_workbook(
-            io.BytesIO(index_bytes),
-            read_only=True,
-            data_only=True
-        )
+        file_bytes = index_upload.getvalue()
+        file_name = index_upload.name
+        extension = file_name.lower().rsplit(".", 1)[-1]
 
-        st.success(f"Loaded: {index_upload.name}")
+        if extension == "csv":
+            decoded = None
+            for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+                try:
+                    decoded = file_bytes.decode(encoding)
+                    break
+                except UnicodeDecodeError:
+                    continue
 
-        selected_sheet = st.selectbox(
-            "Select worksheet",
-            index_wb.sheetnames,
-            key="index_sheet_selector"
-        )
+            if decoded is None:
+                raise ValueError("Could not decode this CSV file.")
 
-        index_ws = index_wb[selected_sheet]
-        total_rows = index_ws.max_row or 0
-        total_columns = index_ws.max_column or 0
+            sample = decoded[:8192]
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=",;\\t|")
+            except csv.Error:
+                dialect = csv.excel
+
+            csv_reader = csv.reader(io.StringIO(decoded), dialect)
+            csv_rows = list(csv_reader)
+
+            # Remove completely blank lines.
+            csv_rows = [
+                row for row in csv_rows
+                if any(str(value).strip() for value in row)
+            ]
+
+            if not csv_rows:
+                raise ValueError("The CSV file is empty.")
+
+            raw_headers = csv_rows[0]
+            data_values = csv_rows[1:]
+
+            index_wb = None
+            sheet_names = ["CSV Data"]
+            selected_sheet = "CSV Data"
+
+        else:
+            index_wb = load_workbook(
+                io.BytesIO(file_bytes),
+                read_only=True,
+                data_only=True
+            )
+            sheet_names = index_wb.sheetnames
+            selected_sheet = st.selectbox(
+                "Select worksheet",
+                sheet_names,
+                key="index_sheet_selector"
+            )
+            index_ws = index_wb[selected_sheet]
+            all_rows = list(
+                index_ws.iter_rows(values_only=True)
+            )
+            all_rows = [
+                list(row) for row in all_rows
+                if any(value is not None and str(value).strip() for value in row)
+            ]
+
+            if not all_rows:
+                raise ValueError("The selected worksheet is empty.")
+
+            raw_headers = all_rows[0]
+            data_values = all_rows[1:]
+
+        headers = []
+        used_headers = set()
+
+        for position, value in enumerate(raw_headers, start=1):
+            header = str(value).strip().replace("\\n", " ") if value is not None else ""
+            header = " ".join(header.split())
+            if not header:
+                header = f"Column {position}"
+
+            base_header = header
+            suffix = 2
+            while header in used_headers:
+                header = f"{base_header}_{suffix}"
+                suffix += 1
+
+            used_headers.add(header)
+            headers.append(header)
+
+        records = []
+        for row in data_values:
+            values = list(row)
+            if len(values) < len(headers):
+                values.extend([None] * (len(headers) - len(values)))
+            records.append({
+                headers[i]: values[i]
+                for i in range(len(headers))
+            })
+
+        st.success(f"Loaded: {file_name}")
 
         metric1, metric2, metric3 = st.columns(3)
-        metric1.metric("Worksheets", len(index_wb.sheetnames))
-        metric2.metric("Rows", total_rows)
-        metric3.metric("Columns", total_columns)
+        metric1.metric("Worksheets", len(sheet_names))
+        metric2.metric("Data Rows", len(records))
+        metric3.metric("Columns", len(headers))
 
         st.divider()
-        st.subheader(f"Data Preview — {selected_sheet}")
+        st.subheader("Index Data")
 
-        raw_rows = list(
-            index_ws.iter_rows(
-                min_row=1,
-                max_row=min(total_rows, 1001),
-                max_col=total_columns,
-                values_only=True
-            )
+        search_text = st.text_input(
+            "Search index",
+            placeholder="Search by index name or any value..."
+        ).strip().lower()
+
+        if search_text:
+            visible_records = [
+                record for record in records
+                if any(
+                    search_text in str(value).lower()
+                    for value in record.values()
+                    if value is not None
+                )
+            ]
+        else:
+            visible_records = records
+
+        st.caption(
+            f"Showing {len(visible_records)} of {len(records)} records."
         )
 
-        if not raw_rows:
-            st.warning("The selected worksheet is empty.")
-        else:
-            raw_headers = raw_rows[0]
-            headers = []
-            used_headers = set()
-
-            for position, value in enumerate(raw_headers, start=1):
-                header = str(value).strip() if value is not None else ""
-                if not header:
-                    header = f"Column {position}"
-
-                base_header = header
-                suffix = 2
-                while header in used_headers:
-                    header = f"{base_header}_{suffix}"
-                    suffix += 1
-
-                used_headers.add(header)
-                headers.append(header)
-
-            data_rows = []
-            for row in raw_rows[1:]:
-                values = list(row)
-                if len(values) < len(headers):
-                    values.extend([None] * (len(headers) - len(values)))
-                data_rows.append(dict(zip(headers, values[:len(headers)])))
-
-            search_text = st.text_input(
-                "Search in this worksheet",
-                placeholder="Type a stock name, index name, or any value..."
-            ).strip().lower()
-
-            if search_text:
-                visible_rows = [
-                    row for row in data_rows
-                    if any(
-                        search_text in str(value).lower()
-                        for value in row.values()
-                        if value is not None
-                    )
-                ]
-            else:
-                visible_rows = data_rows
-
-            st.caption(
-                f"Showing {min(len(visible_rows), 500)} of "
-                f"{len(visible_rows)} matching data rows. "
-                "Preview is limited to the first 1,000 Excel rows."
+        if visible_records:
+            st.dataframe(
+                visible_records,
+                use_container_width=True,
+                hide_index=True
             )
-
-            if visible_rows:
-                st.dataframe(
-                    visible_rows[:500],
-                    use_container_width=True,
-                    hide_index=True
-                )
-            else:
-                st.warning("No matching rows found.")
+        else:
+            st.warning("No matching records found.")
 
         st.download_button(
-            "Download Uploaded Index File",
-            data=index_bytes,
-            file_name=index_upload.name,
-            mime=EXCEL_MIME,
+            "Download Uploaded File",
+            data=file_bytes,
+            file_name=file_name,
+            mime=(
+                EXCEL_MIME
+                if extension == "xlsx"
+                else "text/csv"
+            ),
             use_container_width=True
         )
 
-        index_wb.close()
+        if index_wb is not None:
+            index_wb.close()
 
     except Exception as e:
-        st.error(f"Unable to read this Excel file: {e}")
+        st.error(f"Unable to read this file: {e}")
 
     st.stop()
 
 else:
 
-    # ============================================================
-    # MASTER FILE
+# MASTER FILE
     # ============================================================
 
     master = get_master()
