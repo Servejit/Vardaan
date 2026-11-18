@@ -1,5 +1,7 @@
 import io
 import re
+import json
+from datetime import datetime, timezone
 import streamlit as st
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -58,6 +60,74 @@ def get_profile(uid):
     ).execute()
 
     return r.data[0] if r.data else None
+
+
+CONSTITUENT_MANIFEST_PATH = "index-constituents/manifest.json"
+CONSTITUENT_ARCHIVE_PATH = "index-constituents/constituents.json"
+
+def load_constituent_archive():
+    try:
+        raw = admin.storage.from_(BUCKET).download(CONSTITUENT_ARCHIVE_PATH)
+        payload = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
+        if isinstance(payload, dict):
+            payload.setdefault("indices", {})
+            return payload
+    except Exception:
+        pass
+    return {"indices": {}}
+
+def save_constituent_archive(archive):
+    admin.storage.from_(BUCKET).upload(
+        CONSTITUENT_ARCHIVE_PATH,
+        json.dumps(archive, ensure_ascii=False).encode("utf-8"),
+        {"content-type": "application/json", "upsert": "true"}
+    )
+
+def save_index_constituents(index_name, members, source):
+    try:
+        archive = load_constituent_archive()
+        key = " ".join(re.sub(r"[^A-Z0-9]+", " ", str(index_name).upper()).split())
+        previous = archive["indices"].get(key, {})
+        old_symbols = [row.get("NSE Symbol") for row in previous.get("members", [])]
+        new_symbols = [row.get("NSE Symbol") for row in members]
+        now = datetime.now(timezone.utc).isoformat()
+        record = dict(previous)
+        record.update({
+            "index_name": index_name, "members": members, "status": "available",
+            "source": source, "last_verified_at": now
+        })
+        if old_symbols != new_symbols or not previous.get("last_updated_at"):
+            record["last_updated_at"] = now
+            if old_symbols:
+                record["previous_symbols"] = old_symbols
+        archive["indices"][key] = record
+        save_constituent_archive(archive)
+    except Exception as error:
+        st.warning(f"Could not save {index_name} constituents to Supabase: {error}")
+    return members
+
+def save_index_manifest(index_names):
+    try:
+        names = sorted({str(name).strip().upper() for name in index_names if str(name).strip()})
+        try:
+            raw = admin.storage.from_(BUCKET).download(CONSTITUENT_MANIFEST_PATH)
+            old_manifest = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
+        except Exception:
+            old_manifest = {}
+        if old_manifest.get("index_names") == names:
+            return
+        manifest = {
+            "index_names": names,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "filter": "CURRENT > 10000"
+        }
+        admin.storage.from_(BUCKET).upload(
+            CONSTITUENT_MANIFEST_PATH,
+            json.dumps(manifest, ensure_ascii=False).encode("utf-8"),
+            {"content-type": "application/json", "upsert": "true"}
+        )
+    except Exception as error:
+        st.warning(f"Could not save the eligible-index list to Supabase: {error}")
 
 
 def get_master():
