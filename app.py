@@ -927,29 +927,35 @@ if page == "Index":
 
                         def build_members(rows):
                             members = []
+
+                            def first_valid(row, keys, default=""):
+                                for key in keys:
+                                    value = row.get(key)
+                                    if value is not None and not pd.isna(value):
+                                        return value
+                                return default
+
                             for row in rows:
-                                symbol = str(
-                                    row.get("symbol")
-                                    or row.get("Symbol")
-                                    or row.get("SYMBOL")
-                                    or ""
-                                ).strip()
-                                if not symbol or clean_name(symbol) == clean_name(index_name):
+                                raw_symbol = first_valid(
+                                    row, ["symbol", "Symbol", "SYMBOL"]
+                                )
+                                symbol = str(raw_symbol).strip()
+                                if (
+                                    not symbol
+                                    or symbol.lower() == "nan"
+                                    or clean_name(symbol) == clean_name(index_name)
+                                ):
                                     continue
                                 meta = row.get("meta") or {}
-                                company = (
-                                    row.get("company")
-                                    or row.get("Company Name")
-                                    or row.get("Company")
-                                    or meta.get("companyName")
-                                    or meta.get("company")
-                                    or ""
+                                company = first_valid(
+                                    row,
+                                    ["company", "Company Name", "Company"],
+                                    first_valid(meta, ["companyName", "company"])
                                 )
-                                industry = (
-                                    row.get("industry")
-                                    or row.get("Industry")
-                                    or meta.get("industry")
-                                    or ""
+                                industry = first_valid(
+                                    row,
+                                    ["industry", "Industry"],
+                                    first_valid(meta, ["industry"])
                                 )
                                 members.append({
                                     "No.": len(members) + 1,
