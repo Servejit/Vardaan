@@ -1048,6 +1048,14 @@ if page == "Index":
 
             eligible_indices.sort(key=lambda item: item[0])
             highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
+            eligible_manifest_names = [
+                str(record.get("INDEX", "")).strip().upper()
+                for record in display_records
+                if to_number(record.get("CURRENT")) is not None
+                and to_number(record.get("CURRENT")) > 10000
+            ]
+            save_index_manifest(eligible_manifest_names)
+
 
             st.divider()
             st.subheader("Priority Stock Analysis")
@@ -1193,10 +1201,22 @@ if page == "Index":
                                     "Company": str(company).strip(),
                                     "Industry": str(industry).strip()
                                 })
-                            return members
+                            return persist_members(members, "India API archive")
 
                         wanted_name = clean_name(index_name)
                         errors = []
+
+                        # Reuse the durable Supabase archive before requesting external sources.
+                        try:
+                            saved_archive = load_constituent_archive()
+                            saved_record = saved_archive.get("indices", {}).get(wanted_name)
+                            if saved_record and saved_record.get("members"):
+                                return saved_record["members"]
+                        except Exception:
+                            pass
+
+                        def persist_members(members, source_name):
+                            return save_index_constituents(index_name, members, source_name)
 
                         # Source 1: India API archive (fast and already used by the app).
                         try:
@@ -1250,7 +1270,7 @@ if page == "Index":
                                 payload = detail_response.json().get("data", {})
                                 members = build_members(payload.get("members", []))
                                 if members:
-                                    return members
+                                    return persist_members(members, "NSE equity-stockIndices API")
                                 errors.append("India API returned no constituent rows.")
                             else:
                                 errors.append("Index is not listed in the India API archive.")
@@ -1286,7 +1306,7 @@ if page == "Index":
                             nse_rows = nse_response.json().get("data", [])
                             members = build_members(nse_rows)
                             if members:
-                                return members
+                                return persist_members(members, "Official NSE Indices CSV")
                             errors.append("NSE API returned no constituent rows.")
                         except Exception as nse_error:
                             errors.append(f"NSE API: {nse_error}")
@@ -2547,6 +2567,14 @@ elif page == "Index 2":
 
             eligible_indices.sort(key=lambda item: item[0])
             highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
+            eligible_manifest_names = [
+                str(record.get("INDEX", "")).strip().upper()
+                for record in display_records
+                if to_number(record.get("CURRENT")) is not None
+                and to_number(record.get("CURRENT")) > 10000
+            ]
+            save_index_manifest(eligible_manifest_names)
+
 
             st.divider()
             st.subheader("Priority Stock Analysis")
@@ -2692,10 +2720,22 @@ elif page == "Index 2":
                                     "Company": str(company).strip(),
                                     "Industry": str(industry).strip()
                                 })
-                            return members
+                            return persist_members(members, "India API archive")
 
                         wanted_name = clean_name(index_name)
                         errors = []
+
+                        # Reuse the durable Supabase archive before requesting external sources.
+                        try:
+                            saved_archive = load_constituent_archive()
+                            saved_record = saved_archive.get("indices", {}).get(wanted_name)
+                            if saved_record and saved_record.get("members"):
+                                return saved_record["members"]
+                        except Exception:
+                            pass
+
+                        def persist_members(members, source_name):
+                            return save_index_constituents(index_name, members, source_name)
 
                         # Source 1: India API archive (fast and already used by the app).
                         try:
@@ -2749,7 +2789,7 @@ elif page == "Index 2":
                                 payload = detail_response.json().get("data", {})
                                 members = build_members(payload.get("members", []))
                                 if members:
-                                    return members
+                                    return persist_members(members, "NSE equity-stockIndices API")
                                 errors.append("India API returned no constituent rows.")
                             else:
                                 errors.append("Index is not listed in the India API archive.")
@@ -2785,7 +2825,7 @@ elif page == "Index 2":
                             nse_rows = nse_response.json().get("data", [])
                             members = build_members(nse_rows)
                             if members:
-                                return members
+                                return persist_members(members, "Official NSE Indices CSV")
                             errors.append("NSE API returned no constituent rows.")
                         except Exception as nse_error:
                             errors.append(f"NSE API: {nse_error}")
