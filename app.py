@@ -294,12 +294,28 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
             workbook.close()
 
 
+def clear_index_session_data():
+    """
+    Remove uploaded Index data and signal candidates from this browser session.
+    Streamlit session_state is isolated per connected user session.
+    """
+    for key in (
+        "index_file_bytes",
+        "index_file_name",
+        "index_file_owner_id",
+        "trade_candidates_H2L",
+        "trade_candidates_L2H",
+    ):
+        st.session_state.pop(key, None)
+
+
 def logout():
     try:
         sb.auth.sign_out()
     except Exception:
         pass
 
+    clear_index_session_data()
     st.session_state.user = None
     st.session_state.profile = None
     st.session_state.is_admin = False
@@ -636,19 +652,37 @@ if page == "Index":
         "The uploaded file is processed in Streamlit memory and is not saved to Supabase."
     )
 
+    # Each connected Streamlit session has its own session_state. The owner
+    # marker also prevents a different account using the same browser session
+    # from inheriting the previous account's uploaded Index file or signals.
+    session_user_id = str(user.id)
+    if st.session_state.get("index_file_owner_id") != session_user_id:
+        clear_index_session_data()
+        st.session_state["index_file_owner_id"] = session_user_id
+
     index_upload = st.file_uploader(
         "Upload Index File to replace the saved file",
         type=["xlsx", "csv"],
-        key="index_excel_upload"
+        key=f"index_excel_upload_{session_user_id}"
     )
 
     try:
-        # Keep the latest Index upload in Streamlit session memory only.
-        # It remains available during reruns in this session and is replaced
-        # when a new CSV/Excel file is uploaded. It is not sent to Supabase.
+        # Keep the latest Index upload in this user's Streamlit session only.
+        # It is never written to Supabase or shared with other users.
         if index_upload is not None:
-            st.session_state["index_file_bytes"] = index_upload.getvalue()
-            st.session_state["index_file_name"] = index_upload.name
+            new_file_bytes = index_upload.getvalue()
+            new_file_name = index_upload.name
+            if (
+                new_file_bytes != st.session_state.get("index_file_bytes")
+                or new_file_name != st.session_state.get("index_file_name")
+            ):
+                # A new upload invalidates old H2L/L2H candidates so signals
+                # cannot briefly use stocks calculated from the previous file.
+                st.session_state.pop("trade_candidates_H2L", None)
+                st.session_state.pop("trade_candidates_L2H", None)
+            st.session_state["index_file_bytes"] = new_file_bytes
+            st.session_state["index_file_name"] = new_file_name
+            st.session_state["index_file_owner_id"] = session_user_id
 
         file_bytes = st.session_state.get("index_file_bytes")
         file_name = st.session_state.get("index_file_name")
