@@ -1987,7 +1987,7 @@ if page == "Index":
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
                                             target_label = "Target Price"
-                                            rank_label = "Lowest Rank in H2L List"
+                                            rank_label = "Rank"
                                         else:
                                             trade_action = "SELL"
                                             target_price = entry_price * 0.9965
@@ -1995,7 +1995,7 @@ if page == "Index":
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
                                             target_label = "Target Price"
-                                            rank_label = "Lowest Rank in L2H List"
+                                            rank_label = "Rank"
 
                                         trade_signal_placeholder.markdown(
                                             f"""
@@ -3658,7 +3658,7 @@ elif page == "Index 2":
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
                                             target_label = "Target Price"
-                                            rank_label = "Lowest Rank in H2L List"
+                                            rank_label = "Rank"
                                         else:
                                             trade_action = "SELL"
                                             target_price = entry_price * 0.9965
@@ -3666,7 +3666,7 @@ elif page == "Index 2":
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
                                             target_label = "Target Price"
-                                            rank_label = "Lowest Rank in L2H List"
+                                            rank_label = "Rank"
 
                                         trade_signal_placeholder.markdown(
                                             f"""
