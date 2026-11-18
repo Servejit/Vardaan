@@ -460,40 +460,87 @@ if page == "Index":
         metric1, metric2, metric3 = st.columns(3)
         metric1.metric("Worksheets", len(sheet_names))
         metric2.metric("Data Rows", len(records))
-        metric3.metric("Columns", len(headers))
+        metric3.metric("Columns in Output", 6)
 
         st.divider()
         st.subheader("Index Data")
 
-        search_text = st.text_input(
-            "Search index",
-            placeholder="Search by index name or any value..."
-        ).strip().lower()
+        # Display only the six requested columns, regardless of
+        # extra spaces or line breaks in the uploaded file headers.
+        required_columns = [
+            "INDEX",
+            "CURRENT",
+            "%CHANGE",
+            "OPEN",
+            "HIGH",
+            "LOW"
+        ]
 
-        if search_text:
-            visible_records = [
-                record for record in records
-                if any(
-                    search_text in str(value).lower()
-                    for value in record.values()
-                    if value is not None
-                )
-            ]
-        else:
-            visible_records = records
+        normalized_header_map = {
+            " ".join(str(header).upper().split()): header
+            for header in headers
+        }
 
-        st.caption(
-            f"Showing {len(visible_records)} of {len(records)} records."
-        )
+        missing_columns = [
+            column for column in required_columns
+            if column not in normalized_header_map
+        ]
 
-        if visible_records:
-            st.dataframe(
-                visible_records,
-                use_container_width=True,
-                hide_index=True
+        if missing_columns:
+            st.error(
+                "The uploaded file is missing these required columns: "
+                + ", ".join(missing_columns)
+            )
+            st.caption(
+                "Please check that the file contains all six required "
+                "column headings."
             )
         else:
-            st.warning("No matching records found.")
+            source_columns = [
+                normalized_header_map[column]
+                for column in required_columns
+            ]
+
+            display_records = [
+                {
+                    column: record.get(source_column)
+                    for column, source_column in zip(
+                        required_columns,
+                        source_columns
+                    )
+                }
+                for record in records
+            ]
+
+            search_text = st.text_input(
+                "Search index",
+                placeholder="Search by index name or displayed values..."
+            ).strip().lower()
+
+            if search_text:
+                visible_records = [
+                    record for record in display_records
+                    if any(
+                        search_text in str(value).lower()
+                        for value in record.values()
+                        if value is not None
+                    )
+                ]
+            else:
+                visible_records = display_records
+
+            st.caption(
+                f"Showing {len(visible_records)} of {len(display_records)} records."
+            )
+
+            if visible_records:
+                st.dataframe(
+                    visible_records,
+                    use_container_width=True,
+                    hide_index=True
+                )
+            else:
+                st.warning("No matching records found.")
 
         st.download_button(
             "Download Uploaded File",
