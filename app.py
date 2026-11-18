@@ -1248,6 +1248,16 @@ if page == "Index":
                             "top"
                         )
 
+                except Exception as constituent_error:
+                    st.error(
+                        f"Could not load constituents or stock details for "
+                        f"{selected_name}: {constituent_error}"
+                    )
+                    st.caption(
+                        "The selected index remains visible above. Please try "
+                        "again later if the constituent data provider is unavailable."
+                    )
+
                 # Second independent selection: highest L2H% index.
                 if highest_l2h_indices:
                     selected_l2h, highest_l2h_index = highest_l2h_indices[0]
@@ -1308,18 +1318,6 @@ if page == "Index":
                             f"Could not load constituents or stock details for "
                             f"{highest_l2h_name}: {highest_l2h_error}"
                         )
-                else:
-                    st.info("No index has a valid L2H% value.")
-
-                except Exception as constituent_error:
-                    st.error(
-                        f"Could not load constituents or stock details for "
-                        f"{selected_name}: {constituent_error}"
-                    )
-                    st.caption(
-                        "The selected index remains visible above. Please try "
-                        "again later if the constituent data provider is unavailable."
-                    )
             else:
                 st.info(
                     "No index has CURRENT above 10,000 with a valid H2L% value."
