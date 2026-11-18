@@ -2055,9 +2055,15 @@ if page == "Index":
                                     else:
                                         trade_signal_placeholder.markdown(
                                             """
+                                            <style>
+                                            @keyframes noSignalGlow {
+                                                0%, 100% { box-shadow: 0 5px 18px rgba(255,255,255,.06); }
+                                                50% { box-shadow: 0 5px 24px rgba(255,255,255,.18); }
+                                            }
+                                            </style>
                                             <div style="
-                                                background: linear-gradient(115deg, #145a9e, #287fc4);
-                                                border: 1px solid #79b8ec;
+                                                background: linear-gradient(135deg, #101010 0%, #242424 52%, #111111 100%);
+                                                border: 1px solid #f5f5f5;
                                                 border-radius: 14px;
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
@@ -2069,10 +2075,12 @@ if page == "Index":
                                                 display: flex;
                                                 align-items: center;
                                                 justify-content: center;
-                                                box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
+                                                animation: noSignalGlow 3s ease-in-out infinite;
                                             ">
-                                                No Buy/Sell Stock Found,<br>
-                                                Try again later
+                                                <div>✦ WAIT · NO SIGNAL<br>
+                                                <span style="font-size:.78rem;font-weight:500;color:#d4d4d4;">
+                                                No qualifying signal found<br>Awaiting next opportunity
+                                                </span></div>
                                             </div>
                                             """,
                                             unsafe_allow_html=True
@@ -2203,15 +2211,21 @@ if page == "Index":
                                         else:
                                             placeholder.markdown(
                                                 """
+                                                <style>
+                                                @keyframes dependentNoSignalGlow {
+                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.06); }
+                                                    50% { box-shadow:0 5px 24px rgba(255,255,255,.18); }
+                                                }
+                                                </style>
                                                 <div style="
                                                     min-height:145px;display:flex;align-items:center;justify-content:center;
                                                     text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#d7e0e9;background:linear-gradient(135deg,#172331,#243447);
-                                                    border:1px solid #526579;box-shadow:0 5px 16px rgba(0,0,0,.16);
+                                                    color:#ffffff;background:linear-gradient(135deg,#101010 0%,#242424 52%,#111111 100%);
+                                                    border:1px solid #f5f5f5;animation:dependentNoSignalGlow 3s ease-in-out infinite;
                                                     font-weight:750;">
-                                                    <div>◇ &nbsp; NO DEPENDENT SIGNAL<br>
-                                                    <span style="font-size:.76rem;font-weight:500;opacity:.8;">
-                                                    Waiting for average bias, cross-side rank and confirmation
+                                                    <div>✦ &nbsp; WAIT · NO SIGNAL<br>
+                                                    <span style="font-size:.76rem;font-weight:500;color:#d4d4d4;">
+                                                    No qualifying dependent signal found<br>Awaiting next opportunity
                                                     </span></div>
                                                 </div>
                                                 """,
@@ -3713,9 +3727,15 @@ elif page == "Index 2":
                                     else:
                                         trade_signal_placeholder.markdown(
                                             """
+                                            <style>
+                                            @keyframes noSignalGlow {
+                                                0%, 100% { box-shadow: 0 5px 18px rgba(255,255,255,.06); }
+                                                50% { box-shadow: 0 5px 24px rgba(255,255,255,.18); }
+                                            }
+                                            </style>
                                             <div style="
-                                                background: linear-gradient(115deg, #145a9e, #287fc4);
-                                                border: 1px solid #79b8ec;
+                                                background: linear-gradient(135deg, #101010 0%, #242424 52%, #111111 100%);
+                                                border: 1px solid #f5f5f5;
                                                 border-radius: 14px;
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
@@ -3727,10 +3747,12 @@ elif page == "Index 2":
                                                 display: flex;
                                                 align-items: center;
                                                 justify-content: center;
-                                                box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
+                                                animation: noSignalGlow 3s ease-in-out infinite;
                                             ">
-                                                No Buy/Sell Stock Found,<br>
-                                                Try again later
+                                                <div>✦ WAIT · NO SIGNAL<br>
+                                                <span style="font-size:.78rem;font-weight:500;color:#d4d4d4;">
+                                                No qualifying signal found<br>Awaiting next opportunity
+                                                </span></div>
                                             </div>
                                             """,
                                             unsafe_allow_html=True
@@ -3861,15 +3883,21 @@ elif page == "Index 2":
                                         else:
                                             placeholder.markdown(
                                                 """
+                                                <style>
+                                                @keyframes dependentNoSignalGlow {
+                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.06); }
+                                                    50% { box-shadow:0 5px 24px rgba(255,255,255,.18); }
+                                                }
+                                                </style>
                                                 <div style="
                                                     min-height:145px;display:flex;align-items:center;justify-content:center;
                                                     text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#d7e0e9;background:linear-gradient(135deg,#172331,#243447);
-                                                    border:1px solid #526579;box-shadow:0 5px 16px rgba(0,0,0,.16);
+                                                    color:#ffffff;background:linear-gradient(135deg,#101010 0%,#242424 52%,#111111 100%);
+                                                    border:1px solid #f5f5f5;animation:dependentNoSignalGlow 3s ease-in-out infinite;
                                                     font-weight:750;">
-                                                    <div>◇ &nbsp; NO DEPENDENT SIGNAL<br>
-                                                    <span style="font-size:.76rem;font-weight:500;opacity:.8;">
-                                                    Waiting for average bias, cross-side rank and confirmation
+                                                    <div>✦ &nbsp; WAIT · NO SIGNAL<br>
+                                                    <span style="font-size:.76rem;font-weight:500;color:#d4d4d4;">
+                                                    No qualifying dependent signal found<br>Awaiting next opportunity
                                                     </span></div>
                                                 </div>
                                                 """,
