@@ -325,438 +325,582 @@ with st.sidebar:
     ):
         logout()
 
-
-# ============================================================
-# MASTER FILE
-# ============================================================
-
-master = get_master()
-
-st.header(
-    "Master Excel"
-)
-
-if master:
-
-    st.success(
-        "Master file is available."
+    st.divider()
+    page = st.radio(
+        "Dashboard",
+        ["Master Excel", "Index"],
+        key="main_dashboard"
     )
 
-    st.download_button(
-        "Download Master Excel",
-        data=master,
-        file_name=MASTER_FILE,
-        mime=EXCEL_MIME,
-        use_container_width=True
+
+
+# ============================================================
+# INDEX DASHBOARD
+# ============================================================
+
+if page == "Index":
+
+    st.header("Index Dashboard")
+    st.caption(
+        "Upload an Excel file to explore its sheets. "
+        "This file is processed in Streamlit only and is not saved to Supabase."
     )
+
+    index_upload = st.file_uploader(
+        "Upload Index Excel File",
+        type=["xlsx"],
+        key="index_excel_upload"
+    )
+
+    if index_upload is None:
+        st.info("Upload an .xlsx file to start the Index dashboard.")
+        st.stop()
+
+    try:
+        index_bytes = index_upload.getvalue()
+        index_wb = load_workbook(
+            io.BytesIO(index_bytes),
+            read_only=True,
+            data_only=True
+        )
+
+        st.success(f"Loaded: {index_upload.name}")
+
+        selected_sheet = st.selectbox(
+            "Select worksheet",
+            index_wb.sheetnames,
+            key="index_sheet_selector"
+        )
+
+        index_ws = index_wb[selected_sheet]
+        total_rows = index_ws.max_row or 0
+        total_columns = index_ws.max_column or 0
+
+        metric1, metric2, metric3 = st.columns(3)
+        metric1.metric("Worksheets", len(index_wb.sheetnames))
+        metric2.metric("Rows", total_rows)
+        metric3.metric("Columns", total_columns)
+
+        st.divider()
+        st.subheader(f"Data Preview — {selected_sheet}")
+
+        raw_rows = list(
+            index_ws.iter_rows(
+                min_row=1,
+                max_row=min(total_rows, 1001),
+                max_col=total_columns,
+                values_only=True
+            )
+        )
+
+        if not raw_rows:
+            st.warning("The selected worksheet is empty.")
+        else:
+            raw_headers = raw_rows[0]
+            headers = []
+            used_headers = set()
+
+            for position, value in enumerate(raw_headers, start=1):
+                header = str(value).strip() if value is not None else ""
+                if not header:
+                    header = f"Column {position}"
+
+                base_header = header
+                suffix = 2
+                while header in used_headers:
+                    header = f"{base_header}_{suffix}"
+                    suffix += 1
+
+                used_headers.add(header)
+                headers.append(header)
+
+            data_rows = []
+            for row in raw_rows[1:]:
+                values = list(row)
+                if len(values) < len(headers):
+                    values.extend([None] * (len(headers) - len(values)))
+                data_rows.append(dict(zip(headers, values[:len(headers)])))
+
+            search_text = st.text_input(
+                "Search in this worksheet",
+                placeholder="Type a stock name, index name, or any value..."
+            ).strip().lower()
+
+            if search_text:
+                visible_rows = [
+                    row for row in data_rows
+                    if any(
+                        search_text in str(value).lower()
+                        for value in row.values()
+                        if value is not None
+                    )
+                ]
+            else:
+                visible_rows = data_rows
+
+            st.caption(
+                f"Showing {min(len(visible_rows), 500)} of "
+                f"{len(visible_rows)} matching data rows. "
+                "Preview is limited to the first 1,000 Excel rows."
+            )
+
+            if visible_rows:
+                st.dataframe(
+                    visible_rows[:500],
+                    use_container_width=True,
+                    hide_index=True
+                )
+            else:
+                st.warning("No matching rows found.")
+
+        st.download_button(
+            "Download Uploaded Index File",
+            data=index_bytes,
+            file_name=index_upload.name,
+            mime=EXCEL_MIME,
+            use_container_width=True
+        )
+
+        index_wb.close()
+
+    except Exception as e:
+        st.error(f"Unable to read this Excel file: {e}")
+
+    st.stop()
 
 else:
 
-    st.warning(
-        "Master file is not uploaded."
-    )
+    # ============================================================
+    # MASTER FILE
+    # ============================================================
 
-
-# ============================================================
-# ADMIN PANEL
-# ============================================================
-
-if is_admin:
-
-    st.divider()
+    master = get_master()
 
     st.header(
-        "Admin Panel"
+        "Master Excel"
     )
 
-    # ========================================================
-    # UPLOAD / REPLACE
-    # ========================================================
+    if master:
 
-    st.subheader(
-        "Upload / Replace Master File"
-    )
+        st.success(
+            "Master file is available."
+        )
 
-    uploaded = st.file_uploader(
-        "Select .xlsx file",
-        type=["xlsx"]
-    )
-
-    if uploaded:
-
-        if st.button(
-            "Save Master File",
+        st.download_button(
+            "Download Master Excel",
+            data=master,
+            file_name=MASTER_FILE,
+            mime=EXCEL_MIME,
             use_container_width=True
-        ):
+        )
+
+    else:
+
+        st.warning(
+            "Master file is not uploaded."
+        )
+
+
+    # ============================================================
+    # ADMIN PANEL
+    # ============================================================
+
+    if is_admin:
+
+        st.divider()
+
+        st.header(
+            "Admin Panel"
+        )
+
+        # ========================================================
+        # UPLOAD / REPLACE
+        # ========================================================
+
+        st.subheader(
+            "Upload / Replace Master File"
+        )
+
+        uploaded = st.file_uploader(
+            "Select .xlsx file",
+            type=["xlsx"]
+        )
+
+        if uploaded:
+
+            if st.button(
+                "Save Master File",
+                use_container_width=True
+            ):
+
+                try:
+
+                    # Save ORIGINAL bytes directly.
+                    # No pandas rewriting.
+                    save_master(
+                        uploaded.getvalue()
+                    )
+
+                    st.success(
+                        "Master file uploaded successfully."
+                    )
+
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(
+                        f"Upload error: {e}"
+                    )
+
+        # ========================================================
+        # MODIFY
+        # ========================================================
+
+        if master:
+
+            st.divider()
+
+            st.subheader(
+                "Modify Master Excel"
+            )
 
             try:
 
-                # Save ORIGINAL bytes directly.
-                # No pandas rewriting.
-                save_master(
-                    uploaded.getvalue()
+                wb = load_workbook(
+                    io.BytesIO(master),
+                    data_only=False
                 )
 
-                st.success(
-                    "Master file uploaded successfully."
+                sheet = st.selectbox(
+                    "Select Sheet",
+                    wb.sheetnames
                 )
 
-                st.rerun()
+                ws = wb[sheet]
+
+                cell = st.text_input(
+                    "Cell Address",
+                    value="A1"
+                ).strip().upper()
+
+                try:
+
+                    old_value = ws[cell].value
+
+                    st.write(
+                        f"Current value: "
+                        f"`{old_value}`"
+                    )
+
+                    new_value = st.text_input(
+                        "New Value",
+                        value=(
+                            ""
+                            if old_value is None
+                            else str(old_value)
+                        )
+                    )
+
+                    if st.button(
+                        "Save Cell Change",
+                        use_container_width=True
+                    ):
+
+                        # ONLY change cell value.
+                        # Existing Excel formatting remains.
+                        ws[cell].value = new_value
+
+                        output = io.BytesIO()
+
+                        wb.save(output)
+
+                        save_master(
+                            output.getvalue()
+                        )
+
+                        st.success(
+                            "Cell updated successfully."
+                        )
+
+                        st.rerun()
+
+                except Exception:
+                    st.error(
+                        "Invalid cell address."
+                    )
 
             except Exception as e:
                 st.error(
-                    f"Upload error: {e}"
+                    f"Excel error: {e}"
                 )
 
-    # ========================================================
-    # MODIFY
-    # ========================================================
-
-    if master:
+        # ========================================================
+        # DELETE MASTER
+        # ========================================================
 
         st.divider()
 
         st.subheader(
-            "Modify Master Excel"
+            "Delete Master File"
         )
 
-        try:
+        if master:
 
-            wb = load_workbook(
-                io.BytesIO(master),
-                data_only=False
-            )
+            if st.button(
+                "Delete Master Excel",
+                use_container_width=True
+            ):
 
-            sheet = st.selectbox(
-                "Select Sheet",
-                wb.sheetnames
-            )
+                try:
 
-            ws = wb[sheet]
-
-            cell = st.text_input(
-                "Cell Address",
-                value="A1"
-            ).strip().upper()
-
-            try:
-
-                old_value = ws[cell].value
-
-                st.write(
-                    f"Current value: "
-                    f"`{old_value}`"
-                )
-
-                new_value = st.text_input(
-                    "New Value",
-                    value=(
-                        ""
-                        if old_value is None
-                        else str(old_value)
-                    )
-                )
-
-                if st.button(
-                    "Save Cell Change",
-                    use_container_width=True
-                ):
-
-                    # ONLY change cell value.
-                    # Existing Excel formatting remains.
-                    ws[cell].value = new_value
-
-                    output = io.BytesIO()
-
-                    wb.save(output)
-
-                    save_master(
-                        output.getvalue()
-                    )
+                    delete_master()
 
                     st.success(
-                        "Cell updated successfully."
+                        "Master file deleted."
                     )
 
                     st.rerun()
 
-            except Exception:
-                st.error(
-                    "Invalid cell address."
-                )
+                except Exception as e:
+                    st.error(
+                        f"Delete error: {e}"
+                    )
 
-        except Exception as e:
-            st.error(
-                f"Excel error: {e}"
+        else:
+
+            st.info(
+                "There is no Master file to delete."
             )
 
-    # ========================================================
-    # DELETE MASTER
-    # ========================================================
+        # ========================================================
+        # ADD USER
+        # ========================================================
 
-    st.divider()
+        st.divider()
 
-    st.subheader(
-        "Delete Master File"
-    )
+        st.subheader(
+            "Add User"
+        )
 
-    if master:
+        new_email = st.text_input(
+            "New User Email"
+        )
+
+        new_password = st.text_input(
+            "New User Password",
+            type="password"
+        )
+
+        new_role = st.selectbox(
+            "New User Role",
+            ["user", "admin"]
+        )
 
         if st.button(
-            "Delete Master Excel",
+            "Create User",
             use_container_width=True
         ):
 
             try:
 
-                delete_master()
-
-                st.success(
-                    "Master file deleted."
-                )
-
-                st.rerun()
-
-            except Exception as e:
-                st.error(
-                    f"Delete error: {e}"
-                )
-
-    else:
-
-        st.info(
-            "There is no Master file to delete."
-        )
-
-    # ========================================================
-    # ADD USER
-    # ========================================================
-
-    st.divider()
-
-    st.subheader(
-        "Add User"
-    )
-
-    new_email = st.text_input(
-        "New User Email"
-    )
-
-    new_password = st.text_input(
-        "New User Password",
-        type="password"
-    )
-
-    new_role = st.selectbox(
-        "New User Role",
-        ["user", "admin"]
-    )
-
-    if st.button(
-        "Create User",
-        use_container_width=True
-    ):
-
-        try:
-
-            if not new_email.strip():
-                st.error(
-                    "Enter an email."
-                )
-
-            elif len(new_password) < 6:
-                st.error(
-                    "Password must be at least 6 characters."
-                )
-
-            else:
-
-                # Create Auth user
-                result = admin.auth.admin.create_user(
-                    {
-                        "email":
-                        new_email.strip(),
-
-                        "password":
-                        new_password,
-
-                        "email_confirm":
-                        True
-                    }
-                )
-
-                uid = result.user.id
-
-                # Create profile using SERVICE client.
-                # This avoids the RLS 403 for admin creation.
-                admin.table(
-                    "profiles"
-                ).insert(
-                    {
-                        "id": uid,
-                        "email":
-                        new_email.strip(),
-                        "role":
-                        new_role,
-                        "is_active":
-                        True
-                    }
-                ).execute()
-
-                st.success(
-                    "User created successfully."
-                )
-
-                st.rerun()
-
-        except Exception as e:
-            st.error(
-                f"Create user error: {e}"
-            )
-
-    # ========================================================
-    # USER MANAGEMENT
-    # ========================================================
-
-    st.divider()
-
-    st.subheader(
-        "User Management"
-    )
-
-    try:
-
-        users = admin.table(
-            "profiles"
-        ).select(
-            "*"
-        ).order(
-            "email"
-        ).execute().data
-
-        for u in users:
-
-            uid = u["id"]
-
-            c1, c2, c3, c4 = st.columns(
-                [4, 1, 1, 1]
-            )
-
-            c1.write(
-                f"**{u['email']}**  \n"
-                f"Role: {u['role']} | "
-                f"{'Active' if u['is_active'] else 'Banned'}"
-            )
-
-            # ------------------------------------------------
-            # ROLE
-            # ------------------------------------------------
-
-            if c2.button(
-                "Role",
-                key=f"role_{uid}"
-            ):
-
-                new_role = (
-                    "user"
-                    if u["role"] == "admin"
-                    else "admin"
-                )
-
-                admin.table(
-                    "profiles"
-                ).update(
-                    {
-                        "role":
-                        new_role
-                    }
-                ).eq(
-                    "id",
-                    uid
-                ).execute()
-
-                st.rerun()
-
-            # ------------------------------------------------
-            # BAN / ACTIVATE
-            # ------------------------------------------------
-
-            if c3.button(
-                (
-                    "Ban"
-                    if u["is_active"]
-                    else "Activate"
-                ),
-                key=f"active_{uid}"
-            ):
-
-                admin.table(
-                    "profiles"
-                ).update(
-                    {
-                        "is_active":
-                        not u["is_active"]
-                    }
-                ).eq(
-                    "id",
-                    uid
-                ).execute()
-
-                st.rerun()
-
-            # ------------------------------------------------
-            # DELETE
-            # ------------------------------------------------
-
-            if c4.button(
-                "Delete",
-                key=f"delete_{uid}"
-            ):
-
-                if uid == user.id:
-
+                if not new_email.strip():
                     st.error(
-                        "You cannot delete yourself."
+                        "Enter an email."
+                    )
+
+                elif len(new_password) < 6:
+                    st.error(
+                        "Password must be at least 6 characters."
                     )
 
                 else:
 
-                    # Delete profile
+                    # Create Auth user
+                    result = admin.auth.admin.create_user(
+                        {
+                            "email":
+                            new_email.strip(),
+
+                            "password":
+                            new_password,
+
+                            "email_confirm":
+                            True
+                        }
+                    )
+
+                    uid = result.user.id
+
+                    # Create profile using SERVICE client.
+                    # This avoids the RLS 403 for admin creation.
                     admin.table(
                         "profiles"
-                    ).delete().eq(
-                        "id",
-                        uid
+                    ).insert(
+                        {
+                            "id": uid,
+                            "email":
+                            new_email.strip(),
+                            "role":
+                            new_role,
+                            "is_active":
+                            True
+                        }
                     ).execute()
 
-                    # Delete Auth account
-                    try:
-                        admin.auth.admin.delete_user(
-                            uid
-                        )
-                    except Exception:
-                        pass
-
                     st.success(
-                        "User deleted."
+                        "User created successfully."
                     )
 
                     st.rerun()
 
+            except Exception as e:
+                st.error(
+                    f"Create user error: {e}"
+                )
 
-    except Exception as e:
+        # ========================================================
+        # USER MANAGEMENT
+        # ========================================================
 
-        st.error(
-            f"User management error: {e}"
+        st.divider()
+
+        st.subheader(
+            "User Management"
         )
 
+        try:
 
-# ============================================================
-# NORMAL USER
-# ============================================================
+            users = admin.table(
+                "profiles"
+            ).select(
+                "*"
+            ).order(
+                "email"
+            ).execute().data
 
-else:
+            for u in users:
 
-    st.info(
-        "USER ACCESS â€” Read-only"
-    )
+                uid = u["id"]
+
+                c1, c2, c3, c4 = st.columns(
+                    [4, 1, 1, 1]
+                )
+
+                c1.write(
+                    f"**{u['email']}**  \n"
+                    f"Role: {u['role']} | "
+                    f"{'Active' if u['is_active'] else 'Banned'}"
+                )
+
+                # ------------------------------------------------
+                # ROLE
+                # ------------------------------------------------
+
+                if c2.button(
+                    "Role",
+                    key=f"role_{uid}"
+                ):
+
+                    new_role = (
+                        "user"
+                        if u["role"] == "admin"
+                        else "admin"
+                    )
+
+                    admin.table(
+                        "profiles"
+                    ).update(
+                        {
+                            "role":
+                            new_role
+                        }
+                    ).eq(
+                        "id",
+                        uid
+                    ).execute()
+
+                    st.rerun()
+
+                # ------------------------------------------------
+                # BAN / ACTIVATE
+                # ------------------------------------------------
+
+                if c3.button(
+                    (
+                        "Ban"
+                        if u["is_active"]
+                        else "Activate"
+                    ),
+                    key=f"active_{uid}"
+                ):
+
+                    admin.table(
+                        "profiles"
+                    ).update(
+                        {
+                            "is_active":
+                            not u["is_active"]
+                        }
+                    ).eq(
+                        "id",
+                        uid
+                    ).execute()
+
+                    st.rerun()
+
+                # ------------------------------------------------
+                # DELETE
+                # ------------------------------------------------
+
+                if c4.button(
+                    "Delete",
+                    key=f"delete_{uid}"
+                ):
+
+                    if uid == user.id:
+
+                        st.error(
+                            "You cannot delete yourself."
+                        )
+
+                    else:
+
+                        # Delete profile
+                        admin.table(
+                            "profiles"
+                        ).delete().eq(
+                            "id",
+                            uid
+                        ).execute()
+
+                        # Delete Auth account
+                        try:
+                            admin.auth.admin.delete_user(
+                                uid
+                            )
+                        except Exception:
+                            pass
+
+                        st.success(
+                            "User deleted."
+                        )
+
+                        st.rerun()
+
+
+        except Exception as e:
+
+            st.error(
+                f"User management error: {e}"
+            )
+
+
+    # ============================================================
+    # NORMAL USER
+    # ============================================================
+
+    else:
+
+        st.info(
+            "USER ACCESS â€” Read-only"
+        )
