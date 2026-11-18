@@ -1,3 +1,4 @@
+# Scheduled constituent refresh: fetch all eligible indices and preserve last-known-good lists.
 import ast
 import csv
 import io
