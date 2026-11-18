@@ -777,6 +777,12 @@ if page == "Index":
                         def get_dynamic_index_quotes(symbols, requested_market_date):
                             from concurrent.futures import ThreadPoolExecutor, as_completed
 
+                            # The caller passes an ISO date string; convert it to
+                            # a date object before comparing with pandas index dates.
+                            requested_date = datetime.fromisoformat(
+                                requested_market_date
+                            ).date()
+
                             def get_one_symbol(symbol):
                                 ticker = f"{symbol}.NS"
                                 row = {
@@ -818,7 +824,7 @@ if page == "Index":
                                         )
 
                                     today = intraday[
-                                        intraday.index.date == requested_market_date
+                                        intraday.index.date == requested_date
                                     ].dropna(how="all")
 
                                     if today.empty:
@@ -847,7 +853,7 @@ if page == "Index":
                                                 "Asia/Kolkata"
                                             )
                                         previous = daily[
-                                            daily.index.date < requested_market_date
+                                            daily.index.date < requested_date
                                         ]["Close"].dropna()
                                         if not previous.empty:
                                             previous_close = float(previous.iloc[-1])
