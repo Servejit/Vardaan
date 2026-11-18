@@ -1608,8 +1608,7 @@ if page == "Index":
                                 constituents,
                                 index_name,
                                 refresh_key,
-                                selection_mode,
-                                trade_signal_placeholder
+                                selection_mode
                             ):
                                 quote_symbols = [
                                     item["NSE Symbol"] for item in constituents
@@ -2110,7 +2109,6 @@ if page == "Index":
                                     selected_name,
                                     "refresh_dynamic_index_quotes",
                                     "top",
-                                    trade_signal_placeholder
                                 )
                             else:
                                 render_today_quotes(
@@ -2118,7 +2116,6 @@ if page == "Index":
                                     selected_name,
                                     "refresh_dynamic_index_quotes",
                                     "top",
-                                    trade_signal_placeholder
                                 )
         
                         except Exception as constituent_error:
@@ -2190,7 +2187,6 @@ if page == "Index":
                                         highest_l2h_name,
                                         "refresh_highest_l2h_quotes",
                                         "bottom",
-                                        trade_signal_placeholder
                                     )
                                 else:
                                     render_today_quotes(
@@ -2198,7 +2194,6 @@ if page == "Index":
                                         highest_l2h_name,
                                         "refresh_highest_l2h_quotes",
                                         "bottom",
-                                        trade_signal_placeholder
                                     )
                             except Exception as highest_l2h_error:
                                 st.error(
@@ -3119,8 +3114,7 @@ elif page == "Index 2":
                                 constituents,
                                 index_name,
                                 refresh_key,
-                                selection_mode,
-                                trade_signal_placeholder
+                                selection_mode
                             ):
                                 quote_symbols = [
                                     item["NSE Symbol"] for item in constituents
@@ -3621,7 +3615,6 @@ elif page == "Index 2":
                                     selected_name,
                                     "refresh_dynamic_index_quotes",
                                     "top",
-                                    trade_signal_placeholder
                                 )
                             else:
                                 render_today_quotes(
@@ -3629,7 +3622,6 @@ elif page == "Index 2":
                                     selected_name,
                                     "refresh_dynamic_index_quotes",
                                     "top",
-                                    trade_signal_placeholder
                                 )
         
                         except Exception as constituent_error:
@@ -3703,7 +3695,6 @@ elif page == "Index 2":
                                         highest_l2h_name,
                                         "refresh_highest_l2h_quotes",
                                         "bottom",
-                                        trade_signal_placeholder
                                     )
                                 else:
                                     render_today_quotes(
@@ -3711,7 +3702,6 @@ elif page == "Index 2":
                                         highest_l2h_name,
                                         "refresh_highest_l2h_quotes",
                                         "bottom",
-                                        trade_signal_placeholder
                                     )
                             except Exception as highest_l2h_error:
                                 st.error(
