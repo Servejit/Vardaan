@@ -2225,7 +2225,7 @@ if page == "Index":
                 index_wb.close()
     
         except Exception as e:
-        st.error(f"Unable to read this file: {e}")
+            st.error(f"Unable to read this file: {e}")
 
     st.stop()
 
@@ -3748,7 +3748,7 @@ elif page == "Index 2":
                 index_wb.close()
     
         except Exception as e:
-        st.error(f"Unable to read this file: {e}")
+            st.error(f"Unable to read this file: {e}")
 
     st.stop()
 
