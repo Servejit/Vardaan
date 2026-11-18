@@ -13,8 +13,6 @@ SERVICE_KEY = st.secrets["SUPABASE_SERVICE_KEY"]
 
 BUCKET = "excel-files"
 MASTER_FILE = "master.xlsx"
-INDEX_XLSX_FILE = "index/current-index.xlsx"
-INDEX_CSV_FILE = "index/current-index.csv"
 EXCEL_MIME = (
     "application/vnd.openxmlformats-officedocument."
     "spreadsheetml.sheet"
@@ -85,43 +83,6 @@ def delete_master():
     admin.storage.from_(BUCKET).remove(
         [MASTER_FILE]
     )
-
-
-def get_saved_index():
-    """Return the persisted Index upload as (bytes, filename), if available."""
-    storage = admin.storage.from_(BUCKET)
-    for path, filename in (
-        (INDEX_CSV_FILE, "current-index.csv"),
-        (INDEX_XLSX_FILE, "current-index.xlsx"),
-    ):
-        try:
-            data = storage.download(path)
-            if data:
-                return data, filename
-        except Exception:
-            continue
-    return None, None
-
-
-def save_index(data, filename):
-    """Replace the persisted Index upload without touching master.xlsx."""
-    storage = admin.storage.from_(BUCKET)
-    is_csv = filename.lower().endswith(".csv")
-    new_path = INDEX_CSV_FILE if is_csv else INDEX_XLSX_FILE
-    old_path = INDEX_XLSX_FILE if is_csv else INDEX_CSV_FILE
-    mime = "text/csv" if is_csv else EXCEL_MIME
-
-    storage.upload(
-        new_path,
-        data,
-        {"content-type": mime, "upsert": "true"}
-    )
-
-    # Remove the previous format only after the replacement upload succeeds.
-    try:
-        storage.remove([old_path])
-    except Exception:
-        pass
 
 
 def logout():
@@ -394,28 +355,19 @@ if page == "Index":
     )
 
     try:
-        # Persist a newly selected upload once. The saved copy is then used
-        # on later reruns and visits until another file replaces it.
+        # Keep the latest Index upload in Streamlit session memory only.
+        # It remains available during reruns in this session and is replaced
+        # when a new CSV/Excel file is uploaded. It is not sent to Supabase.
         if index_upload is not None:
-            import hashlib
-            uploaded_bytes = index_upload.getvalue()
-            uploaded_name = index_upload.name
-            upload_signature = hashlib.sha256(
-                uploaded_name.encode("utf-8") + uploaded_bytes
-            ).hexdigest()
+            st.session_state["index_file_bytes"] = index_upload.getvalue()
+            st.session_state["index_file_name"] = index_upload.name
 
-            if st.session_state.get("saved_index_signature") != upload_signature:
-                save_index(uploaded_bytes, uploaded_name)
-                st.session_state["saved_index_signature"] = upload_signature
-                st.success("Index file saved. It will remain available until replaced.")
+        file_bytes = st.session_state.get("index_file_bytes")
+        file_name = st.session_state.get("index_file_name")
 
-        file_bytes, saved_file_name = get_saved_index()
-
-        if file_bytes is None:
-            st.info("No saved Index file yet. Upload an Excel or CSV file above.")
+        if file_bytes is None or file_name is None:
+            st.info("No Index file in this session yet. Upload an Excel or CSV file above.")
             st.stop()
-
-        file_name = saved_file_name
         extension = file_name.lower().rsplit(".", 1)[-1]
 
         if extension == "csv":
@@ -644,6 +596,81 @@ if page == "Index":
                 if average_current is not None and average_low not in (None, 0)
                 else None
             )
+
+            # Automatically identify the index with the lowest H2L%
+            # among indices whose CURRENT value is above 10,000.
+            eligible_indices = []
+            for record in display_records:
+                current_value = to_number(record.get("CURRENT"))
+                h2l_value = to_number(record.get("H2L%"))
+                if (
+                    current_value is not None
+                    and current_value > 10000
+                    and h2l_value is not None
+                ):
+                    eligible_indices.append((h2l_value, record))
+
+            eligible_indices.sort(key=lambda item: item[0])
+
+            st.divider()
+            st.subheader("Index Selection & Constituents")
+            st.caption(
+                "Automatically selects the lowest H2L% index where CURRENT is above 10,000."
+            )
+
+            if eligible_indices:
+                selected_h2l, selected_index = eligible_indices[0]
+                selected_name = str(selected_index.get("INDEX", "")).strip().upper()
+                selected_current = to_number(selected_index.get("CURRENT"))
+                selected_high = to_number(selected_index.get("HIGH"))
+                selected_low = to_number(selected_index.get("LOW"))
+
+                select_col1, select_col2, select_col3, select_col4 = st.columns(4)
+                select_col1.metric("Selected INDEX", selected_name)
+                select_col2.metric(
+                    "CURRENT",
+                    f"{selected_current:,.2f}" if selected_current is not None else "N/A"
+                )
+                select_col3.metric(
+                    "H2L%",
+                    f"{selected_h2l:+.2f}%"
+                )
+                select_col4.metric(
+                    "HIGH",
+                    f"{selected_high:,.2f}" if selected_high is not None else "N/A"
+                )
+
+                if selected_name == "NIFTY IT":
+                    st.markdown("**NIFTY IT — Constituent Stocks**")
+                    nifty_it_constituents = [
+                        {"No.": 1, "NSE Symbol": "INFY", "Company": "Infosys Ltd."},
+                        {"No.": 2, "NSE Symbol": "TCS", "Company": "Tata Consultancy Services Ltd."},
+                        {"No.": 3, "NSE Symbol": "HCLTECH", "Company": "HCL Technologies Ltd."},
+                        {"No.": 4, "NSE Symbol": "TECHM", "Company": "Tech Mahindra Ltd."},
+                        {"No.": 5, "NSE Symbol": "COFORGE", "Company": "Coforge Ltd."},
+                        {"No.": 6, "NSE Symbol": "PERSISTENT", "Company": "Persistent Systems Ltd."},
+                        {"No.": 7, "NSE Symbol": "WIPRO", "Company": "Wipro Ltd."},
+                        {"No.": 8, "NSE Symbol": "LTM", "Company": "LTM Ltd."},
+                        {"No.": 9, "NSE Symbol": "MPHASIS", "Company": "Mphasis Ltd."},
+                        {"No.": 10, "NSE Symbol": "OFSS", "Company": "Oracle Financial Services Software Ltd."},
+                    ]
+                    st.dataframe(
+                        nifty_it_constituents,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                    st.caption(
+                        "NIFTY IT constituent list based on the NSE Indices factsheet dated 30 October 2026."
+                    )
+                else:
+                    st.info(
+                        f"The selected index is {selected_name}. "
+                        "A constituent list is currently configured in this dashboard only for NIFTY IT."
+                    )
+            else:
+                st.info(
+                    "No index has CURRENT above 10,000 with a valid H2L% value."
+                )
 
             st.subheader("Average Index Details")
             avg_col1, avg_col2, avg_col3, avg_col4, avg_col5 = st.columns(5)
