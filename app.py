@@ -104,12 +104,23 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
     sheet, but search every sheet and the first 30 rows for the header row).
     Stock symbols are matched against column A.
     """
-    output_columns = [
-        "Sum O2H.10",
-        "Sum O2L.10",
-        "16> C-B / Avg.4",
-        "16< D-B / Avg.4",
-    ]
+    # Keep the requested panel-specific display order.
+    # H2L: O2L, O2H, O2L Rank, D-B, C-B.
+    # L2H: O2H, O2L, O2H Rank, C-B, D-B (existing order).
+    if rank_source_column == "Sum O2L.10":
+        output_columns = [
+            "Sum O2L.10",
+            "Sum O2H.10",
+            "16< D-B / Avg.4",
+            "16> C-B / Avg.4",
+        ]
+    else:
+        output_columns = [
+            "Sum O2H.10",
+            "Sum O2L.10",
+            "16> C-B / Avg.4",
+            "16< D-B / Avg.4",
+        ]
     if not master_bytes:
         return [], "Master Excel is not available in Supabase."
 
@@ -217,11 +228,11 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
             result = {"NSE Symbol": display_symbol}
 
             if master_row is None:
-                result["Sum O2H.10"] = "Not found"
-                result["Sum O2L.10"] = "Not found"
+                for column_name in output_columns[:2]:
+                    result[column_name] = "Not found"
                 result[f"{rank_source_column} Rank"] = ""
-                result["16> C-B / Avg.4"] = "Not found"
-                result["16< D-B / Avg.4"] = "Not found"
+                for column_name in output_columns[2:]:
+                    result[column_name] = "Not found"
             else:
                 matched_count += 1
                 for column_name in output_columns[:2]:
