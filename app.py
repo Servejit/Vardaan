@@ -802,7 +802,11 @@ if page == "Index":
                     and h2l_value is not None
                 ):
                     eligible_indices.append((h2l_value, record))
-                if l2h_value is not None:
+                if (
+                    current_value is not None
+                    and current_value > 10000
+                    and l2h_value is not None
+                ):
                     highest_l2h_indices.append((l2h_value, record))
 
             eligible_indices.sort(key=lambda item: item[0])
