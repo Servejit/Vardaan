@@ -229,7 +229,10 @@ def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
             display_symbol = stock.get("NSE Symbol")
             symbol = normalize_stock_symbol(display_symbol)
             master_row = master_rows.get(symbol)
-            result = {"NSE Symbol": display_symbol}
+            result = {
+                "NSE Symbol": display_symbol,
+                "% Chg": stock.get("% Chg")
+            }
 
             if master_row is None:
                 for column_name in output_columns[:2]:
@@ -1254,6 +1257,11 @@ if page == "Index":
                                         hide_index=True,
                                         column_config={
                                             "NSE Symbol": st.column_config.TextColumn(width="small"),
+                                            "% Chg": st.column_config.NumberColumn(
+                                                "% Chg",
+                                                format="%.2f%%",
+                                                width="small"
+                                            ),
                                             f"{rank_source_column} Rank": st.column_config.NumberColumn(
                                                 f"{rank_source_column} Rank",
                                                 format="%d",
