@@ -2020,12 +2020,14 @@ if page == "Index":
                                                 min-height: 145px;
                                             }}
                                             .priority-trade-signal.buy-signal {{
-                                                background: linear-gradient(115deg, #176b3a, #269653);
-                                                border: 1px solid #58b77a;
+                                                background: linear-gradient(115deg, #063B29 0%, #087A50 48%, #0B4934 100%);
+                                                border: 1.5px solid #79D6A4;
+                                                box-shadow: 0 0 18px rgba(75,210,145,.28);
                                             }}
                                             .priority-trade-signal.sell-signal {{
-                                                background: linear-gradient(115deg, #a65312, #d17a27);
-                                                border: 1px solid #edaa65;
+                                                background: linear-gradient(115deg, #542000 0%, #A94A00 48%, #6B2C00 100%);
+                                                border: 1.5px solid #FFB46B;
+                                                box-shadow: 0 0 18px rgba(255,145,65,.30);
                                             }}
                                             .priority-trade-signal .signal-title {{
                                                 font-size: 1.0rem; font-weight: 800;
