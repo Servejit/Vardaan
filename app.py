@@ -1986,7 +1986,7 @@ if page == "Index":
                                             signal_class = "buy-signal"
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
-                                            target_label = "Target (+0.35%)"
+                                            target_label = "Target Price"
                                             rank_label = "Lowest Rank in H2L List"
                                         else:
                                             trade_action = "SELL"
@@ -1994,7 +1994,7 @@ if page == "Index":
                                             signal_class = "sell-signal"
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
-                                            target_label = "Target (-0.35%)"
+                                            target_label = "Target Price"
                                             rank_label = "Lowest Rank in L2H List"
 
                                         trade_signal_placeholder.markdown(
@@ -2154,7 +2154,6 @@ if page == "Index":
                                             target = entry * (1.0035 if side == "H2L" else 0.9965)
                                             rank_text = f'{dependent_winner["rank"]:g}'
                                             symbol_text = dependent_winner["symbol"]
-                                            target_text = "+0.35%" if side == "H2L" else "-0.35%"
                                             if side == "H2L":
                                                 background = "linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%)"
                                                 border = "#E6C76A"
@@ -2162,10 +2161,10 @@ if page == "Index":
                                                 accent = "#CFFFE4"
                                                 emblem = "♛  ✦  BUY SIGNAL"
                                             else:
-                                                background = "linear-gradient(125deg,#3B1D08 0%,#A85B12 28%,#D18A2E 50%,#8A460D 76%,#422008 100%)"
-                                                border = "#F8D27A"
-                                                glow = "rgba(255,139,55,.38)"
-                                                accent = "#FFE7B5"
+                                                background = "linear-gradient(125deg,#542600 0%,#713000 28%,#E07800 52%,#B85A00 76%,#542600 100%)"
+                                                border = "#FFC04D"
+                                                glow = "rgba(255,160,35,.42)"
+                                                accent = "#FFF0C2"
                                                 emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
@@ -2197,7 +2196,7 @@ if page == "Index":
                                                   </div>
                                                   <div style="height:1px;background:linear-gradient(90deg,transparent,{border},transparent);margin:12px 0;"></div>
                                                   <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET ({target_text})</div>
+                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
                                                       <div style="font-size:1.12rem;font-weight:900;color:{accent};">₹{target:,.2f}</div></div>
                                                     <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">CROSS-SIDE LOWEST RANK</div>
                                                       <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
@@ -3658,7 +3657,7 @@ elif page == "Index 2":
                                             signal_class = "buy-signal"
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
-                                            target_label = "Target (+0.35%)"
+                                            target_label = "Target Price"
                                             rank_label = "Lowest Rank in H2L List"
                                         else:
                                             trade_action = "SELL"
@@ -3666,7 +3665,7 @@ elif page == "Index 2":
                                             signal_class = "sell-signal"
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
-                                            target_label = "Target (-0.35%)"
+                                            target_label = "Target Price"
                                             rank_label = "Lowest Rank in L2H List"
 
                                         trade_signal_placeholder.markdown(
@@ -3826,7 +3825,6 @@ elif page == "Index 2":
                                             target = entry * (1.0035 if side == "H2L" else 0.9965)
                                             rank_text = f'{dependent_winner["rank"]:g}'
                                             symbol_text = dependent_winner["symbol"]
-                                            target_text = "+0.35%" if side == "H2L" else "-0.35%"
                                             if side == "H2L":
                                                 background = "linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%)"
                                                 border = "#E6C76A"
@@ -3834,10 +3832,10 @@ elif page == "Index 2":
                                                 accent = "#CFFFE4"
                                                 emblem = "♛  ✦  BUY SIGNAL"
                                             else:
-                                                background = "linear-gradient(125deg,#3B1D08 0%,#A85B12 28%,#D18A2E 50%,#8A460D 76%,#422008 100%)"
-                                                border = "#F8D27A"
-                                                glow = "rgba(255,139,55,.38)"
-                                                accent = "#FFE7B5"
+                                                background = "linear-gradient(125deg,#160A2A 0%,#29133F 32%,#512078 54%,#35104F 78%,#160A2A 100%)"
+                                                border = "#D7B4F3"
+                                                glow = "rgba(185,105,255,.42)"
+                                                accent = "#F0DFFF"
                                                 emblem = "♛  ✦  SELL SIGNAL"
                                             placeholder.markdown(
                                                 f"""
@@ -3869,7 +3867,7 @@ elif page == "Index 2":
                                                   </div>
                                                   <div style="height:1px;background:linear-gradient(90deg,transparent,{border},transparent);margin:12px 0;"></div>
                                                   <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET ({target_text})</div>
+                                                    <div><div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
                                                       <div style="font-size:1.12rem;font-weight:900;color:{accent};">₹{target:,.2f}</div></div>
                                                     <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">CROSS-SIDE LOWEST RANK</div>
                                                       <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
