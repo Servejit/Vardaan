@@ -91,7 +91,7 @@ def normalize_stock_symbol(value):
     if value is None:
         return ""
     symbol = str(value).strip().upper()
-    symbol = re.sub(r"\\.NS$", "", symbol)
+    symbol = re.sub(r"\.NS$", "", symbol)
     symbol = re.sub(r"[^A-Z0-9&-]", "", symbol)
     return symbol
 
@@ -160,7 +160,7 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
                         master_row[column_index]
                         if column_index < len(master_row) else None
                     )
-                    matches = re.findall(r"\\(([^()]*)\\)", str(raw_value or ""))
+                    matches = re.findall(r"\(([^()]*)\)", str(raw_value or ""))
                     result[column_name] = ", ".join(
                         value.strip() for value in matches if value.strip()
                     ) if matches else ""
