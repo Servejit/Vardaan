@@ -1819,16 +1819,9 @@ if page == "Index":
                                         "The lowest rank is tied between H2L and L2H lists. "
                                         "No trade signal is shown."
                                     )
-                                elif (
-                                    winning_candidate is not None
-                                    and dominant_market_side == winning_candidate["side"]
-                                    and winning_candidate["side"] != signal_side
-                                ):
-                                    trade_signal_placeholder.caption(
-                                        f"Lowest rank across both lists belongs to "
-                                        f"{winning_candidate['side']} ({winning_candidate['symbol']}); "
-                                        "the eligible signal is shown above the analysis panels."
-                                    )
+                                # Do not let the other panel's independent 60-second
+                                # fragment overwrite the shared signal card. Only the
+                                # fragment for the winning side may render the signal.
 
                                 if master_error:
                                     st.warning(master_error)
