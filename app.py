@@ -13,6 +13,8 @@ SERVICE_KEY = st.secrets["SUPABASE_SERVICE_KEY"]
 
 BUCKET = "excel-files"
 MASTER_FILE = "master.xlsx"
+INDEX_XLSX_FILE = "index/current-index.xlsx"
+INDEX_CSV_FILE = "index/current-index.csv"
 EXCEL_MIME = (
     "application/vnd.openxmlformats-officedocument."
     "spreadsheetml.sheet"
@@ -83,6 +85,43 @@ def delete_master():
     admin.storage.from_(BUCKET).remove(
         [MASTER_FILE]
     )
+
+
+def get_saved_index():
+    """Return the persisted Index upload as (bytes, filename), if available."""
+    storage = admin.storage.from_(BUCKET)
+    for path, filename in (
+        (INDEX_CSV_FILE, "current-index.csv"),
+        (INDEX_XLSX_FILE, "current-index.xlsx"),
+    ):
+        try:
+            data = storage.download(path)
+            if data:
+                return data, filename
+        except Exception:
+            continue
+    return None, None
+
+
+def save_index(data, filename):
+    """Replace the persisted Index upload without touching master.xlsx."""
+    storage = admin.storage.from_(BUCKET)
+    is_csv = filename.lower().endswith(".csv")
+    new_path = INDEX_CSV_FILE if is_csv else INDEX_XLSX_FILE
+    old_path = INDEX_XLSX_FILE if is_csv else INDEX_CSV_FILE
+    mime = "text/csv" if is_csv else EXCEL_MIME
+
+    storage.upload(
+        new_path,
+        data,
+        {"content-type": mime, "upsert": "true"}
+    )
+
+    # Remove the previous format only after the replacement upload succeeds.
+    try:
+        storage.remove([old_path])
+    except Exception:
+        pass
 
 
 def logout():
@@ -349,18 +388,34 @@ if page == "Index":
     )
 
     index_upload = st.file_uploader(
-        "Upload Index File",
+        "Upload Index File to replace the saved file",
         type=["xlsx", "csv"],
         key="index_excel_upload"
     )
 
-    if index_upload is None:
-        st.info("Upload your Index Excel or CSV file to start.")
-        st.stop()
-
     try:
-        file_bytes = index_upload.getvalue()
-        file_name = index_upload.name
+        # Persist a newly selected upload once. The saved copy is then used
+        # on later reruns and visits until another file replaces it.
+        if index_upload is not None:
+            import hashlib
+            uploaded_bytes = index_upload.getvalue()
+            uploaded_name = index_upload.name
+            upload_signature = hashlib.sha256(
+                uploaded_name.encode("utf-8") + uploaded_bytes
+            ).hexdigest()
+
+            if st.session_state.get("saved_index_signature") != upload_signature:
+                save_index(uploaded_bytes, uploaded_name)
+                st.session_state["saved_index_signature"] = upload_signature
+                st.success("Index file saved. It will remain available until replaced.")
+
+        file_bytes, saved_file_name = get_saved_index()
+
+        if file_bytes is None:
+            st.info("No saved Index file yet. Upload an Excel or CSV file above.")
+            st.stop()
+
+        file_name = saved_file_name
         extension = file_name.lower().rsplit(".", 1)[-1]
 
         if extension == "csv":
