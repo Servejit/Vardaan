@@ -540,6 +540,71 @@ if page == "Index":
 
                 display_records.append(output_record)
 
+            # Summary calculations: compare the average CURRENT price
+            # with the average HIGH and average LOW across all indices.
+            def to_number(value):
+                try:
+                    cleaned = str(value).replace(",", "").replace("%", "").strip()
+                    return float(cleaned)
+                except (TypeError, ValueError):
+                    return None
+
+            average_current_values = [
+                to_number(record.get("CURRENT"))
+                for record in display_records
+            ]
+            average_high_values = [
+                to_number(record.get("HIGH"))
+                for record in display_records
+            ]
+            average_low_values = [
+                to_number(record.get("LOW"))
+                for record in display_records
+            ]
+
+            average_current_values = [v for v in average_current_values if v is not None]
+            average_high_values = [v for v in average_high_values if v is not None]
+            average_low_values = [v for v in average_low_values if v is not None]
+
+            average_current = (
+                sum(average_current_values) / len(average_current_values)
+                if average_current_values else None
+            )
+            average_high = (
+                sum(average_high_values) / len(average_high_values)
+                if average_high_values else None
+            )
+            average_low = (
+                sum(average_low_values) / len(average_low_values)
+                if average_low_values else None
+            )
+
+            average_vs_high = (
+                ((average_current - average_high) / average_high) * 100
+                if average_current is not None and average_high not in (None, 0)
+                else None
+            )
+            average_vs_low = (
+                ((average_current - average_low) / average_low) * 100
+                if average_current is not None and average_low not in (None, 0)
+                else None
+            )
+
+            st.subheader("Average Index Details")
+            avg_col1, avg_col2, avg_col3 = st.columns(3)
+            avg_col1.metric(
+                "Average CURRENT Price",
+                f"{average_current:,.2f}" if average_current is not None else "N/A"
+            )
+            avg_col2.metric(
+                "Average Price vs Average HIGH",
+                f"{average_vs_high:+.2f}%" if average_vs_high is not None else "N/A"
+            )
+            avg_col3.metric(
+                "Average Price vs Average LOW",
+                f"{average_vs_low:+.2f}%" if average_vs_low is not None else "N/A"
+            )
+
             search_text = st.text_input(
                 "Search index",
                 placeholder="Search by index name or displayed values..."
