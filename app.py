@@ -1731,7 +1731,8 @@ if page == "Index":
 
                                 if (
                                     winning_candidate is not None
-                                    and dominant_market_side == winning_candidate["side"]
+                                    and winning_candidate["side"] == signal_side
+                                    and dominant_market_side == signal_side
                                 ):
                                     signal_symbol = winning_candidate["symbol"]
                                     entry_price = winning_candidate["price"]
