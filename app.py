@@ -2086,7 +2086,7 @@ if page == "Index":
                                             unsafe_allow_html=True
                                         )
 
-                                    st.session_state["independent_signal_active_index1_H2L"] = bool(
+                                    st.session_state[f"independent_signal_active_index1_{signal_side}"] = bool(
                                         winning_candidate is not None and price_location_confirmed
                                     )
 
@@ -3774,7 +3774,7 @@ elif page == "Index 2":
                                             unsafe_allow_html=True
                                         )
 
-                                    st.session_state["independent_signal_active_index2_H2L"] = bool(
+                                    st.session_state[f"independent_signal_active_index2_{signal_side}"] = bool(
                                         winning_candidate is not None and price_location_confirmed
                                     )
 
