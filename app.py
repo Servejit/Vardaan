@@ -222,10 +222,23 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
                 matched_count += 1
                 for column_name in output_columns[:2]:
                     column_index = header_columns[column_name] - 1
-                    result[column_name] = (
+                    raw_value = (
                         master_row[column_index]
                         if column_index < len(master_row) else None
                     )
+                    # Display Sum O2L.10 and Sum O2H.10 consistently
+                    # with exactly two decimal places when the value is numeric.
+                    try:
+                        numeric_display_value = float(
+                            str(raw_value).replace(",", "").replace("%", "").strip()
+                        ) if raw_value is not None else None
+                        result[column_name] = (
+                            f"{numeric_display_value:.2f}"
+                            if numeric_display_value is not None
+                            else raw_value
+                        )
+                    except (TypeError, ValueError):
+                        result[column_name] = raw_value
 
                 # Rank this stock by its Sum O2L.10 value across all matched
                 # Master rows: lowest numeric value receives rank 1.
