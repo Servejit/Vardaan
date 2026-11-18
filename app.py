@@ -591,17 +591,25 @@ if page == "Index":
             )
 
             st.subheader("Average Index Details")
-            avg_col1, avg_col2, avg_col3 = st.columns(3)
+            avg_col1, avg_col2, avg_col3, avg_col4, avg_col5 = st.columns(5)
             avg_col1.metric(
-                "Average CURRENT Price",
+                "Average CURRENT",
                 f"{average_current:,.2f}" if average_current is not None else "N/A"
             )
             avg_col2.metric(
-                "Average Price vs Average HIGH",
-                f"{average_vs_high:+.2f}%" if average_vs_high is not None else "N/A"
+                "Average HIGH",
+                f"{average_high:,.2f}" if average_high is not None else "N/A"
             )
             avg_col3.metric(
-                "Average Price vs Average LOW",
+                "Average LOW",
+                f"{average_low:,.2f}" if average_low is not None else "N/A"
+            )
+            avg_col4.metric(
+                "Average vs HIGH",
+                f"{average_vs_high:+.2f}%" if average_vs_high is not None else "N/A"
+            )
+            avg_col5.metric(
+                "Average vs LOW",
                 f"{average_vs_low:+.2f}%" if average_vs_low is not None else "N/A"
             )
 
