@@ -2522,12 +2522,6 @@ elif page == "Index 2":
         clear_index_session_data()
         st.session_state["index_file_owner_id"] = session_user_id
 
-    index_upload = st.file_uploader(
-        "Upload Index File to replace the saved file",
-        type=["xlsx", "csv"],
-        key=f"index_excel_upload_{session_user_id}"
-    )
-
     # Independent signals remain first; dependent metallic signals appear beneath them.
     signal_columns = st.columns(2)
     buy_signal_placeholder = signal_columns[0].empty()
