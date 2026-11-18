@@ -885,6 +885,35 @@ if page == "Index":
                 else None
             )
 
+            # Calculate absolute arithmetic averages across ALL uploaded indices.
+            all_h2l_values = [
+                value for value in (to_number(record.get("H2L%")) for record in display_records)
+                if value is not None
+            ]
+            all_l2h_values = [
+                value for value in (to_number(record.get("L2H%")) for record in display_records)
+                if value is not None
+            ]
+            average_h2l = sum(all_h2l_values) / len(all_h2l_values) if all_h2l_values else None
+            average_l2h = sum(all_l2h_values) / len(all_l2h_values) if all_l2h_values else None
+            absolute_average_h2l = abs(average_h2l) if average_h2l is not None else None
+            absolute_average_l2h = abs(average_l2h) if average_l2h is not None else None
+
+            if (
+                absolute_average_h2l is not None
+                and absolute_average_l2h is not None
+                and absolute_average_h2l > absolute_average_l2h
+            ):
+                dominant_market_side = "H2L"
+            elif (
+                absolute_average_h2l is not None
+                and absolute_average_l2h is not None
+                and absolute_average_l2h > absolute_average_h2l
+            ):
+                dominant_market_side = "L2H"
+            else:
+                dominant_market_side = None
+
             # Automatically identify the index with the lowest H2L%
             # among indices whose CURRENT value is above 10,000.
             eligible_indices = []
@@ -911,6 +940,17 @@ if page == "Index":
 
             st.divider()
             st.subheader("Priority Stock Analysis")
+            avg_h2l_col, avg_l2h_col, market_bias_col = st.columns(3)
+            avg_h2l_col.metric(
+                "| Average H2L% |",
+                f"{absolute_average_h2l:.2f}%" if absolute_average_h2l is not None else "N/A"
+            )
+            avg_l2h_col.metric(
+                "| Average L2H% |",
+                f"{absolute_average_l2h:.2f}%" if absolute_average_l2h is not None else "N/A"
+            )
+            market_bias_col.metric("Dominant Side", dominant_market_side or "Balanced / N/A")
+            st.caption("Absolute averages use all valid H2L% and L2H% values in the uploaded index file.")
             st.caption(
                 "Your key watchlist comes first: H2L Top 4 gainers and L2H Bottom 4 "
                 "stocks, with Master Excel metrics and panel-specific ranks. "
@@ -1574,6 +1614,106 @@ if page == "Index":
                                         rank_source_column
                                     )
     
+                                # Only the dominant side can publish a signal.
+                                signal_side = "H2L" if selection_mode == "top" else "L2H"
+                                if (
+                                    not master_error
+                                    and master_values
+                                    and dominant_market_side == signal_side
+                                ):
+                                    rank_column = f"{rank_source_column} Rank"
+                                    quote_price_by_symbol = {
+                                        str(row.get("NSE Symbol", "")).strip().upper(): to_number(row.get("Price"))
+                                        for _, row in quote_df.iterrows()
+                                    }
+                                    rank_one_stock = next(
+                                        (
+                                            item for item in master_values
+                                            if to_number(item.get(rank_column)) == 1
+                                            and quote_price_by_symbol.get(
+                                                str(item.get("NSE Symbol", "")).strip().upper()
+                                            ) is not None
+                                        ),
+                                        None
+                                    )
+                                    if rank_one_stock is not None:
+                                        signal_symbol = str(rank_one_stock.get("NSE Symbol", "")).strip()
+                                        entry_price = quote_price_by_symbol[signal_symbol.upper()]
+                                        if signal_side == "H2L":
+                                            trade_action = "BUY"
+                                            target_price = entry_price * 1.0035
+                                            signal_class = "buy-signal"
+                                            signal_label = "H2L BUY SETUP"
+                                            entry_label = "Buy Entry"
+                                            target_label = "Target (+0.35%)"
+                                        else:
+                                            trade_action = "SELL"
+                                            target_price = entry_price * 0.9965
+                                            signal_class = "sell-signal"
+                                            signal_label = "L2H SELL SETUP"
+                                            entry_label = "Sell Entry"
+                                            target_label = "Target (-0.35%)"
+
+                                        st.markdown(
+                                            f"""
+                                            <style>
+                                            @keyframes prioritySignalPulse {{
+                                                0%, 100% {{ transform: scale(1); filter: brightness(1); }}
+                                                50% {{ transform: scale(1.008); filter: brightness(1.12); }}
+                                            }}
+                                            .priority-trade-signal {{
+                                                animation: prioritySignalPulse 1.3s ease-in-out infinite;
+                                                border-radius: 14px;
+                                                padding: 1rem 1.15rem;
+                                                margin: 0.7rem 0 1rem 0;
+                                                color: white;
+                                            }}
+                                            .priority-trade-signal.buy-signal {{
+                                                background: linear-gradient(115deg, #176b3a, #269653);
+                                                border: 1px solid #58b77a;
+                                            }}
+                                            .priority-trade-signal.sell-signal {{
+                                                background: linear-gradient(115deg, #a65312, #d17a27);
+                                                border: 1px solid #edaa65;
+                                            }}
+                                            .priority-trade-signal .signal-title {{
+                                                font-size: 1.05rem; font-weight: 800;
+                                                letter-spacing: 0.04em; margin-bottom: 0.4rem;
+                                            }}
+                                            .priority-trade-signal .signal-symbol {{
+                                                font-size: 1.4rem; font-weight: 800; margin-bottom: 0.65rem;
+                                            }}
+                                            .priority-trade-signal .signal-grid {{
+                                                display: flex; flex-wrap: wrap; gap: 1.5rem;
+                                            }}
+                                            .priority-trade-signal .signal-label {{
+                                                font-size: 0.78rem; opacity: 0.9;
+                                            }}
+                                            .priority-trade-signal .signal-value {{
+                                                font-size: 1.1rem; font-weight: 750;
+                                            }}
+                                            </style>
+                                            <div class="priority-trade-signal {signal_class}">
+                                                <div class="signal-title">{signal_label} · {trade_action}</div>
+                                                <div class="signal-symbol">{signal_symbol}</div>
+                                                <div class="signal-grid">
+                                                    <div><div class="signal-label">{entry_label} (Current Price)</div>
+                                                    <div class="signal-value">₹{entry_price:,.2f}</div></div>
+                                                    <div><div class="signal-label">{target_label}</div>
+                                                    <div class="signal-value">₹{target_price:,.2f}</div></div>
+                                                    <div><div class="signal-label">Master Rank</div>
+                                                    <div class="signal-value">1</div></div>
+                                                </div>
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True
+                                        )
+                                    else:
+                                        st.info(
+                                            f"{signal_side} is dominant, but no Rank 1 stock in its selected "
+                                            "four has a valid current price. No trade card is shown."
+                                        )
+
                                 if master_error:
                                     st.warning(master_error)
                                 elif master_values:
