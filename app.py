@@ -1118,29 +1118,8 @@ if page == "Index":
             """, unsafe_allow_html=True)
             with st.container(key="h2l_panel"):
                 if eligible_indices:
-                    selected_h2l, selected_index = eligible_indices[0]
-                    selected_name = str(selected_index.get("INDEX", "")).strip().upper()
-                    selected_current = to_number(selected_index.get("CURRENT"))
-                    selected_high = to_number(selected_index.get("HIGH"))
-                    selected_low = to_number(selected_index.get("LOW"))
-    
-                    select_col1, select_col2, select_col3, select_col4 = st.columns(4)
-                    select_col1.metric("Selected INDEX", selected_name)
-                    select_col2.metric(
-                        "CURRENT",
-                        f"{selected_current:,.2f}" if selected_current is not None else "N/A"
-                    )
-                    select_col3.metric(
-                        "H2L%",
-                        f"{selected_h2l:+.2f}%"
-                    )
-                    select_col4.metric(
-                        "HIGH",
-                        f"{selected_high:,.2f}" if selected_high is not None else "N/A"
-                    )
-    
-                    # Fetch constituents for whichever index the uploaded file selects.
-                    st.markdown(f"**{selected_name} — Constituent Stocks**")
+                    h2l_header_placeholder = st.empty()
+                    h2l_title_placeholder = st.empty()
                     import requests
                     import pandas as pd
                     import yfinance as yf
@@ -1518,12 +1497,32 @@ if page == "Index":
                         )
 
                     try:
-                        with st.spinner(
-                            f"Loading NSE constituents for {selected_name}..."
-                        ):
-                            selected_constituents = get_index_constituents(
-                                selected_name
-                            )
+                        with st.spinner("Searching H2L rankings and skipping indices without stock components..."):
+                            available_h2l = []
+                            required_available_position = 1 if page == "Index 2" else 0
+                            for candidate_value, candidate_record in eligible_indices:
+                                candidate_name = str(candidate_record.get("INDEX", "")).strip().upper()
+                                try:
+                                    candidate_members = get_index_constituents(candidate_name)
+                                except Exception:
+                                    continue
+                                if candidate_members:
+                                    available_h2l.append((candidate_value, candidate_record, candidate_name, candidate_members))
+                                    if len(available_h2l) > required_available_position:
+                                        break
+                            if len(available_h2l) <= required_available_position:
+                                raise ValueError("Not enough ranked H2L indices have available constituent stocks. Indices without stock lists were skipped.")
+                            selected_h2l, selected_index, selected_name, selected_constituents = available_h2l[required_available_position]
+                            selected_current = to_number(selected_index.get("CURRENT"))
+                            selected_high = to_number(selected_index.get("HIGH"))
+                            selected_low = to_number(selected_index.get("LOW"))
+                            with h2l_header_placeholder.container():
+                                select_col1, select_col2, select_col3, select_col4 = st.columns(4)
+                                select_col1.metric("Selected INDEX", selected_name)
+                                select_col2.metric("CURRENT", f"{selected_current:,.2f}" if selected_current is not None else "N/A")
+                                select_col3.metric("H2L%", f"{selected_h2l:+.2f}%")
+                                select_col4.metric("HIGH", f"{selected_high:,.2f}" if selected_high is not None else "N/A")
+                            h2l_title_placeholder.markdown(f"**{selected_name} — Constituent Stocks**")
     
                         with st.expander(
                             f"View all {len(selected_constituents)} H2L index constituents",
@@ -2092,30 +2091,34 @@ if page == "Index":
             # Second independent selection: highest L2H% index.
             with st.container(key="l2h_panel"):
                     if highest_l2h_indices:
-                        selected_l2h, highest_l2h_index = highest_l2h_indices[0]
-                        highest_l2h_name = str(
-                            highest_l2h_index.get("INDEX", "")
-                        ).strip().upper()
-    
                         st.divider()
                         st.markdown("### L2H · Bottom 4 Stocks")
-                        l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
-                        l2h_col1.metric("Selected INDEX", highest_l2h_name)
-                        l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
-                        l2h_current = to_number(highest_l2h_index.get("CURRENT"))
-                        l2h_col3.metric(
-                            "CURRENT",
-                            f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
-                        )
-    
-                        st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                        l2h_header_placeholder = st.empty()
+                        l2h_title_placeholder = st.empty()
                         try:
-                            with st.spinner(
-                                f"Loading NSE constituents for {highest_l2h_name}..."
-                            ):
-                                highest_l2h_constituents = get_index_constituents(
-                                    highest_l2h_name
-                                )
+                            with st.spinner("Searching L2H rankings and skipping indices without stock components..."):
+                                available_l2h = []
+                                required_available_position = 1 if page == "Index 2" else 0
+                                for candidate_value, candidate_record in highest_l2h_indices:
+                                    candidate_name = str(candidate_record.get("INDEX", "")).strip().upper()
+                                    try:
+                                        candidate_members = get_index_constituents(candidate_name)
+                                    except Exception:
+                                        continue
+                                    if candidate_members:
+                                        available_l2h.append((candidate_value, candidate_record, candidate_name, candidate_members))
+                                        if len(available_l2h) > required_available_position:
+                                            break
+                                if len(available_l2h) <= required_available_position:
+                                    raise ValueError("Not enough ranked L2H indices have available constituent stocks. Indices without stock lists were skipped.")
+                                selected_l2h, highest_l2h_index, highest_l2h_name, highest_l2h_constituents = available_l2h[required_available_position]
+                                l2h_current = to_number(highest_l2h_index.get("CURRENT"))
+                                with l2h_header_placeholder.container():
+                                    l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
+                                    l2h_col1.metric("Selected INDEX", highest_l2h_name)
+                                    l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
+                                    l2h_col3.metric("CURRENT", f"{l2h_current:,.2f}" if l2h_current is not None else "N/A")
+                                l2h_title_placeholder.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
     
                             with st.expander(
                                 f"View all {len(highest_l2h_constituents)} L2H index constituents",
@@ -2636,30 +2639,9 @@ elif page == "Index 2":
             </style>
             """, unsafe_allow_html=True)
             with st.container(key="h2l_panel"):
-                if len(eligible_indices) >= 2:
-                    selected_h2l, selected_index = eligible_indices[1]
-                    selected_name = str(selected_index.get("INDEX", "")).strip().upper()
-                    selected_current = to_number(selected_index.get("CURRENT"))
-                    selected_high = to_number(selected_index.get("HIGH"))
-                    selected_low = to_number(selected_index.get("LOW"))
-    
-                    select_col1, select_col2, select_col3, select_col4 = st.columns(4)
-                    select_col1.metric("Selected INDEX", selected_name)
-                    select_col2.metric(
-                        "CURRENT",
-                        f"{selected_current:,.2f}" if selected_current is not None else "N/A"
-                    )
-                    select_col3.metric(
-                        "H2L%",
-                        f"{selected_h2l:+.2f}%"
-                    )
-                    select_col4.metric(
-                        "HIGH",
-                        f"{selected_high:,.2f}" if selected_high is not None else "N/A"
-                    )
-    
-                    # Fetch constituents for whichever index the uploaded file selects.
-                    st.markdown(f"**{selected_name} — Constituent Stocks**")
+                if eligible_indices:
+                    h2l_header_placeholder = st.empty()
+                    h2l_title_placeholder = st.empty()
                     import requests
                     import pandas as pd
                     import yfinance as yf
@@ -3037,12 +3019,32 @@ elif page == "Index 2":
                         )
 
                     try:
-                        with st.spinner(
-                            f"Loading NSE constituents for {selected_name}..."
-                        ):
-                            selected_constituents = get_index_constituents(
-                                selected_name
-                            )
+                        with st.spinner("Searching H2L rankings and skipping indices without stock components..."):
+                            available_h2l = []
+                            required_available_position = 1 if page == "Index 2" else 0
+                            for candidate_value, candidate_record in eligible_indices:
+                                candidate_name = str(candidate_record.get("INDEX", "")).strip().upper()
+                                try:
+                                    candidate_members = get_index_constituents(candidate_name)
+                                except Exception:
+                                    continue
+                                if candidate_members:
+                                    available_h2l.append((candidate_value, candidate_record, candidate_name, candidate_members))
+                                    if len(available_h2l) > required_available_position:
+                                        break
+                            if len(available_h2l) <= required_available_position:
+                                raise ValueError("Not enough ranked H2L indices have available constituent stocks. Indices without stock lists were skipped.")
+                            selected_h2l, selected_index, selected_name, selected_constituents = available_h2l[required_available_position]
+                            selected_current = to_number(selected_index.get("CURRENT"))
+                            selected_high = to_number(selected_index.get("HIGH"))
+                            selected_low = to_number(selected_index.get("LOW"))
+                            with h2l_header_placeholder.container():
+                                select_col1, select_col2, select_col3, select_col4 = st.columns(4)
+                                select_col1.metric("Selected INDEX", selected_name)
+                                select_col2.metric("CURRENT", f"{selected_current:,.2f}" if selected_current is not None else "N/A")
+                                select_col3.metric("H2L%", f"{selected_h2l:+.2f}%")
+                                select_col4.metric("HIGH", f"{selected_high:,.2f}" if selected_high is not None else "N/A")
+                            h2l_title_placeholder.markdown(f"**{selected_name} — Constituent Stocks**")
     
                         with st.expander(
                             f"View all {len(selected_constituents)} H2L index constituents",
@@ -3612,31 +3614,35 @@ elif page == "Index 2":
 
             # Second independent selection: highest L2H% index.
             with st.container(key="l2h_panel"):
-                    if len(highest_l2h_indices) >= 2:
-                        selected_l2h, highest_l2h_index = highest_l2h_indices[1]
-                        highest_l2h_name = str(
-                            highest_l2h_index.get("INDEX", "")
-                        ).strip().upper()
-    
+                    if highest_l2h_indices:
                         st.divider()
                         st.markdown("### L2H · Bottom 4 Stocks")
-                        l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
-                        l2h_col1.metric("Selected INDEX", highest_l2h_name)
-                        l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
-                        l2h_current = to_number(highest_l2h_index.get("CURRENT"))
-                        l2h_col3.metric(
-                            "CURRENT",
-                            f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
-                        )
-    
-                        st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                        l2h_header_placeholder = st.empty()
+                        l2h_title_placeholder = st.empty()
                         try:
-                            with st.spinner(
-                                f"Loading NSE constituents for {highest_l2h_name}..."
-                            ):
-                                highest_l2h_constituents = get_index_constituents(
-                                    highest_l2h_name
-                                )
+                            with st.spinner("Searching L2H rankings and skipping indices without stock components..."):
+                                available_l2h = []
+                                required_available_position = 1 if page == "Index 2" else 0
+                                for candidate_value, candidate_record in highest_l2h_indices:
+                                    candidate_name = str(candidate_record.get("INDEX", "")).strip().upper()
+                                    try:
+                                        candidate_members = get_index_constituents(candidate_name)
+                                    except Exception:
+                                        continue
+                                    if candidate_members:
+                                        available_l2h.append((candidate_value, candidate_record, candidate_name, candidate_members))
+                                        if len(available_l2h) > required_available_position:
+                                            break
+                                if len(available_l2h) <= required_available_position:
+                                    raise ValueError("Not enough ranked L2H indices have available constituent stocks. Indices without stock lists were skipped.")
+                                selected_l2h, highest_l2h_index, highest_l2h_name, highest_l2h_constituents = available_l2h[required_available_position]
+                                l2h_current = to_number(highest_l2h_index.get("CURRENT"))
+                                with l2h_header_placeholder.container():
+                                    l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
+                                    l2h_col1.metric("Selected INDEX", highest_l2h_name)
+                                    l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
+                                    l2h_col3.metric("CURRENT", f"{l2h_current:,.2f}" if l2h_current is not None else "N/A")
+                                l2h_title_placeholder.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
     
                             with st.expander(
                                 f"View all {len(highest_l2h_constituents)} L2H index constituents",
