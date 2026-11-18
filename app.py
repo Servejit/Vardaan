@@ -1629,8 +1629,9 @@ if page == "Index":
                                 f"#### {selection_title} · {index_name}"
                             )
                             st.caption(
-                                "Priority list · Sorted by today's % Chg · "
-                                "Master Excel values and rank shown alongside"
+                                "Top 3 / Bottom 3 are trade-eligible. The 4th stock is "
+                                "confirmation-only: if its rank is best or tied-best, wait. "
+                                "Master Excel values and ranks are shown for all four."
                             )
                             if selected_four.empty:
                                 st.info("No stocks have a valid % Chg value yet.")
@@ -1648,8 +1649,9 @@ if page == "Index":
                                         rank_source_column
                                     )
     
-                                # Save this panel's four ranked candidates, then compare
-                                # all eight stocks across the H2L and L2H watchlists.
+                                # Only the first three % Chg stocks on each side
+                                # can qualify for a trade. The fourth is confirmation-only:
+                                # if its rank is the best (or tied best), the setup must wait.
                                 signal_side = "H2L" if selection_mode == "top" else "L2H"
                                 rank_column = f"{rank_source_column} Rank"
                                 quote_price_by_symbol = {
@@ -1659,7 +1661,7 @@ if page == "Index":
                                 }
                                 side_candidates = []
                                 if not master_error and master_values:
-                                    for item in master_values:
+                                    for stock_position, item in enumerate(master_values):
                                         symbol = str(item.get("NSE Symbol", "")).strip()
                                         rank_value = to_number(item.get(rank_column))
                                         current_price = quote_price_by_symbol.get(symbol.upper())
@@ -1672,7 +1674,8 @@ if page == "Index":
                                                 "side": signal_side,
                                                 "symbol": symbol,
                                                 "rank": rank_value,
-                                                "price": current_price
+                                                "price": current_price,
+                                                "confirmation_only": stock_position >= 3
                                             })
 
                                 st.session_state[f"trade_candidates_{signal_side}"] = side_candidates
@@ -1683,6 +1686,8 @@ if page == "Index":
                                 l2h_candidates = st.session_state.get(
                                     "trade_candidates_L2H", []
                                 )
+                                # Include each fourth stock only as a blocker in the
+                                # rank comparison; it can never become the signal stock.
                                 all_ranked_candidates = h2l_candidates + l2h_candidates
 
                                 winning_candidate = None
@@ -1694,13 +1699,25 @@ if page == "Index":
                                         item for item in all_ranked_candidates
                                         if item["rank"] == lowest_rank_value
                                     ]
-                                    # If the same best rank appears on both sides,
-                                    # do not choose arbitrarily.
+                                    confirmation_blocks_signal = any(
+                                        item.get("confirmation_only", False)
+                                        for item in lowest_rank_candidates
+                                    )
+                                    # Wait if either fourth stock has the best rank,
+                                    # including a tie at the best rank.
+                                    # Also avoid choosing arbitrarily when eligible
+                                    # H2L and L2H stocks share the best rank.
                                     winning_sides = {
                                         item["side"] for item in lowest_rank_candidates
+                                        if not item.get("confirmation_only", False)
                                     }
-                                    if len(winning_sides) == 1:
-                                        winning_candidate = lowest_rank_candidates[0]
+                                    if not confirmation_blocks_signal and len(winning_sides) == 1:
+                                        eligible_winners = [
+                                            item for item in lowest_rank_candidates
+                                            if not item.get("confirmation_only", False)
+                                        ]
+                                        if len(eligible_winners) == 1:
+                                            winning_candidate = eligible_winners[0]
 
                                 if (
                                     winning_candidate is not None
