@@ -790,9 +790,10 @@ if page == "Index":
         key=f"index_excel_upload_{session_user_id}"
     )
 
-    # The trade signal is rendered here so it stays directly below the uploader,
-    # rather than inside either H2L or L2H analysis panel.
-    trade_signal_placeholder = st.empty()
+    # Separate signal areas keep BUY and SELL visible together at the top.
+    signal_columns = st.columns(2)
+    buy_signal_placeholder = signal_columns[0].empty()
+    sell_signal_placeholder = signal_columns[1].empty()
 
     with st.expander("More dashboard details", expanded=False, key="index_more_details"):
         try:
@@ -1111,7 +1112,7 @@ if page == "Index":
     
                 st.divider()
                 st.subheader("Priority Stock Analysis")
-                avg_h2l_col, avg_l2h_col, market_bias_col = st.columns(3)
+                avg_h2l_col, avg_l2h_col = st.columns(2)
                 avg_h2l_col.metric(
                     "| Average H2L% |",
                     f"{absolute_average_h2l:.2f}%" if absolute_average_h2l is not None else "N/A"
@@ -1120,8 +1121,7 @@ if page == "Index":
                     "| Average L2H% |",
                     f"{absolute_average_l2h:.2f}%" if absolute_average_l2h is not None else "N/A"
                 )
-                market_bias_col.metric("Dominant Side", dominant_market_side or "Balanced / N/A")
-                st.caption("Absolute averages use all valid H2L% and L2H% values in the uploaded index file.")
+                st.caption("Average values are informational only and do not affect BUY or SELL signals.")
                 st.caption(
                     "Your key watchlist comes first: H2L Top 4 gainers and L2H Bottom 4 "
                     "stocks, with Master Excel metrics and panel-specific ranks. "
@@ -1922,50 +1922,37 @@ if page == "Index":
     
                                     st.session_state[f"trade_candidates_{signal_side}"] = side_candidates
     
-                                    h2l_candidates = st.session_state.get(
-                                        "trade_candidates_H2L", []
-                                    )
-                                    l2h_candidates = st.session_state.get(
-                                        "trade_candidates_L2H", []
-                                    )
-                                    # Include each fourth stock only as a blocker in the
-                                    # rank comparison; it can never become the signal stock.
-                                    all_ranked_candidates = h2l_candidates + l2h_candidates
-    
+                                    # Evaluate this side independently. H2L never competes
+                                    # with L2H, and market-average bias is not used.
                                     winning_candidate = None
-                                    if all_ranked_candidates:
-                                        lowest_rank_value = min(
-                                            item["rank"] for item in all_ranked_candidates
-                                        )
+                                    lowest_rank_value = min(
+                                        (item["rank"] for item in side_candidates),
+                                        default=None
+                                    )
+                                    if lowest_rank_value is not None:
                                         lowest_rank_candidates = [
-                                            item for item in all_ranked_candidates
+                                            item for item in side_candidates
                                             if item["rank"] == lowest_rank_value
                                         ]
                                         confirmation_blocks_signal = any(
                                             item.get("confirmation_only", False)
                                             for item in lowest_rank_candidates
                                         )
-                                        # Wait if either fourth stock has the best rank,
-                                        # including a tie at the best rank.
-                                        # Also avoid choosing arbitrarily when eligible
-                                        # H2L and L2H stocks share the best rank.
-                                        winning_sides = {
-                                            item["side"] for item in lowest_rank_candidates
+                                        eligible_winners = [
+                                            item for item in lowest_rank_candidates
                                             if not item.get("confirmation_only", False)
-                                        }
-                                        if not confirmation_blocks_signal and len(winning_sides) == 1:
-                                            eligible_winners = [
-                                                item for item in lowest_rank_candidates
-                                                if not item.get("confirmation_only", False)
-                                                and item["rank"] < 80
-                                            ]
-                                            if len(eligible_winners) == 1:
-                                                winning_candidate = eligible_winners[0]
-    
-                                    # Price-location confirmation:
-                                    # BUY only when current price is at least 0.20% below
-                                    # today's High; SELL only when current price is at
-                                    # least 0.20% above today's Low.
+                                            and item["rank"] < 80
+                                        ]
+                                        if not confirmation_blocks_signal and len(eligible_winners) == 1:
+                                            winning_candidate = eligible_winners[0]
+
+                                    # Keep each card in its own top position. This also
+                                    # prevents one 60-second quote fragment overwriting the other.
+                                    trade_signal_placeholder = (
+                                        buy_signal_placeholder
+                                        if signal_side == "H2L"
+                                        else sell_signal_placeholder
+                                    )
                                     price_location_confirmed = False
                                     if winning_candidate is not None:
                                         signal_price = winning_candidate.get("price")
@@ -1985,13 +1972,8 @@ if page == "Index":
                                                 and signal_low > 0
                                                 and ((signal_price - signal_low) / signal_low) >= 0.002
                                             )
-    
-                                    if (
-                                        winning_candidate is not None
-                                        and winning_candidate["side"] == signal_side
-                                        and dominant_market_side == signal_side
-                                        and price_location_confirmed
-                                    ):
+
+                                    if winning_candidate is not None and price_location_confirmed:
                                         signal_symbol = winning_candidate["symbol"]
                                         entry_price = winning_candidate["price"]
                                         if signal_side == "H2L":
@@ -2001,6 +1983,7 @@ if page == "Index":
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
                                             target_label = "Target (+0.35%)"
+                                            rank_label = "Lowest Rank in H2L List"
                                         else:
                                             trade_action = "SELL"
                                             target_price = entry_price * 0.9965
@@ -2008,7 +1991,8 @@ if page == "Index":
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
                                             target_label = "Target (-0.35%)"
-    
+                                            rank_label = "Lowest Rank in L2H List"
+
                                         trade_signal_placeholder.markdown(
                                             f"""
                                             <style>
@@ -2022,6 +2006,7 @@ if page == "Index":
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
                                                 color: white;
+                                                min-height: 145px;
                                             }}
                                             .priority-trade-signal.buy-signal {{
                                                 background: linear-gradient(115deg, #176b3a, #269653);
@@ -2032,41 +2017,38 @@ if page == "Index":
                                                 border: 1px solid #edaa65;
                                             }}
                                             .priority-trade-signal .signal-title {{
-                                                font-size: 1.05rem; font-weight: 800;
-                                                letter-spacing: 0.04em; margin-bottom: 0.4rem;
+                                                font-size: 1.0rem; font-weight: 800;
+                                                letter-spacing: 0.03em; margin-bottom: 0.4rem;
                                             }}
                                             .priority-trade-signal .signal-symbol {{
-                                                font-size: 1.4rem; font-weight: 800; margin-bottom: 0.65rem;
+                                                font-size: 1.35rem; font-weight: 800; margin-bottom: 0.65rem;
                                             }}
                                             .priority-trade-signal .signal-grid {{
-                                                display: flex; flex-wrap: wrap; gap: 1.5rem;
+                                                display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem;
                                             }}
                                             .priority-trade-signal .signal-label {{
-                                                font-size: 0.78rem; opacity: 0.9;
+                                                font-size: 0.72rem; opacity: 0.9;
                                             }}
                                             .priority-trade-signal .signal-value {{
-                                                font-size: 1.1rem; font-weight: 750;
+                                                font-size: 1.0rem; font-weight: 750;
                                             }}
                                             </style>
                                             <div class="priority-trade-signal {signal_class}">
                                                 <div class="signal-title">{signal_label} · {trade_action}</div>
                                                 <div class="signal-symbol">{signal_symbol}</div>
                                                 <div class="signal-grid">
-                                                    <div><div class="signal-label">{entry_label} (Current Price)</div>
+                                                    <div><div class="signal-label">{entry_label}</div>
                                                     <div class="signal-value">₹{entry_price:,.2f}</div></div>
                                                     <div><div class="signal-label">{target_label}</div>
                                                     <div class="signal-value">₹{target_price:,.2f}</div></div>
-                                                    <div><div class="signal-label">Lowest Rank Across Both Lists</div>
+                                                    <div><div class="signal-label">{rank_label}</div>
                                                     <div class="signal-value">{winning_candidate["rank"]:g}</div></div>
                                                 </div>
                                             </div>
                                             """,
                                             unsafe_allow_html=True
                                         )
-                                    elif winning_candidate is None or winning_candidate["side"] == signal_side:
-                                        # Show a neutral blue card whenever this dashboard has no
-                                        # qualifying BUY/SELL setup. The opposite panel must not
-                                        # overwrite a signal belonging to that other panel.
+                                    else:
                                         trade_signal_placeholder.markdown(
                                             """
                                             <div style="
@@ -2077,8 +2059,12 @@ if page == "Index":
                                                 margin: 0.7rem 0 1rem 0;
                                                 color: #ffffff;
                                                 font-weight: 800;
-                                                font-size: 1.05rem;
+                                                font-size: 1.0rem;
                                                 text-align: center;
+                                                min-height: 145px;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
                                                 box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
                                             ">
                                                 No Buy/Sell Stock Found,<br>
@@ -2088,10 +2074,6 @@ if page == "Index":
                                             unsafe_allow_html=True
                                         )
 
-                                    # Do not let the other panel's independent 60-second
-                                    # fragment overwrite the shared signal card. Only the
-                                    # fragment for the winning side may render the signal.
-    
                                     if master_error:
                                         st.warning(master_error)
                                     elif master_values:
@@ -2317,9 +2299,10 @@ elif page == "Index 2":
         key=f"index_excel_upload_{session_user_id}"
     )
 
-    # The trade signal is rendered here so it stays directly below the uploader,
-    # rather than inside either H2L or L2H analysis panel.
-    trade_signal_placeholder = st.empty()
+    # Separate signal areas keep BUY and SELL visible together at the top.
+    signal_columns = st.columns(2)
+    buy_signal_placeholder = signal_columns[0].empty()
+    sell_signal_placeholder = signal_columns[1].empty()
 
     with st.expander("More dashboard details", expanded=False, key="index2_more_details"):
         try:
@@ -2640,7 +2623,7 @@ elif page == "Index 2":
     
                 st.divider()
                 st.subheader("Priority Stock Analysis")
-                avg_h2l_col, avg_l2h_col, market_bias_col = st.columns(3)
+                avg_h2l_col, avg_l2h_col = st.columns(2)
                 avg_h2l_col.metric(
                     "| Average H2L% |",
                     f"{absolute_average_h2l:.2f}%" if absolute_average_h2l is not None else "N/A"
@@ -2649,8 +2632,7 @@ elif page == "Index 2":
                     "| Average L2H% |",
                     f"{absolute_average_l2h:.2f}%" if absolute_average_l2h is not None else "N/A"
                 )
-                market_bias_col.metric("Dominant Side", dominant_market_side or "Balanced / N/A")
-                st.caption("Absolute averages use all valid H2L% and L2H% values in the uploaded index file.")
+                st.caption("Average values are informational only and do not affect BUY or SELL signals.")
                 st.caption(
                     "Your key watchlist comes first: H2L Top 4 gainers and L2H Bottom 4 "
                     "stocks, with Master Excel metrics and panel-specific ranks. "
@@ -3451,50 +3433,37 @@ elif page == "Index 2":
     
                                     st.session_state[f"trade_candidates_index2_{signal_side}"] = side_candidates
     
-                                    h2l_candidates = st.session_state.get(
-                                        "trade_candidates_index2_H2L", []
-                                    )
-                                    l2h_candidates = st.session_state.get(
-                                        "trade_candidates_index2_L2H", []
-                                    )
-                                    # Include each fourth stock only as a blocker in the
-                                    # rank comparison; it can never become the signal stock.
-                                    all_ranked_candidates = h2l_candidates + l2h_candidates
-    
+                                    # Evaluate this side independently. H2L never competes
+                                    # with L2H, and market-average bias is not used.
                                     winning_candidate = None
-                                    if all_ranked_candidates:
-                                        lowest_rank_value = min(
-                                            item["rank"] for item in all_ranked_candidates
-                                        )
+                                    lowest_rank_value = min(
+                                        (item["rank"] for item in side_candidates),
+                                        default=None
+                                    )
+                                    if lowest_rank_value is not None:
                                         lowest_rank_candidates = [
-                                            item for item in all_ranked_candidates
+                                            item for item in side_candidates
                                             if item["rank"] == lowest_rank_value
                                         ]
                                         confirmation_blocks_signal = any(
                                             item.get("confirmation_only", False)
                                             for item in lowest_rank_candidates
                                         )
-                                        # Wait if either fourth stock has the best rank,
-                                        # including a tie at the best rank.
-                                        # Also avoid choosing arbitrarily when eligible
-                                        # H2L and L2H stocks share the best rank.
-                                        winning_sides = {
-                                            item["side"] for item in lowest_rank_candidates
+                                        eligible_winners = [
+                                            item for item in lowest_rank_candidates
                                             if not item.get("confirmation_only", False)
-                                        }
-                                        if not confirmation_blocks_signal and len(winning_sides) == 1:
-                                            eligible_winners = [
-                                                item for item in lowest_rank_candidates
-                                                if not item.get("confirmation_only", False)
-                                                and item["rank"] < 80
-                                            ]
-                                            if len(eligible_winners) == 1:
-                                                winning_candidate = eligible_winners[0]
-    
-                                    # Price-location confirmation:
-                                    # BUY only when current price is at least 0.20% below
-                                    # today's High; SELL only when current price is at
-                                    # least 0.20% above today's Low.
+                                            and item["rank"] < 80
+                                        ]
+                                        if not confirmation_blocks_signal and len(eligible_winners) == 1:
+                                            winning_candidate = eligible_winners[0]
+
+                                    # Keep each card in its own top position. This also
+                                    # prevents one 60-second quote fragment overwriting the other.
+                                    trade_signal_placeholder = (
+                                        buy_signal_placeholder
+                                        if signal_side == "H2L"
+                                        else sell_signal_placeholder
+                                    )
                                     price_location_confirmed = False
                                     if winning_candidate is not None:
                                         signal_price = winning_candidate.get("price")
@@ -3514,13 +3483,8 @@ elif page == "Index 2":
                                                 and signal_low > 0
                                                 and ((signal_price - signal_low) / signal_low) >= 0.002
                                             )
-    
-                                    if (
-                                        winning_candidate is not None
-                                        and winning_candidate["side"] == signal_side
-                                        and dominant_market_side == signal_side
-                                        and price_location_confirmed
-                                    ):
+
+                                    if winning_candidate is not None and price_location_confirmed:
                                         signal_symbol = winning_candidate["symbol"]
                                         entry_price = winning_candidate["price"]
                                         if signal_side == "H2L":
@@ -3530,6 +3494,7 @@ elif page == "Index 2":
                                             signal_label = "H2L BUY SETUP"
                                             entry_label = "Buy Entry"
                                             target_label = "Target (+0.35%)"
+                                            rank_label = "Lowest Rank in H2L List"
                                         else:
                                             trade_action = "SELL"
                                             target_price = entry_price * 0.9965
@@ -3537,7 +3502,8 @@ elif page == "Index 2":
                                             signal_label = "L2H SELL SETUP"
                                             entry_label = "Sell Entry"
                                             target_label = "Target (-0.35%)"
-    
+                                            rank_label = "Lowest Rank in L2H List"
+
                                         trade_signal_placeholder.markdown(
                                             f"""
                                             <style>
@@ -3551,51 +3517,49 @@ elif page == "Index 2":
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
                                                 color: white;
+                                                min-height: 145px;
                                             }}
                                             .priority-trade-signal.buy-signal {{
-                                                background: linear-gradient(115deg, #126b5c, #269b80);
-                                                border: 1px solid #63bda5;
+                                                background: linear-gradient(115deg, #176b3a, #269653);
+                                                border: 1px solid #58b77a;
                                             }}
                                             .priority-trade-signal.sell-signal {{
-                                                background: linear-gradient(115deg, #a84f3b, #d17d5d);
-                                                border: 1px solid #e5a18b;
+                                                background: linear-gradient(115deg, #a65312, #d17a27);
+                                                border: 1px solid #edaa65;
                                             }}
                                             .priority-trade-signal .signal-title {{
-                                                font-size: 1.05rem; font-weight: 800;
-                                                letter-spacing: 0.04em; margin-bottom: 0.4rem;
+                                                font-size: 1.0rem; font-weight: 800;
+                                                letter-spacing: 0.03em; margin-bottom: 0.4rem;
                                             }}
                                             .priority-trade-signal .signal-symbol {{
-                                                font-size: 1.4rem; font-weight: 800; margin-bottom: 0.65rem;
+                                                font-size: 1.35rem; font-weight: 800; margin-bottom: 0.65rem;
                                             }}
                                             .priority-trade-signal .signal-grid {{
-                                                display: flex; flex-wrap: wrap; gap: 1.5rem;
+                                                display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem;
                                             }}
                                             .priority-trade-signal .signal-label {{
-                                                font-size: 0.78rem; opacity: 0.9;
+                                                font-size: 0.72rem; opacity: 0.9;
                                             }}
                                             .priority-trade-signal .signal-value {{
-                                                font-size: 1.1rem; font-weight: 750;
+                                                font-size: 1.0rem; font-weight: 750;
                                             }}
                                             </style>
                                             <div class="priority-trade-signal {signal_class}">
                                                 <div class="signal-title">{signal_label} · {trade_action}</div>
                                                 <div class="signal-symbol">{signal_symbol}</div>
                                                 <div class="signal-grid">
-                                                    <div><div class="signal-label">{entry_label} (Current Price)</div>
+                                                    <div><div class="signal-label">{entry_label}</div>
                                                     <div class="signal-value">₹{entry_price:,.2f}</div></div>
                                                     <div><div class="signal-label">{target_label}</div>
                                                     <div class="signal-value">₹{target_price:,.2f}</div></div>
-                                                    <div><div class="signal-label">Lowest Rank Across Both Lists</div>
+                                                    <div><div class="signal-label">{rank_label}</div>
                                                     <div class="signal-value">{winning_candidate["rank"]:g}</div></div>
                                                 </div>
                                             </div>
                                             """,
                                             unsafe_allow_html=True
                                         )
-                                    elif winning_candidate is None or winning_candidate["side"] == signal_side:
-                                        # Show a neutral blue card whenever this dashboard has no
-                                        # qualifying BUY/SELL setup. The opposite panel must not
-                                        # overwrite a signal belonging to that other panel.
+                                    else:
                                         trade_signal_placeholder.markdown(
                                             """
                                             <div style="
@@ -3606,8 +3570,12 @@ elif page == "Index 2":
                                                 margin: 0.7rem 0 1rem 0;
                                                 color: #ffffff;
                                                 font-weight: 800;
-                                                font-size: 1.05rem;
+                                                font-size: 1.0rem;
                                                 text-align: center;
+                                                min-height: 145px;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
                                                 box-shadow: 0 4px 14px rgba(20, 90, 158, 0.18);
                                             ">
                                                 No Buy/Sell Stock Found,<br>
@@ -3617,10 +3585,6 @@ elif page == "Index 2":
                                             unsafe_allow_html=True
                                         )
 
-                                    # Do not let the other panel's independent 60-second
-                                    # fragment overwrite the shared signal card. Only the
-                                    # fragment for the winning side may render the signal.
-    
                                     if master_error:
                                         st.warning(master_error)
                                     elif master_values:
