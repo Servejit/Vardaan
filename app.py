@@ -501,16 +501,44 @@ if page == "Index":
                 for column in required_columns
             ]
 
-            display_records = [
-                {
+            display_records = []
+
+            for record in records:
+                output_record = {
                     column: record.get(source_column)
                     for column, source_column in zip(
                         required_columns,
                         source_columns
                     )
                 }
-                for record in records
-            ]
+
+                # Calculate current price movement from the day's High
+                # and Low. Keep invalid/zero values blank instead of
+                # raising a division-by-zero error.
+                try:
+                    current_value = float(
+                        str(output_record["CURRENT"]).replace(",", "").replace("%", "").strip()
+                    )
+                    high_value = float(
+                        str(output_record["HIGH"]).replace(",", "").replace("%", "").strip()
+                    )
+                    low_value = float(
+                        str(output_record["LOW"]).replace(",", "").replace("%", "").strip()
+                    )
+
+                    output_record["H2L%"] = (
+                        round(((current_value - high_value) / high_value) * 100, 2)
+                        if high_value != 0 else None
+                    )
+                    output_record["L2H%"] = (
+                        round(((current_value - low_value) / low_value) * 100, 2)
+                        if low_value != 0 else None
+                    )
+                except (TypeError, ValueError):
+                    output_record["H2L%"] = None
+                    output_record["L2H%"] = None
+
+                display_records.append(output_record)
 
             search_text = st.text_input(
                 "Search index",
