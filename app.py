@@ -629,6 +629,10 @@ user = st.session_state.user
 profile = st.session_state.profile
 is_admin = st.session_state.is_admin
 
+# Start the one-hour clock for sessions that were already active during deployment.
+if st.session_state.session_login_started_at is None:
+    st.session_state.session_login_started_at = time.time()
+
 # Check the one-hour limit automatically every 30 seconds while the app is open.
 @st.fragment(run_every="30s")
 def session_timeout_monitor():
