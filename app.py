@@ -815,6 +815,13 @@ if page == "Index":
                     # cannot briefly use stocks calculated from the previous file.
                     st.session_state.pop("trade_candidates_H2L", None)
                     st.session_state.pop("trade_candidates_L2H", None)
+                    for signal_key in (
+                        "independent_signal_active_index1_H2L",
+                        "independent_signal_active_index1_L2H",
+                        "independent_signal_active_index2_H2L",
+                        "independent_signal_active_index2_L2H",
+                    ):
+                        st.session_state.pop(signal_key, None)
                 st.session_state["index_file_bytes"] = new_file_bytes
                 st.session_state["index_file_name"] = new_file_name
                 st.session_state["index_file_owner_id"] = session_user_id
