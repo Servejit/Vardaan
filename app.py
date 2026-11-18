@@ -759,7 +759,10 @@ if page == "Index":
                         "Quotes from Yahoo Finance may be delayed."
                     )
 
-                    st.caption("Stock details automatically refresh every 60 seconds while this dashboard is open. Use the button for an immediate refresh.")
+                    st.caption(
+                        "Stock details refresh automatically every 60 seconds while "
+                        "the dashboard is open. Use the button for an immediate refresh."
+                    )
 
                     def render_today_quotes():
                         quote_symbols = [
@@ -769,70 +772,13 @@ if page == "Index":
                             "Refresh Today's Stock Details",
                             key="refresh_dynamic_index_quotes"
                         )
-    
+
                         @st.cache_data(ttl=60, show_spinner=False)
                         def get_dynamic_index_quotes(symbols, requested_market_date):
-                            yahoo_symbols = [f"{symbol}.NS" for symbol in symbols]
-                            intraday = yf.download(
-                                tickers=yahoo_symbols,
-                                period="5d",
-                                interval="5m",
-                                group_by="ticker",
-                                auto_adjust=False,
-                                prepost=False,
-                                progress=False,
-                                threads=True
-                            )
-                            daily = yf.download(
-                                tickers=yahoo_symbols,
-                                period="10d",
-                                interval="1d",
-                                group_by="ticker",
-                                auto_adjust=False,
-                                progress=False,
-                                threads=True
-                            )
-    
-                            rows = []
-                            latest_quote_time = None
-    
-                            def symbol_frame(data, yahoo_symbol):
-                                if data is None or data.empty:
-                                    return None
-                                if isinstance(data.columns, pd.MultiIndex):
-                                    if yahoo_symbol in data.columns.get_level_values(0):
-                                        frame = data[yahoo_symbol].dropna(how="all")
-                                    elif yahoo_symbol in data.columns.get_level_values(1):
-                                        frame = data.xs(
-                                            yahoo_symbol, axis=1, level=1
-                                        ).dropna(how="all")
-                                    else:
-                                        return None
-                                else:
-                                    frame = data.dropna(how="all")
-                                if frame.empty:
-                                    return None
-                                if frame.index.tz is None:
-                                    frame.index = frame.index.tz_localize(
-                                        "Asia/Kolkata"
-                                    )
-                                else:
-                                    frame.index = frame.index.tz_convert(
-                                        "Asia/Kolkata"
-                                    )
-                                return frame
-    
-                            for symbol in symbols:
+                            from concurrent.futures import ThreadPoolExecutor, as_completed
+
+                            def get_one_symbol(symbol):
                                 ticker = f"{symbol}.NS"
-                                intraday_frame = symbol_frame(intraday, ticker)
-                                daily_frame = symbol_frame(daily, ticker)
-                                today = (
-                                    intraday_frame[
-                                        intraday_frame.index.date == requested_market_date
-                                    ].dropna(how="all")
-                                    if intraday_frame is not None else None
-                                )
-    
                                 row = {
                                     "NSE Symbol": symbol,
                                     "Price": None,
@@ -841,56 +787,131 @@ if page == "Index":
                                     "Low": None,
                                     "% Chg": None
                                 }
-    
-                                if today is not None and not today.empty:
+
+                                try:
+                                    stock = yf.Ticker(ticker)
+                                    intraday = stock.history(
+                                        period="5d",
+                                        interval="5m",
+                                        auto_adjust=False,
+                                        actions=False,
+                                        prepost=False
+                                    )
+                                    daily = stock.history(
+                                        period="10d",
+                                        interval="1d",
+                                        auto_adjust=False,
+                                        actions=False
+                                    )
+
+                                    if intraday is None or intraday.empty:
+                                        return row, None
+
+                                    intraday = intraday.dropna(how="all").copy()
+                                    if intraday.index.tz is None:
+                                        intraday.index = intraday.index.tz_localize(
+                                            "Asia/Kolkata"
+                                        )
+                                    else:
+                                        intraday.index = intraday.index.tz_convert(
+                                            "Asia/Kolkata"
+                                        )
+
+                                    today = intraday[
+                                        intraday.index.date == requested_market_date
+                                    ].dropna(how="all")
+
+                                    if today.empty:
+                                        return row, None
+
                                     opens = today["Open"].dropna()
                                     highs = today["High"].dropna()
                                     lows = today["Low"].dropna()
                                     closes = today["Close"].dropna()
-    
+
                                     if (
-                                        not opens.empty and not highs.empty
-                                        and not lows.empty and not closes.empty
+                                        opens.empty or highs.empty
+                                        or lows.empty or closes.empty
                                     ):
-                                        price = float(closes.iloc[-1])
-                                        previous_close = None
-    
-                                        if daily_frame is not None:
-                                            previous = daily_frame[
-                                                daily_frame.index.date < requested_market_date
-                                            ]["Close"].dropna()
-                                            if not previous.empty:
-                                                previous_close = float(previous.iloc[-1])
-    
-                                        row.update({
-                                            "Price": price,
-                                            "Open": float(opens.iloc[0]),
-                                            "High": float(highs.max()),
-                                            "Low": float(lows.min()),
-                                            "% Chg": (
-                                                ((price - previous_close) / previous_close) * 100
-                                                if previous_close not in (None, 0) else None
+                                        return row, None
+
+                                    previous_close = None
+                                    if daily is not None and not daily.empty:
+                                        daily = daily.dropna(how="all").copy()
+                                        if daily.index.tz is None:
+                                            daily.index = daily.index.tz_localize(
+                                                "Asia/Kolkata"
                                             )
-                                        })
-    
-                                        quote_time = closes.index[-1]
-                                        if (
-                                            latest_quote_time is None
-                                            or quote_time > latest_quote_time
-                                        ):
-                                            latest_quote_time = quote_time
-    
+                                        else:
+                                            daily.index = daily.index.tz_convert(
+                                                "Asia/Kolkata"
+                                            )
+                                        previous = daily[
+                                            daily.index.date < requested_market_date
+                                        ]["Close"].dropna()
+                                        if not previous.empty:
+                                            previous_close = float(previous.iloc[-1])
+
+                                    price = float(closes.iloc[-1])
+                                    row.update({
+                                        "Price": price,
+                                        "Open": float(opens.iloc[0]),
+                                        "High": float(highs.max()),
+                                        "Low": float(lows.min()),
+                                        "% Chg": (
+                                            ((price - previous_close) / previous_close) * 100
+                                            if previous_close not in (None, 0) else None
+                                        )
+                                    })
+                                    return row, closes.index[-1]
+
+                                except Exception:
+                                    # Keep other constituents visible if one ticker
+                                    # is unavailable or Yahoo temporarily rate-limits it.
+                                    return row, None
+
+                            rows = []
+                            latest_quote_time = None
+                            max_workers = min(8, max(1, len(symbols)))
+
+                            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                                futures = {
+                                    executor.submit(get_one_symbol, symbol): symbol
+                                    for symbol in symbols
+                                }
+                                results = {}
+                                for future in as_completed(futures):
+                                    symbol = futures[future]
+                                    try:
+                                        results[symbol] = future.result()
+                                    except Exception:
+                                        results[symbol] = ({
+                                            "NSE Symbol": symbol,
+                                            "Price": None,
+                                            "Open": None,
+                                            "High": None,
+                                            "Low": None,
+                                            "% Chg": None
+                                        }, None)
+
+                            for symbol in symbols:
+                                row, quote_time = results[symbol]
                                 rows.append(row)
-    
+                                if quote_time is not None and (
+                                    latest_quote_time is None
+                                    or quote_time > latest_quote_time
+                                ):
+                                    latest_quote_time = quote_time
+
                             timestamp = (
                                 latest_quote_time.strftime("%d %b %Y, %I:%M %p IST")
                                 if latest_quote_time is not None else None
                             )
                             return rows, timestamp
-    
+
                         if refresh_quotes:
                             get_dynamic_index_quotes.clear()
-    
+
                         with st.spinner(
                             f"Loading today's {selected_name} stock quotes..."
                         ):
@@ -898,15 +919,16 @@ if page == "Index":
                                 tuple(quote_symbols),
                                 market_date.isoformat()
                             )
-    
+
                         if quote_timestamp:
                             st.caption(f"Latest quote timestamp: {quote_timestamp}")
                         else:
                             st.warning(
-                                "Today's intraday quotes are not available yet. "
-                                "Previous-day prices are not shown as today's prices."
+                                "Today's intraday quotes have not been returned by "
+                                "the market-data provider. The table will not substitute "
+                                "yesterday's prices."
                             )
-    
+
                         quote_df = pd.DataFrame(quote_rows)
                         for numeric_column in [
                             "Price", "Open", "High", "Low", "% Chg"
@@ -915,7 +937,7 @@ if page == "Index":
                                 lambda value: round(value, 2)
                                 if pd.notna(value) else None
                             )
-    
+
                         st.dataframe(
                             quote_df,
                             use_container_width=True,
@@ -928,13 +950,12 @@ if page == "Index":
                                 "% Chg": st.column_config.NumberColumn(format="%.2f%%")
                             }
                         )
-    
-                        if quote_df["Price"].isna().all():
-                            st.info(
-                                "No today's quotes are available for this index yet. "
-                                "Try refreshing during market hours."
-                            )
-    
+
+                        available_count = int(quote_df["Price"].notna().sum())
+                        st.caption(
+                            f"Today's quotes available for {available_count} "
+                            f"of {len(quote_df)} constituent stocks."
+                        )
 
                     if hasattr(st, "fragment"):
                         st.fragment(run_every="60s")(render_today_quotes)()
