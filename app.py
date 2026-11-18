@@ -1293,71 +1293,71 @@ if page == "Index":
                             "again later if the constituent data provider is unavailable."
                         )
     
-                    # Second independent selection: highest L2H% index.
-                with st.container(key="l2h_panel"):
-                        if highest_l2h_indices:
-                            selected_l2h, highest_l2h_index = highest_l2h_indices[0]
-                            highest_l2h_name = str(
-                                highest_l2h_index.get("INDEX", "")
-                            ).strip().upper()
-        
-                            st.divider()
-                            st.subheader("Highest L2H% Index & Bottom 4 Stocks")
-                            l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
-                            l2h_col1.metric("Selected INDEX", highest_l2h_name)
-                            l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
-                            l2h_current = to_number(highest_l2h_index.get("CURRENT"))
-                            l2h_col3.metric(
-                                "CURRENT",
-                                f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
+            if not eligible_indices:
+                st.info("No index has CURRENT above 10,000 with a valid H2L% value.")
+
+            # Second independent selection: highest L2H% index.
+            with st.container(key="l2h_panel"):
+                    if highest_l2h_indices:
+                        selected_l2h, highest_l2h_index = highest_l2h_indices[0]
+                        highest_l2h_name = str(
+                            highest_l2h_index.get("INDEX", "")
+                        ).strip().upper()
+    
+                        st.divider()
+                        st.subheader("Highest L2H% Index & Bottom 4 Stocks")
+                        l2h_col1, l2h_col2, l2h_col3 = st.columns(3)
+                        l2h_col1.metric("Selected INDEX", highest_l2h_name)
+                        l2h_col2.metric("L2H%", f"{selected_l2h:+.2f}%")
+                        l2h_current = to_number(highest_l2h_index.get("CURRENT"))
+                        l2h_col3.metric(
+                            "CURRENT",
+                            f"{l2h_current:,.2f}" if l2h_current is not None else "N/A"
+                        )
+    
+                        st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
+                        try:
+                            with st.spinner(
+                                f"Loading NSE constituents for {highest_l2h_name}..."
+                            ):
+                                highest_l2h_constituents = get_index_constituents(
+                                    highest_l2h_name
+                                )
+    
+                            st.dataframe(
+                                highest_l2h_constituents,
+                                use_container_width=True,
+                                hide_index=True
                             )
-        
-                            st.markdown(f"**{highest_l2h_name} — Constituent Stocks**")
-                            try:
-                                with st.spinner(
-                                    f"Loading NSE constituents for {highest_l2h_name}..."
-                                ):
-                                    highest_l2h_constituents = get_index_constituents(
-                                        highest_l2h_name
-                                    )
-        
-                                st.dataframe(
+                            st.caption(
+                                "Constituent list sourced from NSE Indices published data "
+                                "through the India API index archive."
+                            )
+                            st.markdown(
+                                f"**{highest_l2h_name} — Today's Stock Details**"
+                            )
+                            if hasattr(st, "fragment"):
+                                st.fragment(run_every="60s")(
+                                    render_today_quotes
+                                )(
                                     highest_l2h_constituents,
-                                    use_container_width=True,
-                                    hide_index=True
+                                    highest_l2h_name,
+                                    "refresh_highest_l2h_quotes",
+                                    "bottom"
                                 )
-                                st.caption(
-                                    "Constituent list sourced from NSE Indices published data "
-                                    "through the India API index archive."
+                            else:
+                                render_today_quotes(
+                                    highest_l2h_constituents,
+                                    highest_l2h_name,
+                                    "refresh_highest_l2h_quotes",
+                                    "bottom"
                                 )
-                                st.markdown(
-                                    f"**{highest_l2h_name} — Today's Stock Details**"
-                                )
-                                if hasattr(st, "fragment"):
-                                    st.fragment(run_every="60s")(
-                                        render_today_quotes
-                                    )(
-                                        highest_l2h_constituents,
-                                        highest_l2h_name,
-                                        "refresh_highest_l2h_quotes",
-                                        "bottom"
-                                    )
-                                else:
-                                    render_today_quotes(
-                                        highest_l2h_constituents,
-                                        highest_l2h_name,
-                                        "refresh_highest_l2h_quotes",
-                                        "bottom"
-                                    )
-                            except Exception as highest_l2h_error:
-                                st.error(
-                                    f"Could not load constituents or stock details for "
-                                    f"{highest_l2h_name}: {highest_l2h_error}"
-                                )
-                else:
-                st.info(
-                    "No index has CURRENT above 10,000 with a valid H2L% value."
-                )
+                        except Exception as highest_l2h_error:
+                            st.error(
+                                f"Could not load constituents or stock details for "
+                                f"{highest_l2h_name}: {highest_l2h_error}"
+                            )
+
 
             st.subheader("Average Index Details")
             avg_col1, avg_col2, avg_col3, avg_col4, avg_col5 = st.columns(5)
