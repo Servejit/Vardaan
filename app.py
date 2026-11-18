@@ -98,7 +98,7 @@ def normalize_stock_symbol(value):
     return symbol
 
 
-def get_top_stocks_master_values(top_stocks, master_bytes):
+def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
     """
     Find the requested columns in the Master workbook (prefer the summary
     sheet, but search every sheet and the first 30 rows for the header row).
@@ -174,9 +174,10 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
             if symbol:
                 master_rows[symbol] = row
 
-        # Rank every stock in the Master sheet by numeric Sum O2H.10,
-        # descending (highest value = rank 1). Ties share the same rank.
-        sum_o2h_column = header_columns["Sum O2H.10"] - 1
+        # Rank every stock using the requested source column:
+        # H2L uses Sum O2L.10; L2H uses Sum O2H.10.
+        # Higher numeric values receive rank 1; ties share the same rank.
+        rank_source_index = header_columns[rank_source_column] - 1
 
         def numeric_value(value):
             if value is None:
@@ -190,8 +191,8 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
         ranked_values = []
         for master_symbol, master_row in master_rows.items():
             raw_rank_value = (
-                master_row[sum_o2h_column]
-                if sum_o2h_column < len(master_row) else None
+                master_row[rank_source_index]
+                if rank_source_index < len(master_row) else None
             )
             numeric_rank_value = numeric_value(raw_rank_value)
             if numeric_rank_value is not None:
@@ -218,7 +219,7 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
             if master_row is None:
                 result["Sum O2H.10"] = "Not found"
                 result["Sum O2L.10"] = "Not found"
-                result["Sum O2H.10 Rank"] = ""
+                result[f"{rank_source_column} Rank"] = ""
                 result["16> C-B / Avg.4"] = "Not found"
                 result["16< D-B / Avg.4"] = "Not found"
             else:
@@ -243,9 +244,8 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
                     except (TypeError, ValueError):
                         result[column_name] = raw_value
 
-                # Rank this stock by its Sum O2H.10 value across all Master rows:
-                # highest numeric value receives rank 1.
-                result["Sum O2H.10 Rank"] = master_ranks.get(symbol, "")
+                # Display the rank calculated from this panel's source column.
+                result[f"{rank_source_column} Rank"] = master_ranks.get(symbol, "")
 
                 # Show only text/numbers enclosed in parentheses in the last two columns.
                 for column_name in output_columns[2:]:
@@ -1211,9 +1211,15 @@ if page == "Index":
                         else:
                             with st.spinner("Matching selected stocks with Supabase Master Excel..."):
                                 master_bytes_for_selection = get_master()
+                                rank_source_column = (
+                                    "Sum O2L.10"
+                                    if selection_mode == "top"
+                                    else "Sum O2H.10"
+                                )
                                 master_values, master_error = get_top_stocks_master_values(
                                     selected_four,
-                                    master_bytes_for_selection
+                                    master_bytes_for_selection,
+                                    rank_source_column
                                 )
 
                             if master_error:
@@ -1226,8 +1232,8 @@ if page == "Index":
                                     hide_index=True,
                                     column_config={
                                         "NSE Symbol": st.column_config.TextColumn(width="small"),
-                                        "Sum O2H.10 Rank": st.column_config.NumberColumn(
-                                            "Sum O2H.10 Rank",
+                                        f"{rank_source_column} Rank": st.column_config.NumberColumn(
+                                            f"{rank_source_column} Rank",
                                             format="%d",
                                             width="small"
                                         ),
