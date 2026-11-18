@@ -951,27 +951,27 @@ if page == "Index":
                             column_config={
                                 "NSE Symbol": st.column_config.TextColumn(
                                     "NSE Symbol",
-                                    width="medium"
+                                    width="small"
                                 ),
                                 "Price": st.column_config.NumberColumn(
                                     "Price",
                                     format="₹%.2f",
-                                    width="large"
+                                    width="small"
                                 ),
                                 "Open": st.column_config.NumberColumn(
                                     "Open",
                                     format="₹%.2f",
-                                    width="large"
+                                    width="small"
                                 ),
                                 "High": st.column_config.NumberColumn(
                                     "High",
                                     format="₹%.2f",
-                                    width="large"
+                                    width="small"
                                 ),
                                 "Low": st.column_config.NumberColumn(
                                     "Low",
                                     format="₹%.2f",
-                                    width="large"
+                                    width="small"
                                 ),
                                 "% Chg": st.column_config.NumberColumn(
                                     "% Chg",
