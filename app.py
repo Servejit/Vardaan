@@ -662,6 +662,139 @@ if page == "Index":
                     st.caption(
                         "NIFTY IT constituent list based on the NSE Indices factsheet dated 30 October 2026."
                     )
+
+                    # Fetch current-day constituent quotes from Yahoo Finance.
+                    # NSE symbols use the .NS suffix on Yahoo Finance.
+                    st.markdown("**NIFTY IT — Stock Market Details**")
+                    st.caption(
+                        "Quotes are retrieved from Yahoo Finance and may be delayed. "
+                        "Use Refresh Quotes to request the latest available data."
+                    )
+
+                    import yfinance as yf
+
+                    quote_symbols = [
+                        item["NSE Symbol"] for item in nifty_it_constituents
+                    ]
+                    refresh_quotes = st.button(
+                        "Refresh Stock Quotes",
+                        key="refresh_nifty_it_quotes"
+                    )
+
+                    @st.cache_data(ttl=60, show_spinner=False)
+                    def get_nifty_it_quotes(symbols):
+                        yahoo_symbols = [f"{symbol}.NS" for symbol in symbols]
+                        intraday = yf.download(
+                            tickers=yahoo_symbols,
+                            period="1d",
+                            interval="5m",
+                            group_by="ticker",
+                            auto_adjust=False,
+                            progress=False,
+                            threads=True
+                        )
+                        daily = yf.download(
+                            tickers=yahoo_symbols,
+                            period="5d",
+                            interval="1d",
+                            group_by="ticker",
+                            auto_adjust=False,
+                            progress=False,
+                            threads=True
+                        )
+
+                        output = []
+                        for symbol in symbols:
+                            yahoo_symbol = f"{symbol}.NS"
+
+                            def get_symbol_frame(data):
+                                if data is None or data.empty:
+                                    return None
+                                if isinstance(data.columns, __import__("pandas").MultiIndex):
+                                    if yahoo_symbol in data.columns.get_level_values(0):
+                                        return data[yahoo_symbol].dropna(how="all")
+                                    if yahoo_symbol in data.columns.get_level_values(1):
+                                        return data.xs(yahoo_symbol, axis=1, level=1).dropna(how="all")
+                                    return None
+                                return data.dropna(how="all")
+
+                            intraday_frame = get_symbol_frame(intraday)
+                            daily_frame = get_symbol_frame(daily)
+
+                            if intraday_frame is None or intraday_frame.empty:
+                                output.append({
+                                    "NSE Symbol": symbol,
+                                    "Price": None,
+                                    "Open": None,
+                                    "High": None,
+                                    "Low": None,
+                                    "% Chg": None
+                                })
+                                continue
+
+                            today_open = float(intraday_frame["Open"].dropna().iloc[0])
+                            today_high = float(intraday_frame["High"].dropna().max())
+                            today_low = float(intraday_frame["Low"].dropna().min())
+                            current_price = float(intraday_frame["Close"].dropna().iloc[-1])
+
+                            previous_close = None
+                            if daily_frame is not None and not daily_frame.empty:
+                                closes = daily_frame["Close"].dropna()
+                                if len(closes) >= 2:
+                                    previous_close = float(closes.iloc[-2])
+                                elif len(closes) == 1:
+                                    previous_close = float(closes.iloc[0])
+
+                            change_percent = (
+                                ((current_price - previous_close) / previous_close) * 100
+                                if previous_close not in (None, 0) else None
+                            )
+
+                            output.append({
+                                "NSE Symbol": symbol,
+                                "Price": current_price,
+                                "Open": today_open,
+                                "High": today_high,
+                                "Low": today_low,
+                                "% Chg": change_percent
+                            })
+
+                        return output
+
+                    if refresh_quotes:
+                        get_nifty_it_quotes.clear()
+
+                    with st.spinner("Loading NIFTY IT stock quotes..."):
+                        quote_rows = get_nifty_it_quotes(tuple(quote_symbols))
+
+                    if quote_rows:
+                        quote_df = __import__("pandas").DataFrame(quote_rows)
+                        for numeric_column in ["Price", "Open", "High", "Low"]:
+                            quote_df[numeric_column] = quote_df[numeric_column].map(
+                                lambda value: round(value, 2) if value is not None else None
+                            )
+                        quote_df["% Chg"] = quote_df["% Chg"].map(
+                            lambda value: round(value, 2) if value is not None else None
+                        )
+                        st.dataframe(
+                            quote_df,
+                            use_container_width=True,
+                            hide_index=True,
+                            column_config={
+                                "Price": st.column_config.NumberColumn(format="₹%.2f"),
+                                "Open": st.column_config.NumberColumn(format="₹%.2f"),
+                                "High": st.column_config.NumberColumn(format="₹%.2f"),
+                                "Low": st.column_config.NumberColumn(format="₹%.2f"),
+                                "% Chg": st.column_config.NumberColumn(format="%.2f%%")
+                            }
+                        )
+                        if quote_df["Price"].isna().all():
+                            st.warning(
+                                "Stock quotes could not be loaded right now. "
+                                "Please try Refresh Stock Quotes again."
+                            )
+                    else:
+                        st.warning("No stock quote data is currently available.")
                 else:
                     st.info(
                         f"The selected index is {selected_name}. "
