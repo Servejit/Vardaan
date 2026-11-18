@@ -2426,22 +2426,22 @@ elif page == "Index 2":
             st.markdown("""
             <style>
             .st-key-h2l_panel {
-                background: linear-gradient(145deg, #f3fbf5 0%, #e8f5eb 100%);
-                border: 1px solid #b8d9c0;
-                border-left: 5px solid #25834a;
+                background: linear-gradient(145deg, #e8f7f2 0%, #d4eee5 52%, #c5e5d9 100%);
+                border: 1px solid #9acdbb;
+                border-left: 5px solid #167b68;
                 border-radius: 16px;
                 padding: 1.25rem 1.35rem;
                 margin: 0.8rem 0 1.2rem 0;
-                box-shadow: 0 5px 18px rgba(27, 83, 48, 0.06);
+                box-shadow: 0 7px 22px rgba(20, 105, 87, 0.11);
             }
             .st-key-l2h_panel {
-                background: linear-gradient(145deg, #fff9f1 0%, #fff0df 100%);
-                border: 1px solid #efd1ad;
-                border-left: 5px solid #c87925;
+                background: linear-gradient(145deg, #fff4eb 0%, #fbe2d5 52%, #f5d2c2 100%);
+                border: 1px solid #e8b9a3;
+                border-left: 5px solid #bd6546;
                 border-radius: 16px;
                 padding: 1.25rem 1.35rem;
                 margin: 0.8rem 0 1.2rem 0;
-                box-shadow: 0 5px 18px rgba(126, 76, 24, 0.06);
+                box-shadow: 0 7px 22px rgba(153, 78, 51, 0.11);
             }
             .st-key-h2l_panel [data-testid="stMetric"],
             .st-key-l2h_panel [data-testid="stMetric"] {
@@ -3233,12 +3233,12 @@ elif page == "Index 2":
                                             color: white;
                                         }}
                                         .priority-trade-signal.buy-signal {{
-                                            background: linear-gradient(115deg, #176b3a, #269653);
-                                            border: 1px solid #58b77a;
+                                            background: linear-gradient(115deg, #126b5c, #269b80);
+                                            border: 1px solid #63bda5;
                                         }}
                                         .priority-trade-signal.sell-signal {{
-                                            background: linear-gradient(115deg, #a65312, #d17a27);
-                                            border: 1px solid #edaa65;
+                                            background: linear-gradient(115deg, #a84f3b, #d17d5d);
+                                            border: 1px solid #e5a18b;
                                         }}
                                         .priority-trade-signal .signal-title {{
                                             font-size: 1.05rem; font-weight: 800;
