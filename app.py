@@ -98,8 +98,9 @@ def normalize_stock_symbol(value):
 
 def get_top_stocks_master_values(top_stocks, master_bytes):
     """
-    Match the top stocks against column A in the summary sheet of master.xlsx.
-    Headers are on row 1 and stock data begins on row 2.
+    Find the requested columns in the Master workbook (prefer the summary
+    sheet, but search every sheet and the first 30 rows for the header row).
+    Stock symbols are matched against column A.
     """
     output_columns = [
         "Sum O2L.10",
@@ -110,27 +111,61 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
     if not master_bytes:
         return [], "Master Excel is not available in Supabase."
 
+    workbook = None
     try:
         workbook = load_workbook(
             io.BytesIO(master_bytes),
             data_only=True,
             read_only=True
         )
-        if "summary" not in workbook.sheetnames:
-            return [], "The Master Excel does not contain the required 'summary' sheet."
 
-        worksheet = workbook["summary"]
-        headers = {
-            str(cell.value).strip(): cell.column
-            for cell in worksheet[1]
-            if cell.value is not None
-        }
-        missing = [name for name in output_columns if name not in headers]
-        if missing:
-            return [], "Missing column(s) in Master Excel summary: " + ", ".join(missing)
+        def clean_header(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        wanted_headers = {clean_header(name): name for name in output_columns}
+        sheet_candidates = sorted(
+            workbook.worksheets,
+            key=lambda sheet: (sheet.title.casefold() != "summary", sheet.title.casefold())
+        )
+
+        selected_sheet = None
+        header_row_number = None
+        header_columns = None
+
+        # Locate the actual header row instead of assuming row 1 or a fixed sheet.
+        for sheet in sheet_candidates:
+            for row_number, row in enumerate(
+                sheet.iter_rows(min_row=1, max_row=min(sheet.max_row, 30), values_only=True),
+                start=1
+            ):
+                found = {
+                    clean_header(value): column_number
+                    for column_number, value in enumerate(row, start=1)
+                    if value is not None
+                }
+                if all(name in found for name in wanted_headers):
+                    selected_sheet = sheet
+                    header_row_number = row_number
+                    header_columns = {
+                        original: found[normalized]
+                        for normalized, original in wanted_headers.items()
+                    }
+                    break
+            if selected_sheet is not None:
+                break
+
+        if selected_sheet is None:
+            available = ", ".join(sheet.title for sheet in workbook.worksheets)
+            return [], (
+                "Could not find all four requested headers in the first 30 rows "
+                f"of any Master sheet. Sheets checked: {available}"
+            )
 
         master_rows = {}
-        for row in worksheet.iter_rows(min_row=2, values_only=True):
+        for row in selected_sheet.iter_rows(
+            min_row=header_row_number + 1,
+            values_only=True
+        ):
             if not row:
                 continue
             symbol = normalize_stock_symbol(row[0] if len(row) else None)
@@ -138,24 +173,28 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
                 master_rows[symbol] = row
 
         results = []
+        matched_count = 0
         for _, stock in top_stocks.iterrows():
-            symbol = normalize_stock_symbol(stock.get("NSE Symbol"))
+            display_symbol = stock.get("NSE Symbol")
+            symbol = normalize_stock_symbol(display_symbol)
             master_row = master_rows.get(symbol)
-            result = {"NSE Symbol": stock.get("NSE Symbol")}
+            result = {"NSE Symbol": display_symbol}
+
             if master_row is None:
                 for column_name in output_columns:
                     result[column_name] = "Not found"
             else:
+                matched_count += 1
                 for column_name in output_columns[:2]:
-                    column_index = headers[column_name] - 1
+                    column_index = header_columns[column_name] - 1
                     result[column_name] = (
                         master_row[column_index]
                         if column_index < len(master_row) else None
                     )
 
-                # For these two columns, display only the value(s) inside parentheses.
+                # Show only text/numbers enclosed in parentheses in the last two columns.
                 for column_name in output_columns[2:]:
-                    column_index = headers[column_name] - 1
+                    column_index = header_columns[column_name] - 1
                     raw_value = (
                         master_row[column_index]
                         if column_index < len(master_row) else None
@@ -167,10 +206,19 @@ def get_top_stocks_master_values(top_stocks, master_bytes):
 
             results.append(result)
 
-        workbook.close()
+        if matched_count == 0:
+            return results, (
+                "None of the four selected stock symbols matched column A in "
+                f"Master sheet '{selected_sheet.title}'. Check that Master column A "
+                "contains NSE symbols (for example, SBIN)."
+            )
+
         return results, None
     except Exception as error:
         return [], f"Could not read Master Excel: {error}"
+    finally:
+        if workbook is not None:
+            workbook.close()
 
 
 def logout():
