@@ -3906,10 +3906,10 @@ elif page == "Index 2":
                                             rank_text = f'{dependent_winner["rank"]:g}'
                                             symbol_text = dependent_winner["symbol"]
                                             if side == "H2L":
-                                                background = "linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%)"
-                                                border = "#E6C76A"
-                                                glow = "rgba(31,220,132,.38)"
-                                                accent = "#CFFFE4"
+                                                background = "linear-gradient(125deg,#082744 0%,#0B4B78 46%,#082D50 100%)"
+                                                border = "#A9D9F5"
+                                                glow = "rgba(91,190,255,.42)"
+                                                accent = "#E0F5FF"
                                                 emblem = "♛  ✦  BUY SIGNAL"
                                             else:
                                                 background = "linear-gradient(125deg,#160A2A 0%,#29133F 32%,#512078 54%,#35104F 78%,#160A2A 100%)"
