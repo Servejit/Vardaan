@@ -3822,13 +3822,24 @@ elif page == "Index 2":
                                             """
                                             <style>
                                             @keyframes noSignalGlow {
-                                                0%, 100% { box-shadow: 0 5px 18px rgba(255,255,255,.06); }
-                                                50% { box-shadow: 0 5px 24px rgba(255,255,255,.18); }
+                                                0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
+                                                50% { box-shadow:0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
+                                            }
+                                            @keyframes noSignalShimmer {
+                                                0% { background-position:0% 50%; filter:brightness(1); }
+                                                50% { background-position:100% 50%; filter:brightness(1.18); }
+                                                100% { background-position:0% 50%; filter:brightness(1); }
+                                            }
+                                            @keyframes noSignalFloat {
+                                                0%,100% { transform:translateY(0); }
+                                                50% { transform:translateY(-2px); }
                                             }
                                             </style>
                                             <div style="
-                                                background: linear-gradient(135deg, #101010 0%, #242424 52%, #111111 100%);
-                                                border: 1px solid #f5f5f5;
+                                                background: linear-gradient(115deg, #090909 0%, #242424 28%, #111111 52%, #303030 70%, #090909 100%);
+                                                background-size:220% 220%;
+                                                border:1px solid #f5f5f5;
+                                                box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 24px rgba(0,0,0,.48);
                                                 border-radius: 14px;
                                                 padding: 1rem 1.15rem;
                                                 margin: 0.7rem 0 1rem 0;
@@ -3840,7 +3851,7 @@ elif page == "Index 2":
                                                 display: flex;
                                                 align-items: center;
                                                 justify-content: center;
-                                                animation: noSignalGlow 3s ease-in-out infinite;
+                                                animation:noSignalGlow 3s ease-in-out infinite, noSignalShimmer 6s ease-in-out infinite, noSignalFloat 2.8s ease-in-out infinite;
                                             ">
                                                 <div>✦ WAIT · NO SIGNAL<br>
                                                 <span style="font-size:.78rem;font-weight:500;color:#d4d4d4;">
@@ -4005,15 +4016,27 @@ elif page == "Index 2":
                                                 """
                                                 <style>
                                                 @keyframes dependentNoSignalGlow {
-                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.06); }
-                                                    50% { box-shadow:0 5px 24px rgba(255,255,255,.18); }
+                                                    0%, 100% { box-shadow:0 5px 18px rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.10); }
+                                                    50% { box-shadow:0 8px 30px rgba(255,255,255,.22), 0 0 18px rgba(220,235,255,.16); }
+                                                }
+                                                @keyframes dependentNoSignalShimmer {
+                                                    0% { background-position:0% 50%; filter:brightness(1); }
+                                                    50% { background-position:100% 50%; filter:brightness(1.18); }
+                                                    100% { background-position:0% 50%; filter:brightness(1); }
+                                                }
+                                                @keyframes dependentNoSignalFloat {
+                                                    0%,100% { transform:translateY(0); }
+                                                    50% { transform:translateY(-2px); }
                                                 }
                                                 </style>
                                                 <div style="
                                                     min-height:145px;display:flex;align-items:center;justify-content:center;
                                                     text-align:center;padding:16px;border-radius:18px;margin:5px 0 14px;
-                                                    color:#ffffff;background:linear-gradient(135deg,#101010 0%,#242424 52%,#111111 100%);
-                                                    border:1px solid #f5f5f5;animation:dependentNoSignalGlow 3s ease-in-out infinite;
+                                                    color:#ffffff;background:linear-gradient(115deg,#090909 0%,#242424 28%,#111111 52%,#303030 70%,#090909 100%);
+                                                    background-size:220% 220%;
+                                                    border:1px solid #f5f5f5;
+                                                    box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 24px rgba(0,0,0,.48);
+                                                    animation:dependentNoSignalGlow 3s ease-in-out infinite,dependentNoSignalShimmer 6s ease-in-out infinite,dependentNoSignalFloat 2.8s ease-in-out infinite;
                                                     font-weight:750;">
                                                     <div>✦ &nbsp; WAIT · NO SIGNAL<br>
                                                     <span style="font-size:.76rem;font-weight:500;color:#d4d4d4;">
