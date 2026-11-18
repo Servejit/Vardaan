@@ -719,12 +719,6 @@ if page == "Index":
 
     import csv
 
-    st.header("Index Dashboard")
-    st.caption(
-        "Upload an Excel (.xlsx) or CSV (.csv) file. "
-        "The uploaded file is processed in Streamlit memory and is not saved to Supabase."
-    )
-
     # Each connected Streamlit session has its own session_state. The owner
     # marker also prevents a different account using the same browser session
     # from inheriting the previous account's uploaded Index file or signals.
@@ -2239,12 +2233,6 @@ if page == "Index":
 elif page == "Index 2":
 
     import csv
-
-    st.header("Index 2 Dashboard")
-    st.caption(
-        "Upload an Excel (.xlsx) or CSV (.csv) file. "
-        "The uploaded file is processed in Streamlit memory and is not saved to Supabase."
-    )
 
     # Each connected Streamlit session has its own session_state. The owner
     # marker also prevents a different account using the same browser session
