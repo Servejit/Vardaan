@@ -2086,6 +2086,10 @@ if page == "Index":
                                             unsafe_allow_html=True
                                         )
 
+                                    st.session_state["independent_signal_active_index1_H2L"] = bool(
+                                        winning_candidate is not None and price_location_confirmed
+                                    )
+
                                     # DEPENDENT METALLIC SIGNALS
                                     # Original logic: market-average absolute bias selects the side;
                                     # lowest rank is compared across H2L and L2H; fourth-place
@@ -2142,6 +2146,17 @@ if page == "Index":
                                                 )
                                             if dependent_distance_ok:
                                                 dependent_winner = possible_winner
+
+                                    any_signal_found = bool(
+                                        st.session_state.get("independent_signal_active_index1_H2L", False)
+                                        or st.session_state.get("independent_signal_active_index1_L2H", False)
+                                        or dependent_winner is not None
+                                    )
+                                    if any_signal_found:
+                                        if not st.session_state.get("independent_signal_active_index1_H2L", False):
+                                            buy_signal_placeholder.empty()
+                                        if not st.session_state.get("independent_signal_active_index1_L2H", False):
+                                            sell_signal_placeholder.empty()
 
                                     def render_metallic_dependent_card(placeholder, side):
                                         is_winner = (
@@ -2207,7 +2222,7 @@ if page == "Index":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
-                                        else:
+                                        elif not any_signal_found:
                                             placeholder.markdown(
                                                 """
                                                 <style>
@@ -2230,6 +2245,8 @@ if page == "Index":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
+                                        else:
+                                            placeholder.empty()
 
                                     render_metallic_dependent_card(
                                         dependent_buy_signal_placeholder, "H2L"
@@ -3757,6 +3774,10 @@ elif page == "Index 2":
                                             unsafe_allow_html=True
                                         )
 
+                                    st.session_state["independent_signal_active_index2_H2L"] = bool(
+                                        winning_candidate is not None and price_location_confirmed
+                                    )
+
                                     # DEPENDENT METALLIC SIGNALS
                                     # Original logic: market-average absolute bias selects the side;
                                     # lowest rank is compared across H2L and L2H; fourth-place
@@ -3813,6 +3834,17 @@ elif page == "Index 2":
                                                 )
                                             if dependent_distance_ok:
                                                 dependent_winner = possible_winner
+
+                                    any_signal_found = bool(
+                                        st.session_state.get("independent_signal_active_index2_H2L", False)
+                                        or st.session_state.get("independent_signal_active_index2_L2H", False)
+                                        or dependent_winner is not None
+                                    )
+                                    if any_signal_found:
+                                        if not st.session_state.get("independent_signal_active_index2_H2L", False):
+                                            buy_signal_placeholder.empty()
+                                        if not st.session_state.get("independent_signal_active_index2_L2H", False):
+                                            sell_signal_placeholder.empty()
 
                                     def render_metallic_dependent_card(placeholder, side):
                                         is_winner = (
@@ -3878,7 +3910,7 @@ elif page == "Index 2":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
-                                        else:
+                                        elif not any_signal_found:
                                             placeholder.markdown(
                                                 """
                                                 <style>
@@ -3901,6 +3933,8 @@ elif page == "Index 2":
                                                 """,
                                                 unsafe_allow_html=True
                                             )
+                                        else:
+                                            placeholder.empty()
 
                                     render_metallic_dependent_card(
                                         dependent_buy_signal_placeholder, "H2L"
