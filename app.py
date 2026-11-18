@@ -69,7 +69,9 @@ def get_profile(uid):
 CONSTITUENT_MANIFEST_PATH = "index-constituents/manifest.json"
 CONSTITUENT_ARCHIVE_PATH = "index-constituents/constituents.json"
 
+@st.cache_data(ttl=900, max_entries=4, show_spinner=False)
 def load_constituent_archive():
+    """Cache the shared constituent archive to avoid repeated Supabase reads."""
     try:
         raw = admin.storage.from_(BUCKET).download(CONSTITUENT_ARCHIVE_PATH)
         payload = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
@@ -86,6 +88,17 @@ def save_constituent_archive(archive):
         json.dumps(archive, ensure_ascii=False).encode("utf-8"),
         {"content-type": "application/json", "upsert": "true"}
     )
+    load_constituent_archive.clear()
+
+@st.cache_data(ttl=900, max_entries=4, show_spinner=False)
+def load_constituent_manifest():
+    """Cache the eligible-index manifest instead of downloading it on every rerun."""
+    try:
+        raw = admin.storage.from_(BUCKET).download(CONSTITUENT_MANIFEST_PATH)
+        payload = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
 
 def save_index_constituents(index_name, members, source):
     try:
@@ -113,11 +126,7 @@ def save_index_constituents(index_name, members, source):
 def save_index_manifest(index_names):
     try:
         names = sorted({str(name).strip().upper() for name in index_names if str(name).strip()})
-        try:
-            raw = admin.storage.from_(BUCKET).download(CONSTITUENT_MANIFEST_PATH)
-            old_manifest = json.loads(raw.decode("utf-8") if isinstance(raw, bytes) else raw)
-        except Exception:
-            old_manifest = {}
+        old_manifest = load_constituent_manifest()
         if old_manifest.get("index_names") == names:
             return
         manifest = {
@@ -130,15 +139,16 @@ def save_index_manifest(index_names):
             json.dumps(manifest, ensure_ascii=False).encode("utf-8"),
             {"content-type": "application/json", "upsert": "true"}
         )
+        load_constituent_manifest.clear()
     except Exception as error:
         st.warning(f"Could not save the eligible-index list to Supabase: {error}")
 
 
+@st.cache_data(ttl=900, max_entries=2, show_spinner=False)
 def get_master():
+    """Cache Master Excel bytes for 15 minutes to reduce Supabase Storage reads."""
     try:
-        return admin.storage.from_(BUCKET).download(
-            MASTER_FILE
-        )
+        return admin.storage.from_(BUCKET).download(MASTER_FILE)
     except Exception:
         return None
 
@@ -152,12 +162,12 @@ def save_master(data):
             "upsert": "true"
         }
     )
+    get_master.clear()
 
 
 def delete_master():
-    admin.storage.from_(BUCKET).remove(
-        [MASTER_FILE]
-    )
+    admin.storage.from_(BUCKET).remove([MASTER_FILE])
+    get_master.clear()
 
 
 def normalize_stock_symbol(value):
