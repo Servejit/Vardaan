@@ -949,11 +949,35 @@ if page == "Index":
                             use_container_width=True,
                             hide_index=True,
                             column_config={
-                                "Price": st.column_config.NumberColumn(format="₹%.2f"),
-                                "Open": st.column_config.NumberColumn(format="₹%.2f"),
-                                "High": st.column_config.NumberColumn(format="₹%.2f"),
-                                "Low": st.column_config.NumberColumn(format="₹%.2f"),
-                                "% Chg": st.column_config.NumberColumn(format="%.2f%%")
+                                "NSE Symbol": st.column_config.TextColumn(
+                                    "NSE Symbol",
+                                    width="medium"
+                                ),
+                                "Price": st.column_config.NumberColumn(
+                                    "Price",
+                                    format="₹%.2f",
+                                    width="large"
+                                ),
+                                "Open": st.column_config.NumberColumn(
+                                    "Open",
+                                    format="₹%.2f",
+                                    width="large"
+                                ),
+                                "High": st.column_config.NumberColumn(
+                                    "High",
+                                    format="₹%.2f",
+                                    width="large"
+                                ),
+                                "Low": st.column_config.NumberColumn(
+                                    "Low",
+                                    format="₹%.2f",
+                                    width="large"
+                                ),
+                                "% Chg": st.column_config.NumberColumn(
+                                    "% Chg",
+                                    format="%.2f%%",
+                                    width="medium"
+                                )
                             }
                         )
 
