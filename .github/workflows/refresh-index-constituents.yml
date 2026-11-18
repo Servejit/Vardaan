@@ -1,6 +1,10 @@
 name: Refresh index constituents
 
 on:
+  push:
+    paths:
+      - "scripts/refresh_index_constituents.py"
+      - ".github/workflows/refresh-index-constituents.yml"
   schedule:
     # Run daily; the script refreshes each index only when 15 days have elapsed.
     - cron: "15 3 * * *"
