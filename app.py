@@ -3,6 +3,7 @@ import re
 import json
 import time
 import base64
+import html
 import requests
 from datetime import datetime, timezone
 import streamlit as st
@@ -898,6 +899,52 @@ def get_autogreen_live_prices(symbols):
             results[symbol] = quote
     return results
 
+def render_qualified_stock_table(rows):
+    """Render the qualified-stock list in the dashboard's premium black metallic style."""
+    if not rows:
+        return
+
+    columns = list(rows[0].keys())
+    header_html = "".join(
+        f'<th style="padding:13px 15px;text-align:left;white-space:nowrap;'
+        f'font-size:11px;font-weight:900;letter-spacing:1px;color:#E8D7A5;'
+        f'background:linear-gradient(180deg,#242424 0%,#111 100%);'
+        f'border-bottom:1px solid rgba(222,190,120,.48);">'
+        f'{html.escape(str(column))}</th>'
+        for column in columns
+    )
+    body_rows = []
+    for row_number, record in enumerate(rows):
+        cells = "".join(
+            f'<td style="padding:12px 15px;white-space:nowrap;'
+            f'font-size:13px;font-weight:650;color:#F1F1F1;'
+            f'border-bottom:1px solid rgba(255,255,255,.075);">'
+            f'{html.escape(str(record.get(column, "—")))}</td>'
+            for column in columns
+        )
+        row_background = "rgba(255,255,255,.035)" if row_number % 2 == 0 else "rgba(0,0,0,.18)"
+        body_rows.append(
+            f'<tr style="background:{row_background};">{cells}</tr>'
+        )
+
+    table_html = f"""
+    <div style="padding:1px;border-radius:15px;overflow:hidden;
+                background:linear-gradient(115deg,#6F6248 0%,#E7D6A5 18%,
+                #5E523D 38%,#B9A77A 58%,#39332A 78%,#D8C38D 100%);
+                box-shadow:0 0 0 1px rgba(255,255,255,.08),
+                0 10px 28px rgba(0,0,0,.34),0 0 18px rgba(190,160,95,.12);">
+      <div style="overflow-x:auto;border-radius:14px;background:#090A0C;">
+        <table style="width:100%;min-width:720px;border-collapse:separate;
+                      border-spacing:0;background:#090A0C;">
+          <thead><tr>{header_html}</tr></thead>
+          <tbody>{''.join(body_rows)}</tbody>
+        </table>
+      </div>
+    </div>
+    """
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
 def render_autogreen_dashboard():
     """Select BUY and CONFIRMATION independently from all four base-qualified target stocks."""
     st.title("6thSense · AutoGreen Buy Signals")
@@ -1183,7 +1230,7 @@ def render_autogreen_dashboard():
             if qualified_detail_error:
                 st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
             elif qualified_detail_rows:
-                st.dataframe(qualified_detail_rows, use_container_width=True, hide_index=True)
+                render_qualified_stock_table(qualified_detail_rows)
             else:
                 st.caption("No qualified-stock details are available.")
         else:
