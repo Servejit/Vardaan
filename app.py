@@ -1270,12 +1270,6 @@ def render_autogreen_dashboard():
         else:
             st.caption("No stocks passed both volume-expansion conditions.")
 
-    st.caption(
-        "BUY and CONFIRMATION are selected independently from all four TARGET stocks. "
-        "Eligibility: live price at least 0.20% below today's high; highest live % change wins, "
-        "with lowest Sum O2L.10 rank breaking a tie. This is a screening signal, not an order execution."
-    )
-
 
 def get_qualified_stock_detail_rows(base_rows, master_bytes):
     """Build the lean qualified-stock view from AutoGreen and Master workbook columns."""
