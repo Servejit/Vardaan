@@ -1106,6 +1106,65 @@ def render_autogreen_dashboard():
         metric_border, metric_accent, metric_shimmer = "#A83E59", "#F0B5C7", "#EAD7DD"
         metric_outer, metric_glow = "#A83E59", "rgba(220,92,126,.30)"
 
+    # Apply the same topmost-card palette to the complete dashboard interface.
+    # The original signal cards keep their own card styling; all surrounding UI
+    # (page canvas, sidebar, headings, controls, tables and panels) follows this theme.
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background:linear-gradient(135deg,#080A0E 0%,{metric_c1} 48%,#090B10 100%) !important;
+            color:#F5F7FA !important;
+        }}
+        [data-testid="stHeader"] {{ background:{metric_c1}DD !important; }}
+        [data-testid="stSidebar"] {{
+            background:linear-gradient(180deg,{metric_c1} 0%,#090B10 100%) !important;
+            border-right:1px solid {metric_border}99 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#F1F4F8 !important; }}
+        h1,h2,h3,[data-testid="stSubheader"] {{ color:{metric_accent} !important; }}
+        h2,h3 {{ border-bottom:1px solid {metric_border}88 !important; }}
+        [data-testid="stMetric"] {{
+            background:linear-gradient(145deg,{metric_c1} 0%,{metric_c3} 100%) !important;
+            border:1px solid {metric_border}AA !important;
+            border-radius:12px !important;
+            color:#FFFFFF !important;
+            box-shadow:0 4px 16px {metric_glow} !important;
+        }}
+        [data-testid="stDataFrame"],[data-testid="stTable"] {{
+            border:1px solid {metric_border}AA !important;
+            border-radius:10px !important;
+            overflow:hidden !important;
+            box-shadow:0 4px 18px rgba(0,0,0,.22) !important;
+        }}
+        .stButton > button,.stDownloadButton > button,
+        [data-testid="stFormSubmitButton"] > button {{
+            border:1px solid {metric_border} !important;
+            color:#FFFFFF !important;
+            background:linear-gradient(145deg,{metric_c1} 0%,{metric_c3} 100%) !important;
+        }}
+        .stButton > button:hover,.stDownloadButton > button:hover,
+        [data-testid="stFormSubmitButton"] > button:hover {{
+            border-color:{metric_accent} !important;
+            box-shadow:0 0 14px {metric_glow} !important;
+        }}
+        [data-testid="stTextInput"] input,[data-testid="stNumberInput"] input,
+        [data-testid="stSelectbox"] > div,[data-testid="stFileUploader"] section,
+        [data-testid="stExpander"] {{
+            border-color:{metric_border}AA !important;
+            background-color:{metric_c1}55 !important;
+            color:#FFFFFF !important;
+        }}
+        [data-testid="stExpander"] {{ border-radius:10px !important; }}
+        hr {{ border-color:{metric_border}88 !important; }}
+        [data-testid="stAlert"] {{ border-color:{metric_border}AA !important; }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.markdown(
         f"""
         <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
