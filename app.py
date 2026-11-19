@@ -948,7 +948,7 @@ def render_qualified_stock_table(rows):
 def render_autogreen_dashboard():
     """Select BUY and CONFIRMATION independently from all four base-qualified target stocks."""
     st.title("6thSense · AutoGreen Buy Signals")
-    st.caption("Source: Servejit/Signal · master.xlsx · AutoGreen + Sum O2L.10 ranking")
+
 
     try:
         with st.spinner("Reading AutoGreen and Master ranking data from GitHub..."):
