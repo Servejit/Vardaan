@@ -1027,12 +1027,12 @@ if page in ("Index", "Index 2"):
         st.session_state["index_file_bytes"] = live_index_bytes
         st.session_state["index_file_name"] = "Live_Yahoo_Index_Data.csv"
         st.session_state["index_file_owner_id"] = str(user.id)
+        fetched_date, fetched_time = live_index_fetched_at.split(", ", 1)
         st.caption(
-            "Yahoo Finance index values · fetched "
-            + live_index_fetched_at
-            + " IST · auto-refresh every 60 seconds · "
-            + f"{yahoo_available_count}/{yahoo_checked_count} mapped indices available. "
-            + "Some custom groups have no verified Yahoo index ticker."
+            f"Indices {yahoo_available_count}\n"
+            + f"{fetched_date}\n"
+            + f"{fetched_time}\n"
+            + "Pattern"
         )
     except Exception as live_index_error:
         st.session_state.pop("index_file_bytes", None)
