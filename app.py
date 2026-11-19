@@ -1253,12 +1253,6 @@ def render_autogreen_dashboard():
             use_container_width=True,
             hide_index=True
         )
-    else:
-        st.warning(
-            "No stock has passed every selection condition at this refresh. "
-            f"AutoGreen Buy candidates: {len(signal_rows)} · High-gap qualified: {len(high_gap_candidates)}."
-        )
-
     st.subheader("Target Stocks")
     if target_table_rows:
         st.dataframe(target_table_rows, use_container_width=True, hide_index=True)
