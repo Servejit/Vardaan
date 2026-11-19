@@ -4,3 +4,4 @@ supabase
 yfinance
 pandas
 requests
+streamlit-autorefresh>=1.0.1
