@@ -1400,38 +1400,39 @@ def render_autogreen_dashboard():
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
+    with st.expander("MORE DASHBOARD  ·  View tables and stock details", expanded=False):
     st.subheader("Selected BUY stocks and confirmation")
-    if selected_rows:
-        st.dataframe(
-            [{
-                "Role": "CONFIRMATION ONLY" if item.get("_Role") == "CONFIRMATION" else "BUY",
-                "Symbol": item["Symbol"],
-                "Open": round(item["Day Open"], 2) if item.get("Day Open") is not None else "Unavailable",
-                "High": round(item["Day High"], 2),
-                "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
-                "Live Price": round(item["Live Price"], 2),
-                "% Chg": f'{item["Live % Chg"]:+.2f}%',
-                "Rank": item["Sum O2L.10 Rank"],
-            } for i, item in enumerate(selected_rows)],
-            use_container_width=True,
-            hide_index=True
-        )
-    st.subheader("Target Stocks")
-    if target_table_rows:
-        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
-    else:
-        st.info("No four qualified target stocks with a readable numeric value are available yet.")
-
-    with st.expander("View qualifying AutoGreen stock data", expanded=False):
-        if base_rows:
-            if qualified_detail_error:
-                st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
-            elif qualified_detail_rows:
-                render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
-            else:
-                st.caption("No qualified-stock details are available.")
+        if selected_rows:
+            st.dataframe(
+                [{
+                    "Role": "CONFIRMATION ONLY" if item.get("_Role") == "CONFIRMATION" else "BUY",
+                    "Symbol": item["Symbol"],
+                    "Open": round(item["Day Open"], 2) if item.get("Day Open") is not None else "Unavailable",
+                    "High": round(item["Day High"], 2),
+                    "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
+                    "Live Price": round(item["Live Price"], 2),
+                    "% Chg": f'{item["Live % Chg"]:+.2f}%',
+                    "Rank": item["Sum O2L.10 Rank"],
+                } for i, item in enumerate(selected_rows)],
+                use_container_width=True,
+                hide_index=True
+            )
+        st.subheader("Target Stocks")
+        if target_table_rows:
+            render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
         else:
-            st.caption("No stocks passed both volume-expansion conditions.")
+            st.info("No four qualified target stocks with a readable numeric value are available yet.")
+    
+        st.subheader("Qualified AutoGreen Stocks")
+            if base_rows:
+                if qualified_detail_error:
+                    st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
+                elif qualified_detail_rows:
+                    render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
+                else:
+                    st.caption("No qualified-stock details are available.")
+            else:
+                st.caption("No stocks passed both volume-expansion conditions.")
 
 
 def get_qualified_stock_detail_rows(base_rows, master_bytes):
