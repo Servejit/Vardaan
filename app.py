@@ -1115,8 +1115,8 @@ with st.sidebar:
         key="main_dashboard_default_index"
     )
 
-# Yahoo Finance is the primary source. An optional user-uploaded Index file
-# fills only groups for which Yahoo has no mapped/usable value.
+# A user-uploaded Index file is the complete source while it is present.
+# Yahoo Finance is used only when no uploaded file is selected.
 index_upload = None
 if page in ("Index", "Index 2"):
     from streamlit_autorefresh import st_autorefresh
@@ -1134,65 +1134,85 @@ if page in ("Index", "Index 2"):
         st.session_state["index_fallback_owner_id"] = str(user.id)
 
     index_upload = st.sidebar.file_uploader(
-        "Upload Index File (fallback)",
+        "Upload Index File",
         type=["xlsx", "csv"],
         key="index_fallback_file_uploader",
-        help="Yahoo Finance values take priority. This file fills only index groups missing from Yahoo."
+        help="When a file is uploaded, all index values are read from that file. Yahoo Finance is used only when no file is uploaded."
+    )
+
+    previous_upload = (
+        st.session_state.get("index_fallback_file_bytes"),
+        st.session_state.get("index_fallback_file_name"),
     )
     if index_upload is not None:
-        new_fallback_bytes = index_upload.getvalue()
-        new_fallback_name = index_upload.name
-        if (
-            new_fallback_bytes != st.session_state.get("index_fallback_file_bytes")
-            or new_fallback_name != st.session_state.get("index_fallback_file_name")
+        st.session_state["index_fallback_file_bytes"] = index_upload.getvalue()
+        st.session_state["index_fallback_file_name"] = index_upload.name
+        st.session_state["index_fallback_owner_id"] = str(user.id)
+    elif st.session_state.get("index_fallback_file_uploader") is None:
+        # Clearing the uploader switches the dashboard back to Yahoo Finance.
+        st.session_state.pop("index_fallback_file_bytes", None)
+        st.session_state.pop("index_fallback_file_name", None)
+
+    current_upload = (
+        st.session_state.get("index_fallback_file_bytes"),
+        st.session_state.get("index_fallback_file_name"),
+    )
+    if current_upload != previous_upload:
+        for candidate_key in (
+            "trade_candidates_H2L", "trade_candidates_L2H",
+            "trade_candidates_index2_H2L", "trade_candidates_index2_L2H",
         ):
-            st.session_state["index_fallback_file_bytes"] = new_fallback_bytes
-            st.session_state["index_fallback_file_name"] = new_fallback_name
-            st.session_state["index_fallback_owner_id"] = str(user.id)
-            for candidate_key in (
-                "trade_candidates_H2L", "trade_candidates_L2H",
-                "trade_candidates_index2_H2L", "trade_candidates_index2_L2H",
-            ):
-                st.session_state.pop(candidate_key, None)
-            for signal_key in (
-                "independent_signal_active_index1_H2L",
-                "independent_signal_active_index1_L2H",
-                "independent_signal_active_index2_H2L",
-                "independent_signal_active_index2_L2H",
-            ):
-                st.session_state.pop(signal_key, None)
+            st.session_state.pop(candidate_key, None)
+        for signal_key in (
+            "independent_signal_active_index1_H2L",
+            "independent_signal_active_index1_L2H",
+            "independent_signal_active_index2_H2L",
+            "independent_signal_active_index2_L2H",
+        ):
+            st.session_state.pop(signal_key, None)
 
-    if st.session_state.get("index_fallback_file_name"):
-        st.sidebar.caption(
-            "Fallback file: " + st.session_state["index_fallback_file_name"]
-        )
-
-    yahoo_bytes = None
-    yahoo_fetched_at = None
-    yahoo_available_count = 0
-    yahoo_error = None
-    try:
-        yahoo_bytes, yahoo_fetched_at, yahoo_available_count, _ = load_live_yahoo_index_csv()
-    except Exception as error:
-        yahoo_error = error
+    uploaded_bytes = st.session_state.get("index_fallback_file_bytes")
+    uploaded_name = st.session_state.get("index_fallback_file_name")
 
     try:
-        fallback_bytes = st.session_state.get("index_fallback_file_bytes")
-        fallback_name = st.session_state.get("index_fallback_file_name")
-        combined_bytes, combined_count, fallback_added_count, fallback_error = merge_uploaded_index_fallback(
-            yahoo_bytes,
-            fallback_bytes,
-            fallback_name
-        )
-        if fallback_error and combined_count:
-            st.sidebar.warning("Uploaded fallback file was ignored: " + fallback_error)
-        if combined_count == 0:
-            if yahoo_error:
+        if uploaded_bytes and uploaded_name:
+            # File mode: use every valid configured index row from the upload.
+            uploaded_rows = parse_uploaded_index_fallback(uploaded_bytes, uploaded_name)
+            allowed_groups = set(load_github_index_groups().keys())
+            selected_rows = []
+            for row in uploaded_rows:
+                normalized_name = normalize_index_name(row.get("INDEX"))
+                if normalized_name not in allowed_groups:
+                    continue
+                selected_rows.append({
+                    "INDEX": str(row.get("INDEX", "")).strip(),
+                    "CURRENT": row.get("CURRENT"),
+                    "%CHANGE": row.get("%CHANGE"),
+                    "OPEN": row.get("OPEN"),
+                    "HIGH": row.get("HIGH"),
+                    "LOW": row.get("LOW"),
+                })
+
+            if not selected_rows:
                 raise ValueError(
-                    "Yahoo Finance is unavailable and no usable fallback Index file is uploaded. "
-                    + str(yahoo_error)
+                    "The uploaded file has no matching index names from index_constituents.csv."
                 )
-            raise ValueError("No Yahoo or uploaded index values are available.")
+
+            import csv
+            output = io.StringIO()
+            columns = ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]
+            writer = csv.DictWriter(output, fieldnames=columns)
+            writer.writeheader()
+            writer.writerows(selected_rows)
+            combined_bytes = output.getvalue().encode("utf-8")
+            combined_count = len(selected_rows)
+            source_label = "Uploaded file"
+        else:
+            # Yahoo mode: fetch only when no uploaded Index file is selected.
+            combined_bytes, yahoo_fetched_at, combined_count, _ = load_live_yahoo_index_csv()
+            if not combined_bytes or combined_count == 0:
+                raise ValueError("Yahoo Finance returned no usable index values.")
+            source_label = "Yahoo Finance"
 
         if combined_bytes != st.session_state.get("index_file_bytes"):
             for candidate_key in (
@@ -1209,7 +1229,7 @@ if page in ("Index", "Index 2"):
                 st.session_state.pop(signal_key, None)
 
         st.session_state["index_file_bytes"] = combined_bytes
-        st.session_state["index_file_name"] = "Combined_Live_Index_Data.csv"
+        st.session_state["index_file_name"] = "Selected_Index_Data.csv"
         st.session_state["index_file_owner_id"] = str(user.id)
 
         from zoneinfo import ZoneInfo
@@ -1225,16 +1245,17 @@ if page in ("Index", "Index 2"):
             + f"{fetched_time}\n"
             + "Pattern"
         )
-    except Exception as live_index_error:
+        st.sidebar.caption("Index source: " + source_label)
+    except Exception as index_source_error:
         st.session_state.pop("index_file_bytes", None)
         st.session_state.pop("index_file_name", None)
         st.error(
-            "Index values are unavailable. Upload a valid Index file or wait for Yahoo Finance. "
-            f"Details: {live_index_error}"
+            "Index values are unavailable. Check the uploaded file or wait for Yahoo Finance. "
+            f"Details: {index_source_error}"
         )
 
-    # The upload is already merged above; prevent the legacy dashboard parser
-    # from replacing the combined Yahoo + fallback data with the raw upload.
+    # Source selection is complete above; the legacy dashboard parser must
+    # not replace it with a second raw upload.
     index_upload = None
 
 # ============================================================
