@@ -1229,8 +1229,8 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
         # Sort qualified stocks by the numeric D-B value inside parentheses:
         # lowest value first; missing/non-numeric values remain at the bottom.
         def db_sort_value(record):
-            raw = str(record.get("16< D-B / Avg.4", "")).strip()
-            match = re.search(r"\\(\\s*(-?\\d+(?:,\\d{3})*(?:\\.\\d+)?)\\s*\\)", raw)
+            raw = str(record.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
+            match = re.search(r"\(\s*([+\-−]?\d+(?:,\d{3})*(?:\.\d+)?)\s*\)", raw)
             if not match:
                 return (1, 0.0)
             try:
