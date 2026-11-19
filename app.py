@@ -1032,7 +1032,7 @@ if page == "Index":
             file_name = st.session_state.get("index_file_name")
     
             if file_bytes is None or file_name is None:
-                st.info("No Index file in this session yet. Upload an Excel or CSV file above.")
+                st.info("Live NSE index data is not available in this session. Index signals are paused.")
                 st.stop()
             extension = file_name.lower().rsplit(".", 1)[-1]
     
@@ -2793,7 +2793,7 @@ elif page == "Index 2":
             file_name = st.session_state.get("index_file_name")
     
             if file_bytes is None or file_name is None:
-                st.info("No Index file in this session yet. Upload an Excel or CSV file above.")
+                st.info("Live NSE index data is not available in this session. Index signals are paused.")
                 st.stop()
             extension = file_name.lower().rsplit(".", 1)[-1]
     
