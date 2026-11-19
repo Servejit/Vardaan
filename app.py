@@ -890,47 +890,14 @@ def render_autogreen_dashboard():
     st.markdown(
         """
         <style>
-        @keyframes agShimmer {
-            0% { background-position: 0% 50%; filter:brightness(1); }
-            50% { background-position: 100% 50%; filter:brightness(1.12); }
-            100% { background-position: 0% 50%; filter:brightness(1); }
+        @keyframes dependentSignalShimmer {
+            0% { background-position:0% 50%; filter:brightness(1); }
+            50% { background-position:100% 50%; filter:brightness(1.12); }
+            100% { background-position:0% 50%; filter:brightness(1); }
         }
-        @keyframes agFloat {
+        @keyframes dependentSignalFloat {
             0%,100% { transform:translateY(0); }
             50% { transform:translateY(-2px); }
-        }
-        .ag-card {
-            position:relative; overflow:hidden; min-height:190px;
-            border-radius:20px; padding:17px 18px 16px; margin:4px 0 14px;
-            color:#fff; background-size:220% 220%;
-            animation:agShimmer 7s ease-in-out infinite,
-                      agFloat 3s ease-in-out infinite;
-            box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,
-                       0 9px 28px rgba(0,0,0,.22);
-        }
-        .ag-card:after {
-            content:""; position:absolute; top:-70%; left:-45%;
-            width:55%; height:240%; transform:rotate(22deg);
-            background:linear-gradient(90deg,transparent,
-                       rgba(255,255,255,.13),transparent);
-            animation:agSweep 6s linear infinite; pointer-events:none;
-        }
-        @keyframes agSweep {
-            0% { left:-65%; } 100% { left:145%; }
-        }
-        .ag-green { background-image:linear-gradient(125deg,#062d20,#087447 48%,#063d2b); border:1.5px solid #e6c76a; }
-        .ag-blue { background-image:linear-gradient(125deg,#071b3d,#075b91 48%,#092d57); border:1.5px solid #78d9ff; }
-        .ag-purple { background-image:linear-gradient(125deg,#29113f,#713a91 48%,#35134f); border:1.5px solid #e0b5ff; }
-        .ag-kicker { font-size:.72rem; font-weight:900; letter-spacing:2px; opacity:.92; }
-        .ag-symbol { font-size:1.55rem; font-weight:950; letter-spacing:.5px; margin-top:7px; }
-        .ag-entry { font-size:1.12rem; font-weight:850; margin-top:9px; }
-        .ag-details { display:flex; flex-wrap:wrap; gap:7px; margin-top:13px; }
-        .ag-chip { border:1px solid rgba(255,255,255,.24);
-                   background:rgba(0,0,0,.16); border-radius:9px;
-                   padding:5px 8px; font-size:.73rem; font-weight:750; }
-        .ag-foot { margin-top:10px; font-size:.72rem; opacity:.82; }
-        @media (prefers-reduced-motion: reduce) {
-            .ag-card,.ag-card:after { animation:none !important; }
         }
         </style>
         """,
@@ -945,26 +912,60 @@ def render_autogreen_dashboard():
         for index, item in enumerate(selected_rows):
             is_confirmation = index == 3
             symbol = item["Symbol"]
-            colour = item["Card Colour"].lower()
-            price = item["Live Price"]
             entry = item["Day High"] * (1 - 0.002)
-            change_values = [item["%Chg.1"], item["%Chg.2"], item["%Chg.3"], item["%Chg.4"]]
-            change_text = " · ".join(
-                f"{number + 1}: {value:+.2f}%" if value is not None else f"{number + 1}: N/A"
-                for number, value in enumerate(change_values)
+            target = entry * 1.0035
+            rank_value = item.get("Sum O2L.10 Rank")
+            rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
+            role_text = "♛  ✦  BUY CONFIRMATION" if is_confirmation else "♛  ✦  BUY SIGNAL"
+            status_text = (
+                "DEPENDENT · CONFIRMATION ONLY"
+                if is_confirmation
+                else "DEPENDENT · MARKET BIAS CONFIRMED"
             )
-            role = "CONFIRMATION ONLY · #4" if is_confirmation else f"BUY CANDIDATE · #{index + 1}"
             card_html = f"""
-            <div class="ag-card ag-{colour}">
-              <div class="ag-kicker">✦ &nbsp;{role} &nbsp;·&nbsp; {item["Signal"]}</div>
-              <div class="ag-symbol">{symbol}</div>
-              <div class="ag-entry">LIVE PRICE ₹{price:,.2f} &nbsp; | &nbsp; ENTRY ₹{entry:,.2f}</div>
-              <div class="ag-details">
-                <span class="ag-chip">Today's High ₹{item["Day High"]:,.2f}</span>
-                <span class="ag-chip">High Gap {item["High Gap %"]:.2f}%</span>
-                <span class="ag-chip">Sum O2L.10 Rank #{item["Sum O2L.10 Rank"]}</span>
+            <div style="
+                position:relative; overflow:hidden;
+                background:linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%);
+                background-size:200% 200%;
+                animation:dependentSignalShimmer 6s ease-in-out infinite,
+                          dependentSignalFloat 2.8s ease-in-out infinite;
+                border:1.5px solid #E6C76A;
+                border-radius:20px;
+                padding:16px 18px 15px;
+                margin:5px 0 14px;
+                color:#fff;
+                box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,
+                           0 8px 25px rgba(31,220,132,.38),
+                           0 0 22px rgba(31,220,132,.38);
+            ">
+              <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:#CFFFE4;">
+                {role_text}
               </div>
-              <div class="ag-foot">%Chg values &nbsp; {change_text}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
+                <div>
+                  <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">BUY</div>
+                  <div style="font-size:1.16rem;font-weight:850;color:#CFFFE4;">{symbol}</div>
+                  <div style="font-size:.72rem;opacity:.82;margin-top:4px;">{status_text}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:.68rem;opacity:.8;">ENTRY PRICE</div>
+                  <div style="font-size:1.42rem;font-weight:900;">₹{entry:,.2f}</div>
+                </div>
+              </div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,#E6C76A,transparent);margin:12px 0;"></div>
+              <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                <div><div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
+                  <div style="font-size:1.12rem;font-weight:900;color:#CFFFE4;">₹{target:,.2f}</div></div>
+                <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">RANK</div>
+                  <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
+              </div>
+              <div style="font-size:.69rem;opacity:.78;margin-top:10px;">
+                LIVE PRICE ₹{item["Live Price"]:,.2f} &nbsp; · &nbsp;
+                TODAY'S HIGH ₹{item["Day High"]:,.2f} &nbsp; · &nbsp;
+                HIGH GAP {item["High Gap %"]:.2f}%
+              </div>
+              <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
+                          background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
