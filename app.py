@@ -1215,7 +1215,27 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
         return f"({rendered})" if parentheses else rendered
 
     symbols = {item["Symbol"]: item for item in base_rows}
-    details = {symbol: {"Stock": symbol} for symbol in symbols}
+
+    def signed_change_history(item):
+        history_values = []
+        for key in ("%Chg.1", "%Chg.2", "%Chg.3", "%Chg.4"):
+            value = item.get(key)
+            if value is None:
+                history_values.append("—")
+                continue
+            try:
+                history_values.append(f"{float(value):+.2f}")
+            except (TypeError, ValueError):
+                history_values.append("—")
+        return ", ".join(history_values)
+
+    details = {
+        symbol: {
+            "Stock": symbol,
+            "% Chg History": signed_change_history(item),
+        }
+        for symbol, item in symbols.items()
+    }
 
     # Read the two dated O2H columns immediately following Vol.Expand 2
     # from the AutoGreen sheet, retaining the workbook's actual date headings.
@@ -1311,6 +1331,7 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
             record = details[symbol]
             output.append({
                 "Stock": symbol,
+                "% Chg History": record.get("% Chg History", "—"),
                 "16< D-B / Avg.4": record.get("16< D-B / Avg.4", "—"),
                 "16> C-B / Avg.4": record.get("16> C-B / Avg.4", "—"),
                 **{
