@@ -853,7 +853,7 @@ def load_stock_of_the_day_rows():
             dated_o2l = [
                 (index, str(value).strip())
                 for index, value in enumerate(row)
-                if value is not None and re.search(r"\\bO2L\\b", str(value), re.IGNORECASE)
+                if value is not None and re.search(r"\bO2L\b", str(value), re.IGNORECASE)
             ]
             if db_key in found and len(dated_o2l) >= 2:
                 summary_header_row = row_number
@@ -955,8 +955,6 @@ def load_stock_of_the_day_rows():
             return selected_matches
         return []
 
-        matches.sort(key=lambda record: record["Stock"])
-        return matches
     finally:
         workbook.close()
 
