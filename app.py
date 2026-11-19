@@ -973,154 +973,130 @@ def load_stock_of_the_day_rows():
 
 
 def render_stock_of_the_day():
-    st.header("Stock of the Day")
-    st.caption(
-        "Independent Stock of the Day screen: AutoGreen volume-expansion qualification plus the conditions below. "
-        "The High − 0.20% filter and BUY / Confirmation layer are not applied here."
-    )
+    """Show only Stock of the Day BUY cards in the main signal-card presentation."""
+    st.title("6thSense-Vardaan")
+
     try:
         rows = load_stock_of_the_day_rows()
+        if not rows:
+            st.info("No Stock of the Day BUY signal is available.")
+            return
+
+        symbols = list(dict.fromkeys(
+            normalize_stock_symbol(row.get("Stock"))
+            for row in rows
+            if normalize_stock_symbol(row.get("Stock"))
+        ))
+        master_bytes = get_autogreen_master_bytes()
+        ranks = get_autogreen_sum_o2l_ranks(master_bytes)
+        with st.spinner("Preparing Stock of the Day BUY card..."):
+            quotes = get_autogreen_live_prices(tuple(symbols))
     except Exception as error:
         st.error(f"Stock of the Day could not be loaded: {error}")
         return
 
+    # This page contains only the Stock of the Day signal, so its metallic
+    # black/silver card is the topmost card and controls the page theme.
     st.markdown(
         """
         <style>
-        @keyframes stockDaySilverSweep {
-            0% { background-position: -180% 0; }
-            100% { background-position: 180% 0; }
+        .stApp {
+            background:radial-gradient(ellipse at 10% 0%,#DDE2E8 0%,transparent 44%),
+                       linear-gradient(135deg,#E7EAEE 0%,#D7DCE2 52%,#E9ECEF 100%) !important;
         }
-        @keyframes stockDayFloat {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        [data-testid="stHeader"] { background:rgba(225,229,235,.94) !important; }
+        [data-testid="stSidebar"] {
+            background:linear-gradient(180deg,#D8DDE4 0%,#EEF0F3 100%) !important;
+            border-right:1px solid #929EAC !important;
         }
-        .stock-day-card {
-            position:relative;
-            overflow:hidden;
-            isolation:isolate;
-            margin:12px 0 18px;
-            padding:20px 18px 18px;
-            border:2px solid transparent;
-            border-radius:20px;
-            color:#F5F7FA;
-            background:
-                linear-gradient(145deg,#080B10 0%,#202630 48%,#090C12 100%) padding-box,
-                linear-gradient(110deg,#626B78 0%,#F4F7FB 22%,#8B96A5 38%,#FFFFFF 50%,#6E7886 68%,#DDE3EA 84%,#626B78 100%) border-box;
-            box-shadow:0 10px 28px rgba(0,0,0,.30),0 0 22px rgba(190,202,218,.17),inset 0 0 0 1px rgba(255,255,255,.08);
-            animation:stockDayFloat 3.2s ease-in-out infinite;
+        h1,h2,h3 { color:#202833 !important; }
+        @keyframes stockDayCardShimmer {
+            0% { background-position:200% 50%; }
+            100% { background-position:-100% 50%; }
         }
-        .stock-day-card::after {
-            content:"";
-            position:absolute;
-            z-index:0;
-            top:-35%;
-            bottom:-35%;
-            left:-55%;
-            width:38%;
-            pointer-events:none;
-            transform:skewX(-18deg);
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),rgba(255,255,255,.42),rgba(255,255,255,.08),transparent);
-            animation:stockDaySilverSweep 5.8s ease-in-out infinite;
-        }
-        .stock-day-card-content { position:relative;z-index:1; }
-        .stock-day-brand {
-            text-align:center;
-            color:#C9D1DC;
-            font-size:10px;
-            font-weight:900;
-            letter-spacing:2.8px;
-            margin-bottom:10px;
-        }
-        .stock-day-title {
-            text-align:center;
-            color:#FFFFFF;
-            font-size:clamp(25px,4.8vw,36px);
-            line-height:1.12;
-            font-weight:950;
-            letter-spacing:1px;
-            text-shadow:0 2px 14px rgba(255,255,255,.18);
-            overflow-wrap:anywhere;
-        }
-        .stock-day-tag {
-            width:max-content;
-            max-width:100%;
-            margin:10px auto 15px;
-            padding:6px 12px;
-            border:1px solid #9DA8B7;
-            border-radius:999px;
-            color:#E2E8F0;
-            background:rgba(255,255,255,.07);
-            font-size:10px;
-            font-weight:900;
-            letter-spacing:1.5px;
-            text-align:center;
-        }
-        .stock-day-grid {
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(112px,1fr));
-            gap:8px;
-        }
-        .stock-day-metric {
-            min-width:0;
-            padding:9px 10px;
-            border:1px solid rgba(197,208,222,.25);
-            border-radius:10px;
-            background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.035));
-        }
-        .stock-day-label {
-            color:#AEB9C8;
-            font-size:10px;
-            line-height:1.35;
-            font-weight:800;
-            overflow-wrap:anywhere;
-        }
-        .stock-day-value {
-            margin-top:4px;
-            color:#FFFFFF;
-            font-size:14px;
-            line-height:1.25;
-            font-weight:900;
-            font-variant-numeric:tabular-nums;
-            overflow-wrap:anywhere;
+        @keyframes stockDayCardFloat {
+            0%,100% { transform:translateY(0); }
+            50% { transform:translateY(-3px); }
         }
         @media (prefers-reduced-motion: reduce) {
-            .stock-day-card,.stock-day-card::after { animation:none !important; }
+            .stock-day-buy-card { animation:none !important; }
         }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    if rows:
-        st.caption(f"Matching stocks: {len(rows)}")
-        for row in rows:
-            symbol = html.escape(str(row.get("Stock", "—")))
-            metrics_html = []
-            for label, value in row.items():
-                if label == "Stock":
-                    continue
-                safe_label = html.escape(str(label))
-                safe_value = html.escape(str(value))
-                metrics_html.append(
-                    f'<div class="stock-day-metric">'
-                    f'<div class="stock-day-label">{safe_label}</div>'
-                    f'<div class="stock-day-value">{safe_value}</div>'
-                    f'</div>'
-                )
-            card_html = (
-                '<div class="stock-day-card"><div class="stock-day-card-content">'
-                '<div class="stock-day-brand">6THSENSE · VARDAAN</div>'
-                f'<div class="stock-day-title">{symbol}</div>'
-                '<div class="stock-day-tag">STOCK OF THE DAY</div>'
-                f'<div class="stock-day-grid">{"".join(metrics_html)}</div>'
-                '</div></div>'
-            )
-            st.markdown(card_html, unsafe_allow_html=True)
-    else:
-        st.info("No stocks currently match all Stock of the Day conditions.")
+    rendered = 0
+    for row in rows:
+        symbol = normalize_stock_symbol(row.get("Stock"))
+        quote = quotes.get(symbol, {})
+        day_high = quote.get("high")
+        if day_high is None or day_high <= 0:
+            continue
 
+        entry = day_high * (1 - 0.002)
+        target = entry * 1.0035
+        rank_value = ranks.get(symbol)
+        rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
 
+        card_html = f"""
+        <div class="stock-day-buy-card" style="
+            position:relative;overflow:hidden;isolation:isolate;
+            border:2px solid transparent;border-radius:21px;
+            padding:23px 23px 22px;margin:12px 0 18px;color:#FFFFFF;
+            background:
+                linear-gradient(125deg,#080B10 0%,#252D38 47%,#090C12 100%) padding-box,
+                linear-gradient(110deg,#626B78 0%,#E7EDF5 23%,#FFFFFF 36%,
+                                #9BA6B5 52%,#F8FAFC 68%,#626B78 100%) border-box;
+            background-size:100% 100%,300% 300%;
+            animation:stockDayCardShimmer 5.8s linear infinite,
+                      stockDayCardFloat 3.1s ease-in-out infinite;
+            box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,
+                       0 12px 30px rgba(0,0,0,.28),
+                       0 0 24px rgba(153,169,190,.24);
+        ">
+          <div style="position:absolute;right:-35px;top:-75px;width:205px;height:205px;
+                      border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);
+                      pointer-events:none;"></div>
+          <div style="position:relative;z-index:1;text-align:center;font-size:11px;
+                      font-weight:900;letter-spacing:3px;color:#D8E0EA;margin:0 0 15px;">
+            6THSENSE · VARDAAN
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
+                      position:relative;z-index:1;">
+            <div style="font-size:1.78rem;line-height:1.15;font-weight:950;letter-spacing:.7px;
+                        color:#FFFFFF;overflow-wrap:anywhere;">{html.escape(symbol)}</div>
+            <div style="font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;
+                        border:1px solid #B7C1CE;border-radius:999px;color:#F1F5F9;
+                        background:rgba(0,0,0,.28);white-space:nowrap;">
+              BUY SIGNAL
+            </div>
+          </div>
+          <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:#C5CFDC;
+                      margin-top:9px;position:relative;z-index:1;">RANK {rank_text}</div>
+          <div style="height:1px;background:linear-gradient(90deg,transparent,#AAB5C3,
+                      rgba(255,255,255,.72),#AAB5C3,transparent);margin:19px 0 17px;
+                      position:relative;z-index:1;"></div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+                      align-items:center;gap:18px;position:relative;z-index:1;">
+            <div style="min-width:0;">
+              <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;color:#C2CBD6;">ENTRY PRICE</div>
+              <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#FFFFFF;
+                          margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
+            </div>
+            <div style="min-width:0;">
+              <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;color:#C2CBD6;">TARGET PRICE</div>
+              <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#E6EDF5;
+                          margin-top:7px;white-space:nowrap;">₹{target:,.2f}</div>
+            </div>
+          </div>
+        </div>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+        rendered += 1
+
+    if rendered == 0:
+        st.info("Live price data is unavailable, so no BUY card is displayed.")
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
