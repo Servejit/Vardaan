@@ -974,9 +974,13 @@ def render_autogreen_dashboard():
             "Rank": rank,
         })
 
-        signal = signal_by_symbol.get(symbol) or base_by_symbol.get(symbol)
-        if not signal:
-            continue
+        # Every one of the four D-B target stocks must reach BUY evaluation.
+        # Do not drop a target merely because it has no colour-qualified signal row.
+        signal = (
+            signal_by_symbol.get(symbol)
+            or base_by_symbol.get(symbol)
+            or {"Symbol": symbol, "Card Colour": "Green"}
+        )
         price = quote.get("price")
         high = quote.get("high")
         change_pct = quote.get("change_pct")
@@ -1186,10 +1190,9 @@ def render_autogreen_dashboard():
             st.caption("No stocks passed both volume-expansion conditions.")
 
     st.caption(
-        "Selection: existing AutoGreen Buy conditions (no Sum O2L.10 rank cutoff) + "
-        "live price at least 0.20% below today's Yahoo Finance high. "
-        "The first three are BUY candidates; the fourth is confirmation only. "
-        "This is a screening signal, not an order execution."
+        "BUY and CONFIRMATION are selected independently from all four TARGET stocks. "
+        "Eligibility: live price at least 0.20% below today's high; highest live % change wins, "
+        "with lowest Sum O2L.10 rank breaking a tie. This is a screening signal, not an order execution."
     )
 
 
