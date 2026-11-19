@@ -1401,7 +1401,7 @@ def render_autogreen_dashboard():
             st.markdown(card_html, unsafe_allow_html=True)
 
     with st.expander("MORE DASHBOARD  ·  View tables and stock details", expanded=False):
-    st.subheader("Selected BUY stocks and confirmation")
+        st.subheader("Selected BUY stocks and confirmation")
         if selected_rows:
             st.dataframe(
                 [{
@@ -1422,17 +1422,17 @@ def render_autogreen_dashboard():
             render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
         else:
             st.info("No four qualified target stocks with a readable numeric value are available yet.")
-    
+
         st.subheader("Qualified AutoGreen Stocks")
-            if base_rows:
-                if qualified_detail_error:
-                    st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
-                elif qualified_detail_rows:
-                    render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
-                else:
-                    st.caption("No qualified-stock details are available.")
+        if base_rows:
+            if qualified_detail_error:
+                st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
+            elif qualified_detail_rows:
+                render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
             else:
-                st.caption("No stocks passed both volume-expansion conditions.")
+                st.caption("No qualified-stock details are available.")
+        else:
+            st.caption("No stocks passed both volume-expansion conditions.")
 
 
 def get_qualified_stock_detail_rows(base_rows, master_bytes):
