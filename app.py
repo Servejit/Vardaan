@@ -1098,8 +1098,45 @@ def render_stock_of_the_day():
     if rendered == 0:
         st.info("Live price data is unavailable, so no BUY card is displayed.")
 
-    # Keep qualification diagnostics tucked away so the BUY card stays primary.
+    # Match the collapsed details panel to the Stock of the Day black/silver card.
     if rendered > 0:
+        st.markdown(
+            """
+            <style>
+            div[data-testid="stExpander"] {
+                background: linear-gradient(145deg, #171b22 0%, #252c35 52%, #171b22 100%);
+                border: 1px solid #9aa7b5 !important;
+                border-radius: 14px !important;
+                box-shadow: 0 5px 18px rgba(0,0,0,0.28), inset 0 1px 0 rgba(230,237,245,0.12);
+                overflow: hidden;
+            }
+            div[data-testid="stExpander"] summary {
+                color: #E6EDF5 !important;
+                font-weight: 900 !important;
+                letter-spacing: 1.2px;
+                padding: 12px 16px !important;
+            }
+            div[data-testid="stExpander"] summary:hover {
+                color: #FFFFFF !important;
+                background: linear-gradient(90deg, rgba(192,205,219,0.16), rgba(192,205,219,0.04));
+            }
+            div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+                background: rgba(12,16,22,0.72);
+                border-top: 1px solid rgba(190,202,216,0.35);
+                color: #E6EDF5;
+                padding: 12px 16px 16px;
+            }
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] li {
+                color: #D8E0E9 !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] strong {
+                color: #FFFFFF !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
         with st.expander("MORE DETAILS", expanded=False):
             st.markdown("**QUALIFYING CONDITIONS**")
             st.markdown(
