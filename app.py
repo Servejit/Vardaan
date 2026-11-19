@@ -1411,22 +1411,6 @@ def render_autogreen_dashboard():
 
     with st.expander("MORE DASHBOARD", expanded=False):
 
-        st.subheader("Selected BUY stocks and confirmation")
-        if selected_rows:
-            st.dataframe(
-                [{
-                    "Role": "CONFIRMATION ONLY" if item.get("_Role") == "CONFIRMATION" else "BUY",
-                    "Symbol": item["Symbol"],
-                    "Open": round(item["Day Open"], 2) if item.get("Day Open") is not None else "Unavailable",
-                    "High": round(item["Day High"], 2),
-                    "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
-                    "Live Price": round(item["Live Price"], 2),
-                    "% Chg": f'{item["Live % Chg"]:+.2f}%',
-                    "Rank": item["Sum O2L.10 Rank"],
-                } for i, item in enumerate(selected_rows)],
-                use_container_width=True,
-                hide_index=True
-            )
         st.subheader("Qualified AutoGreen Stocks")
         if base_rows:
             if qualified_detail_error:
