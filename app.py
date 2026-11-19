@@ -927,12 +927,7 @@ def render_autogreen_dashboard():
             target = entry * 1.0035
             rank_value = item.get("Sum O2L.10 Rank")
             rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
-            role_text = "♛  ✦  BUY CONFIRMATION" if is_confirmation else "♛  ✦  BUY SIGNAL"
-            status_text = (
-                "DEPENDENT · CONFIRMATION ONLY"
-                if is_confirmation
-                else ""
-            )
+            role_text = "BUY CONFIRMATION" if is_confirmation else "BUY SIGNAL"
             palette = {
                 "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4"),
                 "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF"),
@@ -943,46 +938,46 @@ def render_autogreen_dashboard():
             )
             card_html = f"""
             <div style="
-                position:relative; overflow:hidden;
-                background:linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%);
-                background-size:200% 200%;
-                animation:dependentSignalShimmer 6s ease-in-out infinite,
-                          dependentSignalFloat 2.8s ease-in-out infinite;
-                border:1.5px solid {border_colour};
-                border-radius:20px;
-                padding:16px 18px 15px;
-                margin:5px 0 14px;
+                position:relative;overflow:hidden;
+                background:linear-gradient(135deg,{c1} 0%,{c2} 52%,{c3} 100%);
+                border:1px solid {border_colour};
+                border-radius:18px;
+                padding:17px 18px;
+                margin:6px 0 14px;
                 color:#fff;
-                box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,
-                           0 8px 25px rgba(31,220,132,.38),
-                           0 0 22px rgba(31,220,132,.38);
+                box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.08) inset;
             ">
-              <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:{accent_colour};">
-                {role_text}
-              </div>
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
-                <div>
-                  <div style="font-size:1.42rem;font-weight:950;letter-spacing:.5px;color:{accent_colour};">{symbol}</div>
-                  <div style="font-size:.76rem;font-weight:800;opacity:.9;margin-top:5px;">{status_text}</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <div style="font-size:.70rem;font-weight:900;letter-spacing:1.8px;color:{accent_colour};">
+                  {role_text}
                 </div>
-                <div style="text-align:right;">
-                  <div style="font-size:.67rem;opacity:.8;">ENTRY PRICE</div>
-                  <div style="font-size:1.15rem;font-weight:950;color:{accent_colour};">₹{entry:,.2f}</div>
+                <div style="font-size:.72rem;font-weight:850;letter-spacing:.5px;padding:5px 10px;
+                            border:1px solid {border_colour};border-radius:999px;color:{accent_colour};
+                            background:rgba(0,0,0,.16);">
+                  RANK&nbsp; {rank_text}
                 </div>
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:12px 0;"></div>
-              <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;">
-                <div>
-                  <div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
-                  <div style="font-size:1.65rem;font-weight:950;color:{accent_colour};">₹{target:,.2f}</div>
+              <div style="font-size:1.55rem;line-height:1.2;font-weight:950;letter-spacing:.4px;margin-top:12px;">
+                {symbol}
+              </div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:15px 0;"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div style="padding:11px 12px;border-radius:12px;background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.10);">
+                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">ENTRY PRICE</div>
+                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;">
+                    ₹{entry:,.2f}
+                  </div>
                 </div>
-                <div style="text-align:right;">
-                  <div style="font-size:.67rem;opacity:.8;">RANK</div>
-                  <div style="font-size:1rem;font-weight:900;">{rank_text}</div>
+                <div style="padding:11px 12px;border-radius:12px;background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.10);">
+                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">TARGET PRICE</div>
+                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;">
+                    ₹{target:,.2f}
+                  </div>
+                  <div style="font-size:.62rem;font-weight:750;opacity:.72;margin-top:3px;">+0.35%</div>
                 </div>
               </div>
-              <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
-                          background:radial-gradient(circle,rgba(255,255,255,.19),transparent 68%);pointer-events:none;"></div>
+              <div style="position:absolute;right:-34px;bottom:-58px;width:145px;height:145px;border-radius:50%;
+                          background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);pointer-events:none;"></div>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
