@@ -1131,7 +1131,7 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
     master_wb = None
     try:
         auto_wb = load_workbook(
-            io.BytesIO(get_autogreen_master_bytes()),
+            io.BytesIO(master_bytes),
             data_only=True,
             read_only=True
         )
