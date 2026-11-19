@@ -899,43 +899,40 @@ def get_autogreen_live_prices(symbols):
             results[symbol] = quote
     return results
 
-def render_qualified_stock_table(rows):
-    """Render the qualified-stock list in the dashboard's premium black metallic style."""
+def render_accent_table(rows, accent, ink, tint, min_width=720):
+    """Render a light, readable table with an accent inherited from the top signal card."""
     if not rows:
         return
 
     columns = list(rows[0].keys())
     header_html = "".join(
-        f'<th style="padding:13px 15px;text-align:left;white-space:nowrap;'
-        f'font-size:11px;font-weight:900;letter-spacing:1px;color:#E8D7A5;'
-        f'background:linear-gradient(180deg,#242424 0%,#111 100%);'
-        f'border-bottom:1px solid rgba(222,190,120,.48);">'
+        f'<th style="padding:12px 14px;text-align:left;white-space:nowrap;'
+        f'font-size:11px;font-weight:900;letter-spacing:.65px;color:{ink};'
+        f'background:linear-gradient(180deg,{tint} 0%,#FFFFFF 100%);'
+        f'border-bottom:2px solid {accent}66;">'
         f'{html.escape(str(column))}</th>'
         for column in columns
     )
     body_rows = []
     for row_number, record in enumerate(rows):
         cells = "".join(
-            f'<td style="padding:12px 15px;white-space:nowrap;'
-            f'font-size:13px;font-weight:650;color:#F1F1F1;'
-            f'border-bottom:1px solid rgba(255,255,255,.075);">'
+            f'<td style="padding:11px 14px;white-space:nowrap;'
+            f'font-size:13px;font-weight:650;color:#263342;'
+            f'border-bottom:1px solid #E8ECF1;">'
             f'{html.escape(str(record.get(column, "—")))}</td>'
             for column in columns
         )
-        row_background = "rgba(255,255,255,.035)" if row_number % 2 == 0 else "rgba(0,0,0,.18)"
-        body_rows.append(
-            f'<tr style="background:{row_background};">{cells}</tr>'
-        )
+        row_background = "#FFFFFF" if row_number % 2 == 0 else "#F6F8FA"
+        body_rows.append(f'<tr style="background:{row_background};">{cells}</tr>')
 
     table_html = f"""
-    <div style="padding:1px;border-radius:15px;overflow:hidden;
-                background:linear-gradient(115deg,#6F6248 0%,#E7D6A5 18%,
-                #5E523D 38%,#B9A77A 58%,#39332A 78%,#D8C38D 100%);
-                box-shadow:0 0 0 1px rgba(255,255,255,.08),
-                0 10px 28px rgba(0,0,0,.34),0 0 18px rgba(190,160,95,.12);">
-      <div style="overflow-x:auto;border-radius:14px;background:#090A0C;">
-        <table style="width:100%;min-width:720px;border-collapse:separate;
-                      border-spacing:0;background:#090A0C;">
+    <div style="padding:2px;border-radius:13px;overflow:hidden;
+                background:linear-gradient(115deg,{accent}55 0%,#FFFFFF 22%,
+                {accent}88 52%,#FFFFFF 78%,{accent}66 100%);
+                box-shadow:0 5px 18px rgba(31,45,61,.09),0 0 0 1px {accent}22;">
+      <div style="overflow-x:auto;border-radius:11px;background:#FFFFFF;">
+        <table style="width:100%;min-width:{min_width}px;border-collapse:separate;
+                      border-spacing:0;background:#FFFFFF;">
           <thead><tr>{header_html}</tr></thead>
           <tbody>{''.join(body_rows)}</tbody>
         </table>
@@ -943,6 +940,11 @@ def render_qualified_stock_table(rows):
     </div>
     """
     st.markdown(table_html, unsafe_allow_html=True)
+
+
+def render_qualified_stock_table(rows, accent, ink, tint):
+    """Render qualified stocks in the same light adaptive palette as the top signal card."""
+    render_accent_table(rows, accent, ink, tint, min_width=720)
 
 
 def render_autogreen_dashboard():
@@ -1106,63 +1108,72 @@ def render_autogreen_dashboard():
         metric_border, metric_accent, metric_shimmer = "#A83E59", "#F0B5C7", "#EAD7DD"
         metric_outer, metric_glow = "#A83E59", "rgba(220,92,126,.30)"
 
-    # Apply the same topmost-card palette to the complete dashboard interface.
-    # The original signal cards keep their own card styling; all surrounding UI
-    # Premium graphite dashboard: the active card colour is used as a restrained accent,
-    # while the full interface stays clean, dark and consistent.
+    # Light pearl dashboard; the topmost signal card supplies the accent colour.
+    metric_colour_name = selected_rows[0].get("Card Colour", "Green") if selected_rows else "Rose-Cherry"
+    light_accents = {
+        "Green": ("#287A59", "#1F674B", "#EAF5EF"),
+        "Blue": ("#2877A8", "#205F88", "#EAF3F9"),
+        "Purple": ("#8050A2", "#684083", "#F3ECF8"),
+        "Rose-Cherry": ("#B04B68", "#913B55", "#F9EDF1"),
+    }
+    metric_ink, metric_accent_text, metric_tint = light_accents.get(
+        metric_colour_name, light_accents["Rose-Cherry"]
+    )
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background:radial-gradient(ellipse at 50% 0%,{metric_c1}24 0%,transparent 42%),
-                       linear-gradient(145deg,#090B0F 0%,#101318 52%,#090B0F 100%) !important;
-            color:#F3F5F8 !important;
+            background:linear-gradient(135deg,#F8FAFC 0%,#F0F3F6 52%,#FAFBFC 100%) !important;
+            color:#263342 !important;
         }}
-        [data-testid="stHeader"] {{ background:#0B0D11 !important; }}
+        [data-testid="stHeader"] {{ background:rgba(248,250,252,.94) !important; }}
         [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,#11151B 0%,#090B0F 100%) !important;
-            border-right:1px solid #343A43 !important;
+            background:linear-gradient(180deg,#FFFFFF 0%,#F1F4F7 100%) !important;
+            border-right:1px solid {metric_ink}44 !important;
         }}
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#E7EAF0 !important; }}
-        h1,h2,h3,[data-testid="stSubheader"] {{ color:#F3F5F8 !important; }}
-        h2,h3 {{ border-bottom:1px solid {metric_border}88 !important; }}
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#344456 !important; }}
+        h1,h2,h3,[data-testid="stSubheader"] {{ color:#263342 !important; }}
+        h2,h3 {{ border-bottom:1px solid {metric_ink}55 !important; }}
         [data-testid="stMetric"] {{
-            background:linear-gradient(145deg,#191E25 0%,#101419 100%) !important;
-            border:1px solid {metric_border}AA !important;
-            border-top:2px solid {metric_accent} !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+            border:1px solid {metric_ink}55 !important;
+            border-top:3px solid {metric_ink} !important;
             border-radius:12px !important;
-            color:#FFFFFF !important;
-            box-shadow:0 5px 18px rgba(0,0,0,.28),0 0 10px {metric_glow}55 !important;
+            color:#263342 !important;
+            box-shadow:0 4px 15px rgba(35,51,68,.08) !important;
         }}
+        [data-testid="stMetric"] label,[data-testid="stMetric"] [data-testid="stMetricLabel"] {{ color:#657487 !important; }}
+        [data-testid="stMetric"] [data-testid="stMetricValue"] {{ color:#263342 !important; }}
         [data-testid="stDataFrame"],[data-testid="stTable"] {{
-            border:1px solid #343A43 !important;
-            border-radius:10px !important;
+            border:1px solid {metric_ink}55 !important;
+            border-radius:11px !important;
             overflow:hidden !important;
-            box-shadow:0 4px 18px rgba(0,0,0,.24) !important;
+            box-shadow:0 4px 16px rgba(35,51,68,.07) !important;
+            background:#FFFFFF !important;
         }}
         .stButton > button,.stDownloadButton > button,
         [data-testid="stFormSubmitButton"] > button {{
-            border:1px solid {metric_border} !important;
-            color:#F7F8FA !important;
-            background:linear-gradient(145deg,#202630 0%,#11161D 100%) !important;
+            border:1px solid {metric_ink}88 !important;
+            color:{metric_ink} !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
         }}
         .stButton > button:hover,.stDownloadButton > button:hover,
         [data-testid="stFormSubmitButton"] > button:hover {{
-            border-color:{metric_accent} !important;
-            box-shadow:0 0 12px {metric_glow} !important;
+            border-color:{metric_ink} !important;
+            box-shadow:0 0 12px {metric_ink}33 !important;
         }}
         [data-testid="stTextInput"] input,[data-testid="stNumberInput"] input,
         [data-testid="stSelectbox"] > div,[data-testid="stFileUploader"] section,
         [data-testid="stExpander"] {{
-            border-color:#414954 !important;
-            background-color:#151A21 !important;
-            color:#FFFFFF !important;
+            border-color:#D5DDE6 !important;
+            background-color:#FFFFFF !important;
+            color:#263342 !important;
         }}
-        [data-testid="stExpander"] {{ border-radius:10px !important; }}
-        hr {{ border-color:#343A43 !important; }}
-        [data-testid="stAlert"] {{ border-color:{metric_border}AA !important; }}
+        [data-testid="stExpander"] {{ border-radius:11px !important; }}
+        hr {{ border-color:#DCE2E9 !important; }}
+        [data-testid="stAlert"] {{ border-color:{metric_ink}66 !important; }}
         </style>
         """,
         unsafe_allow_html=True
@@ -1171,9 +1182,9 @@ def render_autogreen_dashboard():
     st.markdown(
         f"""
         <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
-                    border:1px solid {metric_outer};border-radius:17px;
-                    background:linear-gradient(145deg,#1B2028 0%,#101419 58%,#1A1F27 100%);
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 12px 30px rgba(0,0,0,.32),0 0 0 1px {metric_border}66,0 0 14px {metric_glow}55;">
+                    border:1px solid {metric_ink}88;border-top:3px solid {metric_ink};border-radius:15px;
+                    background:linear-gradient(120deg,#FFFFFF 0%,{metric_tint} 48%,#FFFFFF 100%);
+                    box-shadow:inset 0 1px 0 #FFFFFF,0 8px 22px rgba(35,51,68,.09),0 0 13px {metric_ink}18;">
           <div style="position:absolute;left:-72%;top:-55%;width:72%;height:210%;pointer-events:none;
                       background:linear-gradient(110deg,transparent 28%,{metric_shimmer}22 42%,#FFFFFF88 50%,{metric_shimmer}55 56%,transparent 70%);
                       filter:blur(7px);animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
@@ -1362,7 +1373,7 @@ def render_autogreen_dashboard():
         )
     st.subheader("Target Stocks")
     if target_table_rows:
-        st.dataframe(target_table_rows, use_container_width=True, hide_index=True)
+        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
     else:
         st.info("No four qualified target stocks with a readable numeric value are available yet.")
 
@@ -1371,7 +1382,7 @@ def render_autogreen_dashboard():
             if qualified_detail_error:
                 st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
             elif qualified_detail_rows:
-                render_qualified_stock_table(qualified_detail_rows)
+                render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
             else:
                 st.caption("No qualified-stock details are available.")
         else:
