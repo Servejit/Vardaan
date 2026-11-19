@@ -1147,29 +1147,29 @@ def render_autogreen_dashboard():
     if not selected_rows:
         no_signal_card = """
         <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                    background:#3A3B3D;
+                    background:#B97850;
                     box-shadow:0 0 0 1px rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.42),
-                    0 0 18px rgba(190,190,190,.08);">
+                    0 0 22px rgba(231,169,126,.24);">
           <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
                       border-radius:18px;background:radial-gradient(ellipse at 50% 0%,
-                      rgba(255,255,255,.12),transparent 54%),linear-gradient(145deg,#18191B,#050506 68%,#111214);
-                      color:#F5F5F5;animation:dependentSignalFloat 5s ease-in-out infinite;">
+                      rgba(255,255,255,.72),transparent 54%),linear-gradient(145deg,#FFE0C8 0%,#F3B990 48%,#D98F68 100%);
+                      color:#43291F;animation:dependentSignalFloat 5s ease-in-out infinite;">
             <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
                         pointer-events:none;z-index:0;filter:blur(7px);
                         background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.12) 25%,
                         rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
                         animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
-            <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;color:#BDBDBD;
-                        text-shadow:0 0 12px rgba(255,255,255,.18);">6THSENSE · AUTOGREEN</div>
+            <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;color:#70432F;
+                        text-shadow:0 1px 8px rgba(255,255,255,.45);">6THSENSE · AUTOGREEN</div>
             <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;font-weight:950;
-                        letter-spacing:2.2px;margin:13px 0 10px;color:#F4F1E8;
-                        text-shadow:0 2px 18px rgba(255,255,255,.16);">NO SIGNAL</div>
+                        letter-spacing:2.2px;margin:13px 0 10px;color:#49291D;
+                        text-shadow:0 2px 14px rgba(255,255,255,.58);">NO SIGNAL</div>
             <div style="position:relative;z-index:1;width:74px;height:1px;margin:0 auto 15px;
-                        background:linear-gradient(90deg,transparent,#D8D0BD,transparent);"></div>
-            <div style="position:relative;z-index:1;font-size:12px;font-weight:900;letter-spacing:1.65px;color:#D8D0BD;">
+                        background:linear-gradient(90deg,transparent,#87563E,transparent);"></div>
+            <div style="position:relative;z-index:1;font-size:12px;font-weight:900;letter-spacing:1.65px;color:#75452F;">
               WAIT FOR A QUALIFIED SETUP
             </div>
-            <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;color:#B8B8B8;
+            <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;color:#694634;
                         margin-top:10px;">
               No stock currently meets all BUY and confirmation conditions.
             </div>
