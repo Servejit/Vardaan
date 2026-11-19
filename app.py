@@ -929,21 +929,27 @@ def render_autogreen_dashboard():
             rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
             role_text = "BUY CONFIRMATION" if is_confirmation else "BUY SIGNAL"
             palette = {
-                "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4"),
-                "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF"),
-                "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF"),
+                "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4", "#8FFFF0"),
+                "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF", "#BDEBFF"),
+                "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF", "#EAD7FF"),
             }
-            c1, c2, c3, border_colour, accent_colour = palette.get(
+            c1, c2, c3, border_colour, accent_colour, shimmer_colour = palette.get(
                 item.get("Card Colour"), palette["Green"]
             )
             card_html = f"""
             <div style="
                 position:relative;overflow:hidden;
-                background:linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%);
-                background-size:200% 200%;
-                animation:dependentSignalShimmer 6s ease-in-out infinite,
+                background:
+                    linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%) padding-box,
+                    linear-gradient(110deg,{border_colour} 0%,{shimmer_colour} 24%,#FFFFFF 34%,
+                                    {shimmer_colour} 44%,{border_colour} 62%,{shimmer_colour} 82%,
+                                    {border_colour} 100%) border-box;
+                background-size:200% 200%,300% 300%;
+                background-origin:padding-box,border-box;
+                background-clip:padding-box,border-box;
+                animation:dependentSignalShimmer 4.2s linear infinite,
                           dependentSignalFloat 2.8s ease-in-out infinite;
-                border:1.5px solid {border_colour};
+                border:2px solid transparent;
                 border-radius:21px;
                 padding:23px 23px 22px;
                 margin:7px 0 17px;
