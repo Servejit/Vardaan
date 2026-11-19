@@ -1108,57 +1108,60 @@ def render_autogreen_dashboard():
 
     # Apply the same topmost-card palette to the complete dashboard interface.
     # The original signal cards keep their own card styling; all surrounding UI
-    # (page canvas, sidebar, headings, controls, tables and panels) follows this theme.
+    # Premium graphite dashboard: the active card colour is used as a restrained accent,
+    # while the full interface stays clean, dark and consistent.
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background:linear-gradient(135deg,#080A0E 0%,{metric_c1} 48%,#090B10 100%) !important;
-            color:#F5F7FA !important;
+            background:radial-gradient(ellipse at 50% 0%,{metric_c1}24 0%,transparent 42%),
+                       linear-gradient(145deg,#090B0F 0%,#101318 52%,#090B0F 100%) !important;
+            color:#F3F5F8 !important;
         }}
-        [data-testid="stHeader"] {{ background:{metric_c1}DD !important; }}
+        [data-testid="stHeader"] {{ background:#0B0D11 !important; }}
         [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,{metric_c1} 0%,#090B10 100%) !important;
-            border-right:1px solid {metric_border}99 !important;
+            background:linear-gradient(180deg,#11151B 0%,#090B0F 100%) !important;
+            border-right:1px solid #343A43 !important;
         }}
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#F1F4F8 !important; }}
-        h1,h2,h3,[data-testid="stSubheader"] {{ color:{metric_accent} !important; }}
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#E7EAF0 !important; }}
+        h1,h2,h3,[data-testid="stSubheader"] {{ color:#F3F5F8 !important; }}
         h2,h3 {{ border-bottom:1px solid {metric_border}88 !important; }}
         [data-testid="stMetric"] {{
-            background:linear-gradient(145deg,{metric_c1} 0%,{metric_c3} 100%) !important;
+            background:linear-gradient(145deg,#191E25 0%,#101419 100%) !important;
             border:1px solid {metric_border}AA !important;
+            border-top:2px solid {metric_accent} !important;
             border-radius:12px !important;
             color:#FFFFFF !important;
-            box-shadow:0 4px 16px {metric_glow} !important;
+            box-shadow:0 5px 18px rgba(0,0,0,.28),0 0 10px {metric_glow}55 !important;
         }}
         [data-testid="stDataFrame"],[data-testid="stTable"] {{
-            border:1px solid {metric_border}AA !important;
+            border:1px solid #343A43 !important;
             border-radius:10px !important;
             overflow:hidden !important;
-            box-shadow:0 4px 18px rgba(0,0,0,.22) !important;
+            box-shadow:0 4px 18px rgba(0,0,0,.24) !important;
         }}
         .stButton > button,.stDownloadButton > button,
         [data-testid="stFormSubmitButton"] > button {{
             border:1px solid {metric_border} !important;
-            color:#FFFFFF !important;
-            background:linear-gradient(145deg,{metric_c1} 0%,{metric_c3} 100%) !important;
+            color:#F7F8FA !important;
+            background:linear-gradient(145deg,#202630 0%,#11161D 100%) !important;
         }}
         .stButton > button:hover,.stDownloadButton > button:hover,
         [data-testid="stFormSubmitButton"] > button:hover {{
             border-color:{metric_accent} !important;
-            box-shadow:0 0 14px {metric_glow} !important;
+            box-shadow:0 0 12px {metric_glow} !important;
         }}
         [data-testid="stTextInput"] input,[data-testid="stNumberInput"] input,
         [data-testid="stSelectbox"] > div,[data-testid="stFileUploader"] section,
         [data-testid="stExpander"] {{
-            border-color:{metric_border}AA !important;
-            background-color:{metric_c1}55 !important;
+            border-color:#414954 !important;
+            background-color:#151A21 !important;
             color:#FFFFFF !important;
         }}
         [data-testid="stExpander"] {{ border-radius:10px !important; }}
-        hr {{ border-color:{metric_border}88 !important; }}
+        hr {{ border-color:#343A43 !important; }}
         [data-testid="stAlert"] {{ border-color:{metric_border}AA !important; }}
         </style>
         """,
@@ -1169,8 +1172,8 @@ def render_autogreen_dashboard():
         f"""
         <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
                     border:1px solid {metric_outer};border-radius:17px;
-                    background:linear-gradient(145deg,{metric_c1} 0%,{metric_c2} 48%,{metric_c3} 100%);
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 30px rgba(0,0,0,.28),0 0 18px {metric_glow};">
+                    background:linear-gradient(145deg,#1B2028 0%,#101419 58%,#1A1F27 100%);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 12px 30px rgba(0,0,0,.32),0 0 0 1px {metric_border}66,0 0 14px {metric_glow}55;">
           <div style="position:absolute;left:-72%;top:-55%;width:72%;height:210%;pointer-events:none;
                       background:linear-gradient(110deg,transparent 28%,{metric_shimmer}22 42%,#FFFFFF88 50%,{metric_shimmer}55 56%,transparent 70%);
                       filter:blur(7px);animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
