@@ -1370,7 +1370,7 @@ def render_autogreen_dashboard():
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    with st.expander("POP UP METRICS", expanded=False):
+    with st.expander("MORE DASHBOARD", expanded=False):
         st.markdown(
             f"""
             <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
@@ -1403,7 +1403,6 @@ def render_autogreen_dashboard():
             unsafe_allow_html=True
         )
 
-    with st.expander("MORE DASHBOARD  ·  View tables and stock details", expanded=False):
         st.subheader("Selected BUY stocks and confirmation")
         if selected_rows:
             st.dataframe(
