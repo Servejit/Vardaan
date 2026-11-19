@@ -854,8 +854,7 @@ def render_autogreen_dashboard():
     ranked_candidates = []
     for item in signal_rows:
         rank = sum_o2l_ranks.get(item["Symbol"])
-        if rank is not None and rank < 80:
-            ranked_candidates.append({**item, "Sum O2L.10 Rank": rank})
+        ranked_candidates.append({**item, "Sum O2L.10 Rank": rank})
 
     quote_map = {}
     if ranked_candidates:
@@ -876,7 +875,7 @@ def render_autogreen_dashboard():
             })
 
     high_gap_candidates.sort(
-        key=lambda item: (-item["High Gap %"], item["Sum O2L.10 Rank"], item["Symbol"])
+        key=lambda item: (-item["High Gap %"], item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"), item["Symbol"])
     )
     selected_rows = high_gap_candidates[:4]
     buy_rows = selected_rows[:3]
@@ -884,7 +883,7 @@ def render_autogreen_dashboard():
 
     metric_cols = st.columns(4)
     metric_cols[0].metric("AutoGreen qualified", len(base_rows))
-    metric_cols[1].metric("Rank below 80", len(ranked_candidates))
+    metric_cols[1].metric("AutoGreen BUY candidates", len(ranked_candidates))
     metric_cols[2].metric("High − 0.20% qualified", len(high_gap_candidates))
     metric_cols[3].metric("BUY / Confirmation", f"{len(buy_rows)} / {1 if confirmation_row else 0}")
 
@@ -940,8 +939,7 @@ def render_autogreen_dashboard():
 
     if not selected_rows:
         st.info(
-            "No stocks currently meet all conditions: AutoGreen Buy, Sum O2L.10 rank below 80, "
-            "and at least 0.20% below today's high."
+            "No stocks currently meet the AutoGreen BUY conditions and at least 0.20% below today's high."
         )
     else:
         for index, item in enumerate(selected_rows):
@@ -997,8 +995,7 @@ def render_autogreen_dashboard():
     else:
         st.warning(
             "No stock has passed every selection condition at this refresh. "
-            f"AutoGreen Buy: {len(signal_rows)} · Rank below 80: {len(ranked_candidates)} · "
-            f"High-gap qualified: {len(high_gap_candidates)}."
+            f"AutoGreen Buy candidates: {len(signal_rows)} · High-gap qualified: {len(high_gap_candidates)}."
         )
 
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
@@ -1008,7 +1005,7 @@ def render_autogreen_dashboard():
             st.caption("No stocks passed both volume-expansion conditions.")
 
     st.caption(
-        "Selection: existing AutoGreen Buy conditions + Sum O2L.10 rank 1–79 + "
+        "Selection: existing AutoGreen Buy conditions (no Sum O2L.10 rank cutoff) + "
         "live price at least 0.20% below today's Yahoo Finance high. "
         "The first three are BUY candidates; the fourth is confirmation only. "
         "This is a screening signal, not an order execution."
