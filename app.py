@@ -962,20 +962,20 @@ def render_autogreen_dashboard():
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
                 <div>
-                  <div style="font-size:1.65rem;font-weight:950;letter-spacing:.5px;">BUY</div>
-                  <div style="font-size:1.16rem;font-weight:850;color:#CFFFE4;">{symbol}</div>
-                  <div style="font-size:.72rem;opacity:.82;margin-top:4px;">{status_text}</div>
+                  
+                  <div style="font-size:1.42rem;font-weight:950;letter-spacing:.5px;color:{accent_colour};">{symbol}</div>
+                  <div style="font-size:.76rem;font-weight:800;opacity:.9;margin-top:5px;">{status_text}</div>
                 </div>
                 <div style="text-align:right;">
                   <div style="font-size:.72rem;font-weight:800;opacity:.88;">ENTRY · ₹{entry:,.2f}</div>
                 </div>
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,#E6C76A,transparent);margin:12px 0;"></div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:12px 0;"></div>
               <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
                 <div><div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
-                  <div style="font-size:1.12rem;font-weight:900;color:#CFFFE4;">₹{target:,.2f}</div></div>
+                  <div style="font-size:1.75rem;font-weight:950;color:{accent_colour};">₹{target:,.2f}</div></div>
                 <div style="text-align:right;"><div style="font-size:.67rem;opacity:.8;">RANK</div>
-                  <div style="font-size:1.12rem;font-weight:900;">{rank_text}</div></div>
+                  <div style="font-size:.72rem;font-weight:850;opacity:.9;">TARGET +0.35% · Rank {rank_text}</div></div>
               </div>
               <div style="font-size:.69rem;opacity:.78;margin-top:10px;">
                 LIVE PRICE ₹{item["Live Price"]:,.2f} &nbsp; · &nbsp;
