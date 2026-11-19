@@ -942,38 +942,38 @@ def render_autogreen_dashboard():
                 background:linear-gradient(135deg,{c1} 0%,{c2} 52%,{c3} 100%);
                 border:1px solid {border_colour};
                 border-radius:18px;
-                padding:17px 18px;
+                padding:18px 19px;
                 margin:6px 0 14px;
                 color:#fff;
                 box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.08) inset;
             ">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div style="font-size:.70rem;font-weight:900;letter-spacing:1.8px;color:{accent_colour};">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div style="font-size:1.65rem;line-height:1.15;font-weight:950;letter-spacing:.5px;">
+                  {symbol}
+                </div>
+                <div style="font-size:.68rem;font-weight:900;letter-spacing:1.15px;padding:7px 11px;
+                            border:1px solid {border_colour};border-radius:999px;color:{accent_colour};
+                            background:rgba(0,0,0,.16);white-space:nowrap;">
                   {role_text}
                 </div>
-                <div style="font-size:.72rem;font-weight:850;letter-spacing:.5px;padding:5px 10px;
-                            border:1px solid {border_colour};border-radius:999px;color:{accent_colour};
-                            background:rgba(0,0,0,.16);">
-                  RANK&nbsp; {rank_text}
-                </div>
               </div>
-              <div style="font-size:1.55rem;line-height:1.2;font-weight:950;letter-spacing:.4px;margin-top:12px;">
-                {symbol}
+              <div style="font-size:.68rem;font-weight:800;letter-spacing:1px;color:{accent_colour};margin-top:7px;">
+                RANK {rank_text}
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:15px 0;"></div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div style="padding:11px 12px;border-radius:12px;background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.10);">
-                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">ENTRY PRICE</div>
-                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;">
+              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:16px 0;"></div>
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);align-items:center;gap:9px;">
+                <div style="min-width:0;">
+                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">ENTRY</div>
+                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:#fff;margin-top:5px;white-space:nowrap;">
                     ₹{entry:,.2f}
                   </div>
                 </div>
-                <div style="padding:11px 12px;border-radius:12px;background:rgba(0,0,0,.17);border:1px solid rgba(255,255,255,.10);">
-                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">TARGET PRICE</div>
-                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;">
+                <div style="text-align:center;font-size:1.15rem;color:{accent_colour};font-weight:900;">→</div>
+                <div style="min-width:0;text-align:right;">
+                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">TARGET</div>
+                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;white-space:nowrap;">
                     ₹{target:,.2f}
                   </div>
-                  <div style="font-size:.62rem;font-weight:750;opacity:.72;margin-top:3px;">+0.35%</div>
                 </div>
               </div>
               <div style="position:absolute;right:-34px;bottom:-58px;width:145px;height:145px;border-radius:50%;
