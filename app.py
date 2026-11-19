@@ -998,10 +998,10 @@ def render_autogreen_dashboard():
                 "High": round(item["Day High"], 2),
                 "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
                 "Live Price": round(item["Live Price"], 2),
+                "Rank": item["Sum O2L.10 Rank"],
                 "Entry (High - 0.20%)": round(item["Day High"] * (1 - 0.002), 2),
                 "Target (+0.35%)": round(item["Day High"] * (1 - 0.002) * 1.0035, 2),
                 "High Gap %": round(item["High Gap %"], 3),
-                "Sum O2L.10 Rank": item["Sum O2L.10 Rank"],
             } for i, item in enumerate(selected_rows)],
             use_container_width=True,
             hide_index=True
