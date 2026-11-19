@@ -180,6 +180,53 @@ def delete_master():
     get_master.clear()
 
 
+INDEX_CONSTITUENTS_CSV_URL = "https://raw.githubusercontent.com/Servejit/Vardaan/main/index_constituents.csv"
+
+def normalize_index_name(value):
+    """Normalize short index/group names for exact CSV-to-Master matching."""
+    return " ".join(re.sub(r"[^A-Z0-9]+", " ", str(value or "").upper()).split())
+
+
+@st.cache_data(ttl=3600, max_entries=1, show_spinner=False)
+def load_github_index_groups():
+    """Load all index/group columns from the shared GitHub constituent CSV."""
+    import csv
+    import io
+    import requests
+
+    response = requests.get(INDEX_CONSTITUENTS_CSV_URL, timeout=20)
+    response.raise_for_status()
+    text_data = response.content.decode("utf-8-sig")
+    groups = {}
+
+    # Re-read the small CSV for each header so every column is processed fully.
+    headers = next(csv.reader(io.StringIO(text_data)), [])
+    for column_index, column_name in enumerate(headers):
+        group_name = normalize_index_name(column_name)
+        if not group_name:
+            continue
+        rows = csv.reader(io.StringIO(text_data))
+        next(rows, None)
+        members = []
+        seen_symbols = set()
+        for row in rows:
+            raw_symbol = row[column_index] if column_index < len(row) else ""
+            symbol = normalize_stock_symbol(raw_symbol)
+            if symbol and symbol not in seen_symbols:
+                seen_symbols.add(symbol)
+                members.append({
+                    "No.": len(members) + 1,
+                    "NSE Symbol": symbol,
+                    "Company": "",
+                    "Industry": ""
+                })
+        groups[group_name] = members
+
+    if not groups:
+        raise ValueError("The GitHub index constituent CSV has no index columns.")
+    return groups
+
+
 def normalize_stock_symbol(value):
     """Normalize common NSE symbol formats before matching Master column A."""
     if value is None:
@@ -1159,6 +1206,18 @@ if page == "Index":
     
                 eligible_indices.sort(key=lambda item: item[0])
                 highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
+
+                # Only index names present as columns in the GitHub constituent
+                # file are eligible. Newly added CSV columns are picked up automatically.
+                allowed_group_names = set(load_github_index_groups().keys())
+                eligible_indices = [
+                    item for item in eligible_indices
+                    if normalize_index_name(item[1].get("INDEX")) in allowed_group_names
+                ]
+                highest_l2h_indices = [
+                    item for item in highest_l2h_indices
+                    if normalize_index_name(item[1].get("INDEX")) in allowed_group_names
+                ]
                 eligible_manifest_names = [
                     str(record.get("INDEX", "")).strip().upper()
                     for record in display_records
@@ -1239,7 +1298,7 @@ if page == "Index":
                         # Index membership changes infrequently. Keep each resolved
                         # constituent list cached for 30 days to avoid repeated
                         # external-provider calls and Supabase reads.
-                        @st.cache_data(ttl=2592000, max_entries=256, show_spinner=False)
+                        @st.cache_data(ttl=3600, max_entries=256, show_spinner=False)
                         def get_index_constituents(index_name):
                             """
                             Load current constituents for an index using a layered
@@ -1296,6 +1355,10 @@ if page == "Index":
                                 return members
     
                             wanted_name = clean_name(index_name)
+                            # GitHub CSV is the only permitted constituent source.
+                            # A missing group is ignored; no external index is scanned.
+                            github_groups = load_github_index_groups()
+                            return github_groups.get(wanted_name, [])
                             errors = []
     
                             # Reuse recently verified membership from the durable archive.
@@ -2891,6 +2954,18 @@ elif page == "Index 2":
     
                 eligible_indices.sort(key=lambda item: item[0])
                 highest_l2h_indices.sort(key=lambda item: item[0], reverse=True)
+
+                # Only index names present as columns in the GitHub constituent
+                # file are eligible. Newly added CSV columns are picked up automatically.
+                allowed_group_names = set(load_github_index_groups().keys())
+                eligible_indices = [
+                    item for item in eligible_indices
+                    if normalize_index_name(item[1].get("INDEX")) in allowed_group_names
+                ]
+                highest_l2h_indices = [
+                    item for item in highest_l2h_indices
+                    if normalize_index_name(item[1].get("INDEX")) in allowed_group_names
+                ]
                 eligible_manifest_names = [
                     str(record.get("INDEX", "")).strip().upper()
                     for record in display_records
@@ -2971,7 +3046,7 @@ elif page == "Index 2":
                         # Index membership changes infrequently. Keep each resolved
                         # constituent list cached for 30 days to avoid repeated
                         # external-provider calls and Supabase reads.
-                        @st.cache_data(ttl=2592000, max_entries=256, show_spinner=False)
+                        @st.cache_data(ttl=3600, max_entries=256, show_spinner=False)
                         def get_index_constituents(index_name):
                             """
                             Load current constituents for an index using a layered
@@ -3028,6 +3103,10 @@ elif page == "Index 2":
                                 return members
     
                             wanted_name = clean_name(index_name)
+                            # GitHub CSV is the only permitted constituent source.
+                            # A missing group is ignored; no external index is scanned.
+                            github_groups = load_github_index_groups()
+                            return github_groups.get(wanted_name, [])
                             errors = []
     
                             # Reuse recently verified membership from the durable archive.
