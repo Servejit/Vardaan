@@ -1130,9 +1130,9 @@ def render_autogreen_dashboard():
         }
         @keyframes noSignalFloatingGlow {
             0% { transform:translate3d(-35%,-5%,0) rotate(18deg); opacity:0; }
-            18% { opacity:.30; }
-            52% { transform:translate3d(115%,3%,0) rotate(18deg); opacity:.22; }
-            82% { opacity:.12; }
+            18% { opacity:.62; }
+            52% { transform:translate3d(115%,3%,0) rotate(18deg); opacity:.42; }
+            82% { opacity:.18; }
             100% { transform:translate3d(190%,-4%,0) rotate(18deg); opacity:0; }
         }
         @keyframes dependentSignalFloat {
@@ -1154,11 +1154,11 @@ def render_autogreen_dashboard():
                       border-radius:18px;background:radial-gradient(ellipse at 50% 0%,
                       rgba(255,255,255,.12),transparent 54%),linear-gradient(145deg,#18191B,#050506 68%,#111214);
                       color:#F5F5F5;animation:dependentSignalFloat 5s ease-in-out infinite;">
-            <div aria-hidden="true" style="position:absolute;top:-42%;left:-58%;width:58%;height:184%;
-                        pointer-events:none;z-index:0;filter:blur(13px);
-                        background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.04) 25%,
-                        rgba(220,225,232,.22) 48%,rgba(255,255,255,.10) 58%,transparent 82%);
-                        animation:noSignalFloatingGlow 7.5s ease-in-out infinite;"></div>
+            <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
+                        pointer-events:none;z-index:0;filter:blur(7px);
+                        background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.12) 25%,
+                        rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
+                        animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
             <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;color:#BDBDBD;
                         text-shadow:0 0 12px rgba(255,255,255,.18);">6THSENSE · AUTOGREEN</div>
             <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;font-weight:950;
