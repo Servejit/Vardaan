@@ -899,7 +899,7 @@ def get_autogreen_live_prices(symbols):
     return results
 
 def render_autogreen_dashboard():
-    """Render four High-minus-0.20% qualified stocks ranked by live % change; fourth confirms only."""
+    """Select BUY and CONFIRMATION independently from all four base-qualified target stocks."""
     st.title("6thSense · AutoGreen Buy Signals")
     st.caption("Source: Servejit/Signal · master.xlsx · AutoGreen + Sum O2L.10 ranking")
 
@@ -954,6 +954,10 @@ def render_autogreen_dashboard():
         with st.spinner("Fetching live prices for the four target stocks..."):
             target_quotes = get_autogreen_live_prices(tuple(target_symbols))
 
+    # Target selection is based on all four stocks from the base-qualified AutoGreen list.
+    # Colour-qualified signals are preferred for their existing card palette, but
+    # must not exclude a target stock from the BUY competition.
+    base_by_symbol = {item["Symbol"]: item for item in base_rows}
     signal_by_symbol = {item["Symbol"]: item for item in ranked_candidates}
     target_records = []
     for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
@@ -970,7 +974,7 @@ def render_autogreen_dashboard():
             "Rank": rank,
         })
 
-        signal = signal_by_symbol.get(symbol)
+        signal = signal_by_symbol.get(symbol) or base_by_symbol.get(symbol)
         if not signal:
             continue
         price = quote.get("price")
@@ -1034,7 +1038,7 @@ def render_autogreen_dashboard():
 
     metric_cols = st.columns(4)
     metric_cols[0].metric("AutoGreen qualified", len(base_rows))
-    metric_cols[1].metric("AutoGreen BUY candidates", len(ranked_candidates))
+    metric_cols[1].metric("Colour-qualified stocks", len(ranked_candidates))
     metric_cols[2].metric("High − 0.20% qualified", len(high_gap_candidates))
     metric_cols[3].metric("BUY / Confirmation", f"{len(buy_rows)} / {1 if confirmation_row else 0}")
 
