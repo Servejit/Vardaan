@@ -804,34 +804,69 @@ def get_autogreen_sum_o2l_ranks(workbook_bytes):
 
 @st.cache_data(ttl=60, max_entries=1, show_spinner=False)
 def get_autogreen_live_prices(symbols):
-    """Fetch current NSE price and today's intraday high from Yahoo Finance."""
+    """Fetch live NSE quotes, with Yahoo fallbacks for delayed/missing intraday bars."""
     import yfinance as yf
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     def fetch_one(symbol):
+        empty = {
+            "price": None, "open": None, "high": None, "low": None,
+            "previous_close": None, "change_pct": None
+        }
         try:
             ticker = yf.Ticker(f"{symbol}.NS")
             history = ticker.history(
                 period="1d", interval="1m", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
+
+            # Yahoo sometimes returns no 1-minute bars; retry with 5-minute bars.
             if history is None or history.empty or "Close" not in history:
-                return symbol, {"price": None, "open": None, "high": None, "low": None, "change_pct": None}
+                history = ticker.history(
+                    period="5d", interval="5m", auto_adjust=False,
+                    actions=False, prepost=False, timeout=15
+                )
+            if history is None or history.empty or "Close" not in history:
+                return symbol, empty
+
+            history = history.dropna(subset=["Close"])
+            if history.empty:
+                return symbol, empty
+
             closes = history["Close"].dropna()
             highs = history["High"].dropna() if "High" in history else []
-            price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
             opens = history["Open"].dropna() if "Open" in history else []
             lows = history["Low"].dropna() if "Low" in history else []
-            open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
+
+            price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
             high = _autogreen_number(highs.max()) if len(highs) else None
+            open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
             low = _autogreen_number(lows.min()) if len(lows) else None
 
             daily = ticker.history(
                 period="5d", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
-            daily_closes = daily["Close"].dropna() if daily is not None and not daily.empty and "Close" in daily else []
-            previous_close = _autogreen_number(daily_closes.iloc[-2]) if len(daily_closes) >= 2 else None
+            daily_closes = (
+                daily["Close"].dropna()
+                if daily is not None and not daily.empty and "Close" in daily
+                else []
+            )
+            previous_close = (
+                _autogreen_number(daily_closes.iloc[-2])
+                if len(daily_closes) >= 2 else None
+            )
+
+            # If Yahoo supplies only one daily candle, use its explicit prior close.
+            if previous_close is None:
+                try:
+                    fast_info = ticker.fast_info
+                    previous_close = _autogreen_number(
+                        fast_info.get("previous_close")
+                    )
+                except Exception:
+                    previous_close = None
+
             change_pct = (
                 ((price - previous_close) / previous_close) * 100
                 if price is not None and previous_close is not None and previous_close > 0
@@ -842,7 +877,7 @@ def get_autogreen_live_prices(symbols):
                 "previous_close": previous_close, "change_pct": change_pct
             }
         except Exception:
-            return symbol, {"price": None, "high": None}
+            return symbol, empty
 
     results = {}
     unique_symbols = list(dict.fromkeys(symbols))
@@ -854,7 +889,6 @@ def get_autogreen_live_prices(symbols):
             symbol, quote = future.result()
             results[symbol] = quote
     return results
-
 
 def render_autogreen_dashboard():
     """Render four High-minus-0.20% qualified stocks ranked by live % change; fourth confirms only."""
