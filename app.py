@@ -1048,7 +1048,7 @@ def render_autogreen_dashboard():
         )
     else:
         for index, item in enumerate(selected_rows):
-            is_confirmation = index == 3
+            is_confirmation = item.get("_Role") == "CONFIRMATION"
             symbol = item["Symbol"]
             entry = item["Day High"] * (1 - 0.002)
             target = entry * 1.0035
