@@ -931,7 +931,7 @@ def render_autogreen_dashboard():
             status_text = (
                 "DEPENDENT · CONFIRMATION ONLY"
                 if is_confirmation
-                else "H2L DOMINANT · MARKET BIAS CONFIRMED"
+                else "MARKET BIAS CONFIRMED"
             )
             palette = {
                 "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4"),
@@ -977,7 +977,7 @@ def render_autogreen_dashboard():
                   <div style="font-size:1.65rem;font-weight:950;color:{accent_colour};">₹{target:,.2f}</div>
                 </div>
                 <div style="text-align:right;">
-                  <div style="font-size:.67rem;opacity:.8;">RANK · SUM O2L.10</div>
+                  <div style="font-size:.67rem;opacity:.8;">RANK</div>
                   <div style="font-size:1rem;font-weight:900;">{rank_text}</div>
                 </div>
               </div>
