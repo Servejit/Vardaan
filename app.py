@@ -923,34 +923,101 @@ def render_autogreen_dashboard():
         with st.spinner("Fetching live NSE prices and today's highs from Yahoo Finance..."):
             quote_map = get_autogreen_live_prices(tuple(item["Symbol"] for item in ranked_candidates))
 
-    high_gap_candidates = []
-    for item in ranked_candidates:
-        quote = quote_map.get(item["Symbol"], {})
+    # Build the four target stocks from the four lowest qualified D-B values.
+    qualified_detail_rows, qualified_detail_error = get_qualified_stock_detail_rows(
+        base_rows, master_bytes
+    )
+    lowest_db_targets = []
+    if not qualified_detail_error and qualified_detail_rows:
+        for detail in qualified_detail_rows:
+            raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
+            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
+            numeric_match = (
+                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
+                if outer_match else None
+            )
+            if numeric_match:
+                try:
+                    lowest_db_targets.append((
+                        float(numeric_match.group(1).replace(",", "")),
+                        detail["Stock"]
+                    ))
+                except (TypeError, ValueError):
+                    pass
+        lowest_db_targets.sort(key=lambda item: (item[0], item[1]))
+        lowest_db_targets = lowest_db_targets[:4]
+
+    target_symbols = [symbol for _, symbol in lowest_db_targets]
+    target_quotes = {}
+    target_table_rows = []
+    if target_symbols:
+        with st.spinner("Fetching live prices for the four target stocks..."):
+            target_quotes = get_autogreen_live_prices(tuple(target_symbols))
+
+    signal_by_symbol = {item["Symbol"]: item for item in ranked_candidates}
+    target_records = []
+    for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
+        quote = target_quotes.get(symbol, {})
+        rank = sum_o2l_ranks.get(symbol)
+        target_table_rows.append({
+            "Role": f"TARGET #{position}",
+            "Symbol": symbol,
+            "Open": round(quote["open"], 2) if quote.get("open") is not None else "Unavailable",
+            "High": round(quote["high"], 2) if quote.get("high") is not None else "Unavailable",
+            "Low": round(quote["low"], 2) if quote.get("low") is not None else "Unavailable",
+            "Live Price": round(quote["price"], 2) if quote.get("price") is not None else "Unavailable",
+            "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
+            "Rank": rank,
+        })
+
+        signal = signal_by_symbol.get(symbol)
+        if not signal:
+            continue
         price = quote.get("price")
         high = quote.get("high")
         change_pct = quote.get("change_pct")
         if price is None or high is None or high <= 0 or change_pct is None:
             continue
         gap_pct = ((high - price) / high) * 100
-        if gap_pct >= 0.20:
-            high_gap_candidates.append({
-                **item,
-                "Live Price": price,
-                "Live % Chg": change_pct,
-                "Day Open": quote.get("open"),
-                "Day High": high,
-                "Day Low": quote.get("low"),
-                "High Gap %": gap_pct
-            })
+        target_records.append({
+            **signal,
+            "Live Price": price,
+            "Live % Chg": change_pct,
+            "Day Open": quote.get("open"),
+            "Day High": high,
+            "Day Low": quote.get("low"),
+            "High Gap %": gap_pct,
+            "Sum O2L.10 Rank": rank,
+            "_Target Position": position,
+        })
 
-    # Keep the existing High - 0.20% qualification, then rank the four
-    # selected stocks by live percentage change versus the previous close.
-    high_gap_candidates.sort(
-        key=lambda item: (-item["Live % Chg"], item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"), item["Symbol"])
+    # Only TARGET #1-#3 compete for BUY. Require price at least 0.20%
+    # below today's high; choose highest live % change, then lowest rank.
+    buy_candidates = [
+        item for item in target_records
+        if item["_Target Position"] <= 3 and item["High Gap %"] >= 0.20
+    ]
+    buy_candidates.sort(key=lambda item: (
+        -item["Live % Chg"],
+        item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"),
+        item["Symbol"]
+    ))
+    best_buy = buy_candidates[0] if buy_candidates else None
+
+    # TARGET #4 is confirmation only. It does not compete for or replace BUY.
+    confirmation_row = next(
+        (item for item in target_records if item["_Target Position"] == 4),
+        None
     )
-    selected_rows = high_gap_candidates[:4]
-    buy_rows = selected_rows[:3]
-    confirmation_row = selected_rows[3] if len(selected_rows) >= 4 else None
+    if confirmation_row:
+        confirmation_row["_Role"] = "CONFIRMATION"
+    if best_buy:
+        best_buy["_Role"] = "BUY"
+    selected_rows = ([best_buy] if best_buy else []) + (
+        [confirmation_row] if confirmation_row else []
+    )
+    high_gap_candidates = buy_candidates
+    buy_rows = [best_buy] if best_buy else []
 
     metric_cols = st.columns(4)
     metric_cols[0].metric("AutoGreen qualified", len(base_rows))
@@ -1066,7 +1133,7 @@ def render_autogreen_dashboard():
     if selected_rows:
         st.dataframe(
             [{
-                "Role": "CONFIRMATION ONLY" if i == 3 else f"BUY #{i + 1}",
+                "Role": "CONFIRMATION ONLY" if item.get("_Role") == "CONFIRMATION" else "BUY",
                 "Symbol": item["Symbol"],
                 "Open": round(item["Day Open"], 2) if item.get("Day Open") is not None else "Unavailable",
                 "High": round(item["Day High"], 2),
@@ -1084,51 +1151,11 @@ def render_autogreen_dashboard():
             f"AutoGreen Buy candidates: {len(signal_rows)} · High-gap qualified: {len(high_gap_candidates)}."
         )
 
-    # Select the four lowest valid innermost D-B values from all qualified stocks.
-    qualified_detail_rows, qualified_detail_error = get_qualified_stock_detail_rows(
-        base_rows, master_bytes
-    )
-    lowest_db_targets = []
-    if not qualified_detail_error and qualified_detail_rows:
-        for detail in qualified_detail_rows:
-            raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
-            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
-            numeric_match = (
-                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
-                if outer_match else None
-            )
-            if numeric_match:
-                try:
-                    lowest_db_targets.append((float(numeric_match.group(1).replace(",", "")), detail["Stock"]))
-                except (TypeError, ValueError):
-                    pass
-        lowest_db_targets.sort(key=lambda item: (item[0], item[1]))
-        lowest_db_targets = lowest_db_targets[:4]
-
     st.subheader("Target Stocks")
-    if lowest_db_targets:
-        target_symbols = [symbol for _, symbol in lowest_db_targets]
-        target_base = {item["Symbol"]: item for item in base_rows}
-        with st.spinner("Fetching live prices for the four lowest D-B target stocks..."):
-            target_quotes = get_autogreen_live_prices(tuple(target_symbols))
-        target_table_rows = []
-        for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
-            item = target_base.get(symbol, {})
-            quote = target_quotes.get(symbol, {})
-            rank = sum_o2l_ranks.get(symbol)
-            target_table_rows.append({
-                "Role": f"TARGET #{position}",
-                "Symbol": symbol,
-                "Open": round(quote["open"], 2) if quote.get("open") is not None else "Unavailable",
-                "High": round(quote["high"], 2) if quote.get("high") is not None else "Unavailable",
-                "Low": round(quote["low"], 2) if quote.get("low") is not None else "Unavailable",
-                "Live Price": round(quote["price"], 2) if quote.get("price") is not None else "Unavailable",
-                "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
-                "Rank": rank,
-            })
+    if target_table_rows:
         st.dataframe(target_table_rows, use_container_width=True, hide_index=True)
     else:
-        st.info("No four qualified stocks with a readable numeric D-B value are available yet.")
+        st.info("No four qualified target stocks with a readable numeric value are available yet.")
 
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
         if base_rows:
