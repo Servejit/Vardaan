@@ -1087,31 +1087,50 @@ def render_autogreen_dashboard():
     high_gap_candidates = buy_candidates
     buy_rows = [best_buy] if best_buy else []
 
+    # The metrics panel always inherits the first (topmost) signal card palette.
+    # With no active signal, it follows the Rose-Cherry NO SIGNAL card.
+    metric_palettes = {
+        "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4", "#8FFFF0"),
+        "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF", "#BDEBFF"),
+        "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF", "#EAD7FF"),
+    }
+    if selected_rows:
+        metric_colour_name = selected_rows[0].get("Card Colour", "Green")
+        metric_c1, metric_c2, metric_c3, metric_border, metric_accent, metric_shimmer = metric_palettes.get(
+            metric_colour_name, metric_palettes["Green"]
+        )
+        metric_outer = metric_border
+        metric_glow = metric_c2 + "66"
+    else:
+        metric_c1, metric_c2, metric_c3 = "#3B1025", "#7E2342", "#35101F"
+        metric_border, metric_accent, metric_shimmer = "#A83E59", "#F0B5C7", "#EAD7DD"
+        metric_outer, metric_glow = "#A83E59", "rgba(220,92,126,.30)"
+
     st.markdown(
         f"""
         <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
-                    border:1px solid #D77A98;border-radius:17px;
-                    background:linear-gradient(145deg,#3B1025 0%,#7E2342 48%,#35101F 100%);
-                    box-shadow:inset 0 1px 0 rgba(255,220,232,.20),0 12px 30px rgba(104,25,55,.34),0 0 18px rgba(220,92,126,.22);">
+                    border:1px solid {metric_outer};border-radius:17px;
+                    background:linear-gradient(145deg,{metric_c1} 0%,{metric_c2} 48%,{metric_c3} 100%);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 30px rgba(0,0,0,.28),0 0 18px {metric_glow};">
           <div style="position:absolute;left:-72%;top:-55%;width:72%;height:210%;pointer-events:none;
-                      background:linear-gradient(110deg,transparent 28%,rgba(255,255,255,.04) 42%,rgba(255,235,242,.34) 50%,rgba(255,255,255,.08) 56%,transparent 70%);
+                      background:linear-gradient(110deg,transparent 28%,{metric_shimmer}22 42%,#FFFFFF88 50%,{metric_shimmer}55 56%,transparent 70%);
                       filter:blur(7px);animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
           <div style="position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;">
-            <div style="text-align:center;padding:4px 7px;border-right:1px solid rgba(255,210,225,.24);">
-              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:#F0B5C7;line-height:1.35;">AutoGreen qualified</div>
-              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFF4F6;margin-top:5px;line-height:1.1;">{len(base_rows)}</div>
+            <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
+              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:{metric_accent};line-height:1.35;">AutoGreen qualified</div>
+              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFFFFF;margin-top:5px;line-height:1.1;">{len(base_rows)}</div>
             </div>
-            <div style="text-align:center;padding:4px 7px;border-right:1px solid rgba(255,210,225,.24);">
-              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:#F0B5C7;line-height:1.35;">Colour-qualified stocks</div>
-              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFF4F6;margin-top:5px;line-height:1.1;">{len(ranked_candidates)}</div>
+            <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
+              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:{metric_accent};line-height:1.35;">Colour-qualified stocks</div>
+              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFFFFF;margin-top:5px;line-height:1.1;">{len(ranked_candidates)}</div>
             </div>
-            <div style="text-align:center;padding:4px 7px;border-right:1px solid rgba(255,210,225,.24);">
-              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:#F0B5C7;line-height:1.35;">High − 0.20% qualified</div>
-              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFF4F6;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
+            <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
+              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:{metric_accent};line-height:1.35;">High − 0.20% qualified</div>
+              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFFFFF;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
             </div>
             <div style="text-align:center;padding:4px 7px;">
-              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:#F0B5C7;line-height:1.35;">BUY / Confirmation</div>
-              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFF4F6;margin-top:5px;line-height:1.1;">{len(buy_rows)} / {1 if confirmation_row else 0}</div>
+              <div style="font-size:clamp(10px,1.8vw,12px);font-weight:800;letter-spacing:.35px;color:{metric_accent};line-height:1.35;">BUY / Confirmation</div>
+              <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#FFFFFF;margin-top:5px;line-height:1.1;">{len(buy_rows)} / {1 if confirmation_row else 0}</div>
             </div>
           </div>
         </div>
