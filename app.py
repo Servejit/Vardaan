@@ -1136,20 +1136,20 @@ def render_autogreen_dashboard():
         [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#344456 !important; }}
         h1,h2,h3,[data-testid="stSubheader"] {{ color:#263342 !important; }}
         h2,h3 {{ border-bottom:1px solid {metric_ink}55 !important; }}
-        @keyframes dashboardDiagonalShimmer {
-            0% { transform:translate3d(-140%,0,0) skewX(-18deg); opacity:0; }
-            12% { opacity:.38; }
-            55% { opacity:.22; }
-            100% { transform:translate3d(240%,0,0) skewX(-18deg); opacity:0; }
-        }
-        @keyframes dashboardFloatGlow {
-            0%,100% { background-position:0% 50%; }
-            50% { background-position:100% 50%; }
-        }
+        @keyframes dashboardDiagonalShimmer {{
+            0% {{ transform:translate3d(-140%,0,0) skewX(-18deg); opacity:0; }}
+            12% {{ opacity:.38; }}
+            55% {{ opacity:.22; }}
+            100% {{ transform:translate3d(240%,0,0) skewX(-18deg); opacity:0; }}
+        }}
+        @keyframes dashboardFloatGlow {{
+            0%,100% {{ background-position:0% 50%; }}
+            50% {{ background-position:100% 50%; }}
+        }}
         .signal-shimmer-surface::after,
         [data-testid="stMetric"]::after,
         [data-testid="stDataFrame"]::after,
-        [data-testid="stTable"]::after {
+        [data-testid="stTable"]::after {{
             content:"";
             position:absolute;
             inset:-35% auto -35% -45%;
@@ -1160,18 +1160,18 @@ def render_autogreen_dashboard():
                 rgba(255,255,255,.72) 48%,rgba(255,255,255,.18) 58%,transparent 82%);
             filter:blur(1.5px);
             animation:dashboardDiagonalShimmer 6.5s ease-in-out infinite;
-        }
+        }}
         .signal-shimmer-surface,
         [data-testid="stMetric"],
         [data-testid="stDataFrame"],
-        [data-testid="stTable"] {
+        [data-testid="stTable"] {{
             position:relative !important;
             overflow:hidden !important;
             isolation:isolate;
-        }
-        [data-testid="stMetric"]::after { animation-delay:-2s; }
-        [data-testid="stDataFrame"]::after { animation-delay:-3.5s; }
-        [data-testid="stTable"]::after { animation-delay:-1s; }
+        }}
+        [data-testid="stMetric"]::after {{ animation-delay:-2s; }}
+        [data-testid="stDataFrame"]::after {{ animation-delay:-3.5s; }}
+        [data-testid="stTable"]::after {{ animation-delay:-1s; }}
                 [data-testid="stMetric"] {{
             background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
             border:1px solid {metric_ink}55 !important;
