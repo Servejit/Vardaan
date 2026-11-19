@@ -748,7 +748,8 @@ def load_autogreen_buy_signals():
 
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def load_stock_of_the_day_rows():
-    """Return every AutoGreen stock that passes all Stock of the Day filters."""
+    """Use AutoGreen volume-qualified stocks only; never apply the High - 0.20% layer."""
+    # Take the base volume-expansion list, not colour-qualified or High - 0.20% candidates.
     base_rows, _ = load_autogreen_buy_signals()
     if not base_rows:
         return []
@@ -957,7 +958,8 @@ def load_stock_of_the_day_rows():
 def render_stock_of_the_day():
     st.header("Stock of the Day")
     st.caption(
-        "Mandatory conditions are applied first; stocks tied for the most extra dated-O2L and %Chg.3/.4 advantages are shown."
+        "Independent Stock of the Day screen: AutoGreen volume-expansion qualification plus the conditions below. "
+        "The High − 0.20% filter and BUY / Confirmation layer are not applied here."
     )
     try:
         rows = load_stock_of_the_day_rows()
