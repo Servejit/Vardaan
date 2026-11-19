@@ -1112,12 +1112,12 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
     def clean_header(value):
         return " ".join(str(value or "").strip().casefold().split())
 
-    def display_value(value, parentheses=False):
+    def display_value(value, parentheses=False, decimals=None):
         if value is None or str(value).strip() == "":
             return "—"
         try:
             number = float(str(value).replace(",", "").replace("%", "").strip())
-            rendered = f"{number:g}"
+            rendered = f"{number:.{decimals}f}" if decimals is not None else f"{number:g}"
         except (TypeError, ValueError):
             rendered = str(value).strip()
         return f"({rendered})" if parentheses else rendered
@@ -1173,7 +1173,7 @@ def get_qualified_stock_detail_rows(base_rows, master_bytes):
                         continue
                     for position, (column_index, heading) in enumerate(o2h_columns, start=1):
                         value = row[column_index] if column_index < len(row) else None
-                        details[symbol][f"O2H {position} · {heading}"] = display_value(value)
+                        details[symbol][f"O2H {position} · {heading}"] = display_value(value, decimals=2)
 
         # Read the two requested D-B / C-B values from the Master workbook.
         master_wb = load_workbook(
