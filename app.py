@@ -2,6 +2,8 @@ import io
 import re
 import json
 import time
+import base64
+import requests
 from datetime import datetime, timezone
 import streamlit as st
 from openpyxl import load_workbook
@@ -529,19 +531,62 @@ def normalize_stock_symbol(value):
 # Only the AutoGreen worksheet is used for these Buy cards.
 # ============================================================
 
-AUTOGREEN_MASTER_URL = (
-    "https://raw.githubusercontent.com/Servejit/Signal/main/master.xlsx"
-)
+SIGNAL_GITHUB_API = "https://api.github.com/repos/Servejit/Signal"
+SIGNAL_GITHUB_BRANCH = "main"
+SIGNAL_MASTER_PATH = "master.xlsx"
+SIGNAL_GITHUB_TOKEN = str(
+    st.secrets.get("SIGNAL_GITHUB_TOKEN", st.secrets.get("GITHUB_TOKEN", "")) or ""
+).strip()
+
 
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def get_autogreen_master_bytes():
-    """Fetch the shared GitHub workbook; cache it for five minutes."""
-    import requests
-    response = requests.get(AUTOGREEN_MASTER_URL, timeout=30)
+    """Fetch private Signal/master.xlsx through GitHub's authenticated API."""
+    if not SIGNAL_GITHUB_TOKEN:
+        raise RuntimeError(
+            "SIGNAL_GITHUB_TOKEN is missing from Streamlit Secrets. "
+            "Add a GitHub token with Contents: Read access to Servejit/Signal."
+        )
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Authorization": f"Bearer {SIGNAL_GITHUB_TOKEN}",
+    }
+    response = requests.get(
+        f"{SIGNAL_GITHUB_API}/contents/{SIGNAL_MASTER_PATH}",
+        params={"ref": SIGNAL_GITHUB_BRANCH},
+        headers=headers,
+        timeout=30,
+    )
+    if response.status_code == 404:
+        raise RuntimeError(
+            "GitHub could not access Servejit/Signal/master.xlsx. Check that "
+            "SIGNAL_GITHUB_TOKEN has Contents: Read access to the private repository."
+        )
     response.raise_for_status()
-    if not response.content:
+    payload = response.json()
+    encoded = payload.get("content", "")
+    if encoded:
+        workbook_bytes = base64.b64decode(encoded)
+    else:
+        blob_sha = payload.get("sha")
+        if not blob_sha:
+            raise ValueError("GitHub did not return master.xlsx content or blob SHA.")
+        blob_response = requests.get(
+            f"{SIGNAL_GITHUB_API}/git/blobs/{blob_sha}",
+            headers={
+                **headers,
+                "Accept": "application/vnd.github.raw",
+            },
+            timeout=60,
+        )
+        blob_response.raise_for_status()
+        workbook_bytes = blob_response.content
+
+    if not workbook_bytes:
         raise ValueError("GitHub master.xlsx is empty.")
-    return response.content
+    return workbook_bytes
 
 
 def _autogreen_number(value):
