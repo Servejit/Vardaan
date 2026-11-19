@@ -1120,9 +1120,8 @@ def render_stock_of_the_day():
                 - Only stocks tied for the highest Extra Advantages score are displayed.
                 """
             )
-            details_df = pd.DataFrame(rows)
             st.dataframe(
-                details_df,
+                rows,
                 use_container_width=True,
                 hide_index=True
             )
