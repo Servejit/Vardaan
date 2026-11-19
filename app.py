@@ -1111,9 +1111,35 @@ def render_autogreen_dashboard():
     )
 
     if not selected_rows:
-        st.info(
-            "No stocks currently meet the AutoGreen BUY conditions and at least 0.20% below today's high."
-        )
+        no_signal_card = """
+        <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
+                    background:linear-gradient(115deg,#4B4B4B 0%,#D9D9D9 16%,#555 32%,
+                    #F0E6C8 49%,#353535 66%,#B7B7B7 83%,#454545 100%);
+                    background-size:240% 240%;animation:dependentSignalShimmer 6s ease-in-out infinite;
+                    box-shadow:0 0 0 1px rgba(255,255,255,.10),0 14px 34px rgba(0,0,0,.42),
+                    0 0 22px rgba(190,190,190,.12);">
+          <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
+                      border-radius:18px;background:radial-gradient(ellipse at 50% 0%,
+                      rgba(255,255,255,.12),transparent 54%),linear-gradient(145deg,#18191B,#050506 68%,#111214);
+                      color:#F5F5F5;animation:dependentSignalFloat 5s ease-in-out infinite;">
+            <div style="font-size:11px;font-weight:900;letter-spacing:3px;color:#BDBDBD;
+                        text-shadow:0 0 12px rgba(255,255,255,.18);">6THSENSE · AUTOGREEN</div>
+            <div style="font-size:clamp(30px,5vw,42px);line-height:1.1;font-weight:950;
+                        letter-spacing:2.2px;margin:13px 0 10px;color:#F4F1E8;
+                        text-shadow:0 2px 18px rgba(255,255,255,.16);">NO SIGNAL</div>
+            <div style="width:74px;height:1px;margin:0 auto 15px;
+                        background:linear-gradient(90deg,transparent,#D8D0BD,transparent);"></div>
+            <div style="font-size:12px;font-weight:900;letter-spacing:1.65px;color:#D8D0BD;">
+              WAIT FOR A QUALIFIED SETUP
+            </div>
+            <div style="font-size:13px;line-height:1.65;font-weight:550;color:#B8B8B8;
+                        margin-top:10px;">
+              No stock currently meets all BUY and confirmation conditions.
+            </div>
+          </div>
+        </div>
+        """
+        st.markdown(no_signal_card, unsafe_allow_html=True)
     else:
         for index, item in enumerate(selected_rows):
             is_confirmation = item.get("_Role") == "CONFIRMATION"
