@@ -971,22 +971,35 @@ def render_autogreen_dashboard():
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    with st.expander("View selected four stocks and ranking", expanded=False):
-        if selected_rows:
-            st.dataframe(
-                [{
-                    "Role": "Confirmation only" if i == 3 else f"BUY #{i + 1}",
-                    "Symbol": item["Symbol"],
-                    "Live Price": item["Live Price"],
-                    "Day High": item["Day High"],
-                    "High Gap %": round(item["High Gap %"], 3),
-                    "Sum O2L.10 Rank": item["Sum O2L.10 Rank"],
-                    "Card Colour": item["Card Colour"],
-                } for i, item in enumerate(selected_rows)],
-                use_container_width=True, hide_index=True
-            )
-        else:
-            st.caption("No stocks qualified at the latest refresh.")
+    st.subheader("Selected BUY stocks and confirmation")
+    if selected_rows:
+        st.dataframe(
+            [{
+                "Role": "CONFIRMATION ONLY" if i == 3 else f"BUY #{i + 1}",
+                "Symbol": item["Symbol"],
+                "Signal": item["Signal"],
+                "Card Colour": item["Card Colour"],
+                "Live Price": round(item["Live Price"], 2),
+                "Today's High": round(item["Day High"], 2),
+                "Entry (High - 0.20%)": round(item["Day High"] * (1 - 0.002), 2),
+                "Gap from High %": round(item["High Gap %"], 3),
+                "Sum O2L.10 Rank": item["Sum O2L.10 Rank"],
+                "Vol.Expand 1": item["Vol.Expand 1"],
+                "Vol.Expand 2": item["Vol.Expand 2"],
+                "%Chg.1": item["%Chg.1"],
+                "%Chg.2": item["%Chg.2"],
+                "%Chg.3": item["%Chg.3"],
+                "%Chg.4": item["%Chg.4"],
+            } for i, item in enumerate(selected_rows)],
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.warning(
+            "No stock has passed every selection condition at this refresh. "
+            f"AutoGreen Buy: {len(signal_rows)} · Rank below 80: {len(ranked_candidates)} · "
+            f"High-gap qualified: {len(high_gap_candidates)}."
+        )
 
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
         if base_rows:
