@@ -1124,11 +1124,9 @@ def render_autogreen_dashboard():
     if not selected_rows:
         no_signal_card = """
         <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                    background:linear-gradient(90deg,#292929 0%,#555 18%,#BDBDBD 34%,
-                    #F4F4F4 46%,#858585 54%,#E5E5E5 62%,#555 78%,#292929 100%);
-                    background-size:300% 100%;animation:noSignalGreyShimmer 2.4s linear infinite;
-                    box-shadow:0 0 0 1px rgba(255,255,255,.10),0 14px 34px rgba(0,0,0,.42),
-                    0 0 22px rgba(190,190,190,.12);">
+                    background:#3A3B3D;
+                    box-shadow:0 0 0 1px rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.42),
+                    0 0 18px rgba(190,190,190,.08);">
           <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
                       border-radius:18px;background:radial-gradient(ellipse at 50% 0%,
                       rgba(255,255,255,.12),transparent 54%),linear-gradient(145deg,#18191B,#050506 68%,#111214);
