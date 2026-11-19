@@ -1409,12 +1409,6 @@ def render_autogreen_dashboard():
         st.info("No four qualified target stocks with a readable numeric value are available yet.")
 
 
-if target_table_rows:
-    render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
-else:
-    st.info("No four qualified target stocks with a readable numeric value are available yet.")
-
-
     with st.expander("MORE DASHBOARD", expanded=False):
         st.markdown(
             f"""
