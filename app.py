@@ -821,7 +821,8 @@ def load_stock_of_the_day_rows():
             ]
             o2h_by_symbol[symbol] = readings
 
-        # D-B and the first two dated O2L columns are read from Summary.
+        # Read D-B and every dated O2L column from Summary.
+        # The first two O2L readings are mandatory; later readings are tie-break advantages.
         summary_sheet = next(
             (ws for ws in workbook.worksheets
              if ws.title.strip().casefold() == "summary"),
@@ -834,6 +835,7 @@ def load_stock_of_the_day_rows():
         summary_symbol_col = 0
         db_col = None
         o2l_columns = []
+        o2l_headings = []
         db_key = header_key("16< D-B / Avg.4")
         for row_number, row in enumerate(
             summary_sheet.iter_rows(
@@ -862,12 +864,13 @@ def load_stock_of_the_day_rows():
                      if header_key(label) in found),
                     0
                 )
-                o2l_columns = [dated_o2l[0][0], dated_o2l[1][0]]
+                o2l_columns = [index for index, _ in dated_o2l]
+                o2l_headings = [heading for _, heading in dated_o2l]
                 break
 
         if summary_header_row is None:
             raise ValueError(
-                "Could not locate 16< D-B / Avg.4 and the first two dated O2L columns on Summary."
+                "Could not locate 16< D-B / Avg.4 and at least two dated O2L columns on Summary."
             )
 
         summary_by_symbol = {}
@@ -892,11 +895,14 @@ def load_stock_of_the_day_rows():
             symbol = item["Symbol"]
             o2h_values = o2h_by_symbol.get(symbol, [None, None])
             db_value, o2l_values = summary_by_symbol.get(
-                symbol, (None, [None, None])
+                symbol, (None, [None] * len(o2l_columns))
             )
             change1 = item.get("%Chg.1")
             change2 = item.get("%Chg.2")
+            change3 = item.get("%Chg.3")
+            change4 = item.get("%Chg.4")
 
+            # Mandatory Stock of the Day conditions.
             if (
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
@@ -908,18 +914,47 @@ def load_stock_of_the_day_rows():
             ):
                 continue
 
-            matches.append({
+            # Tie-break score: each additional dated O2L below -1.50,
+            # plus %Chg.3 and %Chg.4 below zero, adds one advantage.
+            extra_o2l_advantages = sum(
+                1 for value in o2l_values[2:]
+                if value is not None and value < -1.50
+            )
+            extra_change_advantages = sum(
+                1 for value in (change3, change4)
+                if value is not None and value < 0
+            )
+            advantage_score = extra_o2l_advantages + extra_change_advantages
+
+            record = {
                 "Stock": symbol,
                 "O2H 1": round(o2h_values[0], 2),
                 "O2H 2": round(o2h_values[1], 2),
                 "16< D-B / Avg.4": round(db_value, 2),
-                "O2L 1": round(o2l_values[0], 2),
-                "O2L 2": round(o2l_values[1], 2),
-                "%Chg.1": round(change1, 2),
-                "%Chg.2": round(change2, 2),
-            })
+            }
+            for position, value in enumerate(o2l_values, start=1):
+                heading = o2l_headings[position - 1] if position <= len(o2l_headings) else ""
+                column_name = f"O2L {position}" + (f" · {heading}" if heading else "")
+                record[column_name] = round(value, 2) if value is not None else "—"
+            record["%Chg.1"] = round(change1, 2)
+            record["%Chg.2"] = round(change2, 2)
+            record["%Chg.3"] = round(change3, 2) if change3 is not None else "—"
+            record["%Chg.4"] = round(change4, 2) if change4 is not None else "—"
+            record["Extra Advantages"] = advantage_score
+            matches.append((advantage_score, record))
 
-        # No rank, tie-break, or result limit: retain every qualifying stock.
+        # Show every stock tied for the highest number of extra advantages.
+        # If no stock has an extra advantage, all mandatory-condition matches remain visible.
+        if matches:
+            highest_advantage_score = max(score for score, _ in matches)
+            selected_matches = [
+                record for score, record in matches
+                if score == highest_advantage_score
+            ]
+            selected_matches.sort(key=lambda record: record["Stock"])
+            return selected_matches
+        return []
+
         matches.sort(key=lambda record: record["Stock"])
         return matches
     finally:
@@ -929,7 +964,7 @@ def load_stock_of_the_day_rows():
 def render_stock_of_the_day():
     st.header("Stock of the Day")
     st.caption(
-        "All stocks matching every AutoGreen, O2H, D-B, O2L and %Chg condition are shown."
+        "Mandatory conditions are applied first; stocks tied for the most extra dated-O2L and %Chg.3/.4 advantages are shown."
     )
     try:
         rows = load_stock_of_the_day_rows()
