@@ -1101,6 +1101,10 @@ def render_autogreen_dashboard():
             50% { background-position:100% 50%; filter:brightness(1.12); }
             100% { background-position:0% 50%; filter:brightness(1); }
         }
+        @keyframes noSignalGreyShimmer {
+            0% { background-position:200% 50%; }
+            100% { background-position:-100% 50%; }
+        }
         @keyframes dependentSignalFloat {
             0%,100% { transform:translateY(0); }
             50% { transform:translateY(-2px); }
@@ -1113,9 +1117,9 @@ def render_autogreen_dashboard():
     if not selected_rows:
         no_signal_card = """
         <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                    background:linear-gradient(115deg,#4B4B4B 0%,#D9D9D9 16%,#555 32%,
-                    #F0E6C8 49%,#353535 66%,#B7B7B7 83%,#454545 100%);
-                    background-size:240% 240%;animation:dependentSignalShimmer 6s ease-in-out infinite;
+                    background:linear-gradient(90deg,#292929 0%,#555 18%,#BDBDBD 34%,
+                    #F4F4F4 46%,#858585 54%,#E5E5E5 62%,#555 78%,#292929 100%);
+                    background-size:300% 100%;animation:noSignalGreyShimmer 2.4s linear infinite;
                     box-shadow:0 0 0 1px rgba(255,255,255,.10),0 14px 34px rgba(0,0,0,.42),
                     0 0 22px rgba(190,190,190,.12);">
           <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
