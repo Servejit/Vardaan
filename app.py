@@ -1105,7 +1105,7 @@ def render_autogreen_dashboard():
         lowest_db_targets.sort(key=lambda item: (item[0], item[1]))
         lowest_db_targets = lowest_db_targets[:4]
 
-    st.subheader("Lowest 4 D-B Target Stocks")
+    st.subheader("Target Stocks")
     if lowest_db_targets:
         target_symbols = [symbol for _, symbol in lowest_db_targets]
         target_base = {item["Symbol"]: item for item in base_rows}
@@ -1117,7 +1117,7 @@ def render_autogreen_dashboard():
             quote = target_quotes.get(symbol, {})
             rank = sum_o2l_ranks.get(symbol)
             target_table_rows.append({
-                "Role": f"D-B TARGET #{position}",
+                "Role": f"TARGET #{position}",
                 "Symbol": symbol,
                 "Open": round(quote["open"], 2) if quote.get("open") is not None else "Unavailable",
                 "High": round(quote["high"], 2) if quote.get("high") is not None else "Unavailable",
