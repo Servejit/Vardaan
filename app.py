@@ -939,44 +939,66 @@ def render_autogreen_dashboard():
             card_html = f"""
             <div style="
                 position:relative;overflow:hidden;
-                background:linear-gradient(135deg,{c1} 0%,{c2} 52%,{c3} 100%);
-                border:1px solid {border_colour};
-                border-radius:18px;
-                padding:18px 19px;
-                margin:6px 0 14px;
+                background:linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%);
+                background-size:200% 200%;
+                animation:dependentSignalShimmer 6s ease-in-out infinite,
+                          dependentSignalFloat 2.8s ease-in-out infinite;
+                border:1.5px solid {border_colour};
+                border-radius:21px;
+                padding:23px 23px 22px;
+                margin:7px 0 17px;
                 color:#fff;
-                box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.08) inset;
+                box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,
+                           0 10px 28px rgba(0,0,0,.24),
+                           0 8px 25px {c2}88,
+                           0 0 23px {c2}70;
             ">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                <div style="font-size:1.65rem;line-height:1.15;font-weight:950;letter-spacing:.5px;">
+              <div style="position:absolute;right:-30px;top:-62px;width:190px;height:190px;border-radius:50%;
+                          background:radial-gradient(circle,rgba(255,255,255,.22),transparent 69%);pointer-events:none;"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;">
+                <div style="font-size:1.78rem;line-height:1.15;font-weight:950;letter-spacing:.7px;color:#fff;
+                            text-shadow:0 2px 12px rgba(0,0,0,.24);">
                   {symbol}
                 </div>
-                <div style="font-size:.68rem;font-weight:900;letter-spacing:1.15px;padding:7px 11px;
+                <div style="font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;
                             border:1px solid {border_colour};border-radius:999px;color:{accent_colour};
-                            background:rgba(0,0,0,.16);white-space:nowrap;">
+                            background:rgba(0,0,0,.20);white-space:nowrap;
+                            box-shadow:0 0 13px {c2}66;">
                   {role_text}
                 </div>
               </div>
-              <div style="font-size:.68rem;font-weight:800;letter-spacing:1px;color:{accent_colour};margin-top:7px;">
+              <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:{accent_colour};
+                          margin-top:9px;position:relative;z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.25);">
                 RANK {rank_text}
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:16px 0;"></div>
-              <div style="display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);align-items:center;gap:9px;">
-                <div style="min-width:0;">
-                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">ENTRY</div>
-                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:#fff;margin-top:5px;white-space:nowrap;">
+              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},rgba(255,255,255,.42),{border_colour},transparent);
+                          margin:19px 0 17px;position:relative;z-index:1;"></div>
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);
+                          align-items:center;gap:10px;position:relative;z-index:1;">
+                <div style="min-width:0;padding:13px 14px;border-radius:14px;
+                            background:linear-gradient(145deg,rgba(0,0,0,.24),rgba(255,255,255,.075));
+                            border:1px solid rgba(255,255,255,.17);
+                            box-shadow:0 3px 12px rgba(0,0,0,.12) inset;">
+                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">ENTRY</div>
+                  <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#fff;margin-top:7px;
+                              white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.22);">
                     ₹{entry:,.2f}
                   </div>
                 </div>
-                <div style="text-align:center;font-size:1.15rem;color:{accent_colour};font-weight:900;">→</div>
-                <div style="min-width:0;text-align:right;">
-                  <div style="font-size:.66rem;font-weight:800;letter-spacing:1px;opacity:.78;">TARGET</div>
-                  <div style="font-size:1.28rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:5px;white-space:nowrap;">
+                <div style="text-align:center;font-size:1.35rem;color:{accent_colour};font-weight:950;
+                            text-shadow:0 0 12px {c2}AA;">→</div>
+                <div style="min-width:0;text-align:right;padding:13px 14px;border-radius:14px;
+                            background:linear-gradient(145deg,rgba(0,0,0,.24),rgba(255,255,255,.075));
+                            border:1px solid rgba(255,255,255,.17);
+                            box-shadow:0 3px 12px rgba(0,0,0,.12) inset;">
+                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">TARGET</div>
+                  <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:7px;
+                              white-space:nowrap;text-shadow:0 0 12px {c2}88;">
                     ₹{target:,.2f}
                   </div>
                 </div>
               </div>
-              <div style="position:absolute;right:-34px;bottom:-58px;width:145px;height:145px;border-radius:50%;
+              <div style="position:absolute;left:-38px;bottom:-92px;width:190px;height:190px;border-radius:50%;
                           background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);pointer-events:none;"></div>
             </div>
             """
