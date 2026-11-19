@@ -815,12 +815,18 @@ def get_autogreen_live_prices(symbols):
                 actions=False, prepost=False, timeout=15
             )
             if history is None or history.empty or "Close" not in history:
-                return symbol, {"price": None, "high": None}
+                return symbol, {"price": None, "open": None, "high": None, "low": None}
             closes = history["Close"].dropna()
             highs = history["High"].dropna() if "High" in history else []
             price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
+            opens = history["Open"].dropna() if "Open" in history else []
+            lows = history["Low"].dropna() if "Low" in history else []
+            open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
             high = _autogreen_number(highs.max()) if len(highs) else None
-            return symbol, {"price": price, "high": high}
+            low = _autogreen_number(lows.min()) if len(lows) else None
+            return symbol, {
+                "price": price, "open": open_price, "high": high, "low": low
+            }
         except Exception:
             return symbol, {"price": None, "high": None}
 
@@ -871,7 +877,12 @@ def render_autogreen_dashboard():
         gap_pct = ((high - price) / high) * 100
         if gap_pct >= 0.20:
             high_gap_candidates.append({
-                **item, "Live Price": price, "Day High": high, "High Gap %": gap_pct
+                **item,
+                "Live Price": price,
+                "Day Open": quote.get("open"),
+                "Day High": high,
+                "Day Low": quote.get("low"),
+                "High Gap %": gap_pct
             })
 
     high_gap_candidates.sort(
@@ -920,16 +931,24 @@ def render_autogreen_dashboard():
             status_text = (
                 "DEPENDENT · CONFIRMATION ONLY"
                 if is_confirmation
-                else "DEPENDENT · MARKET BIAS CONFIRMED"
+                else "H2L DOMINANT · MARKET BIAS CONFIRMED"
+            )
+            palette = {
+                "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4"),
+                "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF"),
+                "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF"),
+            }
+            c1, c2, c3, border_colour, accent_colour = palette.get(
+                item.get("Card Colour"), palette["Green"]
             )
             card_html = f"""
             <div style="
                 position:relative; overflow:hidden;
-                background:linear-gradient(125deg,#062d20 0%,#087447 46%,#063d2b 100%);
+                background:linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%);
                 background-size:200% 200%;
                 animation:dependentSignalShimmer 6s ease-in-out infinite,
                           dependentSignalFloat 2.8s ease-in-out infinite;
-                border:1.5px solid #E6C76A;
+                border:1.5px solid {border_colour};
                 border-radius:20px;
                 padding:16px 18px 15px;
                 margin:5px 0 14px;
@@ -938,7 +957,7 @@ def render_autogreen_dashboard():
                            0 8px 25px rgba(31,220,132,.38),
                            0 0 22px rgba(31,220,132,.38);
             ">
-              <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:#CFFFE4;">
+              <div style="font-size:.76rem;font-weight:900;letter-spacing:2px;color:{accent_colour};">
                 {role_text}
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;">
@@ -948,8 +967,7 @@ def render_autogreen_dashboard():
                   <div style="font-size:.72rem;opacity:.82;margin-top:4px;">{status_text}</div>
                 </div>
                 <div style="text-align:right;">
-                  <div style="font-size:.68rem;opacity:.8;">ENTRY PRICE</div>
-                  <div style="font-size:1.42rem;font-weight:900;">₹{entry:,.2f}</div>
+                  <div style="font-size:.72rem;font-weight:800;opacity:.88;">ENTRY · ₹{entry:,.2f}</div>
                 </div>
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,#E6C76A,transparent);margin:12px 0;"></div>
@@ -976,19 +994,14 @@ def render_autogreen_dashboard():
             [{
                 "Role": "CONFIRMATION ONLY" if i == 3 else f"BUY #{i + 1}",
                 "Symbol": item["Symbol"],
-                "Signal": item["Signal"],
-                "Card Colour": item["Card Colour"],
+                "Open": round(item["Day Open"], 2) if item.get("Day Open") is not None else "Unavailable",
+                "High": round(item["Day High"], 2),
+                "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
                 "Live Price": round(item["Live Price"], 2),
-                "Today's High": round(item["Day High"], 2),
                 "Entry (High - 0.20%)": round(item["Day High"] * (1 - 0.002), 2),
-                "Gap from High %": round(item["High Gap %"], 3),
+                "Target (+0.35%)": round(item["Day High"] * (1 - 0.002) * 1.0035, 2),
+                "High Gap %": round(item["High Gap %"], 3),
                 "Sum O2L.10 Rank": item["Sum O2L.10 Rank"],
-                "Vol.Expand 1": item["Vol.Expand 1"],
-                "Vol.Expand 2": item["Vol.Expand 2"],
-                "%Chg.1": item["%Chg.1"],
-                "%Chg.2": item["%Chg.2"],
-                "%Chg.3": item["%Chg.3"],
-                "%Chg.4": item["%Chg.4"],
             } for i, item in enumerate(selected_rows)],
             use_container_width=True,
             hide_index=True
