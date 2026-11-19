@@ -745,72 +745,148 @@ def load_autogreen_buy_signals():
         workbook.close()
 
 
+def get_autogreen_sum_o2l_ranks(workbook_bytes):
+    """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
+    workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
+    try:
+        def key(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        selected_sheet = None
+        header_row = None
+        symbol_col = 0
+        rank_col = None
+        for ws in sorted(workbook.worksheets,
+                         key=lambda item: (item.title.casefold() != "summary", item.title.casefold())):
+            for row_number, row in enumerate(
+                ws.iter_rows(min_row=1, max_row=min(ws.max_row or 1, 30), values_only=True),
+                start=1
+            ):
+                found = {key(value): index for index, value in enumerate(row) if value is not None}
+                if key("Sum O2L.10") in found:
+                    selected_sheet = ws
+                    header_row = row_number
+                    rank_col = found[key("Sum O2L.10")]
+                    symbol_col = next(
+                        (found[key(label)] for label in ("Symbol", "NSE Symbol", "Ticker")
+                         if key(label) in found), 0
+                    )
+                    break
+            if selected_sheet is not None:
+                break
+
+        if selected_sheet is None:
+            raise ValueError("Could not find the Sum O2L.10 heading in the Master workbook.")
+
+        values = []
+        for row in selected_sheet.iter_rows(min_row=header_row + 1, values_only=True):
+            if not row or symbol_col >= len(row):
+                continue
+            symbol = normalize_stock_symbol(row[symbol_col])
+            raw = row[rank_col] if rank_col < len(row) else None
+            number = _autogreen_number(raw)
+            if symbol and number is not None:
+                values.append((number, symbol))
+
+        values.sort(key=lambda item: item[0])
+        ranks = {}
+        previous = None
+        current_rank = 0
+        for position, (value, symbol) in enumerate(values, start=1):
+            if previous is None or value != previous:
+                current_rank = position
+            ranks[symbol] = current_rank
+            previous = value
+        return ranks
+    finally:
+        workbook.close()
+
+
 @st.cache_data(ttl=60, max_entries=1, show_spinner=False)
 def get_autogreen_live_prices(symbols):
-    """Get Yahoo Finance NSE last prices without blocking the full dashboard."""
+    """Fetch current NSE price and today's intraday high from Yahoo Finance."""
     import yfinance as yf
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     def fetch_one(symbol):
         try:
-            ticker = yf.Ticker(f"{symbol}.NS")
-            fast = ticker.fast_info
-            price = fast.get("last_price") if hasattr(fast, "get") else None
-            if price is None:
-                history = ticker.history(
-                    period="1d", interval="1m",
-                    auto_adjust=False, actions=False, timeout=12
-                )
-                if history is not None and not history.empty:
-                    price = history["Close"].dropna().iloc[-1]
-            number = _autogreen_number(price)
-            return symbol, number
+            history = yf.Ticker(f"{symbol}.NS").history(
+                period="1d", interval="1m", auto_adjust=False,
+                actions=False, prepost=False, timeout=15
+            )
+            if history is None or history.empty or "Close" not in history:
+                return symbol, {"price": None, "high": None}
+            closes = history["Close"].dropna()
+            highs = history["High"].dropna() if "High" in history else []
+            price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
+            high = _autogreen_number(highs.max()) if len(highs) else None
+            return symbol, {"price": price, "high": high}
         except Exception:
-            return symbol, None
+            return symbol, {"price": None, "high": None}
 
-    prices = {}
+    results = {}
     unique_symbols = list(dict.fromkeys(symbols))
     if not unique_symbols:
-        return prices
+        return results
     with ThreadPoolExecutor(max_workers=min(8, len(unique_symbols))) as pool:
         futures = [pool.submit(fetch_one, symbol) for symbol in unique_symbols]
         for future in as_completed(futures):
-            symbol, price = future.result()
-            prices[symbol] = price
-    return prices
+            symbol, quote = future.result()
+            results[symbol] = quote
+    return results
 
 
 def render_autogreen_dashboard():
-    """Render the premium animated Buy cards from AutoGreen master rows."""
+    """Render four ranked High-minus-0.20% Buy candidates; fourth confirms only."""
     st.title("6thSense · AutoGreen Buy Signals")
-    st.caption(
-        "Source: Servejit/Signal · master.xlsx · AutoGreen worksheet only"
-    )
+    st.caption("Source: Servejit/Signal · master.xlsx · AutoGreen + Sum O2L.10 ranking")
 
     try:
-        with st.spinner("Reading AutoGreen master data from GitHub..."):
+        with st.spinner("Reading AutoGreen and Master ranking data from GitHub..."):
             base_rows, signal_rows = load_autogreen_buy_signals()
+            master_bytes = get_autogreen_master_bytes()
+            sum_o2l_ranks = get_autogreen_sum_o2l_ranks(master_bytes)
     except Exception as error:
         st.error(f"AutoGreen master data is unavailable: {error}")
         st.info("Signals are paused; no old or estimated workbook values are used.")
         return
 
-    price_map = {}
-    if signal_rows:
-        with st.spinner("Fetching latest Yahoo Finance NSE prices..."):
-            price_map = get_autogreen_live_prices(
-                tuple(item["Symbol"] for item in signal_rows)
-            )
+    ranked_candidates = []
+    for item in signal_rows:
+        rank = sum_o2l_ranks.get(item["Symbol"])
+        if rank is not None and rank < 80:
+            ranked_candidates.append({**item, "Sum O2L.10 Rank": rank})
 
-    green_count = sum(item["Card Colour"] == "Green" for item in signal_rows)
-    blue_count = sum(item["Card Colour"] == "Blue" for item in signal_rows)
-    purple_count = sum(item["Card Colour"] == "Purple" for item in signal_rows)
+    quote_map = {}
+    if ranked_candidates:
+        with st.spinner("Fetching live NSE prices and today's highs from Yahoo Finance..."):
+            quote_map = get_autogreen_live_prices(tuple(item["Symbol"] for item in ranked_candidates))
+
+    high_gap_candidates = []
+    for item in ranked_candidates:
+        quote = quote_map.get(item["Symbol"], {})
+        price = quote.get("price")
+        high = quote.get("high")
+        if price is None or high is None or high <= 0:
+            continue
+        gap_pct = ((high - price) / high) * 100
+        if gap_pct >= 0.20:
+            high_gap_candidates.append({
+                **item, "Live Price": price, "Day High": high, "High Gap %": gap_pct
+            })
+
+    high_gap_candidates.sort(
+        key=lambda item: (-item["High Gap %"], item["Sum O2L.10 Rank"], item["Symbol"])
+    )
+    selected_rows = high_gap_candidates[:4]
+    buy_rows = selected_rows[:3]
+    confirmation_row = selected_rows[3] if len(selected_rows) >= 4 else None
 
     metric_cols = st.columns(4)
-    metric_cols[0].metric("Base qualified", len(base_rows))
-    metric_cols[1].metric("Green Buy", green_count)
-    metric_cols[2].metric("Blue Buy", blue_count)
-    metric_cols[3].metric("Purple Buy", purple_count)
+    metric_cols[0].metric("AutoGreen qualified", len(base_rows))
+    metric_cols[1].metric("Rank below 80", len(ranked_candidates))
+    metric_cols[2].metric("High − 0.20% qualified", len(high_gap_candidates))
+    metric_cols[3].metric("BUY / Confirmation", f"{len(buy_rows)} / {1 if confirmation_row else 0}")
 
     st.markdown(
         """
@@ -862,56 +938,67 @@ def render_autogreen_dashboard():
         unsafe_allow_html=True
     )
 
-    if not signal_rows:
+    if not selected_rows:
         st.info(
-            "No Green, Blue or Purple Buy cards meet the agreed conditions "
-            "in the current AutoGreen workbook."
+            "No stocks currently meet all conditions: AutoGreen Buy, Sum O2L.10 rank below 80, "
+            "and at least 0.20% below today's high."
         )
     else:
-        for start in range(0, len(signal_rows), 2):
-            columns = st.columns(2)
-            for offset, item in enumerate(signal_rows[start:start + 2]):
-                symbol = item["Symbol"]
-                colour = item["Card Colour"].lower()
-                price = price_map.get(symbol)
-                price_text = f"₹{price:,.2f}" if price is not None else "Unavailable"
-                change_values = [
-                    item["%Chg.1"], item["%Chg.2"],
-                    item["%Chg.3"], item["%Chg.4"]
-                ]
-                change_text = " · ".join(
-                    f"{index + 1}: {value:+.2f}%"
-                    if value is not None else f"{index + 1}: N/A"
-                    for index, value in enumerate(change_values)
-                )
-                card_html = f"""
-                <div class="ag-card ag-{colour}">
-                  <div class="ag-kicker">♛ &nbsp;✦ &nbsp;{item["Signal"]}</div>
-                  <div class="ag-symbol">{symbol}</div>
-                  <div class="ag-entry">LIVE / LAST PRICE &nbsp; {price_text}</div>
-                  <div class="ag-details">
-                    <span class="ag-chip">Vol.Expand 1 &nbsp; {item["Vol.Expand 1"]:,.0f}</span>
-                    <span class="ag-chip">Vol.Expand 2 &nbsp; {item["Vol.Expand 2"]:,.0f}</span>
-                  </div>
-                  <div class="ag-foot">%Chg values &nbsp; {change_text}</div>
-                </div>
-                """
-                columns[offset].markdown(card_html, unsafe_allow_html=True)
+        for index, item in enumerate(selected_rows):
+            is_confirmation = index == 3
+            symbol = item["Symbol"]
+            colour = item["Card Colour"].lower()
+            price = item["Live Price"]
+            entry = item["Day High"] * (1 - 0.002)
+            change_values = [item["%Chg.1"], item["%Chg.2"], item["%Chg.3"], item["%Chg.4"]]
+            change_text = " · ".join(
+                f"{number + 1}: {value:+.2f}%" if value is not None else f"{number + 1}: N/A"
+                for number, value in enumerate(change_values)
+            )
+            role = "CONFIRMATION ONLY · #4" if is_confirmation else f"BUY CANDIDATE · #{index + 1}"
+            card_html = f"""
+            <div class="ag-card ag-{colour}">
+              <div class="ag-kicker">✦ &nbsp;{role} &nbsp;·&nbsp; {item["Signal"]}</div>
+              <div class="ag-symbol">{symbol}</div>
+              <div class="ag-entry">LIVE PRICE ₹{price:,.2f} &nbsp; | &nbsp; ENTRY ₹{entry:,.2f}</div>
+              <div class="ag-details">
+                <span class="ag-chip">Today's High ₹{item["Day High"]:,.2f}</span>
+                <span class="ag-chip">High Gap {item["High Gap %"]:.2f}%</span>
+                <span class="ag-chip">Sum O2L.10 Rank #{item["Sum O2L.10 Rank"]}</span>
+              </div>
+              <div class="ag-foot">%Chg values &nbsp; {change_text}</div>
+            </div>
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
+
+    with st.expander("View selected four stocks and ranking", expanded=False):
+        if selected_rows:
+            st.dataframe(
+                [{
+                    "Role": "Confirmation only" if i == 3 else f"BUY #{i + 1}",
+                    "Symbol": item["Symbol"],
+                    "Live Price": item["Live Price"],
+                    "Day High": item["Day High"],
+                    "High Gap %": round(item["High Gap %"], 3),
+                    "Sum O2L.10 Rank": item["Sum O2L.10 Rank"],
+                    "Card Colour": item["Card Colour"],
+                } for i, item in enumerate(selected_rows)],
+                use_container_width=True, hide_index=True
+            )
+        else:
+            st.caption("No stocks qualified at the latest refresh.")
 
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
         if base_rows:
-            st.dataframe(
-                base_rows,
-                use_container_width=True,
-                hide_index=True
-            )
+            st.dataframe(base_rows, use_container_width=True, hide_index=True)
         else:
             st.caption("No stocks passed both volume-expansion conditions.")
 
     st.caption(
-        "Card priority: Green (all four negative), then Blue (first three), "
-        "then Purple (first two). Live/last prices are from Yahoo Finance; "
-        "the selection and colour rules come only from the AutoGreen sheet."
+        "Selection: existing AutoGreen Buy conditions + Sum O2L.10 rank 1–79 + "
+        "live price at least 0.20% below today's Yahoo Finance high. "
+        "The first three are BUY candidates; the fourth is confirmation only. "
+        "This is a screening signal, not an order execution."
     )
 
 
