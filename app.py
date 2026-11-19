@@ -973,25 +973,17 @@ def render_autogreen_dashboard():
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},rgba(255,255,255,.42),{border_colour},transparent);
                           margin:19px 0 17px;position:relative;z-index:1;"></div>
-              <div style="display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);
-                          align-items:center;gap:10px;position:relative;z-index:1;">
-                <div style="min-width:0;padding:13px 14px;border-radius:14px;
-                            background:linear-gradient(145deg,rgba(0,0,0,.24),rgba(255,255,255,.075));
-                            border:1px solid rgba(255,255,255,.17);
-                            box-shadow:0 3px 12px rgba(0,0,0,.12) inset;">
-                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">ENTRY</div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+                          align-items:center;gap:18px;position:relative;z-index:1;">
+                <div style="min-width:0;">
+                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">ENTRY PRICE</div>
                   <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#fff;margin-top:7px;
                               white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.22);">
                     ₹{entry:,.2f}
                   </div>
                 </div>
-                <div style="text-align:center;font-size:1.35rem;color:{accent_colour};font-weight:950;
-                            text-shadow:0 0 12px {c2}AA;">→</div>
-                <div style="min-width:0;text-align:right;padding:13px 14px;border-radius:14px;
-                            background:linear-gradient(145deg,rgba(0,0,0,.24),rgba(255,255,255,.075));
-                            border:1px solid rgba(255,255,255,.17);
-                            box-shadow:0 3px 12px rgba(0,0,0,.12) inset;">
-                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">TARGET</div>
+                <div style="min-width:0;text-align:left;">
+                  <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">TARGET PRICE</div>
                   <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:7px;
                               white-space:nowrap;text-shadow:0 0 12px {c2}88;">
                     ₹{target:,.2f}
