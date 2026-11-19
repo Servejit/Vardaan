@@ -1127,6 +1127,36 @@ def render_autogreen_dashboard():
             color:#263342 !important;
         }}
         [data-testid="stHeader"] {{ background:rgba(231,234,238,.96) !important; }}
+        /* MORE DASHBOARD follows the active signal-card colour */
+        [data-testid="stExpander"] {{
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 58%,{metric_canvas} 100%) !important;
+            border:1.5px solid {metric_ink}88 !important;
+            border-left:5px solid {metric_ink} !important;
+            border-radius:14px !important;
+            box-shadow:0 7px 22px rgba(35,51,68,.12),0 0 0 1px {metric_ink}18 !important;
+            overflow:hidden !important;
+        }}
+        [data-testid="stExpander"] details {{
+            background:transparent !important;
+        }}
+        [data-testid="stExpander"] summary {{
+            color:{metric_ink} !important;
+            background:linear-gradient(90deg,{metric_tint} 0%,{metric_canvas} 72%,#FFFFFF 100%) !important;
+            font-weight:900 !important;
+            letter-spacing:.45px !important;
+        }}
+        [data-testid="stExpander"] summary:hover {{
+            color:{metric_accent_text} !important;
+            background:linear-gradient(90deg,{metric_canvas} 0%,{metric_tint} 100%) !important;
+        }}
+        [data-testid="stExpander"] summary svg {{
+            color:{metric_ink} !important;
+            fill:{metric_ink} !important;
+        }}
+        [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+            border-top:1px solid {metric_ink}55 !important;
+            background:linear-gradient(180deg,{metric_canvas} 0%,#FFFFFF 100%) !important;
+        }}
         [data-testid="stSidebar"] {{
             background:linear-gradient(180deg,{metric_canvas} 0%,#E1E5E9 100%) !important;
             border-right:1px solid {metric_ink}66 !important;
