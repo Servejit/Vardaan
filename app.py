@@ -1086,7 +1086,13 @@ def render_autogreen_dashboard():
 
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
         if base_rows:
-            st.dataframe(base_rows, use_container_width=True, hide_index=True)
+            detail_rows, detail_error = get_qualified_stock_detail_rows(base_rows, master_bytes)
+            if detail_error:
+                st.warning(f"Qualified-stock details could not be loaded: {detail_error}")
+            elif detail_rows:
+                st.dataframe(detail_rows, use_container_width=True, hide_index=True)
+            else:
+                st.caption("No qualified-stock details are available.")
         else:
             st.caption("No stocks passed both volume-expansion conditions.")
 
