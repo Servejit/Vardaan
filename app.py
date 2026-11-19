@@ -1410,37 +1410,6 @@ def render_autogreen_dashboard():
 
 
     with st.expander("MORE DASHBOARD", expanded=False):
-        st.markdown(
-            f"""
-            <div style="position:relative;overflow:hidden;width:100%;box-sizing:border-box;margin:12px 0 20px;padding:17px 12px;
-                        border:1px solid {metric_ink}88;border-top:3px solid {metric_ink};border-radius:15px;
-                        background:linear-gradient(120deg,#FFFFFF 0%,{metric_tint} 48%,#FFFFFF 100%);
-                        box-shadow:inset 0 1px 0 #FFFFFF,0 8px 22px rgba(35,51,68,.09),0 0 13px {metric_ink}18;">
-              <div style="position:absolute;left:-72%;top:-55%;width:72%;height:210%;pointer-events:none;
-                          background:linear-gradient(110deg,transparent 28%,{metric_shimmer}22 42%,#FFFFFF88 50%,{metric_shimmer}55 56%,transparent 70%);
-                          filter:blur(7px);animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
-              <div style="position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;">
-                <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-                  <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">AutoGreen qualified</div>
-                  <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(base_rows)}</div>
-                </div>
-                <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-                  <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">Colour-qualified stocks</div>
-                  <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(ranked_candidates)}</div>
-                </div>
-                <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-                  <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">High − 0.20% qualified</div>
-                  <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
-                </div>
-                <div style="text-align:center;padding:4px 7px;">
-                  <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">BUY / Confirmation</div>
-                  <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(buy_rows)} / {1 if confirmation_row else 0}</div>
-                </div>
-              </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
 
         st.subheader("Selected BUY stocks and confirmation")
         if selected_rows:
