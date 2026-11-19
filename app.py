@@ -991,11 +991,12 @@ def render_autogreen_dashboard():
             "_Target Position": position,
         })
 
-    # Only TARGET #1-#3 compete for BUY. Require price at least 0.20%
-    # below today's high; choose highest live % change, then lowest rank.
+    # All four target stocks (#1-#4) compete equally for BUY.
+    # Require price at least 0.20% below today's high; choose highest live
+    # % change, then lowest rank as the tie-breaker.
     buy_candidates = [
         item for item in target_records
-        if item["_Target Position"] <= 3 and item["High Gap %"] >= 0.20
+        if item["High Gap %"] >= 0.20
     ]
     buy_candidates.sort(key=lambda item: (
         -item["Live % Chg"],
