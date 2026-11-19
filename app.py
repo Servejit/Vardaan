@@ -183,8 +183,23 @@ def delete_master():
 INDEX_CONSTITUENTS_CSV_URL = "https://raw.githubusercontent.com/Servejit/Vardaan/main/index_constituents.csv"
 
 def normalize_index_name(value):
-    """Normalize short index/group names for exact CSV-to-Master matching."""
-    return " ".join(re.sub(r"[^A-Z0-9]+", " ", str(value or "").upper()).split())
+    """Match full NSE index labels to the short group names in the CSV."""
+    name = " ".join(re.sub(r"[^A-Z0-9]+", " ", str(value or "").upper()).split())
+    if name.startswith("NIFTY "):
+        name = name[6:]
+    aliases = {
+        "50": "50",
+        "MIDCAP 50": "MID 50",
+        "FINANCIAL SERVICES": "FIN",
+        "FINANCIAL SERVICE": "FIN",
+        "OIL GAS": "OIL",
+        "OIL AND GAS": "OIL",
+        "PSU BANK": "PSU",
+        "CAPITAL MARKETS": "CAPITAL",
+        "CONSUMER DURABLES": "CONSUMER DURABLE",
+        "INDIA CEMENT": "CEMENT",
+    }
+    return aliases.get(name, name)
 
 
 @st.cache_data(ttl=3600, max_entries=1, show_spinner=False)
