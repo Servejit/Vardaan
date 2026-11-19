@@ -339,25 +339,29 @@ def merge_uploaded_index_fallback(yahoo_csv_bytes, fallback_bytes, fallback_name
                 merged[key] = {column: row.get(column, "") for column in columns}
 
     fallback_added = 0
+    fallback_error = None
     if fallback_bytes and fallback_name:
-        fallback_rows = parse_uploaded_index_fallback(fallback_bytes, fallback_name)
-        allowed_groups = set(load_github_index_groups().keys())
-        for row in fallback_rows:
-            key = normalize_index_name(row.get("INDEX"))
-            if not key or key not in allowed_groups or key in merged:
-                continue
-            merged[key] = {
-                column: row.get(column, "")
-                for column in columns
-            }
-            fallback_added += 1
+        try:
+            fallback_rows = parse_uploaded_index_fallback(fallback_bytes, fallback_name)
+            allowed_groups = set(load_github_index_groups().keys())
+            for row in fallback_rows:
+                key = normalize_index_name(row.get("INDEX"))
+                if not key or key not in allowed_groups or key in merged:
+                    continue
+                merged[key] = {
+                    column: row.get(column, "")
+                    for column in columns
+                }
+                fallback_added += 1
+        except Exception as error:
+            fallback_error = str(error)
 
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=columns)
     writer.writeheader()
     for row in merged.values():
         writer.writerow(row)
-    return output.getvalue().encode("utf-8"), len(merged), fallback_added
+    return output.getvalue().encode("utf-8"), len(merged), fallback_added, fallback_error
 
 
 @st.cache_data(ttl=60, max_entries=1, show_spinner=False)
@@ -1175,11 +1179,13 @@ if page in ("Index", "Index 2"):
     try:
         fallback_bytes = st.session_state.get("index_fallback_file_bytes")
         fallback_name = st.session_state.get("index_fallback_file_name")
-        combined_bytes, combined_count, fallback_added_count = merge_uploaded_index_fallback(
+        combined_bytes, combined_count, fallback_added_count, fallback_error = merge_uploaded_index_fallback(
             yahoo_bytes,
             fallback_bytes,
             fallback_name
         )
+        if fallback_error and combined_count:
+            st.sidebar.warning("Uploaded fallback file was ignored: " + fallback_error)
         if combined_count == 0:
             if yahoo_error:
                 raise ValueError(
