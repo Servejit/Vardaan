@@ -1098,6 +1098,137 @@ def render_autogreen_dashboard():
     )
 
 
+def get_qualified_stock_detail_rows(base_rows, master_bytes):
+    """Build the lean qualified-stock view from AutoGreen and Master workbook columns."""
+    if not base_rows:
+        return [], None
+
+    def clean_header(value):
+        return " ".join(str(value or "").strip().casefold().split())
+
+    def display_value(value, parentheses=False):
+        if value is None or str(value).strip() == "":
+            return "—"
+        try:
+            number = float(str(value).replace(",", "").replace("%", "").strip())
+            rendered = f"{number:g}"
+        except (TypeError, ValueError):
+            rendered = str(value).strip()
+        return f"({rendered})" if parentheses else rendered
+
+    symbols = {item["Symbol"]: item for item in base_rows}
+    details = {symbol: {"Stock": symbol} for symbol in symbols}
+
+    # Read the two dated O2H columns immediately following Vol.Expand 2
+    # from the AutoGreen sheet, retaining the workbook's actual date headings.
+    auto_wb = None
+    master_wb = None
+    try:
+        auto_wb = load_workbook(
+            io.BytesIO(get_autogreen_master_bytes()),
+            data_only=True,
+            read_only=True
+        )
+        auto_sheet = next(
+            (ws for ws in auto_wb.worksheets if ws.title.strip().casefold() == "autogreen"),
+            None
+        )
+        if auto_sheet is not None:
+            header_row_number = None
+            symbol_col = 0
+            vol2_col = None
+            o2h_columns = []
+            for row_number, row in enumerate(
+                auto_sheet.iter_rows(min_row=1, max_row=min(auto_sheet.max_row or 1, 30), values_only=True),
+                start=1
+            ):
+                found = {clean_header(value): index for index, value in enumerate(row) if value is not None}
+                if clean_header("Vol.Expand 2") in found:
+                    header_row_number = row_number
+                    vol2_col = found[clean_header("Vol.Expand 2")]
+                    symbol_col = next(
+                        (found[clean_header(label)] for label in ("Symbol", "NSE Symbol", "Ticker")
+                         if clean_header(label) in found),
+                        0
+                    )
+                    o2h_columns = [
+                        (index, str(row[index]).strip() if row[index] is not None else f"O2H {index - vol2_col}")
+                        for index in (vol2_col + 1, vol2_col + 2)
+                        if index < len(row)
+                    ]
+                    break
+
+            if header_row_number is not None:
+                for row in auto_sheet.iter_rows(min_row=header_row_number + 1, values_only=True):
+                    if not row or symbol_col >= len(row):
+                        continue
+                    symbol = normalize_stock_symbol(row[symbol_col])
+                    if symbol not in details:
+                        continue
+                    for position, (column_index, heading) in enumerate(o2h_columns, start=1):
+                        value = row[column_index] if column_index < len(row) else None
+                        details[symbol][f"O2H {position} · {heading}"] = display_value(value)
+
+        # Read the two requested D-B / C-B values from the Master workbook.
+        master_wb = load_workbook(
+            io.BytesIO(master_bytes),
+            data_only=True,
+            read_only=True
+        )
+        selected_sheet = None
+        header_row_number = None
+        header_columns = {}
+        required_headers = ("16< D-B / Avg.4", "16> C-B / Avg.4")
+        for sheet in sorted(
+            master_wb.worksheets,
+            key=lambda ws: (ws.title.casefold() != "summary", ws.title.casefold())
+        ):
+            for row_number, row in enumerate(
+                sheet.iter_rows(min_row=1, max_row=min(sheet.max_row or 1, 30), values_only=True),
+                start=1
+            ):
+                found = {clean_header(value): index for index, value in enumerate(row) if value is not None}
+                if all(clean_header(name) in found for name in required_headers):
+                    selected_sheet = sheet
+                    header_row_number = row_number
+                    header_columns = {name: found[clean_header(name)] for name in required_headers}
+                    break
+            if selected_sheet is not None:
+                break
+
+        if selected_sheet is not None:
+            for row in selected_sheet.iter_rows(min_row=header_row_number + 1, values_only=True):
+                if not row:
+                    continue
+                symbol = normalize_stock_symbol(row[0] if len(row) else None)
+                if symbol not in details:
+                    continue
+                for heading in required_headers:
+                    index = header_columns[heading]
+                    value = row[index] if index < len(row) else None
+                    details[symbol][heading] = display_value(value, parentheses=True)
+
+        output = []
+        for symbol in symbols:
+            record = details[symbol]
+            output.append({
+                "Stock": symbol,
+                "16< D-B / Avg.4": record.get("16< D-B / Avg.4", "—"),
+                "16> C-B / Avg.4": record.get("16> C-B / Avg.4", "—"),
+                **{
+                    key: value for key, value in record.items()
+                    if key.startswith("O2H ")
+                }
+            })
+        return output, None
+    except Exception as error:
+        return [], str(error)
+    finally:
+        if auto_wb is not None:
+            auto_wb.close()
+        if master_wb is not None:
+            master_wb.close()
+
 def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
     """
     Find the requested columns in the Master workbook (prefer the summary
