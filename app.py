@@ -1123,12 +1123,12 @@ def render_autogreen_dashboard():
         f"""
         <style>
         .stApp {{
-            background:linear-gradient(135deg,#F8FAFC 0%,#F0F3F6 52%,#FAFBFC 100%) !important;
+            background:linear-gradient(135deg,#E7EAEE 0%,#DDE2E8 52%,#E9EDF1 100%) !important;
             color:#263342 !important;
         }}
-        [data-testid="stHeader"] {{ background:rgba(248,250,252,.94) !important; }}
+        [data-testid="stHeader"] {{ background:rgba(231,234,238,.96) !important; }}
         [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,#FFFFFF 0%,#F1F4F7 100%) !important;
+            background:linear-gradient(180deg,#E9EDF1 0%,#DDE2E8 100%) !important;
             border-right:1px solid {metric_ink}44 !important;
         }}
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
