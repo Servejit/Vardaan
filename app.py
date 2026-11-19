@@ -922,7 +922,7 @@ def render_accent_table(rows, accent, ink, tint, min_width=720):
             f'{html.escape(str(record.get(column, "—")))}</td>'
             for column in columns
         )
-        row_background = "#FFFFFF" if row_number % 2 == 0 else "#F6F8FA"
+        row_background = "#FFFFFF" if row_number % 2 == 0 else tint
         body_rows.append(f'<tr style="background:{row_background};">{cells}</tr>')
 
     table_html = f"""
@@ -1111,31 +1111,38 @@ def render_autogreen_dashboard():
     # Light pearl dashboard; the topmost signal card supplies the accent colour.
     metric_colour_name = selected_rows[0].get("Card Colour", "Green") if selected_rows else "Rose-Cherry"
     light_accents = {
-        "Green": ("#287A59", "#1F674B", "#EAF5EF"),
-        "Blue": ("#2877A8", "#205F88", "#EAF3F9"),
-        "Purple": ("#8050A2", "#684083", "#F3ECF8"),
-        "Rose-Cherry": ("#B04B68", "#913B55", "#F9EDF1"),
+        "Green": ("#287A59", "#1F674B", "#E5F1E9", "#DCEAE1"),
+        "Blue": ("#2877A8", "#205F88", "#E4EEF6", "#D9E7F1"),
+        "Purple": ("#8050A2", "#684083", "#EEE6F4", "#E4D9EE"),
+        "Rose-Cherry": ("#B04B68", "#913B55", "#F3E5EA", "#EBD8DF"),
     }
-    metric_ink, metric_accent_text, metric_tint = light_accents.get(
+    metric_ink, metric_accent_text, metric_tint, metric_canvas = light_accents.get(
         metric_colour_name, light_accents["Rose-Cherry"]
     )
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background:linear-gradient(135deg,#E7EAEE 0%,#DDE2E8 52%,#E9EDF1 100%) !important;
+            background:radial-gradient(ellipse at 8% 0%,{metric_canvas} 0%,transparent 42%),linear-gradient(135deg,#E6E9ED 0%,#DDE2E7 52%,#E9ECEF 100%) !important;
             color:#263342 !important;
         }}
         [data-testid="stHeader"] {{ background:rgba(231,234,238,.96) !important; }}
         [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,#E9EDF1 0%,#DDE2E8 100%) !important;
-            border-right:1px solid {metric_ink}44 !important;
+            background:linear-gradient(180deg,{metric_canvas} 0%,#E1E5E9 100%) !important;
+            border-right:1px solid {metric_ink}66 !important;
+            box-shadow:inset -8px 0 24px {metric_ink}0A !important;
         }}
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#344456 !important; }}
         h1,h2,h3,[data-testid="stSubheader"] {{ color:#263342 !important; }}
-        h2,h3 {{ border-bottom:1px solid {metric_ink}55 !important; }}
+        h2,h3 {{
+            border-bottom:1px solid {metric_ink}55 !important;
+            border-left:4px solid {metric_ink} !important;
+            padding:5px 0 8px 12px !important;
+            background:linear-gradient(90deg,{metric_tint} 0%,transparent 78%) !important;
+            border-radius:0 0 0 5px !important;
+        }}
         @keyframes dashboardDiagonalShimmer {{
             0% {{ transform:translate3d(-140%,0,0) skewX(-18deg); opacity:0; }}
             12% {{ opacity:.38; }}
@@ -1173,12 +1180,13 @@ def render_autogreen_dashboard():
         [data-testid="stDataFrame"]::after {{ animation-delay:-3.5s; }}
         [data-testid="stTable"]::after {{ animation-delay:-1s; }}
                 [data-testid="stMetric"] {{
-            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
-            border:1px solid {metric_ink}55 !important;
-            border-top:3px solid {metric_ink} !important;
-            border-radius:12px !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 68%,{metric_canvas} 100%) !important;
+            border:1px solid {metric_ink}66 !important;
+            border-top:4px solid {metric_ink} !important;
+            border-radius:14px !important;
+            padding:12px 14px !important;
             color:#263342 !important;
-            box-shadow:0 4px 15px rgba(35,51,68,.08) !important;
+            box-shadow:0 7px 20px rgba(35,51,68,.10),0 0 0 1px {metric_ink}12 !important;
         }}
         [data-testid="stMetric"] label,[data-testid="stMetric"] [data-testid="stMetricLabel"] {{ color:#657487 !important; }}
         [data-testid="stMetric"] [data-testid="stMetricValue"] {{ color:#263342 !important; }}
@@ -1186,14 +1194,14 @@ def render_autogreen_dashboard():
             border:1px solid {metric_ink}55 !important;
             border-radius:11px !important;
             overflow:hidden !important;
-            box-shadow:0 4px 16px rgba(35,51,68,.07) !important;
+            box-shadow:0 7px 22px rgba(35,51,68,.10),0 0 0 1px {metric_ink}12 !important;
             background:#FFFFFF !important;
         }}
         .stButton > button,.stDownloadButton > button,
         [data-testid="stFormSubmitButton"] > button {{
             border:1px solid {metric_ink}88 !important;
             color:{metric_ink} !important;
-            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 75%,{metric_canvas} 100%) !important;
         }}
         .stButton > button:hover,.stDownloadButton > button:hover,
         [data-testid="stFormSubmitButton"] > button:hover {{
