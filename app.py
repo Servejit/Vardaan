@@ -1004,10 +1004,22 @@ def render_autogreen_dashboard():
     ))
     best_buy = buy_candidates[0] if buy_candidates else None
 
-    # TARGET #4 is confirmation only. It does not compete for or replace BUY.
-    confirmation_row = next(
-        (item for item in target_records if item["_Target Position"] == 4),
-        None
+    # All four target stocks compete independently for CONFIRMATION.
+    # Apply the same High - 0.20% eligibility and rank by highest live % change,
+    # using the lowest Sum O2L.10 rank as the tie-breaker.
+    confirmation_candidates = [
+        item for item in target_records
+        if item["High Gap %"] >= 0.20
+    ]
+    confirmation_candidates.sort(key=lambda item: (
+        -item["Live % Chg"],
+        item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"),
+        item["Symbol"]
+    ))
+    # Keep an independent copy because the same stock may qualify as both BUY
+    # and CONFIRMATION under these independent selection rules.
+    confirmation_row = (
+        dict(confirmation_candidates[0]) if confirmation_candidates else None
     )
     if confirmation_row:
         confirmation_row["_Role"] = "CONFIRMATION"
