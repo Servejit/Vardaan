@@ -746,6 +746,208 @@ def load_autogreen_buy_signals():
         workbook.close()
 
 
+@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
+def load_stock_of_the_day_rows():
+    """Return every AutoGreen stock that passes all Stock of the Day filters."""
+    base_rows, _ = load_autogreen_buy_signals()
+    if not base_rows:
+        return []
+
+    workbook_bytes = get_autogreen_master_bytes()
+    workbook = load_workbook(
+        io.BytesIO(workbook_bytes),
+        data_only=True,
+        read_only=True
+    )
+    try:
+        def header_key(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        # The two O2H readings are the first two columns immediately after
+        # Vol.Expand 2 on the AutoGreen worksheet.
+        auto_sheet = next(
+            (ws for ws in workbook.worksheets
+             if ws.title.strip().casefold() == "autogreen"),
+            None
+        )
+        if auto_sheet is None:
+            raise ValueError("The Master workbook does not contain an AutoGreen worksheet.")
+
+        auto_header_row = None
+        auto_symbol_col = 0
+        o2h_columns = []
+        for row_number, row in enumerate(
+            auto_sheet.iter_rows(
+                min_row=1,
+                max_row=min(auto_sheet.max_row or 1, 30),
+                values_only=True
+            ),
+            start=1
+        ):
+            found = {
+                header_key(value): index
+                for index, value in enumerate(row)
+                if value is not None
+            }
+            vol2_key = header_key("Vol.Expand 2")
+            if vol2_key in found:
+                auto_header_row = row_number
+                vol2_col = found[vol2_key]
+                auto_symbol_col = next(
+                    (found[header_key(label)]
+                     for label in ("Symbol", "NSE Symbol", "Ticker")
+                     if header_key(label) in found),
+                    0
+                )
+                o2h_columns = [vol2_col + 1, vol2_col + 2]
+                break
+
+        if auto_header_row is None:
+            raise ValueError("Could not locate Vol.Expand 2 on the AutoGreen worksheet.")
+
+        o2h_by_symbol = {}
+        for row in auto_sheet.iter_rows(
+            min_row=auto_header_row + 1,
+            values_only=True
+        ):
+            if not row or auto_symbol_col >= len(row):
+                continue
+            symbol = normalize_stock_symbol(row[auto_symbol_col])
+            if not symbol:
+                continue
+            readings = [
+                _autogreen_number(row[index]) if index < len(row) else None
+                for index in o2h_columns
+            ]
+            o2h_by_symbol[symbol] = readings
+
+        # D-B and the first two dated O2L columns are read from Summary.
+        summary_sheet = next(
+            (ws for ws in workbook.worksheets
+             if ws.title.strip().casefold() == "summary"),
+            None
+        )
+        if summary_sheet is None:
+            raise ValueError("The Master workbook does not contain a Summary worksheet.")
+
+        summary_header_row = None
+        summary_symbol_col = 0
+        db_col = None
+        o2l_columns = []
+        db_key = header_key("16< D-B / Avg.4")
+        for row_number, row in enumerate(
+            summary_sheet.iter_rows(
+                min_row=1,
+                max_row=min(summary_sheet.max_row or 1, 30),
+                values_only=True
+            ),
+            start=1
+        ):
+            found = {
+                header_key(value): index
+                for index, value in enumerate(row)
+                if value is not None
+            }
+            dated_o2l = [
+                (index, str(value).strip())
+                for index, value in enumerate(row)
+                if value is not None and re.search(r"\\bO2L\\b", str(value), re.IGNORECASE)
+            ]
+            if db_key in found and len(dated_o2l) >= 2:
+                summary_header_row = row_number
+                db_col = found[db_key]
+                summary_symbol_col = next(
+                    (found[header_key(label)]
+                     for label in ("Symbol", "NSE Symbol", "Ticker")
+                     if header_key(label) in found),
+                    0
+                )
+                o2l_columns = [dated_o2l[0][0], dated_o2l[1][0]]
+                break
+
+        if summary_header_row is None:
+            raise ValueError(
+                "Could not locate 16< D-B / Avg.4 and the first two dated O2L columns on Summary."
+            )
+
+        summary_by_symbol = {}
+        for row in summary_sheet.iter_rows(
+            min_row=summary_header_row + 1,
+            values_only=True
+        ):
+            if not row or summary_symbol_col >= len(row):
+                continue
+            symbol = normalize_stock_symbol(row[summary_symbol_col])
+            if not symbol:
+                continue
+            db_value = _autogreen_number(row[db_col]) if db_col < len(row) else None
+            o2l_values = [
+                _autogreen_number(row[index]) if index < len(row) else None
+                for index in o2l_columns
+            ]
+            summary_by_symbol[symbol] = (db_value, o2l_values)
+
+        matches = []
+        for item in base_rows:
+            symbol = item["Symbol"]
+            o2h_values = o2h_by_symbol.get(symbol, [None, None])
+            db_value, o2l_values = summary_by_symbol.get(
+                symbol, (None, [None, None])
+            )
+            change1 = item.get("%Chg.1")
+            change2 = item.get("%Chg.2")
+
+            if (
+                len(o2h_values) < 2
+                or any(value is None or value >= 0.50 for value in o2h_values[:2])
+                or db_value is None or db_value >= -2.00
+                or len(o2l_values) < 2
+                or any(value is None or value >= -1.50 for value in o2l_values[:2])
+                or change1 is None or change1 >= 0
+                or change2 is None or change2 >= 0
+            ):
+                continue
+
+            matches.append({
+                "Stock": symbol,
+                "O2H 1": round(o2h_values[0], 2),
+                "O2H 2": round(o2h_values[1], 2),
+                "16< D-B / Avg.4": round(db_value, 2),
+                "O2L 1": round(o2l_values[0], 2),
+                "O2L 2": round(o2l_values[1], 2),
+                "%Chg.1": round(change1, 2),
+                "%Chg.2": round(change2, 2),
+            })
+
+        # No rank, tie-break, or result limit: retain every qualifying stock.
+        matches.sort(key=lambda record: record["Stock"])
+        return matches
+    finally:
+        workbook.close()
+
+
+def render_stock_of_the_day():
+    st.header("Stock of the Day")
+    st.caption(
+        "All stocks matching every AutoGreen, O2H, D-B, O2L and %Chg condition are shown."
+    )
+    try:
+        rows = load_stock_of_the_day_rows()
+    except Exception as error:
+        st.error(f"Stock of the Day could not be loaded: {error}")
+        return
+
+    if rows:
+        st.caption(f"Matching stocks: {len(rows)}")
+        st.dataframe(
+            rows,
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.info("No stocks currently match all Stock of the Day conditions.")
+
+
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
@@ -2213,13 +2415,16 @@ with st.sidebar:
     st.divider()
     page = st.radio(
         "Dashboard",
-        ["AutoGreen", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Master Excel"],
         index=0,
         key="main_dashboard_default_index"
     )
 
 if page == "AutoGreen":
     render_autogreen_dashboard()
+
+elif page == "Stock of the Day":
+    render_stock_of_the_day()
 
 
 else:
