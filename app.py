@@ -242,6 +242,86 @@ def load_github_index_groups():
     return groups
 
 
+@st.cache_data(ttl=60, max_entries=1, show_spinner=False)
+def load_live_nse_index_csv():
+    """
+    Fetch official live index OHLC/last values from NSE's all-indices endpoint.
+    Only index names present in the GitHub constituent CSV are retained.
+    """
+    import csv
+    import requests
+    from zoneinfo import ZoneInfo
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/126.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.nseindia.com/",
+        "Connection": "keep-alive",
+    }
+    session = requests.Session()
+    session.headers.update(headers)
+
+    # NSE may require a session cookie from its home page before API access.
+    home_response = session.get("https://www.nseindia.com/", timeout=15)
+    home_response.raise_for_status()
+    response = session.get(
+        "https://www.nseindia.com/api/allIndices",
+        headers={"Referer": "https://www.nseindia.com/"},
+        timeout=20,
+    )
+    response.raise_for_status()
+    payload = response.json()
+
+    index_rows = payload.get("data", []) if isinstance(payload, dict) else []
+    if not isinstance(index_rows, list) or not index_rows:
+        raise ValueError("NSE's all-indices response did not contain index data.")
+
+    allowed_groups = set(load_github_index_groups().keys())
+    matched = {}
+    for item in index_rows:
+        if not isinstance(item, dict):
+            continue
+        official_name = str(item.get("index") or "").strip()
+        group_name = normalize_index_name(official_name)
+        if not official_name or group_name not in allowed_groups:
+            continue
+
+        # Keep the first official record for each configured group.
+        matched.setdefault(group_name, {
+            "INDEX": official_name,
+            "CURRENT": item.get("last"),
+            "%CHANGE": item.get("percentChange"),
+            "OPEN": item.get("open"),
+            "HIGH": item.get("high"),
+            "LOW": item.get("low"),
+        })
+
+    if not matched:
+        raise ValueError(
+            "NSE responded, but none of its official index names matched "
+            "the 20 configured GitHub groups."
+        )
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"])
+    for row in matched.values():
+        writer.writerow([
+            row["INDEX"], row["CURRENT"], row["%CHANGE"],
+            row["OPEN"], row["HIGH"], row["LOW"],
+        ])
+
+    fetched_at = datetime.now(timezone.utc).astimezone(
+        ZoneInfo("Asia/Kolkata")
+    ).strftime("%d %b %Y, %I:%M:%S %p")
+    return output.getvalue().encode("utf-8"), fetched_at
+
+
 def normalize_stock_symbol(value):
     """Normalize common NSE symbol formats before matching Master column A."""
     if value is None:
@@ -848,22 +928,24 @@ with st.sidebar:
         key="main_dashboard_default_index"
     )
 
-# Show the single shared Index uploader only on the two Index dashboards.
-# The uploaded file remains in this user's session and is reused by Index / Index 2.
+# Both Index dashboards use the official live NSE index feed.
+# The response is cached once per server worker for 60 seconds; no Index upload
+# or Supabase read is needed for market index values.
 index_upload = None
 if page in ("Index", "Index 2"):
-    shared_index_upload = st.file_uploader(
-        "Upload Index File (shared by Index and Index 2)",
-        type=["xlsx", "csv"],
-        key=f"shared_index_excel_upload_{user.id}"
+    from streamlit_autorefresh import st_autorefresh
+
+    st_autorefresh(
+        interval=60_000,
+        limit=None,
+        key="nse_live_index_auto_refresh"
     )
-    if shared_index_upload is not None:
-        shared_file_bytes = shared_index_upload.getvalue()
-        shared_file_name = shared_index_upload.name
-        if (
-            shared_file_bytes != st.session_state.get("index_file_bytes")
-            or shared_file_name != st.session_state.get("index_file_name")
-        ):
+    try:
+        live_index_bytes, live_index_fetched_at = load_live_nse_index_csv()
+        if not live_index_bytes:
+            raise ValueError("NSE returned no matching index records.")
+
+        if live_index_bytes != st.session_state.get("index_file_bytes"):
             for candidate_key in (
                 "trade_candidates_H2L", "trade_candidates_L2H",
                 "trade_candidates_index2_H2L", "trade_candidates_index2_L2H",
@@ -876,11 +958,23 @@ if page in ("Index", "Index 2"):
                 "independent_signal_active_index2_L2H",
             ):
                 st.session_state.pop(signal_key, None)
-        st.session_state["index_file_bytes"] = shared_file_bytes
-        st.session_state["index_file_name"] = shared_file_name
-        st.session_state["index_file_owner_id"] = str(user.id)
 
-    index_upload = shared_index_upload
+        st.session_state["index_file_bytes"] = live_index_bytes
+        st.session_state["index_file_name"] = "Live_NSE_Index_Data.csv"
+        st.session_state["index_file_owner_id"] = str(user.id)
+        st.caption(
+            "Live official NSE index values · fetched "
+            + live_index_fetched_at
+            + " IST · auto-refresh every 60 seconds"
+        )
+    except Exception as live_index_error:
+        st.session_state.pop("index_file_bytes", None)
+        st.session_state.pop("index_file_name", None)
+        st.error(
+            "Live NSE index data is temporarily unavailable. "
+            "Index signals are paused rather than using old or estimated values. "
+            f"Details: {live_index_error}"
+        )
 
 # ============================================================
 # INDEX DASHBOARD
@@ -1034,7 +1128,7 @@ if page == "Index":
                     for i in range(len(headers))
                 })
     
-            st.success(f"Loaded: {file_name}")
+            st.success(f"Loaded live NSE index snapshot: {file_name}")
     
             metric1, metric2, metric3 = st.columns(3)
             metric1.metric("Worksheets", len(sheet_names))
@@ -2632,7 +2726,7 @@ if page == "Index":
                     st.warning("No matching records found.")
     
             st.download_button(
-                "Download Uploaded File",
+                "Download Live Index Snapshot",
                 data=file_bytes,
                 file_name=file_name,
                 mime=(
