@@ -821,15 +821,10 @@ def load_stock_of_the_day_rows():
             ]
             o2h_by_symbol[symbol] = readings
 
-        # Read D-B and every dated O2L column from Summary.
+        # Read D-B and every dated O2L column from the AutoGreen worksheet.
+        # Stock of the Day uses the same qualifying-stock source, not a separate Summary tab.
         # The first two O2L readings are mandatory; later readings are tie-break advantages.
-        summary_sheet = next(
-            (ws for ws in workbook.worksheets
-             if ws.title.strip().casefold() == "summary"),
-            None
-        )
-        if summary_sheet is None:
-            raise ValueError("The Master workbook does not contain a Summary worksheet.")
+        summary_sheet = auto_sheet
 
         summary_header_row = None
         summary_symbol_col = 0
