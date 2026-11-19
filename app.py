@@ -907,7 +907,7 @@ def render_accent_table(rows, accent, ink, tint, min_width=720):
     columns = list(rows[0].keys())
     header_html = "".join(
         f'<th style="padding:12px 14px;text-align:left;white-space:nowrap;'
-        f'font-size:1.78rem;font-weight:950;letter-spacing:.7px;color:{ink};'
+        f'font-size:13px;font-weight:900;letter-spacing:.7px;color:{ink};'
         f'background:linear-gradient(180deg,{tint} 0%,#FFFFFF 100%);'
         f'border-bottom:2px solid {accent}66;">'
         f'{html.escape(str(column))}</th>'
@@ -1234,19 +1234,19 @@ def render_autogreen_dashboard():
                       filter:blur(7px);animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
           <div style="position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;">
             <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-              <div style="font-size:1.78rem;font-weight:950;letter-spacing:.35px;color:{metric_ink};line-height:1.15;">AutoGreen qualified</div>
+              <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">AutoGreen qualified</div>
               <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(base_rows)}</div>
             </div>
             <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-              <div style="font-size:1.78rem;font-weight:950;letter-spacing:.35px;color:{metric_ink};line-height:1.15;">Colour-qualified stocks</div>
+              <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">Colour-qualified stocks</div>
               <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(ranked_candidates)}</div>
             </div>
             <div style="text-align:center;padding:4px 7px;border-right:1px solid {metric_border}66;">
-              <div style="font-size:1.78rem;font-weight:950;letter-spacing:.35px;color:{metric_ink};line-height:1.15;">High − 0.20% qualified</div>
+              <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">High − 0.20% qualified</div>
               <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
             </div>
             <div style="text-align:center;padding:4px 7px;">
-              <div style="font-size:1.78rem;font-weight:950;letter-spacing:.35px;color:{metric_ink};line-height:1.15;">BUY / Confirmation</div>
+              <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">BUY / Confirmation</div>
               <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(buy_rows)} / {1 if confirmation_row else 0}</div>
             </div>
           </div>
