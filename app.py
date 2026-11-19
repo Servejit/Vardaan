@@ -1999,9 +1999,7 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-st.title(
-    "6thSense Excel Manager"
-)
+
 
 st.caption(
     f"Logged in as: {user.email}"
