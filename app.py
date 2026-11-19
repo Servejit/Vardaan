@@ -1157,11 +1157,75 @@ def render_stock_of_the_day():
                 - Only stocks tied for the highest Extra Advantages score are displayed.
                 """
             )
-            st.dataframe(
-                rows,
-                use_container_width=True,
-                hide_index=True
-            )
+            # Render the qualifying-stock table in the same black/silver card palette.
+            if rows:
+                table_headers = list(rows[0].keys())
+                header_html = "".join(
+                    f"<th>{html.escape(str(column))}</th>"
+                    for column in table_headers
+                )
+                body_html = "".join(
+                    "<tr>" + "".join(
+                        f"<td>{html.escape('' if row.get(column) is None else str(row.get(column)))}</td>"
+                        for column in table_headers
+                    ) + "</tr>"
+                    for row in rows
+                )
+                st.markdown(
+                    """
+                    <style>
+                    .sotd-details-table-wrap {
+                        width: 100%;
+                        overflow-x: auto;
+                        border: 1px solid rgba(174,190,207,.58);
+                        border-radius: 11px;
+                        background: linear-gradient(145deg,#11161d,#202833 55%,#121820);
+                        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 5px 16px rgba(0,0,0,.24);
+                    }
+                    table.sotd-details-table {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0;
+                        color: #E6EDF5;
+                        font-size: .88rem;
+                        white-space: nowrap;
+                    }
+                    .sotd-details-table th {
+                        padding: 11px 13px;
+                        color: #111820;
+                        text-align: left;
+                        font-weight: 900;
+                        letter-spacing: .35px;
+                        background: linear-gradient(180deg,#E1E8EF,#AEBBC9);
+                        border-bottom: 1px solid #8796A6;
+                    }
+                    .sotd-details-table td {
+                        padding: 10px 13px;
+                        color: #DCE4ED;
+                        background: rgba(30,38,48,.94);
+                        border-bottom: 1px solid rgba(170,186,203,.16);
+                    }
+                    .sotd-details-table tbody tr:nth-child(even) td {
+                        background: rgba(42,52,64,.94);
+                    }
+                    .sotd-details-table tbody tr:last-child td {
+                        border-bottom: 0;
+                    }
+                    .sotd-details-table tbody tr:hover td {
+                        background: rgba(112,132,153,.28);
+                        color: #FFFFFF;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True
+                )
+                st.markdown(
+                    f'<div class="sotd-details-table-wrap"><table class="sotd-details-table">'
+                    f'<thead><tr>{header_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.caption("No qualifying stock details to display.")
 
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
