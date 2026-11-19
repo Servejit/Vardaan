@@ -1382,7 +1382,7 @@ if page == "Index":
                                     })
                                 return members
     
-                            wanted_name = clean_name(index_name)
+                            wanted_name = normalize_index_name(index_name)
                             # GitHub CSV is the only permitted constituent source.
                             # A missing group is ignored; no external index is scanned.
                             github_groups = load_github_index_groups()
@@ -3130,7 +3130,7 @@ elif page == "Index 2":
                                     })
                                 return members
     
-                            wanted_name = clean_name(index_name)
+                            wanted_name = normalize_index_name(index_name)
                             # GitHub CSV is the only permitted constituent source.
                             # A missing group is ignored; no external index is scanned.
                             github_groups = load_github_index_groups()
