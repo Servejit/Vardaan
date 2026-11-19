@@ -1118,9 +1118,22 @@ if page == "Index":
                         output_record["L2H%"] = None
     
                     display_records.append(output_record)
-    
-                # Summary calculations: compare the average CURRENT price
-                # with the average HIGH and average LOW across all indices.
+
+                # Restrict the complete dashboard universe to the index groups
+                # maintained in the GitHub CSV. Other Master indices are ignored.
+                allowed_group_names = set(load_github_index_groups().keys())
+                display_records = [
+                    record for record in display_records
+                    if normalize_index_name(record.get("INDEX")) in allowed_group_names
+                ]
+                if not display_records:
+                    st.warning(
+                        "No matching index names were found between the uploaded "
+                        "Master file and index_constituents.csv. Check the short "
+                        "index names in the GitHub CSV."
+                    )
+
+                # Summary calculations now use only the configured index groups.
                 def to_number(value):
                     try:
                         cleaned = str(value).replace(",", "").replace("%", "").strip()
