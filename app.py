@@ -605,6 +605,23 @@ def _autogreen_number(value):
         return None
 
 
+def _autogreen_db_parenthetical_number(value):
+    """Read the final numeric value in parentheses from the formatted D-B cell."""
+    if value is None or isinstance(value, bool):
+        return None
+    numeric_value = _autogreen_number(value)
+    if numeric_value is not None:
+        return numeric_value
+    cleaned = str(value).replace(",", "")
+    matches = re.findall(r"\(\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*\)", cleaned)
+    if not matches:
+        return None
+    try:
+        return float(matches[-1])
+    except (TypeError, ValueError):
+        return None
+
+
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def load_autogreen_buy_signals():
     """
@@ -866,7 +883,7 @@ def load_stock_of_the_day_rows():
 
         if summary_header_row is None:
             raise ValueError(
-                "Could not locate 16< D-B / Avg.4 and at least two dated O2L columns on Summary."
+                "Could not locate 16< D-B / Avg.4 and at least two dated O2L columns on AutoGreen."
             )
 
         summary_by_symbol = {}
@@ -879,7 +896,7 @@ def load_stock_of_the_day_rows():
             symbol = normalize_stock_symbol(row[summary_symbol_col])
             if not symbol:
                 continue
-            db_value = _autogreen_number(row[db_col]) if db_col < len(row) else None
+            db_value = _autogreen_db_parenthetical_number(row[db_col]) if db_col < len(row) else None
             o2l_values = [
                 _autogreen_number(row[index]) if index < len(row) else None
                 for index in o2l_columns
