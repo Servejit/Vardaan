@@ -1097,6 +1097,36 @@ def render_stock_of_the_day():
 
     if rendered == 0:
         st.info("Live price data is unavailable, so no BUY card is displayed.")
+
+    # Keep qualification diagnostics tucked away so the BUY card stays primary.
+    if rendered > 0:
+        with st.expander("MORE DETAILS", expanded=False):
+            st.markdown("**QUALIFYING CONDITIONS**")
+            st.markdown(
+                """
+                - AutoGreen volume expansion: both volume values above 100,000 and Volume Expand 1 greater than Volume Expand 2.
+                - First two O2H readings after Volume Expand 2: each below 0.50.
+                - Parenthetical value in **16< D-B / Avg.4**: below -2.00.
+                - First two dated O2L readings: each below -1.50.
+                - **%Chg.1** and **%Chg.2**: both below 0.
+                """
+            )
+            st.markdown("**EXTRA ADVANTAGES**")
+            st.markdown(
+                """
+                - Each additional dated O2L reading after the first two that is below -1.50 adds 1 advantage.
+                - **%Chg.3** below 0 adds 1 advantage.
+                - **%Chg.4** below 0 adds 1 advantage.
+                - Only stocks tied for the highest Extra Advantages score are displayed.
+                """
+            )
+            details_df = pd.DataFrame(rows)
+            st.dataframe(
+                details_df,
+                use_container_width=True,
+                hide_index=True
+            )
+
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
