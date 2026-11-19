@@ -521,6 +521,355 @@ def normalize_stock_symbol(value):
     return symbol
 
 
+
+
+# ============================================================
+# AUTOGREEN MASTER WORKBOOK SIGNALS
+# The workbook is maintained in Servejit/Signal and is read-only here.
+# Only the AutoGreen worksheet is used for these Buy cards.
+# ============================================================
+
+AUTOGREEN_MASTER_URL = (
+    "https://raw.githubusercontent.com/Servejit/Signal/main/master.xlsx"
+)
+
+@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
+def get_autogreen_master_bytes():
+    """Fetch the shared GitHub workbook; cache it for five minutes."""
+    import requests
+    response = requests.get(AUTOGREEN_MASTER_URL, timeout=30)
+    response.raise_for_status()
+    if not response.content:
+        raise ValueError("GitHub master.xlsx is empty.")
+    return response.content
+
+
+def _autogreen_number(value):
+    """Convert Excel numeric cells and formatted numeric strings safely."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    try:
+        cleaned = str(value).replace(",", "").replace("%", "").strip()
+        if not cleaned or cleaned in {"-", "—", "N/A", "NA"}:
+            return None
+        return float(cleaned)
+    except (TypeError, ValueError):
+        return None
+
+
+@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
+def load_autogreen_buy_signals():
+    """
+    Read only AutoGreen from the GitHub master workbook.
+    Base: both volume expansions > 100000 and Vol.Expand 1 > Vol.Expand 2.
+    Colour priority: Green (4 negative), Blue (first 3 negative),
+    Purple (first 2 negative).
+    """
+    workbook_bytes = get_autogreen_master_bytes()
+    workbook = load_workbook(
+        io.BytesIO(workbook_bytes),
+        data_only=True,
+        read_only=True
+    )
+    try:
+        sheet = next(
+            (ws for ws in workbook.worksheets
+             if ws.title.strip().casefold() == "autogreen"),
+            None
+        )
+        if sheet is None:
+            raise ValueError(
+                "The GitHub workbook does not contain an AutoGreen worksheet."
+            )
+
+        def header_key(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        required = [
+            "Vol.Expand 1", "Vol.Expand 2",
+            "%Chg.1", "%Chg.2", "%Chg.3", "%Chg.4"
+        ]
+        wanted = {header_key(name): name for name in required}
+        header_row_number = None
+        column_map = {}
+
+        for row_number, row in enumerate(
+            sheet.iter_rows(
+                min_row=1,
+                max_row=min(sheet.max_row or 1, 30),
+                values_only=True
+            ),
+            start=1
+        ):
+            found = {
+                header_key(value): index
+                for index, value in enumerate(row)
+                if value is not None
+            }
+            if all(key in found for key in wanted):
+                header_row_number = row_number
+                column_map = {
+                    original: found[normalized]
+                    for normalized, original in wanted.items()
+                }
+                symbol_index = next(
+                    (
+                        found[header_key(label)]
+                        for label in ("Symbol", "NSE Symbol", "Ticker")
+                        if header_key(label) in found
+                    ),
+                    0
+                )
+                break
+
+        if header_row_number is None:
+            raise ValueError(
+                "Could not find all six required headings in AutoGreen."
+            )
+
+        base_qualified = []
+        signals = []
+        for row in sheet.iter_rows(
+            min_row=header_row_number + 1,
+            values_only=True
+        ):
+            if not row or symbol_index >= len(row):
+                continue
+            symbol = normalize_stock_symbol(row[symbol_index])
+            if not symbol:
+                continue
+
+            values = {}
+            for name in required:
+                index = column_map[name]
+                values[name] = (
+                    _autogreen_number(row[index])
+                    if index < len(row) else None
+                )
+
+            vol1 = values["Vol.Expand 1"]
+            vol2 = values["Vol.Expand 2"]
+            if (
+                vol1 is None or vol2 is None
+                or vol1 <= 100000 or vol2 <= 100000
+                or vol1 <= vol2
+            ):
+                continue
+
+            record = {
+                "Symbol": symbol,
+                "Vol.Expand 1": vol1,
+                "Vol.Expand 2": vol2,
+                "%Chg.1": values["%Chg.1"],
+                "%Chg.2": values["%Chg.2"],
+                "%Chg.3": values["%Chg.3"],
+                "%Chg.4": values["%Chg.4"],
+            }
+            base_qualified.append(record)
+
+            changes = [
+                values["%Chg.1"], values["%Chg.2"],
+                values["%Chg.3"], values["%Chg.4"]
+            ]
+            if all(value is not None and value < 0 for value in changes):
+                record["Signal"] = "GREEN BUY"
+                record["Card Colour"] = "Green"
+                signals.append(record)
+            elif all(
+                value is not None and value < 0 for value in changes[:3]
+            ):
+                record["Signal"] = "BLUE BUY"
+                record["Card Colour"] = "Blue"
+                signals.append(record)
+            elif all(
+                value is not None and value < 0 for value in changes[:2]
+            ):
+                record["Signal"] = "PURPLE BUY"
+                record["Card Colour"] = "Purple"
+                signals.append(record)
+
+        priority = {"Green": 0, "Blue": 1, "Purple": 2}
+        signals.sort(key=lambda item: (
+            priority[item["Card Colour"]],
+            item["Symbol"]
+        ))
+        return base_qualified, signals
+    finally:
+        workbook.close()
+
+
+@st.cache_data(ttl=60, max_entries=1, show_spinner=False)
+def get_autogreen_live_prices(symbols):
+    """Get Yahoo Finance NSE last prices without blocking the full dashboard."""
+    import yfinance as yf
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    def fetch_one(symbol):
+        try:
+            ticker = yf.Ticker(f"{symbol}.NS")
+            fast = ticker.fast_info
+            price = fast.get("last_price") if hasattr(fast, "get") else None
+            if price is None:
+                history = ticker.history(
+                    period="1d", interval="1m",
+                    auto_adjust=False, actions=False, timeout=12
+                )
+                if history is not None and not history.empty:
+                    price = history["Close"].dropna().iloc[-1]
+            number = _autogreen_number(price)
+            return symbol, number
+        except Exception:
+            return symbol, None
+
+    prices = {}
+    unique_symbols = list(dict.fromkeys(symbols))
+    if not unique_symbols:
+        return prices
+    with ThreadPoolExecutor(max_workers=min(8, len(unique_symbols))) as pool:
+        futures = [pool.submit(fetch_one, symbol) for symbol in unique_symbols]
+        for future in as_completed(futures):
+            symbol, price = future.result()
+            prices[symbol] = price
+    return prices
+
+
+def render_autogreen_dashboard():
+    """Render the premium animated Buy cards from AutoGreen master rows."""
+    st.title("6thSense · AutoGreen Buy Signals")
+    st.caption(
+        "Source: Servejit/Signal · master.xlsx · AutoGreen worksheet only"
+    )
+
+    try:
+        with st.spinner("Reading AutoGreen master data from GitHub..."):
+            base_rows, signal_rows = load_autogreen_buy_signals()
+    except Exception as error:
+        st.error(f"AutoGreen master data is unavailable: {error}")
+        st.info("Signals are paused; no old or estimated workbook values are used.")
+        return
+
+    price_map = {}
+    if signal_rows:
+        with st.spinner("Fetching latest Yahoo Finance NSE prices..."):
+            price_map = get_autogreen_live_prices(
+                tuple(item["Symbol"] for item in signal_rows)
+            )
+
+    green_count = sum(item["Card Colour"] == "Green" for item in signal_rows)
+    blue_count = sum(item["Card Colour"] == "Blue" for item in signal_rows)
+    purple_count = sum(item["Card Colour"] == "Purple" for item in signal_rows)
+
+    metric_cols = st.columns(4)
+    metric_cols[0].metric("Base qualified", len(base_rows))
+    metric_cols[1].metric("Green Buy", green_count)
+    metric_cols[2].metric("Blue Buy", blue_count)
+    metric_cols[3].metric("Purple Buy", purple_count)
+
+    st.markdown(
+        """
+        <style>
+        @keyframes agShimmer {
+            0% { background-position: 0% 50%; filter:brightness(1); }
+            50% { background-position: 100% 50%; filter:brightness(1.12); }
+            100% { background-position: 0% 50%; filter:brightness(1); }
+        }
+        @keyframes agFloat {
+            0%,100% { transform:translateY(0); }
+            50% { transform:translateY(-2px); }
+        }
+        .ag-card {
+            position:relative; overflow:hidden; min-height:190px;
+            border-radius:20px; padding:17px 18px 16px; margin:4px 0 14px;
+            color:#fff; background-size:220% 220%;
+            animation:agShimmer 7s ease-in-out infinite,
+                      agFloat 3s ease-in-out infinite;
+            box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,
+                       0 9px 28px rgba(0,0,0,.22);
+        }
+        .ag-card:after {
+            content:""; position:absolute; top:-70%; left:-45%;
+            width:55%; height:240%; transform:rotate(22deg);
+            background:linear-gradient(90deg,transparent,
+                       rgba(255,255,255,.13),transparent);
+            animation:agSweep 6s linear infinite; pointer-events:none;
+        }
+        @keyframes agSweep {
+            0% { left:-65%; } 100% { left:145%; }
+        }
+        .ag-green { background-image:linear-gradient(125deg,#062d20,#087447 48%,#063d2b); border:1.5px solid #e6c76a; }
+        .ag-blue { background-image:linear-gradient(125deg,#071b3d,#075b91 48%,#092d57); border:1.5px solid #78d9ff; }
+        .ag-purple { background-image:linear-gradient(125deg,#29113f,#713a91 48%,#35134f); border:1.5px solid #e0b5ff; }
+        .ag-kicker { font-size:.72rem; font-weight:900; letter-spacing:2px; opacity:.92; }
+        .ag-symbol { font-size:1.55rem; font-weight:950; letter-spacing:.5px; margin-top:7px; }
+        .ag-entry { font-size:1.12rem; font-weight:850; margin-top:9px; }
+        .ag-details { display:flex; flex-wrap:wrap; gap:7px; margin-top:13px; }
+        .ag-chip { border:1px solid rgba(255,255,255,.24);
+                   background:rgba(0,0,0,.16); border-radius:9px;
+                   padding:5px 8px; font-size:.73rem; font-weight:750; }
+        .ag-foot { margin-top:10px; font-size:.72rem; opacity:.82; }
+        @media (prefers-reduced-motion: reduce) {
+            .ag-card,.ag-card:after { animation:none !important; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if not signal_rows:
+        st.info(
+            "No Green, Blue or Purple Buy cards meet the agreed conditions "
+            "in the current AutoGreen workbook."
+        )
+    else:
+        for start in range(0, len(signal_rows), 2):
+            columns = st.columns(2)
+            for offset, item in enumerate(signal_rows[start:start + 2]):
+                symbol = item["Symbol"]
+                colour = item["Card Colour"].lower()
+                price = price_map.get(symbol)
+                price_text = f"₹{price:,.2f}" if price is not None else "Unavailable"
+                change_values = [
+                    item["%Chg.1"], item["%Chg.2"],
+                    item["%Chg.3"], item["%Chg.4"]
+                ]
+                change_text = " · ".join(
+                    f"{index + 1}: {value:+.2f}%"
+                    if value is not None else f"{index + 1}: N/A"
+                    for index, value in enumerate(change_values)
+                )
+                card_html = f"""
+                <div class="ag-card ag-{colour}">
+                  <div class="ag-kicker">♛ &nbsp;✦ &nbsp;{item["Signal"]}</div>
+                  <div class="ag-symbol">{symbol}</div>
+                  <div class="ag-entry">LIVE / LAST PRICE &nbsp; {price_text}</div>
+                  <div class="ag-details">
+                    <span class="ag-chip">Vol.Expand 1 &nbsp; {item["Vol.Expand 1"]:,.0f}</span>
+                    <span class="ag-chip">Vol.Expand 2 &nbsp; {item["Vol.Expand 2"]:,.0f}</span>
+                  </div>
+                  <div class="ag-foot">%Chg values &nbsp; {change_text}</div>
+                </div>
+                """
+                columns[offset].markdown(card_html, unsafe_allow_html=True)
+
+    with st.expander("View qualifying AutoGreen stock data", expanded=False):
+        if base_rows:
+            st.dataframe(
+                base_rows,
+                use_container_width=True,
+                hide_index=True
+            )
+        else:
+            st.caption("No stocks passed both volume-expansion conditions.")
+
+    st.caption(
+        "Card priority: Green (all four negative), then Blue (first three), "
+        "then Purple (first two). Live/last prices are from Yahoo Finance; "
+        "the selection and colour rules come only from the AutoGreen sheet."
+    )
+
+
 def get_top_stocks_master_values(top_stocks, master_bytes, rank_source_column):
     """
     Find the requested columns in the Master workbook (prefer the summary
@@ -1110,8 +1459,8 @@ with st.sidebar:
     st.divider()
     page = st.radio(
         "Dashboard",
-        ["Master Excel", "Index", "Index 2"],
-        index=1,
+        ["AutoGreen", "Index", "Index 2", "Master Excel"],
+        index=0,
         key="main_dashboard_default_index"
     )
 
@@ -1262,7 +1611,10 @@ if page in ("Index", "Index 2"):
 # INDEX DASHBOARD
 # ============================================================
 
-if page == "Index":
+if page == "AutoGreen":
+    render_autogreen_dashboard()
+
+elif page == "Index":
 
     import csv
 
