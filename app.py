@@ -1299,7 +1299,7 @@ def render_autogreen_dashboard():
                         rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
                         animation:noSignalFloatingGlow 6s ease-in-out infinite;"></div>
             <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;color:#F0B8C8;
-                        text-shadow:0 0 12px rgba(255,210,225,.34);">6THSENSE · AUTOGREEN</div>
+                        text-shadow:0 0 12px rgba(255,210,225,.34);">6THSENSE · VARDAAN</div>
             <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;font-weight:950;
                         letter-spacing:2.2px;margin:13px 0 10px;color:#FFF0F4;
                         text-shadow:0 2px 18px rgba(255,190,210,.34);">NO SIGNAL</div>
@@ -1358,7 +1358,8 @@ def render_autogreen_dashboard():
             ">
               <div style="position:absolute;right:-30px;top:-62px;width:190px;height:190px;border-radius:50%;
                           background:radial-gradient(circle,rgba(255,255,255,.22),transparent 69%);pointer-events:none;"></div>
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;">
+              <div style="position:relative;z-index:1;text-align:center;font-size:11px;font-weight:900;letter-spacing:3px;color:{accent_colour};margin:0 0 15px;text-shadow:0 0 12px {c2}88;">6THSENSE · VARDAAN</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;">
                 <div style="font-size:1.78rem;line-height:1.15;font-weight:950;letter-spacing:.7px;color:#fff;
                             text-shadow:0 2px 12px rgba(0,0,0,.24);">
                   {symbol}
