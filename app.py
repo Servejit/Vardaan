@@ -941,10 +941,6 @@ def render_autogreen_dashboard():
             c1, c2, c3, border_colour, accent_colour = palette.get(
                 item.get("Card Colour"), palette["Green"]
             )
-            open_value = item.get("Day Open")
-            low_value = item.get("Day Low")
-            open_text = f"₹{open_value:,.2f}" if isinstance(open_value, (int, float)) else "Unavailable"
-            low_text = f"₹{low_value:,.2f}" if isinstance(low_value, (int, float)) else "Unavailable"
             card_html = f"""
             <div style="
                 position:relative; overflow:hidden;
@@ -975,16 +971,14 @@ def render_autogreen_dashboard():
                 </div>
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},transparent);margin:12px 0;"></div>
-              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 18px;">
-                <div><div style="font-size:.64rem;opacity:.75;">OPEN</div><div style="font-size:.92rem;font-weight:850;">{open_text}</div></div>
-                <div><div style="font-size:.64rem;opacity:.75;">TODAY'S HIGH</div><div style="font-size:.92rem;font-weight:850;">₹{item["Day High"]:,.2f}</div></div>
-                <div><div style="font-size:.64rem;opacity:.75;">TODAY'S LOW</div><div style="font-size:.92rem;font-weight:850;">{low_text}</div></div>
-                <div><div style="font-size:.64rem;opacity:.75;">LIVE PRICE</div><div style="font-size:.92rem;font-weight:850;">₹{item["Live Price"]:,.2f}</div></div>
-                <div><div style="font-size:.64rem;opacity:.75;">RANK · SUM O2L.10</div><div style="font-size:.92rem;font-weight:850;">{rank_text}</div></div>
-                <div><div style="font-size:.64rem;opacity:.75;">TARGET PRICE · +0.35%</div><div style="font-size:1.05rem;font-weight:950;color:{accent_colour};">₹{target:,.2f}</div></div>
-                <div style="grid-column:1 / -1;border-top:1px solid rgba(255,255,255,.18);padding-top:9px;">
-                  <span style="font-size:.64rem;opacity:.75;">HIGH GAP</span>
-                  <span style="font-size:.92rem;font-weight:900;margin-left:8px;">{item["High Gap %"]:.2f}%</span>
+              <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;">
+                <div>
+                  <div style="font-size:.67rem;opacity:.8;">TARGET PRICE</div>
+                  <div style="font-size:1.65rem;font-weight:950;color:{accent_colour};">₹{target:,.2f}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:.67rem;opacity:.8;">RANK · SUM O2L.10</div>
+                  <div style="font-size:1rem;font-weight:900;">{rank_text}</div>
                 </div>
               </div>
               <div style="position:absolute;right:-24px;top:-48px;width:145px;height:145px;border-radius:50%;
