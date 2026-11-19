@@ -1084,13 +1084,58 @@ def render_autogreen_dashboard():
             f"AutoGreen Buy candidates: {len(signal_rows)} · High-gap qualified: {len(high_gap_candidates)}."
         )
 
+    # Select the four lowest valid innermost D-B values from all qualified stocks.
+    qualified_detail_rows, qualified_detail_error = get_qualified_stock_detail_rows(
+        base_rows, master_bytes
+    )
+    lowest_db_targets = []
+    if not qualified_detail_error and qualified_detail_rows:
+        for detail in qualified_detail_rows:
+            raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
+            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
+            numeric_match = (
+                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
+                if outer_match else None
+            )
+            if numeric_match:
+                try:
+                    lowest_db_targets.append((float(numeric_match.group(1).replace(",", "")), detail["Stock"]))
+                except (TypeError, ValueError):
+                    pass
+        lowest_db_targets.sort(key=lambda item: (item[0], item[1]))
+        lowest_db_targets = lowest_db_targets[:4]
+
+    st.subheader("Lowest 4 D-B Target Stocks")
+    if lowest_db_targets:
+        target_symbols = [symbol for _, symbol in lowest_db_targets]
+        target_base = {item["Symbol"]: item for item in base_rows}
+        with st.spinner("Fetching live prices for the four lowest D-B target stocks..."):
+            target_quotes = get_autogreen_live_prices(tuple(target_symbols))
+        target_table_rows = []
+        for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
+            item = target_base.get(symbol, {})
+            quote = target_quotes.get(symbol, {})
+            rank = sum_o2l_ranks.get(symbol)
+            target_table_rows.append({
+                "Role": f"D-B TARGET #{position}",
+                "Symbol": symbol,
+                "Open": round(quote["open"], 2) if quote.get("open") is not None else "Unavailable",
+                "High": round(quote["high"], 2) if quote.get("high") is not None else "Unavailable",
+                "Low": round(quote["low"], 2) if quote.get("low") is not None else "Unavailable",
+                "Live Price": round(quote["price"], 2) if quote.get("price") is not None else "Unavailable",
+                "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
+                "Rank": rank,
+            })
+        st.dataframe(target_table_rows, use_container_width=True, hide_index=True)
+    else:
+        st.info("No four qualified stocks with a readable numeric D-B value are available yet.")
+
     with st.expander("View qualifying AutoGreen stock data", expanded=False):
         if base_rows:
-            detail_rows, detail_error = get_qualified_stock_detail_rows(base_rows, master_bytes)
-            if detail_error:
-                st.warning(f"Qualified-stock details could not be loaded: {detail_error}")
-            elif detail_rows:
-                st.dataframe(detail_rows, use_container_width=True, hide_index=True)
+            if qualified_detail_error:
+                st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
+            elif qualified_detail_rows:
+                st.dataframe(qualified_detail_rows, use_container_width=True, hide_index=True)
             else:
                 st.caption("No qualified-stock details are available.")
         else:
