@@ -931,7 +931,7 @@ def render_autogreen_dashboard():
             status_text = (
                 "DEPENDENT · CONFIRMATION ONLY"
                 if is_confirmation
-                else "MARKET BIAS CONFIRMED"
+                else ""
             )
             palette = {
                 "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4"),
