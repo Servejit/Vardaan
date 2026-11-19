@@ -243,83 +243,143 @@ def load_github_index_groups():
 
 
 @st.cache_data(ttl=60, max_entries=1, show_spinner=False)
-def load_live_nse_index_csv():
+def load_live_yahoo_index_csv():
     """
-    Fetch official live index OHLC/last values from NSE's all-indices endpoint.
-    Only index names present in the GitHub constituent CSV are retained.
+    Fetch Yahoo Finance intraday index values for configured groups.
+    Yahoo does not provide every custom group in the GitHub constituent CSV.
+    Unsupported or unavailable tickers are skipped, never estimated.
     """
     import csv
-    import requests
+    import yfinance as yf
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     from zoneinfo import ZoneInfo
 
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/126.0.0.0 Safari/537.36"
-        ),
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.nseindia.com/",
-        "Connection": "keep-alive",
+    # Yahoo Finance symbols for supported NSE indices.
+    # Custom constituent groups without a verified Yahoo index ticker are
+    # intentionally omitted instead of substituting a different index.
+    yahoo_index_tickers = {
+        "NIFTY 50": "^NSEI",
+        "MID 50": "^NSEMDCP50",
+        "AUTO": "^CNXAUTO",
+        "FIN": "^CNXFIN",
+        "FMCG": "^CNXFMCG",
+        "IT": "^CNXIT",
+        "MEDIA": "^CNXMEDIA",
+        "METAL": "^CNXMETAL",
+        "PHARMA": "^CNXPHARMA",
+        "PSU": "^CNXPSUBANK",
+        "BANK": "^NSEBANK",
+        "REALTY": "^CNXREALTY",
+        "ENERGY": "^CNXENERGY",
     }
-    session = requests.Session()
-    session.headers.update(headers)
 
-    # NSE may require a session cookie from its home page before API access.
-    home_response = session.get("https://www.nseindia.com/", timeout=15)
-    home_response.raise_for_status()
-    response = session.get(
-        "https://www.nseindia.com/api/allIndices",
-        headers={"Referer": "https://www.nseindia.com/"},
-        timeout=20,
-    )
-    response.raise_for_status()
-    payload = response.json()
+    configured_groups = load_github_index_groups()
+    jobs = {
+        group: ticker
+        for group, ticker in yahoo_index_tickers.items()
+        if group in configured_groups
+    }
+    if not jobs:
+        raise ValueError("No configured groups have a Yahoo Finance ticker mapping.")
 
-    index_rows = payload.get("data", []) if isinstance(payload, dict) else []
-    if not isinstance(index_rows, list) or not index_rows:
-        raise ValueError("NSE's all-indices response did not contain index data.")
+    def fetch_one(group, ticker):
+        history = yf.Ticker(ticker).history(
+            period="5d",
+            interval="1m",
+            auto_adjust=False,
+            actions=False,
+            prepost=False,
+            timeout=15,
+        )
+        if history is None or history.empty or "Close" not in history:
+            return group, ticker, None
 
-    allowed_groups = set(load_github_index_groups().keys())
-    matched = {}
-    for item in index_rows:
-        if not isinstance(item, dict):
-            continue
-        official_name = str(item.get("index") or "").strip()
-        group_name = normalize_index_name(official_name)
-        if not official_name or group_name not in allowed_groups:
-            continue
+        history = history.dropna(subset=["Close"])
+        if history.empty:
+            return group, ticker, None
 
-        # Keep the first official record for each configured group.
-        matched.setdefault(group_name, {
-            "INDEX": official_name,
-            "CURRENT": item.get("last"),
-            "%CHANGE": item.get("percentChange"),
-            "OPEN": item.get("open"),
-            "HIGH": item.get("high"),
-            "LOW": item.get("low"),
-        })
+        # Use only the latest trading session for current OHLC values.
+        latest_date = history.index[-1].date()
+        current_session = history[history.index.date == latest_date]
+        previous_sessions = history[history.index.date < latest_date]
+        if current_session.empty:
+            return group, ticker, None
 
-    if not matched:
+        current = float(current_session["Close"].iloc[-1])
+        previous_close = (
+            float(previous_sessions["Close"].iloc[-1])
+            if not previous_sessions.empty else None
+        )
+        change_pct = (
+            ((current - previous_close) / previous_close) * 100
+            if previous_close not in (None, 0) else None
+        )
+
+        first_open = (
+            float(current_session["Open"].dropna().iloc[0])
+            if "Open" in current_session and not current_session["Open"].dropna().empty
+            else None
+        )
+        session_high = (
+            float(current_session["High"].max())
+            if "High" in current_session and not current_session["High"].dropna().empty
+            else None
+        )
+        session_low = (
+            float(current_session["Low"].min())
+            if "Low" in current_session and not current_session["Low"].dropna().empty
+            else None
+        )
+
+        return group, ticker, {
+            "INDEX": group,
+            "CURRENT": current,
+            "%CHANGE": change_pct,
+            "OPEN": first_open,
+            "HIGH": session_high,
+            "LOW": session_low,
+        }
+
+    fetched = {}
+    failures = []
+    with ThreadPoolExecutor(max_workers=min(8, len(jobs))) as executor:
+        futures = {
+            executor.submit(fetch_one, group, ticker): (group, ticker)
+            for group, ticker in jobs.items()
+        }
+        for future in as_completed(futures):
+            group, ticker = futures[future]
+            try:
+                result_group, result_ticker, row = future.result()
+                if row is not None:
+                    fetched[result_group] = row
+                else:
+                    failures.append(f"{group} ({ticker}): no intraday data")
+            except Exception as exc:
+                failures.append(f"{group} ({ticker}): {str(exc)[:160]}")
+
+    if not fetched:
+        details = "; ".join(failures[:4])
         raise ValueError(
-            "NSE responded, but none of its official index names matched "
-            "the 20 configured GitHub groups."
+            "Yahoo Finance returned no usable intraday index values. "
+            + details
         )
 
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"])
-    for row in matched.values():
-        writer.writerow([
-            row["INDEX"], row["CURRENT"], row["%CHANGE"],
-            row["OPEN"], row["HIGH"], row["LOW"],
-        ])
+    for group in configured_groups:
+        if group in fetched:
+            row = fetched[group]
+            writer.writerow([
+                row["INDEX"], row["CURRENT"], row["%CHANGE"],
+                row["OPEN"], row["HIGH"], row["LOW"],
+            ])
 
     fetched_at = datetime.now(timezone.utc).astimezone(
         ZoneInfo("Asia/Kolkata")
     ).strftime("%d %b %Y, %I:%M:%S %p")
-    return output.getvalue().encode("utf-8"), fetched_at
+    return output.getvalue().encode("utf-8"), fetched_at, len(fetched), len(jobs)
 
 
 def normalize_stock_symbol(value):
@@ -928,7 +988,7 @@ with st.sidebar:
         key="main_dashboard_default_index"
     )
 
-# Both Index dashboards use the official live NSE index feed.
+# Both Index dashboards use Yahoo Finance intraday index data.
 # The response is cached once per server worker for 60 seconds; no Index upload
 # or Supabase read is needed for market index values.
 index_upload = None
@@ -938,12 +998,12 @@ if page in ("Index", "Index 2"):
     st_autorefresh(
         interval=60_000,
         limit=None,
-        key="nse_live_index_auto_refresh"
+        key="yahoo_live_index_auto_refresh"
     )
     try:
-        live_index_bytes, live_index_fetched_at = load_live_nse_index_csv()
+        live_index_bytes, live_index_fetched_at, yahoo_available_count, yahoo_checked_count = load_live_yahoo_index_csv()
         if not live_index_bytes:
-            raise ValueError("NSE returned no matching index records.")
+            raise ValueError("Yahoo Finance returned no matching index records.")
 
         if live_index_bytes != st.session_state.get("index_file_bytes"):
             for candidate_key in (
@@ -960,18 +1020,20 @@ if page in ("Index", "Index 2"):
                 st.session_state.pop(signal_key, None)
 
         st.session_state["index_file_bytes"] = live_index_bytes
-        st.session_state["index_file_name"] = "Live_NSE_Index_Data.csv"
+        st.session_state["index_file_name"] = "Live_Yahoo_Index_Data.csv"
         st.session_state["index_file_owner_id"] = str(user.id)
         st.caption(
-            "Live official NSE index values · fetched "
+            "Yahoo Finance index values · fetched "
             + live_index_fetched_at
-            + " IST · auto-refresh every 60 seconds"
+            + " IST · auto-refresh every 60 seconds · "
+            + f"{yahoo_available_count}/{yahoo_checked_count} mapped indices available. "
+            + "Some custom groups have no verified Yahoo index ticker."
         )
     except Exception as live_index_error:
         st.session_state.pop("index_file_bytes", None)
         st.session_state.pop("index_file_name", None)
         st.error(
-            "Live NSE index data is temporarily unavailable. "
+            "Yahoo Finance index data is temporarily unavailable. "
             "Index signals are paused rather than using old or estimated values. "
             f"Details: {live_index_error}"
         )
@@ -1032,7 +1094,7 @@ if page == "Index":
             file_name = st.session_state.get("index_file_name")
     
             if file_bytes is None or file_name is None:
-                st.info("Live NSE index data is not available in this session. Index signals are paused.")
+                st.info("Yahoo Finance index data is not available in this session. Index signals are paused.")
                 st.stop()
             extension = file_name.lower().rsplit(".", 1)[-1]
     
