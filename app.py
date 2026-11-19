@@ -258,7 +258,7 @@ def load_live_yahoo_index_csv():
     # Custom constituent groups without a verified Yahoo index ticker are
     # intentionally omitted instead of substituting a different index.
     yahoo_index_tickers = {
-        "NIFTY 50": "^NSEI",
+        "50": "^NSEI",
         "MID 50": "^NSEMDCP50",
         "AUTO": "^CNXAUTO",
         "FIN": "^CNXFIN",
@@ -332,7 +332,12 @@ def load_live_yahoo_index_csv():
         )
 
         return group, ticker, {
-            "INDEX": group,
+            "INDEX": {
+                "50": "NIFTY 50",
+                "MID 50": "NIFTY MIDCAP 50",
+                "FIN": "NIFTY FINANCIAL SERVICES",
+                "PSU": "NIFTY PSU BANK",
+            }.get(group, "NIFTY " + group),
             "CURRENT": current,
             "%CHANGE": change_pct,
             "OPEN": first_open,
