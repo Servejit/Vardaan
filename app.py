@@ -810,12 +810,13 @@ def get_autogreen_live_prices(symbols):
 
     def fetch_one(symbol):
         try:
-            history = yf.Ticker(f"{symbol}.NS").history(
+            ticker = yf.Ticker(f"{symbol}.NS")
+            history = ticker.history(
                 period="1d", interval="1m", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
             if history is None or history.empty or "Close" not in history:
-                return symbol, {"price": None, "open": None, "high": None, "low": None}
+                return symbol, {"price": None, "open": None, "high": None, "low": None, "change_pct": None}
             closes = history["Close"].dropna()
             highs = history["High"].dropna() if "High" in history else []
             price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
@@ -824,8 +825,21 @@ def get_autogreen_live_prices(symbols):
             open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
             high = _autogreen_number(highs.max()) if len(highs) else None
             low = _autogreen_number(lows.min()) if len(lows) else None
+
+            daily = ticker.history(
+                period="5d", interval="1d", auto_adjust=False,
+                actions=False, prepost=False, timeout=15
+            )
+            daily_closes = daily["Close"].dropna() if daily is not None and not daily.empty and "Close" in daily else []
+            previous_close = _autogreen_number(daily_closes.iloc[-2]) if len(daily_closes) >= 2 else None
+            change_pct = (
+                ((price - previous_close) / previous_close) * 100
+                if price is not None and previous_close is not None and previous_close > 0
+                else None
+            )
             return symbol, {
-                "price": price, "open": open_price, "high": high, "low": low
+                "price": price, "open": open_price, "high": high, "low": low,
+                "previous_close": previous_close, "change_pct": change_pct
             }
         except Exception:
             return symbol, {"price": None, "high": None}
@@ -843,7 +857,7 @@ def get_autogreen_live_prices(symbols):
 
 
 def render_autogreen_dashboard():
-    """Render four ranked High-minus-0.20% Buy candidates; fourth confirms only."""
+    """Render four High-minus-0.20% qualified stocks ranked by live % change; fourth confirms only."""
     st.title("6thSense · AutoGreen Buy Signals")
     st.caption("Source: Servejit/Signal · master.xlsx · AutoGreen + Sum O2L.10 ranking")
 
@@ -872,21 +886,25 @@ def render_autogreen_dashboard():
         quote = quote_map.get(item["Symbol"], {})
         price = quote.get("price")
         high = quote.get("high")
-        if price is None or high is None or high <= 0:
+        change_pct = quote.get("change_pct")
+        if price is None or high is None or high <= 0 or change_pct is None:
             continue
         gap_pct = ((high - price) / high) * 100
         if gap_pct >= 0.20:
             high_gap_candidates.append({
                 **item,
                 "Live Price": price,
+                "Live % Chg": change_pct,
                 "Day Open": quote.get("open"),
                 "Day High": high,
                 "Day Low": quote.get("low"),
                 "High Gap %": gap_pct
             })
 
+    # Keep the existing High - 0.20% qualification, then rank the four
+    # selected stocks by live percentage change versus the previous close.
     high_gap_candidates.sort(
-        key=lambda item: (-item["High Gap %"], item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"), item["Symbol"])
+        key=lambda item: (-item["Live % Chg"], item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"), item["Symbol"])
     )
     selected_rows = high_gap_candidates[:4]
     buy_rows = selected_rows[:3]
@@ -1012,6 +1030,7 @@ def render_autogreen_dashboard():
                 "High": round(item["Day High"], 2),
                 "Low": round(item["Day Low"], 2) if item.get("Day Low") is not None else "Unavailable",
                 "Live Price": round(item["Live Price"], 2),
+                "% Chg": f'{item["Live % Chg"]:+.2f}%',
                 "Rank": item["Sum O2L.10 Rank"],
             } for i, item in enumerate(selected_rows)],
             use_container_width=True,
