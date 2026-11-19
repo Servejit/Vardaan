@@ -833,10 +833,18 @@ def get_autogreen_live_prices(symbols):
             if history.empty:
                 return symbol, empty
 
-            closes = history["Close"].dropna()
-            highs = history["High"].dropna() if "High" in history else []
-            opens = history["Open"].dropna() if "Open" in history else []
-            lows = history["Low"].dropna() if "Low" in history else []
+            # The 5-day fallback must use only its latest session for today's OHLC.
+            latest_session_date = history.index[-1].date()
+            current_session = history[
+                history.index.date == latest_session_date
+            ]
+            if current_session.empty:
+                return symbol, empty
+
+            closes = current_session["Close"].dropna()
+            highs = current_session["High"].dropna() if "High" in current_session else []
+            opens = current_session["Open"].dropna() if "Open" in current_session else []
+            lows = current_session["Low"].dropna() if "Low" in current_session else []
 
             price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
             high = _autogreen_number(highs.max()) if len(highs) else None
