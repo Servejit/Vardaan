@@ -1323,6 +1323,48 @@ def render_stock_of_the_day():
                 background-size:100% 100%,300% 300% !important;
                 animation:sotdDetailsBorderOnlyFlow 7s linear infinite !important;
             }}
+            /* Theme-matched circular threshold selectors. */
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {
+                display:flex !important;
+                flex-wrap:wrap !important;
+                justify-content:center !important;
+                gap:10px !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label {
+                width:78px !important;
+                min-width:78px !important;
+                height:78px !important;
+                min-height:78px !important;
+                box-sizing:border-box !important;
+                border:1.5px solid color-mix(in srgb,var(--primary-color) 42%,#AAB3C0) !important;
+                border-radius:50% !important;
+                background:rgba(128,128,128,.055) !important;
+                display:flex !important;
+                flex-direction:column !important;
+                align-items:center !important;
+                justify-content:center !important;
+                padding:7px !important;
+                margin:0 !important;
+                text-align:center !important;
+                transition:all .18s ease !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {
+                border:2px solid var(--primary-color) !important;
+                background:color-mix(in srgb,var(--primary-color) 15%,white) !important;
+                box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 13%,transparent),
+                           0 5px 14px color-mix(in srgb,var(--primary-color) 22%,transparent) !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label p {
+                font-size:10px !important;
+                line-height:1.2 !important;
+                font-weight:850 !important;
+                white-space:normal !important;
+                text-align:center !important;
+                margin:0 !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label input {
+                accent-color:var(--primary-color) !important;
+            }
             div[data-testid="stExpander"] summary {{
                 background:none !important;
                 color:{details_shimmer} !important;
@@ -1532,15 +1574,15 @@ def render_stock_of_the_day():
                 '<div style="font-weight:850;color:var(--text-color);">Find Next Stock at Your Own Risk</div>',
                 unsafe_allow_html=True
             )
-            # Circular push-button choices; -1.00 is the highest permitted threshold.
-            threshold_options = [-5.0, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0]
-            db_threshold = max(-5.0, min(-1.0, float(db_threshold)))
+            # Theme-matched circular choices, from -4.00 through -1.00.
+            threshold_options = [-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0]
+            db_threshold = max(-4.0, min(-1.0, float(db_threshold)))
             saved_threshold = st.session_state.get(
                 "stock_day_db_threshold_radio",
                 st.session_state.get("stock_day_db_threshold_slider", -2.0)
             )
             try:
-                saved_threshold = max(-5.0, min(-1.0, float(saved_threshold)))
+                saved_threshold = max(-4.0, min(-1.0, float(saved_threshold)))
             except (TypeError, ValueError):
                 saved_threshold = -2.0
             if saved_threshold not in threshold_options:
@@ -1565,7 +1607,7 @@ def render_stock_of_the_day():
                 key="stock_day_db_threshold_radio",
                 help="Each count includes stocks that meet this D-B threshold and every other mandatory Stock of the Day condition."
             )
-            selected_db_threshold = max(-5.0, min(-1.0, float(selected_db_threshold)))
+            selected_db_threshold = max(-4.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
             selected_count = threshold_counts.get(selected_db_threshold, 0)
             st.markdown(
