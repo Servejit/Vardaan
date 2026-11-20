@@ -1070,6 +1070,10 @@ def render_stock_of_the_day():
         entry = day_open
         target1 = entry * 1.005
         target2 = entry * 1.01
+        target1_achieved = day_high >= target1
+        target2_tile = f"""
+            {target2_tile}
+        """ if target1_achieved else ""
 
         # Intraday High confirms targets already reached; live price takes
         # precedence when it is currently trading above Target 2.
@@ -1132,7 +1136,7 @@ def render_stock_of_the_day():
           <div style="height:1px;background:linear-gradient(90deg,transparent,#C69B43,
                       rgba(255,236,184,.95),#C69B43,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+          <div style="display:grid;grid-template-columns:repeat({3 if target1_achieved else 2},minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
               <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">ENTRY PRICE</div>
