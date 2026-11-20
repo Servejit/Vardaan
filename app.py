@@ -3890,7 +3890,7 @@ else:
                         is_current_admin = str(uid) == str(user.id)
 
                         with st.expander(
-                            f"{'🟢' if current_active else '⚪'}  {email}  ·  {role_label}  ·  {status_label}",
+                            f"{'🩵' if current_active else '⚪'}  {email}  ·  {role_label}  ·  {status_label}",
                             expanded=False,
                         ):
                             detail_cols = st.columns([1.25, 1])
