@@ -1189,7 +1189,7 @@ def render_stock_of_the_day():
             if rows:
                 table_headers = list(rows[0].keys())
             core_columns = [column for column in ("O2H 1", "O2H 2", "16< D-B / Avg.4") if column in table_headers]
-            o2l_columns = [column for column in table_headers if column == "Sum O2L.10" or re.match(r"^O2L\\.[1-4](?:\\s|$)", column)]
+            o2l_columns = [column for column in table_headers if column == "Sum O2L.10" or re.match(r"^O2L\.[1-4](?:\s|$)", column)]
             change_columns = [column for column in table_headers if column.startswith("%Chg.")]
 
             def metric_tiles(row, columns):
