@@ -3520,12 +3520,13 @@ elif page == "Stock of the Day":
         and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
         and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
     )
-    if market_open:
-        st_autorefresh(
-            interval=15_000,
-            limit=None,
-            key="stock_of_the_day_live_market_refresh",
-        )
+    # Refresh often during market hours and every minute outside market
+    # hours so the 5 PM / 9 AM Stock of the Day mode switch happens automatically.
+    st_autorefresh(
+        interval=15_000 if market_open else 60_000,
+        limit=None,
+        key="stock_of_the_day_live_market_refresh",
+    )
     render_stock_of_the_day()
 
 
