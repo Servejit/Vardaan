@@ -2867,7 +2867,7 @@ if (
 if st.session_state.user is None:
 
     st.title(
-        "6thSense Excel Manager"
+        "6thSense-Vardaan"
     )
 
     st.subheader("Login")
