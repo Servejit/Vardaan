@@ -1075,13 +1075,21 @@ def render_stock_of_the_day():
         f"""
         <style>
         h1 {{ color:{heading_colour} !important; }}
+        /* Match slider label, selected value, and every tick number to the card text. */
+        div[data-testid="stSlider"],
+        div[data-testid="stSlider"] *,
         div[data-testid="stSlider"] label,
         div[data-testid="stSlider"] label p,
+        div[data-testid="stSlider"] [data-testid="stTickBar"],
+        div[data-testid="stSlider"] [data-testid="stTickBar"] *,
         div[data-testid="stSlider"] [data-testid="stTickBarMin"],
         div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
             color:{heading_colour} !important;
         }}
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div {{
+        /* Colour both the slider rail and its filled section. */
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::before,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::after {{
             background-color:{heading_colour} !important;
         }}
         div[data-testid="stSlider"] [role="slider"] {{
