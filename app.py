@@ -1949,7 +1949,7 @@ def render_autogreen_dashboard():
         for index, item in enumerate(selected_rows):
             is_confirmation = item.get("_Role") == "CONFIRMATION"
             symbol = item["Symbol"]
-            entry = item["Day High"] * (1 - 0.002)
+            entry = item["Live Price"]
             target = entry * 1.0035
             rank_value = item.get("Sum O2L.10 Rank")
             rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
