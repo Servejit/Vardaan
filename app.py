@@ -1129,8 +1129,12 @@ def render_stock_of_the_day():
     }
 
     # Match the page heading to the same alphabet-based text colour as the BUY card.
-    heading_symbol = normalize_stock_symbol(rows[0].get("Stock", "A") if rows else "A")
-    heading_colour = stock_day_palettes.get(heading_symbol[:1].upper(), stock_day_palettes["A"])[1]
+    if rows:
+        heading_symbol = normalize_stock_symbol(rows[0].get("Stock", "A"))
+        heading_colour = stock_day_palettes.get(heading_symbol[:1].upper(), stock_day_palettes["A"])[1]
+    else:
+        # With no qualifying stock, match the black text used by the NO SIGNAL card.
+        heading_colour = "#202833"
     st.markdown(
         f"""
         <style>
