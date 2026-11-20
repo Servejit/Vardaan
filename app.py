@@ -1115,11 +1115,77 @@ def render_stock_of_the_day():
     else:
         # With no qualifying stock, match the black text used by the NO SIGNAL card.
         heading_colour = "#202833"
+    # Use the first Stock of the Day card's alphabet palette for the full sidebar.
+    if rows:
+        sidebar_border, sidebar_accent = stock_day_palettes.get(
+            heading_symbol[:1].upper(), stock_day_palettes["A"]
+        )
+        sidebar_soft = {
+            "A": "#E7F2E5", "B": "#E5F3F9", "C": "#F0EAF8", "D": "#F8F1DF",
+            "E": "#F8E9ED", "F": "#FBEAF1", "G": "#E9F1FB", "H": "#EDF0F3",
+            "I": "#E6F3F0", "J": "#E5F5F5", "K": "#E9F4EC", "L": "#F1F6E4",
+            "M": "#FBF0E7", "N": "#F9EBE9", "O": "#F8F1E4", "P": "#F1ECF8",
+            "Q": "#EBEEF9", "R": "#F8E9EB", "S": "#EEF3E9", "T": "#E7F3F2",
+            "U": "#F0EBF8", "V": "#F3EAF3", "W": "#E8F3F8", "X": "#EEF0F2",
+            "Y": "#F8F5E5", "Z": "#EAEFF4",
+        }.get(heading_symbol[:1].upper(), "#E7F2E5")
+        sidebar_text = "#344456"
+    else:
+        sidebar_border, sidebar_accent, sidebar_soft, sidebar_text = (
+            "#8794A5", "#202833", "#E7EAEE", "#344456"
+        )
     st.markdown(
         f"""
         <style>
         .stApp {{ --brand-flower-color:{heading_colour}; }}
         h1 {{ color:{heading_colour} !important; }}
+        /* Sidebar follows the current topmost Stock of the Day card palette. */
+        [data-testid="stSidebar"] {{
+            background:linear-gradient(180deg,{sidebar_soft} 0%,#FFFFFF 100%) !important;
+            border-right:1.5px solid {sidebar_border} !important;
+            box-shadow:inset -8px 0 24px {sidebar_border}18 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{
+            color:{sidebar_text} !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {{
+            border-color:{sidebar_border}88 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {{
+            border-color:{sidebar_border}99 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="font-size:1.35rem"] {{
+            color:{sidebar_accent} !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {{
+            border:1px solid {sidebar_border}88 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+            box-shadow:0 2px 8px {sidebar_border}18 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {{
+            border-color:{sidebar_accent} !important;
+            background:linear-gradient(110deg,{sidebar_soft} 0%,#FFFFFF 100%) !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border:1.5px solid {sidebar_accent} !important;
+            background:linear-gradient(110deg,{sidebar_soft} 0%,#FFFFFF 100%) !important;
+            box-shadow:inset 4px 0 0 {sidebar_accent},0 3px 10px {sidebar_border}28 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            color:{sidebar_text} !important;
+        }}
+        [data-testid="stSidebar"] .stButton > button {{
+            border-color:{sidebar_border} !important;
+            color:{sidebar_text} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+        }}
+        [data-testid="stSidebar"] .stButton > button:hover {{
+            border-color:{sidebar_accent} !important;
+            background:linear-gradient(110deg,{sidebar_soft} 0%,#FFFFFF 100%) !important;
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -1958,14 +2024,51 @@ def render_autogreen_dashboard():
             border-top:1px solid {metric_ink}55 !important;
             background:linear-gradient(180deg,{metric_canvas} 0%,#FFFFFF 100%) !important;
         }}
+        /* Sidebar follows the topmost AutoGreen signal-card palette. */
         [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,{metric_canvas} 0%,#E1E5E9 100%) !important;
-            border-right:1px solid {metric_ink}66 !important;
-            box-shadow:inset -8px 0 24px {metric_ink}0A !important;
+            background:linear-gradient(180deg,{metric_tint} 0%,{metric_canvas} 48%,#FFFFFF 100%) !important;
+            border-right:1.5px solid {metric_ink}88 !important;
+            box-shadow:inset -8px 0 24px {metric_ink}12 !important;
         }}
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:#344456 !important; }}
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color:{metric_accent_text} !important; }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {{
+            border-color:{metric_ink}55 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {{
+            border-color:{metric_ink}66 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="font-size:1.35rem"] {{
+            color:{metric_ink} !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {{
+            border:1px solid {metric_ink}55 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{metric_canvas} 100%) !important;
+            box-shadow:0 2px 8px {metric_ink}12 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {{
+            border-color:{metric_ink} !important;
+            background:linear-gradient(110deg,{metric_tint} 0%,#FFFFFF 100%) !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border:1.5px solid {metric_ink} !important;
+            background:linear-gradient(110deg,{metric_tint} 0%,{metric_canvas} 100%) !important;
+            box-shadow:inset 4px 0 0 {metric_ink},0 3px 10px {metric_ink}20 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            color:{metric_accent_text} !important;
+        }}
+        [data-testid="stSidebar"] .stButton > button {{
+            border-color:{metric_ink}77 !important;
+            color:{metric_accent_text} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+        }}
+        [data-testid="stSidebar"] .stButton > button:hover {{
+            border-color:{metric_ink} !important;
+            background:linear-gradient(110deg,{metric_tint} 0%,{metric_canvas} 100%) !important;
+        }}
         h1,h2,h3,[data-testid="stSubheader"] {{ color:#263342 !important; }}
         h2,h3 {{
             border-bottom:1px solid {metric_ink}55 !important;
