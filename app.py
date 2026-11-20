@@ -1086,21 +1086,25 @@ def render_stock_of_the_day():
         div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
             color:{heading_colour} !important;
         }}
-        /* BaseWeb draws the horizontal rail on this nested track element.
-           Use background (not only background-color) to override its default gradient. */
-        div.stSlider > div[data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div {{
+        /* Override BaseWeb's inline red fill and rail backgrounds. */
+        div[data-testid="stSlider"] [data-baseweb="slider"] div[style*="background"],
+        div[data-testid="stSlider"] [data-baseweb="slider"] div[style*="background-color"] {{
             background:{heading_colour} !important;
+            background-color:{heading_colour} !important;
             background-image:none !important;
             border-color:{heading_colour} !important;
         }}
-        /* Keep the slider rail's inner track and tick line in the same colour. */
-        div.stSlider > div[data-baseweb="slider"] > div > div > div:not([role="slider"]),
+        /* Also cover the slider track and selected track when rendered without inline styles. */
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div:not([role="slider"]),
         div[data-testid="stSlider"] [data-testid="stTickBar"] {{
             background:{heading_colour} !important;
+            background-color:{heading_colour} !important;
+            background-image:none !important;
             border-color:{heading_colour} !important;
         }}
         div[data-testid="stSlider"] [role="slider"] {{
+            background:{heading_colour} !important;
             background-color:{heading_colour} !important;
             border-color:{heading_colour} !important;
         }}
