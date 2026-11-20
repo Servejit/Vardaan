@@ -1072,7 +1072,24 @@ def render_stock_of_the_day():
     heading_symbol = normalize_stock_symbol(rows[0].get("Stock", "A"))
     heading_colour = stock_day_palettes.get(heading_symbol[:1].upper(), stock_day_palettes["A"])[1]
     st.markdown(
-        f"<style>h1 {{ color:{heading_colour} !important; }}</style>",
+        f"""
+        <style>
+        h1 {{ color:{heading_colour} !important; }}
+        div[data-testid="stSlider"] label,
+        div[data-testid="stSlider"] label p,
+        div[data-testid="stSlider"] [data-testid="stTickBarMin"],
+        div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
+            color:{heading_colour} !important;
+        }}
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div {{
+            background-color:{heading_colour} !important;
+        }}
+        div[data-testid="stSlider"] [role="slider"] {{
+            background-color:{heading_colour} !important;
+            border-color:{heading_colour} !important;
+        }}
+        </style>
+        """,
         unsafe_allow_html=True
     )
 
