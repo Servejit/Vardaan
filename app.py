@@ -1480,12 +1480,8 @@ def render_stock_of_the_day():
             """,
             unsafe_allow_html=True
         )
-        st.markdown(
-            "<div style='font-size:1rem;font-weight:950;letter-spacing:1.2px;color:#202833;'>THRESHOLD FREQUENCY</div>"
-            "<div style='font-size:.82rem;font-weight:650;color:#687383;margin-top:4px;'>Find Next Stock at Your Own Risk</div>",
-            unsafe_allow_html=True
-        )
-        with st.expander("D-B THRESHOLD", expanded=False):
+        with st.expander("THRESHOLD FREQUENCY", expanded=False):
+            st.caption("Find Next Stock at Your Own Risk")
             selected_db_threshold = st.slider(
                 "D-B threshold",
                 min_value=-5.0,
