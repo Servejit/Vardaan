@@ -1464,6 +1464,20 @@ def get_autogreen_live_prices(symbols):
                 period="5d", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
+            # Prefer today's daily-candle Open as the authoritative session Open.
+            # Keep the intraday first-bar Open as a fallback if today's daily candle is unavailable.
+            if daily is not None and not daily.empty and "Open" in daily:
+                daily_open_rows = daily.dropna(subset=["Open"])
+                if (
+                    not daily_open_rows.empty
+                    and daily_open_rows.index[-1].date() == latest_session_date
+                ):
+                    daily_session_open = _autogreen_number(
+                        daily_open_rows["Open"].iloc[-1]
+                    )
+                    if daily_session_open is not None and daily_session_open > 0:
+                        open_price = daily_session_open
+
             daily_closes = (
                 daily["Close"].dropna()
                 if daily is not None and not daily.empty and "Close" in daily
