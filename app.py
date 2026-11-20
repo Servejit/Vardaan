@@ -3442,7 +3442,7 @@ else:
     .masterx-hero {
         position:relative; overflow:hidden; padding:25px 26px; margin:4px 0 18px;
         border-radius:20px; color:#F8FAFC;
-        background:linear-gradient(112deg,#063B35 0%,#087E8B 27%,#2563EB 54%,#7045B5 77%,#B45383 100%);
+        background:linear-gradient(112deg,#123B5D 0%,#17658B 28%,#278FB8 56%,#69B9D8 80%,#B9E8F5 100%);
         box-shadow:0 12px 30px rgba(30,64,110,.18);
         border:1px solid rgba(255,255,255,.22);
     }
@@ -3455,27 +3455,27 @@ else:
     .masterx-subtitle {font-size:13px;line-height:1.5;opacity:.88;max-width:680px;}
     .masterx-status {
         display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 0 18px;
-        border-radius:15px;background:linear-gradient(105deg,#ECFDF5,#EFF6FF 52%,#F5F3FF);
-        border:1px solid #C7DCEB;color:#173B50;
+        border-radius:15px;background:linear-gradient(105deg,#EAF7FF,#DDF2FC 52%,#EFF9FF);
+        border:1px solid #B9DDED;color:#173B50;
     }
-    .masterx-status-dot {width:11px;height:11px;flex:0 0 11px;border-radius:50%;background:#10B981;box-shadow:0 0 0 5px rgba(16,185,129,.13);}
+    .masterx-status-dot {width:11px;height:11px;flex:0 0 11px;border-radius:50%;background:#38BDF8;box-shadow:0 0 0 5px rgba(56,189,248,.16);}
     .masterx-status-dot.offline {background:#F59E0B;box-shadow:0 0 0 5px rgba(245,158,11,.14);}
     .masterx-status-title {font-size:14px;font-weight:850;line-height:1.3;}
     .masterx-status-note {font-size:11px;color:#557084;margin-top:3px;}
     .masterx-section {
         display:flex;align-items:center;gap:11px;padding:12px 15px;margin:18px 0 12px;
-        border-radius:13px;background:linear-gradient(100deg,#E7F8F2,#EAF2FF 48%,#F4ECFF);
-        border:1px solid #D5E2F0;color:#173B50;font-weight:850;font-size:14px;
+        border-radius:13px;background:linear-gradient(100deg,#E7F6FF,#DCEFFD 48%,#F0FAFF);
+        border:1px solid #C6E2F1;color:#173B50;font-weight:850;font-size:14px;
     }
     .masterx-section-icon {
         display:flex;align-items:center;justify-content:center;width:30px;height:30px;
-        border-radius:10px;background:linear-gradient(135deg,#0D9488,#2563EB,#8B5CF6);
+        border-radius:10px;background:linear-gradient(135deg,#1D4ED8,#38BDF8,#A5E8F7);
         color:white;font-size:15px;
     }
     div[data-testid="stDownloadButton"] button {
         border:0!important;color:white!important;font-weight:800!important;
-        background:linear-gradient(100deg,#0F766E,#2563EB 55%,#7C3AED)!important;
-        box-shadow:0 6px 16px rgba(37,99,235,.18)!important;border-radius:12px!important;
+        background:linear-gradient(100deg,#155E91,#168FC0 55%,#62C4E6)!important;
+        box-shadow:0 6px 16px rgba(30,144,190,.20)!important;border-radius:12px!important;
     }
     div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
     </style>
