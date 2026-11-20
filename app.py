@@ -1577,48 +1577,81 @@ def is_stock_of_day_next_session_window():
     return current_time >= datetime.strptime("17:00", "%H:%M").time() or current_time < datetime.strptime("09:00", "%H:%M").time()
 
 
-def get_dark_blue_master_column_a_symbols(workbook_bytes):
-    """Read dark-blue stock cells from Column A of the Master ranking worksheet."""
+def is_orange_grade_fill(cell, workbook):
+    """Recognize orange fills across light, medium, and dark Excel grade shades."""
+    import colorsys
+    from openpyxl.styles.colors import COLOR_INDEX
+    import xml.etree.ElementTree as ET
+
+    colour = cell.fill.fgColor
+    rgb = None
+
+    if colour.type == "rgb" and isinstance(colour.rgb, str):
+        raw = colour.rgb[-6:]
+        try:
+            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
+        except (TypeError, ValueError):
+            rgb = None
+    elif colour.type == "indexed":
+        try:
+            raw = COLOR_INDEX[int(colour.indexed)][-6:]
+            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
+        except (TypeError, ValueError, IndexError):
+            rgb = None
+    elif colour.type == "theme" and workbook.loaded_theme:
+        try:
+            root = ET.fromstring(workbook.loaded_theme)
+            namespace = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
+            theme_colours = root.find(".//a:clrScheme", namespace)
+            theme_entries = list(theme_colours) if theme_colours is not None else []
+            entry = theme_entries[int(colour.theme)]
+            base = list(entry)[0]
+            raw = base.attrib.get("lastClr") or base.attrib.get("val")
+            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
+            tint = float(colour.tint or 0)
+            if tint:
+                rgb = tuple(
+                    round(channel * (1 + tint)) if tint > 0
+                    else round(channel * (1 + tint))
+                    for channel in rgb
+                )
+                rgb = tuple(max(0, min(255, channel)) for channel in rgb)
+        except (TypeError, ValueError, IndexError, AttributeError, ET.ParseError):
+            rgb = None
+
+    if not rgb:
+        return False
+
+    red, green, blue = (channel / 255 for channel in rgb)
+    hue, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
+    hue_degrees = hue * 360
+    # Broad orange hue band accepts pale peach through amber and burnt orange.
+    return 8 <= hue_degrees <= 52 and saturation >= 0.12 and value >= 0.35
+
+
+def get_orange_grade_master_column_a_symbols(workbook_bytes):
+    """Collect every stock with an orange-grade fill in Column A of the Master workbook."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=False)
     try:
-        selected_sheet = None
-        header_row = None
-
-        def normalized(value):
-            return " ".join(str(value or "").strip().casefold().split())
-
-        for ws in sorted(workbook.worksheets, key=lambda item: (item.title.casefold() != "summary", item.title.casefold())):
-            for row_number, row in enumerate(ws.iter_rows(min_row=1, max_row=min(ws.max_row or 1, 30), values_only=True), start=1):
-                if normalized("Sum O2L.10") in {normalized(value) for value in row if value is not None}:
-                    selected_sheet, header_row = ws, row_number
-                    break
-            if selected_sheet is not None:
-                break
-
-        if selected_sheet is None:
-            raise ValueError("Could not identify the Master ranking worksheet for Column A colour selection.")
-
         selected_symbols = []
-        for row_number in range(header_row + 1, (selected_sheet.max_row or header_row) + 1):
-            cell = selected_sheet.cell(row=row_number, column=1)
-            symbol = normalize_stock_symbol(cell.value)
-            if not symbol:
-                continue
-            colour = cell.fill.fgColor
-            rgb = None
-            if colour.type == "rgb" and isinstance(colour.rgb, str):
-                raw = colour.rgb[-6:]
-                try:
-                    rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
-                except (TypeError, ValueError):
-                    rgb = None
-            elif colour.type == "indexed" and colour.indexed in (18, 20, 23, 27, 30, 32, 33, 39, 41):
-                selected_symbols.append(symbol)
-                continue
-            if rgb:
-                red, green, blue = rgb
-                if blue >= 65 and blue > red * 1.25 and blue > green * 1.08 and red <= 105 and max(rgb) <= 190:
+        ignored_labels = {
+            "SYMBOL", "STOCK", "STOCKNAME", "STOCK_NAME", "NAME",
+            "SCRIP", "NSE", "TICKER", "COMPANY",
+        }
+
+        # Check Column A on each worksheet: the Master workbook may store
+        # its stock list on a differently named sheet in either deployment.
+        for ws in workbook.worksheets:
+            for row_number in range(1, (ws.max_row or 0) + 1):
+                cell = ws.cell(row=row_number, column=1)
+                if not isinstance(cell.value, str):
+                    continue
+                symbol = normalize_stock_symbol(cell.value)
+                if not symbol or symbol in ignored_labels or len(symbol) > 30:
+                    continue
+                if is_orange_grade_fill(cell, workbook):
                     selected_symbols.append(symbol)
+
         return list(dict.fromkeys(selected_symbols))
     finally:
         workbook.close()
@@ -2044,9 +2077,9 @@ def render_autogreen_dashboard():
     # Evening / overnight selection is independent of the daytime BUY logic.
     is_next_session_window = is_stock_of_day_next_session_window()
     if is_next_session_window:
-        dark_blue_symbols = get_dark_blue_master_column_a_symbols(master_bytes)
+        orange_grade_symbols = get_orange_grade_master_column_a_symbols(master_bytes)
         next_session_rows = []
-        for selected_symbol in dark_blue_symbols:
+        for selected_symbol in orange_grade_symbols:
             source_row = signal_by_symbol.get(selected_symbol) or base_by_symbol.get(selected_symbol) or {"Symbol": selected_symbol}
             next_row = dict(source_row)
             next_row["Symbol"] = selected_symbol
