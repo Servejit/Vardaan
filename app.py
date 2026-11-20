@@ -1172,6 +1172,10 @@ def render_stock_of_the_day():
         st.markdown(
             f"""
             <style>
+            @keyframes sotdDetailsBorderOnlyFlow {{
+                0% {{ background-position:0% 50%; }}
+                100% {{ background-position:300% 50%; }}
+            }}
             div[data-testid="stExpander"] {{
                 background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
                            linear-gradient(110deg,{details_border} 0%,{details_shimmer} 24%,#FFFFFF 38%,
@@ -1181,6 +1185,8 @@ def render_stock_of_the_day():
                 box-shadow:0 8px 22px {details_shimmer}30,0 0 18px {details_shimmer}35,
                            inset 0 1px 0 rgba(255,255,255,.95);
                 overflow:hidden;
+                background-size:100% 100%,300% 300% !important;
+                animation:sotdDetailsBorderOnlyFlow 7s linear infinite !important;
             }}
             div[data-testid="stExpander"] summary {{
                 background:none !important;
@@ -1261,6 +1267,15 @@ def render_stock_of_the_day():
                   <div class="sotd-table-count">{len(rows)} STOCK{"S" if len(rows) != 1 else ""}</div>
                 </div>
                 <style>
+                @keyframes sotdBorderOnlyFlow {{
+                    0% {{ background-position:0% 50%; }}
+                    100% {{ background-position:300% 50%; }}
+                }}
+                .sotd-table-heading,
+                .sotd-stock-panel {{
+                    background-size:100% 100%,300% 300% !important;
+                    animation:sotdBorderOnlyFlow 7s linear infinite !important;
+                }}
                 .sotd-table-heading {{
                     position:relative;overflow:hidden;isolation:isolate;
                     display:flex;align-items:center;justify-content:space-between;gap:12px;
