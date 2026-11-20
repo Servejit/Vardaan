@@ -1915,7 +1915,6 @@ def render_autogreen_dashboard():
             "Role": f"TARGET #{position}",
             "Target Status": target_status,
             "Symbol": symbol,
-            "O2H Target": f"+{target_o2h_pct:.2f}%",
             "Open": round(open_price, 2) if open_price is not None else "Unavailable",
             "High": round(day_high, 2) if day_high is not None else "Unavailable",
             "Low": round(day_low, 2) if day_low is not None else "Unavailable",
