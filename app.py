@@ -1105,10 +1105,19 @@ def render_stock_of_the_day():
             background-image:none !important;
             border-color:#D3D3D3 !important;
         }}
-        /* Both unfilled and filled portions of the slider line. */
+        /* Force BaseWeb's rail, active fill, and track pseudo-elements to light grey. */
         div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
         div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::before,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::after,
         div[data-testid="stSlider"] [data-testid="stTickBar"] {{
+            background:#D3D3D3 !important;
+            background-color:#D3D3D3 !important;
+            background-image:none !important;
+            border-color:#D3D3D3 !important;
+        }}
+        /* Catch BaseWeb inline styles on the actual rail/fill nodes. */
+        div[data-testid="stSlider"] [data-baseweb="slider"] [style*="background"] {{
             background:#D3D3D3 !important;
             background-color:#D3D3D3 !important;
             background-image:none !important;
