@@ -992,42 +992,67 @@ def render_stock_of_the_day():
             st.markdown(
                 """
                 <style>
+                @keyframes sotdNoSignalShimmer {
+                    0% { background-position:200% 50%; }
+                    100% { background-position:-100% 50%; }
+                }
                 @keyframes sotdNoSignalFloat {
                     0%,100% { transform:translateY(0); }
                     50% { transform:translateY(-3px); }
                 }
                 @keyframes sotdNoSignalGlow {
-                    0% { transform:translateX(-110%); }
-                    100% { transform:translateX(210%); }
+                    0% { transform:translate3d(-35%,-5%,0) rotate(18deg); opacity:0; }
+                    18% { opacity:.62; }
+                    52% { transform:translate3d(115%,3%,0) rotate(18deg); opacity:.42; }
+                    82% { opacity:.18; }
+                    100% { transform:translate3d(190%,-4%,0) rotate(18deg); opacity:0; }
+                }
+                @media (prefers-reduced-motion: reduce) {
+                    .stock-day-no-signal-card { animation:none !important; }
                 }
                 </style>
-                <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                            background:#A83E59;
-                            box-shadow:0 0 0 1px rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.42),
-                            0 0 22px rgba(220,92,126,.30);">
-                  <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
-                              border-radius:18px;background:radial-gradient(ellipse at 50% 0%,
-                              rgba(255,225,235,.34),transparent 54%),linear-gradient(145deg,#3B1025 0%,#7E2342 48%,#35101F 100%);
-                              color:#FFF4F6;animation:sotdNoSignalFloat 5s ease-in-out infinite;">
-                    <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
-                                pointer-events:none;z-index:0;filter:blur(7px);
-                                background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.12) 25%,
-                                rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
-                                animation:sotdNoSignalGlow 6s ease-in-out infinite;"></div>
-                    <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;color:#F0B8C8;
-                                text-shadow:0 0 12px rgba(255,210,225,.34);">6THSENSE · VARDAAN</div>
-                    <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;font-weight:950;
-                                letter-spacing:2.2px;margin:13px 0 10px;color:#FFF0F4;
-                                text-shadow:0 2px 18px rgba(255,190,210,.34);">NO SIGNAL</div>
-                    <div style="position:relative;z-index:1;width:74px;height:1px;margin:0 auto 15px;
-                                background:linear-gradient(90deg,transparent,#F2B5C7,transparent);"></div>
-                    <div style="position:relative;z-index:1;font-size:12px;font-weight:900;letter-spacing:1.65px;color:#F0B5C7;">
-                      WAIT FOR A QUALIFIED SETUP
-                    </div>
-                    <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;color:#E5C0CB;
-                                margin-top:10px;">
-                      No Stock of the Day BUY signal is available.
-                    </div>
+                <div class="stock-day-no-signal-card" style="
+                    position:relative;overflow:hidden;isolation:isolate;
+                    border:2px solid transparent;border-radius:21px;
+                    padding:30px 23px 28px;margin:12px 0 18px;color:#202833;text-align:center;
+                    background:
+                        linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
+                        linear-gradient(110deg,#202833 0%,#687383 24%,#FFFFFF 38%,
+                                        #111827 54%,#202833 76%,#687383 100%) border-box;
+                    background-size:100% 100%,300% 300%;
+                    animation:sotdNoSignalShimmer 5.8s linear infinite,
+                              sotdNoSignalFloat 3.1s ease-in-out infinite;
+                    box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,
+                               0 14px 30px rgba(17,24,39,.18),
+                               0 0 22px rgba(17,24,39,.30),
+                               0 0 38px rgba(104,115,131,.22);
+                ">
+                  <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
+                              pointer-events:none;z-index:0;filter:blur(7px);
+                              background:linear-gradient(105deg,transparent 0%,rgba(17,24,39,.13) 25%,
+                              rgba(17,24,39,.72) 48%,rgba(255,255,255,.9) 58%,transparent 82%);
+                              animation:sotdNoSignalGlow 6s ease-in-out infinite;"></div>
+                  <div style="position:absolute;right:-35px;top:-75px;width:205px;height:205px;
+                              border-radius:50%;background:radial-gradient(circle,rgba(17,24,39,.18),transparent 70%);
+                              pointer-events:none;"></div>
+                  <div style="position:relative;z-index:1;text-align:center;font-size:11px;
+                              font-weight:900;letter-spacing:3px;color:#202833;margin:0 0 15px;">
+                    6THSENSE · VARDAAN
+                  </div>
+                  <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);
+                              line-height:1.1;font-weight:950;letter-spacing:2.2px;
+                              margin:13px 0 10px;color:#111827;text-shadow:0 2px 12px rgba(17,24,39,.12);">
+                    NO SIGNAL
+                  </div>
+                  <div style="position:relative;z-index:1;width:74px;height:1px;margin:0 auto 15px;
+                              background:linear-gradient(90deg,transparent,#202833,transparent);"></div>
+                  <div style="position:relative;z-index:1;font-size:12px;font-weight:900;
+                              letter-spacing:1.65px;color:#374151;">
+                    WAIT FOR A QUALIFIED SETUP
+                  </div>
+                  <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;
+                              font-weight:600;color:#596273;margin-top:10px;">
+                    No Stock of the Day BUY signal is available.
                   </div>
                 </div>
                 """,
