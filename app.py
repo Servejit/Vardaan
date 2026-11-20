@@ -762,7 +762,7 @@ def load_autogreen_buy_signals():
 
 
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
-def load_stock_of_the_day_rows():
+def load_stock_of_the_day_rows(db_threshold=-2.0):
     """Use AutoGreen volume-qualified stocks only; never apply the High - 0.20% layer."""
     # Take the base volume-expansion list, not colour-qualified or High - 0.20% candidates.
     base_rows, _ = load_autogreen_buy_signals()
@@ -917,7 +917,7 @@ def load_stock_of_the_day_rows():
             if (
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
-                or db_value is None or db_value >= -2.00
+                or db_value is None or db_value >= db_threshold
                 or len(o2l_values) < 2
                 or any(value is None or value >= -1.50 for value in o2l_values[:2])
                 or change1 is None or change1 >= 0
@@ -986,8 +986,18 @@ def render_stock_of_the_day():
         st.error("Master File Not Available")
         return
 
+    db_threshold = st.slider(
+        "D-B Threshold",
+        min_value=-3.0,
+        max_value=-1.0,
+        value=-2.0,
+        step=0.5,
+        format="%.1f",
+        help="Stocks qualify when their D-B value is below the selected threshold."
+    )
+
     try:
-        rows = load_stock_of_the_day_rows()
+        rows = load_stock_of_the_day_rows(db_threshold=db_threshold)
         if not rows:
             st.info("No Stock of the Day BUY signal is available.")
             return
