@@ -1269,7 +1269,7 @@ def render_stock_of_the_day():
                     color:#76539A;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
                 .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid var(--sotd-border,#C49A45);
                     border-radius:13px;background:#FFFFFF;
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45)66;}}
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45);}}
                 .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
                     padding:0 2px 10px;border-bottom:1px solid var(--sotd-border,#C49A45);margin-bottom:11px;}}
                 .sotd-stock-symbol {{background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
