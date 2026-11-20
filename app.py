@@ -1228,36 +1228,37 @@ def render_stock_of_the_day():
                         color:#F0F4F9;font-size:.65rem;font-weight:900;letter-spacing:.8px;
                     }}
                     .sotd-details-table-wrap {{
-                        width:100%;overflow-x:auto;max-height:520px;
+                        width:100%;overflow-x:hidden;max-height:520px;
                         border:1px solid rgba(174,190,207,.58);
                         border-radius:0 0 13px 13px;
                         background:linear-gradient(145deg,#11161d,#202833 55%,#121820);
                         box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.26);
                     }}
                     table.sotd-details-table {{
-                        width:100%;min-width:max-content;border-collapse:separate;
-                        border-spacing:0;color:#E6EDF5;font-size:.82rem;white-space:nowrap;
+                        width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;
+                        border-spacing:0;color:#E6EDF5;font-size:.68rem;white-space:normal;
                     }}
                     .sotd-details-table th {{
-                        position:sticky;top:0;z-index:2;padding:11px 13px;
-                        color:#17202A;text-align:right;font-weight:950;
-                        font-size:.68rem;letter-spacing:.55px;text-transform:uppercase;
+                        position:sticky;top:0;z-index:2;padding:7px 4px;
+                        color:#17202A;text-align:center;font-weight:950;
+                        font-size:.62rem;letter-spacing:.15px;text-transform:uppercase;
+                        white-space:normal;overflow-wrap:anywhere;word-break:break-word;
                         background:linear-gradient(180deg,#F0F3F7 0%,#B8C4D1 100%);
                         border-bottom:1px solid #8291A2;
                     }}
                     .sotd-details-table th:first-child {{
-                        left:0;z-index:4;text-align:left;
+                        z-index:3;text-align:left;
                         background:linear-gradient(180deg,#E5EBF2 0%,#AAB8C7 100%);
                     }}
                     .sotd-details-table td {{
-                        padding:10px 13px;text-align:right;
+                        padding:7px 4px;text-align:center;
                         color:#DCE4ED;background:rgba(25,32,41,.97);
                         border-bottom:1px solid rgba(170,186,203,.15);
-                        font-variant-numeric:tabular-nums;
+                        font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:break-word;
                     }}
                     .sotd-details-table td:first-child {{
-                        position:sticky;left:0;z-index:1;text-align:left;
-                        color:#FFFFFF;font-weight:950;letter-spacing:.25px;
+                        text-align:left;
+                        color:#FFFFFF;font-weight:950;letter-spacing:.1px;
                         background:linear-gradient(90deg,#202A36,#273342);
                         border-right:1px solid rgba(190,204,220,.25);
                     }}
@@ -1278,7 +1279,9 @@ def render_stock_of_the_day():
                         .sotd-table-heading {{padding:12px 11px;}}
                         .sotd-table-title {{font-size:.78rem;}}
                         .sotd-table-subtitle {{font-size:.65rem;}}
-                        .sotd-details-table th,.sotd-details-table td {{padding:9px 10px;}}
+                        .sotd-details-table th {{padding:6px 2px;font-size:.52rem;letter-spacing:0;}}
+                        .sotd-details-table td {{padding:6px 2px;font-size:.58rem;}}
+                        table.sotd-details-table {{font-size:.58rem;}}
                     }}
                     </style>
                     """,
