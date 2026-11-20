@@ -1183,110 +1183,94 @@ def render_stock_of_the_day():
             # Present selected stock metrics in a compact black/silver data panel.
             if rows:
                 table_headers = list(rows[0].keys())
-                header_html = "".join(
-                    f"<th>{html.escape(str(column))}</th>"
-                    for column in table_headers
+            core_columns = [column for column in ("O2H 1", "O2H 2", "16< D-B / Avg.4") if column in table_headers]
+            o2l_columns = [column for column in table_headers if column.startswith("O2L ")]
+            change_columns = [column for column in table_headers if column.startswith("%Chg.")]
+
+            def metric_tiles(row, columns):
+                return "".join(
+                    f'<div class="sotd-metric-tile"><div class="sotd-metric-label">{html.escape(str(column))}</div>'
+                    f'<div class="sotd-metric-value">{html.escape("" if row.get(column) is None else str(row.get(column)))}</div></div>'
+                    for column in columns
                 )
-                body_html = "".join(
-                    "<tr>" + "".join(
-                        f'<td class="{"stock-name" if column == "Stock" else "numeric-cell"}">'
-                        f"{html.escape('' if row.get(column) is None else str(row.get(column)))}</td>"
-                        for column in table_headers
-                    ) + "</tr>"
-                    for row in rows
+
+            stock_panels = []
+            for row in rows:
+                symbol = html.escape(str(row.get("Stock", "STOCK")))
+                groups = []
+                for heading, columns, css_class in (
+                    ("CORE READINGS", core_columns, "core"),
+                    ("O2L HISTORY", o2l_columns, "history"),
+                    ("% CHANGE HISTORY", change_columns, "change"),
+                ):
+                    if columns:
+                        groups.append(
+                            f'<section class="sotd-metric-group {css_class}">'
+                            f'<div class="sotd-group-heading">{heading}</div>'
+                            f'<div class="sotd-metric-grid">{metric_tiles(row, columns)}</div></section>'
+                        )
+                stock_panels.append(
+                    f'<article class="sotd-stock-panel"><div class="sotd-stock-panel-head">'
+                    f'<span class="sotd-stock-symbol">{symbol}</span>'
+                    f'<span class="sotd-stock-tag">STOCK OF THE DAY</span></div>'
+                    f'{"".join(groups)}</article>'
                 )
-                st.markdown(
-                    f"""
-                    <div class="sotd-table-heading">
-                      <div>
-                        <div class="sotd-table-title">STOCK DATA</div>
-                        <div class="sotd-table-subtitle">Selected stock details</div>
-                      </div>
-                      <div class="sotd-table-count">{len(rows)} STOCK{"S" if len(rows) != 1 else ""}</div>
-                    </div>
-                    <style>
-                    .sotd-table-heading {{
-                        display:flex;align-items:center;justify-content:space-between;gap:12px;
-                        margin:18px 0 0;padding:14px 16px;
-                        border:1px solid rgba(197,211,227,.55);border-bottom:0;
-                        border-radius:13px 13px 0 0;
-                        background:linear-gradient(110deg,#111820 0%,#303B49 48%,#151C25 100%);
-                        box-shadow:inset 0 1px 0 rgba(255,255,255,.13);
-                    }}
-                    .sotd-table-title {{
-                        color:#F4F7FB;font-size:.86rem;font-weight:950;
-                        letter-spacing:1.65px;line-height:1.25;
-                    }}
-                    .sotd-table-subtitle {{
-                        color:#AEBBCB;font-size:.72rem;font-weight:600;
-                        margin-top:4px;letter-spacing:.2px;
-                    }}
-                    .sotd-table-count {{
-                        flex:0 0 auto;padding:6px 10px;border-radius:999px;
-                        border:1px solid rgba(220,230,242,.48);
-                        background:linear-gradient(180deg,rgba(225,234,244,.18),rgba(120,137,157,.10));
-                        color:#F0F4F9;font-size:.65rem;font-weight:900;letter-spacing:.8px;
-                    }}
-                    .sotd-details-table-wrap {{
-                        width:100%;overflow-x:hidden;max-height:520px;
-                        border:1px solid rgba(174,190,207,.58);
-                        border-radius:0 0 13px 13px;
-                        background:linear-gradient(145deg,#11161d,#202833 55%,#121820);
-                        box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.26);
-                    }}
-                    table.sotd-details-table {{
-                        width:100%;min-width:100%;table-layout:fixed;border-collapse:separate;
-                        border-spacing:0;color:#E6EDF5;font-size:.68rem;white-space:normal;
-                    }}
-                    .sotd-details-table th {{
-                        position:sticky;top:0;z-index:2;padding:7px 4px;
-                        color:#17202A;text-align:center;font-weight:950;
-                        font-size:.62rem;letter-spacing:.15px;text-transform:uppercase;
-                        white-space:normal;overflow-wrap:anywhere;word-break:break-word;
-                        background:linear-gradient(180deg,#F0F3F7 0%,#B8C4D1 100%);
-                        border-bottom:1px solid #8291A2;
-                    }}
-                    .sotd-details-table th:first-child {{
-                        z-index:3;text-align:left;
-                        background:linear-gradient(180deg,#E5EBF2 0%,#AAB8C7 100%);
-                    }}
-                    .sotd-details-table td {{
-                        padding:7px 4px;text-align:center;
-                        color:#DCE4ED;background:rgba(25,32,41,.97);
-                        border-bottom:1px solid rgba(170,186,203,.15);
-                        font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:break-word;
-                    }}
-                    .sotd-details-table td:first-child {{
-                        text-align:left;
-                        color:#FFFFFF;font-weight:950;letter-spacing:.1px;
-                        background:linear-gradient(90deg,#202A36,#273342);
-                        border-right:1px solid rgba(190,204,220,.25);
-                    }}
-                    .sotd-details-table tbody tr:nth-child(even) td {{
-                        background:rgba(43,54,67,.97);
-                    }}
-                    .sotd-details-table tbody tr:nth-child(even) td:first-child {{
-                        background:linear-gradient(90deg,#293746,#304052);
-                    }}
-                    .sotd-details-table tbody tr:hover td {{
-                        background:rgba(101,124,148,.34);color:#FFFFFF;
-                    }}
-                    .sotd-details-table tbody tr:hover td:first-child {{
-                        background:linear-gradient(90deg,#35485C,#40556B);
-                    }}
-                    .sotd-details-table tbody tr:last-child td {{border-bottom:0;}}
-                    @media (max-width:640px) {{
-                        .sotd-table-heading {{padding:12px 11px;}}
-                        .sotd-table-title {{font-size:.78rem;}}
-                        .sotd-table-subtitle {{font-size:.65rem;}}
-                        .sotd-details-table th {{padding:6px 2px;font-size:.52rem;letter-spacing:0;}}
-                        .sotd-details-table td {{padding:6px 2px;font-size:.58rem;}}
-                        table.sotd-details-table {{font-size:.58rem;}}
-                    }}
-                    </style>
-                    """,
-                    unsafe_allow_html=True
-                )
+
+            st.markdown(
+                f"""
+                <div class="sotd-table-heading">
+                  <div>
+                    <div class="sotd-table-title">STOCK DATA</div>
+                    <div class="sotd-table-subtitle">All qualifying readings · grouped for quick review</div>
+                  </div>
+                  <div class="sotd-table-count">{len(rows)} STOCK{"S" if len(rows) != 1 else ""}</div>
+                </div>
+                <style>
+                .sotd-table-heading {{
+                    display:flex;align-items:center;justify-content:space-between;gap:12px;
+                    margin:18px 0 12px;padding:14px 16px;border:1px solid rgba(197,211,227,.5);
+                    border-radius:13px;background:linear-gradient(110deg,#101720,#303B49 48%,#151C25);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.13);
+                }}
+                .sotd-table-title {{color:#F4F7FB;font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
+                .sotd-table-subtitle {{color:#AEBBCB;font-size:.72rem;font-weight:600;margin-top:4px;}}
+                .sotd-table-count {{flex:0 0 auto;padding:6px 10px;border-radius:999px;
+                    border:1px solid rgba(220,230,242,.48);background:rgba(225,234,244,.12);
+                    color:#F0F4F9;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
+                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1px solid rgba(174,190,207,.45);
+                    border-radius:13px;background:linear-gradient(145deg,#111820,#252F3B 52%,#121820);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 7px 18px rgba(0,0,0,.22);}}
+                .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
+                    padding:0 2px 10px;border-bottom:1px solid rgba(190,204,220,.22);margin-bottom:11px;}}
+                .sotd-stock-symbol {{color:#FFFFFF;font-size:1rem;font-weight:950;letter-spacing:.8px;}}
+                .sotd-stock-tag {{color:#BFCBD8;font-size:.58rem;font-weight:900;letter-spacing:1px;
+                    padding:5px 8px;border:1px solid rgba(190,204,220,.3);border-radius:20px;background:rgba(255,255,255,.06);}}
+                .sotd-metric-group {{margin-top:9px;}}
+                .sotd-group-heading {{color:#AEBBCB;font-size:.59rem;font-weight:950;letter-spacing:1.25px;
+                    margin:0 0 7px 2px;}}
+                .sotd-metric-grid {{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;}}
+                .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(190,204,220,.18);
+                    border-radius:8px;background:linear-gradient(150deg,rgba(238,244,250,.09),rgba(125,143,164,.045));}}
+                .sotd-metric-label {{color:#AEBBCB;font-size:.58rem;font-weight:850;line-height:1.25;
+                    overflow-wrap:anywhere;}}
+                .sotd-metric-value {{color:#F3F6FA;font-size:.82rem;font-weight:900;font-variant-numeric:tabular-nums;
+                    margin-top:5px;overflow-wrap:anywhere;}}
+                .sotd-metric-group.history .sotd-metric-tile {{background:linear-gradient(145deg,rgba(125,153,181,.13),rgba(255,255,255,.035));}}
+                .sotd-metric-group.change .sotd-metric-value {{color:#E5EDF6;}}
+                @media(max-width:640px) {{
+                    .sotd-table-heading {{padding:11px 12px;}}
+                    .sotd-table-subtitle {{font-size:.64rem;}}
+                    .sotd-stock-panel {{padding:10px;}}
+                    .sotd-metric-grid {{grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:5px;}}
+                    .sotd-metric-tile {{padding:7px 5px;}}
+                    .sotd-metric-label {{font-size:.54rem;}}
+                    .sotd-metric-value {{font-size:.72rem;}}
+                }}
+                </style>
+                {''.join(stock_panels)}
+                """,
+                unsafe_allow_html=True
+            )
                 st.markdown(
                     f'<div class="sotd-details-table-wrap"><table class="sotd-details-table">'
                     f'<thead><tr>{header_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
