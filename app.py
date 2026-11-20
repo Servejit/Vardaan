@@ -1570,6 +1570,60 @@ def render_stock_of_the_day():
             selected_db_threshold = max(-4.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
     
+
+def is_stock_of_day_next_session_window():
+    """Return True from 5:00 PM until 9:00 AM the next day, India time."""
+    current_time = datetime.now(ZoneInfo("Asia/Kolkata")).time()
+    return current_time >= datetime.strptime("17:00", "%H:%M").time() or current_time < datetime.strptime("09:00", "%H:%M").time()
+
+
+def get_dark_blue_master_column_a_symbols(workbook_bytes):
+    """Read dark-blue stock cells from Column A of the Master ranking worksheet."""
+    workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=False)
+    try:
+        selected_sheet = None
+        header_row = None
+
+        def normalized(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        for ws in sorted(workbook.worksheets, key=lambda item: (item.title.casefold() != "summary", item.title.casefold())):
+            for row_number, row in enumerate(ws.iter_rows(min_row=1, max_row=min(ws.max_row or 1, 30), values_only=True), start=1):
+                if normalized("Sum O2L.10") in {normalized(value) for value in row if value is not None}:
+                    selected_sheet, header_row = ws, row_number
+                    break
+            if selected_sheet is not None:
+                break
+
+        if selected_sheet is None:
+            raise ValueError("Could not identify the Master ranking worksheet for Column A colour selection.")
+
+        selected_symbols = []
+        for row_number in range(header_row + 1, (selected_sheet.max_row or header_row) + 1):
+            cell = selected_sheet.cell(row=row_number, column=1)
+            symbol = normalize_stock_symbol(cell.value)
+            if not symbol:
+                continue
+            colour = cell.fill.fgColor
+            rgb = None
+            if colour.type == "rgb" and isinstance(colour.rgb, str):
+                raw = colour.rgb[-6:]
+                try:
+                    rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
+                except (TypeError, ValueError):
+                    rgb = None
+            elif colour.type == "indexed" and colour.indexed in (18, 20, 23, 27, 30, 32, 33, 39, 41):
+                selected_symbols.append(symbol)
+                continue
+            if rgb:
+                red, green, blue = rgb
+                if blue >= 65 and blue > red * 1.25 and blue > green * 1.08 and red <= 105 and max(rgb) <= 190:
+                    selected_symbols.append(symbol)
+        return list(dict.fromkeys(selected_symbols))
+    finally:
+        workbook.close()
+
+
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
@@ -1987,6 +2041,22 @@ def render_autogreen_dashboard():
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
 
+    # Evening / overnight selection is independent of the daytime BUY logic.
+    is_next_session_window = is_stock_of_day_next_session_window()
+    if is_next_session_window:
+        dark_blue_symbols = get_dark_blue_master_column_a_symbols(master_bytes)
+        next_session_rows = []
+        for selected_symbol in dark_blue_symbols:
+            source_row = signal_by_symbol.get(selected_symbol) or base_by_symbol.get(selected_symbol) or {"Symbol": selected_symbol}
+            next_row = dict(source_row)
+            next_row["Symbol"] = selected_symbol
+            next_row["Card Colour"] = source_row.get("Card Colour", "Copper-Orange")
+            next_row["Sum O2L.10 Rank"] = None
+            next_row["_Role"] = "CONFIRMATION"
+            next_row["_Next Session Stock"] = True
+            next_session_rows.append(next_row)
+        selected_rows = next_session_rows
+
     # Keep the existing High - 0.20% metric populated from the four target stocks.
     high_gap_candidates = [
         item for item in target_records
@@ -2299,7 +2369,8 @@ def render_autogreen_dashboard():
         for index, item in enumerate(selected_rows):
             is_confirmation = item.get("_Role") == "CONFIRMATION"
             symbol = item["Symbol"]
-            entry = item["Live Price"]
+            is_next_session_stock = bool(item.get("_Next Session Stock"))
+            entry = item.get("Live Price")
             # Card target is +0.35% from Entry, capped at the stock-specific
             # maximum calculated from the session Open (+0.75% or +1.00%).
             entry_based_target = entry * 1.0035
@@ -2310,9 +2381,12 @@ def render_autogreen_dashboard():
                 if day_open is not None and day_open > 0
                 else entry_based_target
             )
-            target = min(entry_based_target, open_based_max_target)
+            target = min(entry_based_target, open_based_max_target) if entry is not None else None
             rank_value = item.get("Sum O2L.10 Rank")
             rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
+            rank_label = "Stock of the Day- Next Session" if is_next_session_stock else f"RANK {rank_text}"
+            entry_display = "Open Price" if is_next_session_stock else (f"₹{entry:,.2f}" if entry is not None else "Unavailable")
+            target_display = "Open Price +0.50%" if is_next_session_stock else (f"₹{target:,.2f}" if target is not None else "Unavailable")
             role_text = "BUY CONFIRMATION" if is_confirmation else "BUY SIGNAL"
             palette = {
                 "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4", "#8FFFF0"),
@@ -2363,7 +2437,7 @@ def render_autogreen_dashboard():
               </div>
               <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:{accent_colour};
                           margin-top:9px;position:relative;z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.25);">
-                RANK {rank_text}
+                {rank_label}
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},rgba(255,255,255,.42),{border_colour},transparent);
                           margin:19px 0 17px;position:relative;z-index:1;"></div>
@@ -2373,14 +2447,14 @@ def render_autogreen_dashboard():
                   <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">ENTRY PRICE</div>
                   <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#fff;margin-top:7px;
                               white-space:nowrap;text-shadow:0 2px 10px rgba(0,0,0,.22);">
-                    ₹{entry:,.2f}
+                    {entry_display}
                   </div>
                 </div>
                 <div style="min-width:0;text-align:left;">
                   <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;opacity:.84;">TARGET PRICE</div>
                   <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:{accent_colour};margin-top:7px;
                               white-space:nowrap;text-shadow:0 0 12px {c2}88;">
-                    ₹{target:,.2f}
+                    {target_display}
                   </div>
                 </div>
               </div>
