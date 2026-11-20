@@ -1808,26 +1808,8 @@ def render_autogreen_dashboard():
                     ))
                 except (TypeError, ValueError):
                     pass
-        # Preserve the chosen %Chg preference order; do not re-sort by D-B.
-        lowest_db_targets = [
-            (next(
-                float(match.group(1).replace(",", ""))
-                for match in [re.search(
-                    r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$",
-                    re.search(r"\(([^()]*)\)\s*\)?\s*$",
-                               str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")).group(1).strip()
-                )]
-                if match
-            ), detail["Stock"])
-            for detail in sorted(qualified_detail_rows, key=target_selection_key)
-            if re.search(r"\(([^()]*)\)\s*\)?\s*$",
-                         str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-"))
-            and re.search(
-                r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$",
-                re.search(r"\(([^()]*)\)\s*\)?\s*$",
-                           str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")).group(1).strip()
-            )
-        ][:4]
+        # Keep %Chg preference order; D-B breaks ties within each group.
+        lowest_db_targets = lowest_db_targets[:4]
 
     target_symbols = [symbol for _, symbol in lowest_db_targets]
     target_quotes = {}
