@@ -1580,10 +1580,23 @@ def render_autogreen_dashboard():
         rank = sum_o2l_ranks.get(item["Symbol"])
         ranked_candidates.append({**item, "Sum O2L.10 Rank": rank})
 
+    # Fetch live price and today's High for EVERY AutoGreen-qualified stock.
+    # The High - 0.10% metric uses the full qualified universe, not only colour-qualified stocks.
     quote_map = {}
-    if ranked_candidates:
+    if base_rows:
         with st.spinner("Fetching live NSE prices and today's highs from Yahoo Finance..."):
-            quote_map = get_autogreen_live_prices(tuple(item["Symbol"] for item in ranked_candidates))
+            quote_map = get_autogreen_live_prices(tuple(item["Symbol"] for item in base_rows))
+
+    high_010_qualified_count = 0
+    for item in base_rows:
+        quote = quote_map.get(item["Symbol"], {})
+        live_price = quote.get("price")
+        day_high = quote.get("high")
+        if live_price is None or day_high is None or day_high <= 0:
+            continue
+        high_gap_pct = ((day_high - live_price) / day_high) * 100
+        if high_gap_pct >= 0.10:
+            high_010_qualified_count += 1
 
     # Build the four target stocks from the four lowest qualified D-B values.
     qualified_detail_rows, qualified_detail_error = get_qualified_stock_detail_rows(
@@ -1919,8 +1932,8 @@ def render_autogreen_dashboard():
           <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
         </div>
         <div style="text-align:center;padding:4px 7px;">
-          <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">BUY CONFIRMATION</div>
-          <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{1 if confirmation_row else 0}</div>
+          <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">High − 0.10% qualified</div>
+          <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{high_010_qualified_count:02d}/{len(base_rows):02d}</div>
         </div>
       </div>
     </div>
