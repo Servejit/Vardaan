@@ -3020,6 +3020,19 @@ if page == "AutoGreen":
     render_autogreen_dashboard()
 
 elif page == "Stock of the Day":
+    # Refresh live Stock of the Day prices and target status during NSE market hours.
+    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_open = (
+        market_now.weekday() < 5
+        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
+        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
+    )
+    if market_open:
+        st_autorefresh(
+            interval=15_000,
+            limit=None,
+            key="stock_of_the_day_live_market_refresh",
+        )
     render_stock_of_the_day()
 
 
