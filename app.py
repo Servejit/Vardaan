@@ -1458,19 +1458,24 @@ def get_autogreen_live_prices(symbols):
                 period="5d", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
-            # Prefer today's daily-candle Open as the authoritative session Open.
-            # Keep the intraday first-bar Open as a fallback if today's daily candle is unavailable.
-            if daily is not None and not daily.empty and "Open" in daily:
-                daily_open_rows = daily.dropna(subset=["Open"])
-                if (
-                    not daily_open_rows.empty
-                    and daily_open_rows.index[-1].date() == latest_session_date
-                ):
-                    daily_session_open = _autogreen_number(
-                        daily_open_rows["Open"].iloc[-1]
-                    )
-                    if daily_session_open is not None and daily_session_open > 0:
-                        open_price = daily_session_open
+            # Keep today's OHLC internally consistent: prefer all four values
+            # from the same current-session daily candle, not a mix of daily and
+            # 1-minute bars. Intraday OHLC above remains the fallback.
+            if daily is not None and not daily.empty:
+                daily_session_rows = daily[
+                    daily.index.date == latest_session_date
+                ]
+                if not daily_session_rows.empty:
+                    daily_session = daily_session_rows.iloc[-1]
+                    daily_open = _autogreen_number(daily_session.get("Open"))
+                    daily_high = _autogreen_number(daily_session.get("High"))
+                    daily_low = _autogreen_number(daily_session.get("Low"))
+                    if daily_open is not None and daily_open > 0:
+                        open_price = daily_open
+                    if daily_high is not None and daily_high > 0:
+                        high = daily_high
+                    if daily_low is not None and daily_low > 0:
+                        low = daily_low
 
             daily_closes = (
                 daily["Close"].dropna()
