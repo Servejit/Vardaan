@@ -2926,13 +2926,13 @@ if st.session_state.user is None:
 
     if login_minute >= 15 * 60 or login_minute < 9 * 60:
         login_theme = {
-            "name": "Midnight Aurora",
-            "page_a": "#071426", "page_b": "#17133A",
-            "deep": "#0B1630", "primary": "#35D6C8",
-            "accent": "#8B5CF6", "highlight": "#67E8F9",
-            "heading": "#DDFBFF", "heading_end": "#C4B5FD",
-            "card": "#111F38", "border": "#365477",
-            "focus": "#35D6C8", "shadow": "53, 214, 200",
+            "name": "Ruby Royale",
+            "page_a": "#190B16", "page_b": "#35101F",
+            "deep": "#240D19", "primary": "#C2184B",
+            "accent": "#D9A0A7", "highlight": "#F4C6CE",
+            "heading": "#FFF0F2", "heading_end": "#F2B8C4",
+            "card": "#2A1220", "border": "#713447",
+            "focus": "#E34B72", "shadow": "194, 24, 75",
         }
     elif 9 * 60 <= login_minute <= 11 * 60:
         login_theme = {
