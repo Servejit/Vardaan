@@ -1059,6 +1059,34 @@ def render_stock_of_the_day():
                 """,
                 unsafe_allow_html=True
             )
+            st.markdown(
+                """
+                <style>
+                /* Black D-B slider line, handle, labels and numeric values (No Signal state only). */
+                div[data-testid="stSlider"] label,
+                div[data-testid="stSlider"] label p,
+                div[data-testid="stSlider"] [data-testid="stMarkdownContainer"],
+                div[data-testid="stSlider"] [data-testid="stMarkdownContainer"] p,
+                div[data-testid="stSlider"] [data-testid="stTickBar"] div,
+                div[data-testid="stSlider"] [data-testid="stThumbValue"],
+                div[data-testid="stSlider"] [role="slider"] {
+                    color: #000000 !important;
+                }
+                div[data-testid="stSlider"] [data-baseweb="slider"] div[role="slider"] {
+                    background-color: #000000 !important;
+                    border-color: #000000 !important;
+                }
+                div[data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="track"],
+                div[data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="track"] > div {
+                    background-color: #000000 !important;
+                }
+                div[data-testid="stSlider"] [data-baseweb="slider"] div[aria-hidden="true"] {
+                    border-color: #000000 !important;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
             selected_db_threshold = st.slider(
                 "D-B threshold",
                 min_value=-5.0,
