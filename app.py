@@ -1829,6 +1829,15 @@ def render_autogreen_dashboard():
     for confirmation_row in confirmation_candidates:
         confirmation_row["_Role"] = "CONFIRMATION"
 
+    # If a target has a visible BUY CONFIRMATION card, reflect that in its target status.
+    confirmation_symbols = {item["Symbol"] for item in confirmation_candidates}
+    for target_row in target_table_rows:
+        if (
+            target_row["Symbol"] in confirmation_symbols
+            and target_row["Target Status"] != "Target Completed"
+        ):
+            target_row["Target Status"] = "Signal Generated"
+
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
 
