@@ -1114,7 +1114,7 @@ def render_stock_of_the_day():
                       pointer-events:none;"></div>
           <div style="position:relative;z-index:1;text-align:center;font-size:11px;
                       font-weight:900;letter-spacing:3px;
-                      color:{border_colour};margin:0 0 15px;">
+                      color:{shimmer_colour};margin:0 0 15px;">
             6THSENSE · VARDAAN
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
