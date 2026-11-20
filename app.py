@@ -1059,77 +1059,77 @@ def render_stock_of_the_day():
                 """,
                 unsafe_allow_html=True
             )
-            st.markdown(
-                """
-                <style>
-                @keyframes sotdThresholdBorderFlow {
-                    0% { background-position:0% 50%; }
-                    100% { background-position:300% 50%; }
-                }
-                div[data-testid="stExpander"] {
-                    background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
-                               linear-gradient(110deg,#202833 0%,#687383 24%,#FFFFFF 38%,
-                                               #111827 54%,#202833 76%,#687383 100%) border-box !important;
-                    border:2px solid transparent !important;
-                    border-radius:14px !important;
-                    box-shadow:0 8px 22px rgba(17,24,39,.18),0 0 18px rgba(32,40,51,.25),
-                               inset 0 1px 0 rgba(255,255,255,.95);
-                    overflow:hidden;
-                    background-size:100% 100%,300% 300% !important;
-                    animation:sotdThresholdBorderFlow 7s linear infinite !important;
-                }
-                div[data-testid="stExpander"] summary {
-                    background:none !important;
-                    color:#202833 !important;
-                    font-weight:950 !important;
-                    letter-spacing:1.2px;
-                    padding:12px 16px !important;
-                }
-                div[data-testid="stExpander"] summary:hover {
-                    background:rgba(32,40,51,.08) !important;
-                }
-                div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                    background:#FFFFFF;
-                    border-top:1px solid #687383;
-                    color:#202833;
-                    padding:12px 16px 16px;
-                }
-                div[data-testid="stExpander"] label,
-                div[data-testid="stExpander"] label p,
-                div[data-testid="stExpander"] [data-testid="stMarkdownContainer"],
-                div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
-                div[data-testid="stExpander"] [data-testid="stTickBar"] div,
-                div[data-testid="stExpander"] [data-testid="stThumbValue"],
-                div[data-testid="stExpander"] [role="slider"] {
-                    color:#000000 !important;
-                }
-                div[data-testid="stExpander"] [data-baseweb="slider"] div[role="slider"] {
-                    background-color:#000000 !important;
-                    border-color:#000000 !important;
-                }
-                div[data-testid="stExpander"] [data-baseweb="slider"] div[data-testid="track"],
-                div[data-testid="stExpander"] [data-baseweb="slider"] div[data-testid="track"] > div {
-                    background-color:#000000 !important;
-                }
-                div[data-testid="stExpander"] [data-baseweb="slider"] div[aria-hidden="true"] {
-                    border-color:#000000 !important;
-                }
-                </style>
-                """,
-                unsafe_allow_html=True
+        st.markdown(
+            """
+            <style>
+            @keyframes sotdThresholdBorderFlow {
+                0% { background-position:0% 50%; }
+                100% { background-position:300% 50%; }
+            }
+            div[data-testid="stExpander"] {
+                background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
+                           linear-gradient(110deg,#202833 0%,#687383 24%,#FFFFFF 38%,
+                                           #111827 54%,#202833 76%,#687383 100%) border-box !important;
+                border:2px solid transparent !important;
+                border-radius:14px !important;
+                box-shadow:0 8px 22px rgba(17,24,39,.18),0 0 18px rgba(32,40,51,.25),
+                           inset 0 1px 0 rgba(255,255,255,.95);
+                overflow:hidden;
+                background-size:100% 100%,300% 300% !important;
+                animation:sotdThresholdBorderFlow 7s linear infinite !important;
+            }
+            div[data-testid="stExpander"] summary {
+                background:none !important;
+                color:#202833 !important;
+                font-weight:950 !important;
+                letter-spacing:1.2px;
+                padding:12px 16px !important;
+            }
+            div[data-testid="stExpander"] summary:hover {
+                background:rgba(32,40,51,.08) !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+                background:#FFFFFF;
+                border-top:1px solid #687383;
+                color:#202833;
+                padding:12px 16px 16px;
+            }
+            div[data-testid="stExpander"] label,
+            div[data-testid="stExpander"] label p,
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"],
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
+            div[data-testid="stExpander"] [data-testid="stTickBar"] div,
+            div[data-testid="stExpander"] [data-testid="stThumbValue"],
+            div[data-testid="stExpander"] [role="slider"] {
+                color:#000000 !important;
+            }
+            div[data-testid="stExpander"] [data-baseweb="slider"] div[role="slider"] {
+                background-color:#000000 !important;
+                border-color:#000000 !important;
+            }
+            div[data-testid="stExpander"] [data-baseweb="slider"] div[data-testid="track"],
+            div[data-testid="stExpander"] [data-baseweb="slider"] div[data-testid="track"] > div {
+                background-color:#000000 !important;
+            }
+            div[data-testid="stExpander"] [data-baseweb="slider"] div[aria-hidden="true"] {
+                border-color:#000000 !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        with st.expander("THRESHOLD FREQUENCY", expanded=False):
+            selected_db_threshold = st.slider(
+                "D-B threshold",
+                min_value=-5.0,
+                max_value=0.0,
+                value=db_threshold,
+                step=0.5,
+                format="%.1f",
+                key="stock_day_db_threshold_slider",
+                help="Adjust the D-B qualification threshold. This control appears only when no Stock of the Day BUY signal is available."
             )
-            with st.expander("THRESHOLD FREQUENCY", expanded=False):
-                selected_db_threshold = st.slider(
-                    "D-B threshold",
-                    min_value=-5.0,
-                    max_value=0.0,
-                    value=db_threshold,
-                    step=0.5,
-                    format="%.1f",
-                    key="stock_day_db_threshold_slider",
-                    help="Adjust the D-B qualification threshold. This control appears only when no Stock of the Day BUY signal is available."
-                )
-                st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
+            st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
             if selected_db_threshold != db_threshold:
                 with st.spinner("Rechecking Stock of the Day conditions..."):
                     rows = load_stock_of_the_day_rows(selected_db_threshold)
