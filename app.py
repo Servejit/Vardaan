@@ -1075,15 +1075,15 @@ def render_stock_of_the_day():
         f"""
         <style>
         h1 {{ color:{heading_colour} !important; }}
-        /* Set the accent variables locally so the rest of the app keeps its theme. */
+        /* Keep the D-B slider rail, active fill, and thumb light grey. */
         div[data-testid="stSlider"] {{
-            --primary-color:{heading_colour} !important;
-            --st-primary-color:{heading_colour} !important;
-            --slider-track-fill:{heading_colour} !important;
-            --slider-thumb-color:{heading_colour} !important;
-            accent-color:{heading_colour} !important;
+            --primary-color:#D3D3D3 !important;
+            --st-primary-color:#D3D3D3 !important;
+            --slider-track-fill:#D3D3D3 !important;
+            --slider-thumb-color:#D3D3D3 !important;
+            accent-color:#D3D3D3 !important;
         }}
-        /* Match slider label, current value, and every tick number to the card text. */
+        /* Keep slider label, current value, and all tick numbers in card text colour. */
         div[data-testid="stSlider"],
         div[data-testid="stSlider"] *,
         div[data-testid="stSlider"] label,
@@ -1094,36 +1094,35 @@ def render_stock_of_the_day():
         div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
             color:{heading_colour} !important;
         }}
-        /* Streamlit's default red accent is often written directly as an inline RGB style. */
+        /* Override Streamlit's default red accent and inline rail styles with light grey. */
         div[data-testid="stSlider"] [style*="255, 75, 75"],
         div[data-testid="stSlider"] [style*="255,75,75"],
         div[data-testid="stSlider"] [style*="#ff4b4b"],
-        div[data-testid="stSlider"] [style*="#FF4B4B"] {{
-            background:{heading_colour} !important;
-            background-color:{heading_colour} !important;
+        div[data-testid="stSlider"] [style*="#FF4B4B"],
+        div[data-testid="stSlider"] [data-baseweb="slider"] div {{
+            background:#D3D3D3 !important;
+            background-color:#D3D3D3 !important;
             background-image:none !important;
-            border-color:{heading_colour} !important;
+            border-color:#D3D3D3 !important;
         }}
-        /* Force both the unfilled rail and filled rail to use the same card text colour. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] div,
-        div[data-testid="stSlider"] [data-testid="stTickBar"] {{
-            border-color:{heading_colour} !important;
-        }}
+        /* Both unfilled and filled portions of the slider line. */
         div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div {{
-            background:{heading_colour} !important;
-            background-color:{heading_colour} !important;
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div,
+        div[data-testid="stSlider"] [data-testid="stTickBar"] {{
+            background:#D3D3D3 !important;
+            background-color:#D3D3D3 !important;
             background-image:none !important;
+            border-color:#D3D3D3 !important;
         }}
         div[data-testid="stSlider"] [role="slider"] {{
-            background:{heading_colour} !important;
-            background-color:{heading_colour} !important;
-            border-color:{heading_colour} !important;
+            background:#D3D3D3 !important;
+            background-color:#D3D3D3 !important;
+            border-color:#D3D3D3 !important;
         }}
         div[data-testid="stSlider"] [data-baseweb="slider"] [role="presentation"] {{
-            background:{heading_colour} !important;
-            background-color:{heading_colour} !important;
-            border-color:{heading_colour} !important;
+            background:#D3D3D3 !important;
+            background-color:#D3D3D3 !important;
+            border-color:#D3D3D3 !important;
         }}
         </style>
         """,
