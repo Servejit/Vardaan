@@ -1753,6 +1753,8 @@ def render_autogreen_dashboard():
             color:#263342 !important;
         }}
         [data-testid="stHeader"] {{ background:rgba(231,234,238,.96) !important; }}
+        /* 6thSense-Vardaan heading follows the active AutoGreen theme colour */
+        .stApp h1 {{ color:{metric_ink} !important; }}
         /* MORE DASHBOARD follows the active signal-card colour */
         [data-testid="stExpander"] {{
             background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 58%,{metric_canvas} 100%) !important;
