@@ -1577,80 +1577,51 @@ def is_stock_of_day_next_session_window():
     return current_time >= datetime.strptime("17:00", "%H:%M").time() or current_time < datetime.strptime("09:00", "%H:%M").time()
 
 
-def is_orange_grade_fill(cell, workbook):
-    """Recognize orange fills across light, medium, and dark Excel grade shades."""
-    import colorsys
-    from openpyxl.styles.colors import COLOR_INDEX
-    import xml.etree.ElementTree as ET
+def has_vbl_style_black_border(cell):
+    """Match the four-sided medium border used by VBL in the AutoGreen sheet."""
+    border_sides = (
+        cell.border.left,
+        cell.border.right,
+        cell.border.top,
+        cell.border.bottom,
+    )
 
-    colour = cell.fill.fgColor
-    rgb = None
+    # VBL (AutoGreen!A162) is the reference cell in the uploaded Master file.
+    # Its four sides all use a medium border with the same theme colour.
+    for side in border_sides:
+        if side.style is None or side.color is None:
+            return False
+        if side.color.type != "theme" or side.color.theme != 1:
+            return False
+        if float(side.color.tint or 0) != 0:
+            return False
 
-    if colour.type == "rgb" and isinstance(colour.rgb, str):
-        raw = colour.rgb[-6:]
-        try:
-            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
-        except (TypeError, ValueError):
-            rgb = None
-    elif colour.type == "indexed":
-        try:
-            raw = COLOR_INDEX[int(colour.indexed)][-6:]
-            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
-        except (TypeError, ValueError, IndexError):
-            rgb = None
-    elif colour.type == "theme" and workbook.loaded_theme:
-        try:
-            root = ET.fromstring(workbook.loaded_theme)
-            namespace = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
-            theme_colours = root.find(".//a:clrScheme", namespace)
-            theme_entries = list(theme_colours) if theme_colours is not None else []
-            entry = theme_entries[int(colour.theme)]
-            base = list(entry)[0]
-            raw = base.attrib.get("lastClr") or base.attrib.get("val")
-            rgb = tuple(int(raw[index:index + 2], 16) for index in (0, 2, 4))
-            tint = float(colour.tint or 0)
-            if tint:
-                rgb = tuple(
-                    round(channel * (1 + tint)) if tint > 0
-                    else round(channel * (1 + tint))
-                    for channel in rgb
-                )
-                rgb = tuple(max(0, min(255, channel)) for channel in rgb)
-        except (TypeError, ValueError, IndexError, AttributeError, ET.ParseError):
-            rgb = None
-
-    if not rgb:
-        return False
-
-    red, green, blue = (channel / 255 for channel in rgb)
-    hue, saturation, value = colorsys.rgb_to_hsv(red, green, blue)
-    hue_degrees = hue * 360
-    # Broad orange hue band accepts pale peach through amber and burnt orange.
-    return 8 <= hue_degrees <= 52 and saturation >= 0.12 and value >= 0.35
+    return True
 
 
-def get_orange_grade_master_column_a_symbols(workbook_bytes):
-    """Collect every stock with an orange-grade fill in Column A of the Master workbook."""
+def get_black_border_master_column_a_symbols(workbook_bytes):
+    """Collect stocks with the same four-sided border formatting as VBL in AutoGreen!A:A."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=False)
     try:
+        if "AutoGreen" not in workbook.sheetnames:
+            return []
+
+        ws = workbook["AutoGreen"]
         selected_symbols = []
         ignored_labels = {
             "SYMBOL", "STOCK", "STOCKNAME", "STOCK_NAME", "NAME",
             "SCRIP", "NSE", "TICKER", "COMPANY",
         }
 
-        # Check Column A on each worksheet: the Master workbook may store
-        # its stock list on a differently named sheet in either deployment.
-        for ws in workbook.worksheets:
-            for row_number in range(1, (ws.max_row or 0) + 1):
-                cell = ws.cell(row=row_number, column=1)
-                if not isinstance(cell.value, str):
-                    continue
-                symbol = normalize_stock_symbol(cell.value)
-                if not symbol or symbol in ignored_labels or len(symbol) > 30:
-                    continue
-                if is_orange_grade_fill(cell, workbook):
-                    selected_symbols.append(symbol)
+        for row_number in range(1, (ws.max_row or 0) + 1):
+            cell = ws.cell(row=row_number, column=1)
+            if not isinstance(cell.value, str):
+                continue
+            symbol = normalize_stock_symbol(cell.value)
+            if not symbol or symbol in ignored_labels or len(symbol) > 30:
+                continue
+            if has_vbl_style_black_border(cell):
+                selected_symbols.append(symbol)
 
         return list(dict.fromkeys(selected_symbols))
     finally:
@@ -2074,12 +2045,12 @@ def render_autogreen_dashboard():
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
 
-    # Evening / overnight selection is independent of the daytime BUY logic.
+    # Evening / overnight selection is independent of the daytime BUY logic and is used only on the Stock of the Day dashboard.
     is_next_session_window = is_stock_of_day_next_session_window()
     if is_next_session_window:
-        orange_grade_symbols = get_orange_grade_master_column_a_symbols(master_bytes)
+        black_border_symbols = get_black_border_master_column_a_symbols(master_bytes)
         next_session_rows = []
-        for selected_symbol in orange_grade_symbols:
+        for selected_symbol in black_border_symbols:
             source_row = signal_by_symbol.get(selected_symbol) or base_by_symbol.get(selected_symbol) or {"Symbol": selected_symbol}
             next_row = dict(source_row)
             next_row["Symbol"] = selected_symbol
