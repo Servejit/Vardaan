@@ -762,7 +762,7 @@ def load_autogreen_buy_signals():
 
 
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
-def load_stock_of_the_day_rows(db_threshold=-2.0):
+def load_stock_of_the_day_rows():
     """Use AutoGreen volume-qualified stocks only; never apply the High - 0.20% layer."""
     # Take the base volume-expansion list, not colour-qualified or High - 0.20% candidates.
     base_rows, _ = load_autogreen_buy_signals()
@@ -917,7 +917,7 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
             if (
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
-                or db_value is None or db_value >= db_threshold
+                or db_value is None or db_value >= -2.0
                 or len(o2l_values) < 2
                 or any(value is None or value >= -1.50 for value in o2l_values[:2])
                 or change1 is None or change1 >= 0
@@ -986,18 +986,8 @@ def render_stock_of_the_day():
         st.error("Master File Not Available")
         return
 
-    db_threshold = st.slider(
-        "D-B Threshold",
-        min_value=-3.0,
-        max_value=-1.0,
-        value=-2.0,
-        step=0.5,
-        format="%.1f",
-        help="Stocks qualify when their D-B value is below the selected threshold."
-    )
-
     try:
-        rows = load_stock_of_the_day_rows(db_threshold=db_threshold)
+        rows = load_stock_of_the_day_rows()
         if not rows:
             st.info("No Stock of the Day BUY signal is available.")
             return
@@ -1075,64 +1065,6 @@ def render_stock_of_the_day():
         f"""
         <style>
         h1 {{ color:{heading_colour} !important; }}
-        /* Keep the D-B slider rail, active fill, and thumb light grey. */
-        div[data-testid="stSlider"] {{
-            --primary-color:#D3D3D3 !important;
-            --st-primary-color:#D3D3D3 !important;
-            --slider-track-fill:#D3D3D3 !important;
-            --slider-thumb-color:#D3D3D3 !important;
-            accent-color:#D3D3D3 !important;
-        }}
-        /* Keep slider label, current value, and all tick numbers in card text colour. */
-        div[data-testid="stSlider"],
-        div[data-testid="stSlider"] *,
-        div[data-testid="stSlider"] label,
-        div[data-testid="stSlider"] label p,
-        div[data-testid="stSlider"] [data-testid="stTickBar"],
-        div[data-testid="stSlider"] [data-testid="stTickBar"] *,
-        div[data-testid="stSlider"] [data-testid="stTickBarMin"],
-        div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
-            color:{heading_colour} !important;
-        }}
-        /* Override Streamlit's default red accent and inline rail styles with light grey. */
-        div[data-testid="stSlider"] [style*="255, 75, 75"],
-        div[data-testid="stSlider"] [style*="255,75,75"],
-        div[data-testid="stSlider"] [style*="#ff4b4b"],
-        div[data-testid="stSlider"] [style*="#FF4B4B"],
-        div[data-testid="stSlider"] [data-baseweb="slider"] div {{
-            background:#D3D3D3 !important;
-            background-color:#D3D3D3 !important;
-            background-image:none !important;
-            border-color:#D3D3D3 !important;
-        }}
-        /* Force BaseWeb's rail, active fill, and track pseudo-elements to light grey. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::before,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::after,
-        div[data-testid="stSlider"] [data-testid="stTickBar"] {{
-            background:#D3D3D3 !important;
-            background-color:#D3D3D3 !important;
-            background-image:none !important;
-            border-color:#D3D3D3 !important;
-        }}
-        /* Catch BaseWeb inline styles on the actual rail/fill nodes. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] [style*="background"] {{
-            background:#D3D3D3 !important;
-            background-color:#D3D3D3 !important;
-            background-image:none !important;
-            border-color:#D3D3D3 !important;
-        }}
-        div[data-testid="stSlider"] [role="slider"] {{
-            background:#D3D3D3 !important;
-            background-color:#D3D3D3 !important;
-            border-color:#D3D3D3 !important;
-        }}
-        div[data-testid="stSlider"] [data-baseweb="slider"] [role="presentation"] {{
-            background:#D3D3D3 !important;
-            background-color:#D3D3D3 !important;
-            border-color:#D3D3D3 !important;
-        }}
         </style>
         """,
         unsafe_allow_html=True
