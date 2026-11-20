@@ -942,8 +942,8 @@ def render_stock_of_the_day():
     st.markdown(
         """
         <style>
-        [data-testid="stMainBlockContainer"] { padding-top: 0.8rem !important; }
-        .block-container { padding-top: 0.8rem !important; }
+        [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
+        .block-container { padding-top: 3.5rem !important; }
         h1 { position: relative; }
         h1::before {
             content: ""; position: absolute; left: 50%; top: 0;
