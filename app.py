@@ -6,6 +6,7 @@ import base64
 import html
 import requests
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
