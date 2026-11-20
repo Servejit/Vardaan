@@ -3478,6 +3478,75 @@ else:
         box-shadow:0 6px 16px rgba(30,144,190,.20)!important;border-radius:12px!important;
     }
     div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
+
+    /* Master Excel page: keep the complete sidebar in the fixed ice-blue theme. */
+    [data-testid="stSidebar"] {
+        background:linear-gradient(180deg,#DDF2FC 0%,#EAF7FF 42%,#F7FCFF 100%) !important;
+        border-right:1.5px solid #9CCFE5 !important;
+        box-shadow:inset -8px 0 24px rgba(23,101,139,.08) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+    [data-testid="stSidebar"] [data-testid="stText"],
+    [data-testid="stSidebar"] [data-testid="stAlert"] {
+        color:#173B50 !important;
+    }
+    [data-testid="stSidebar"] div[style*="font-size:1.35rem"] {
+        color:#155E91 !important;
+    }
+    [data-testid="stSidebar"] div[style*="border-bottom"] {
+        border-color:#A9D7EA !important;
+    }
+    [data-testid="stSidebar"] div[style*="border:1px solid"] {
+        border-color:#B9DDED !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#EAF7FF 100%) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+        border:1px solid #B9DDED !important;
+        border-radius:11px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#EAF7FF 100%) !important;
+        box-shadow:0 2px 8px rgba(23,101,139,.08) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+        border-color:#38BDF8 !important;
+        background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        border:1.5px solid #168FC0 !important;
+        background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
+        box-shadow:inset 4px 0 0 #168FC0,0 3px 10px rgba(23,101,139,.12) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
+        color:#173B50 !important;
+        font-weight:750 !important;
+    }
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+        border:1px solid #A9D7EA !important;
+        border-radius:10px !important;
+        color:#155E91 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%) !important;
+        box-shadow:0 3px 10px rgba(23,101,139,.08) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
+        border-color:#168FC0 !important;
+        background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
+        color:#123B5D !important;
+    }
+    [data-testid="stSidebar"] input,
+    [data-testid="stSidebar"] textarea {
+        border-color:#A9D7EA !important;
+        background:#FFFFFF !important;
+        color:#173B50 !important;
+    }
+    [data-testid="stSidebar"] input:focus,
+    [data-testid="stSidebar"] textarea:focus {
+        border-color:#168FC0 !important;
+        box-shadow:0 0 0 2px rgba(56,189,248,.18) !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
