@@ -946,13 +946,8 @@ def render_brand_flower():
           <svg viewBox="0 0 120 72" width="76" height="52"
                xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lotus flower emblem">
             <defs>
-              <linearGradient id="sixthSenseLotus" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#F4D58D"/>
-                <stop offset="52%" stop-color="#C58A3A"/>
-                <stop offset="100%" stop-color="#9B5D2E"/>
-              </linearGradient>
             </defs>
-            <g fill="none" stroke="url(#sixthSenseLotus)" stroke-width="3"
+            <g fill="none" stroke="var(--brand-flower-color, #C58A3A)" stroke-width="3"
                stroke-linecap="round" stroke-linejoin="round">
               <path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>
               <path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>
@@ -1132,6 +1127,7 @@ def render_stock_of_the_day():
     st.markdown(
         f"""
         <style>
+        .stApp {{ --brand-flower-color:{heading_colour}; }}
         h1 {{ color:{heading_colour} !important; }}
         </style>
         """,
@@ -1917,6 +1913,7 @@ def render_autogreen_dashboard():
         f"""
         <style>
         .stApp {{
+            --brand-flower-color:{metric_ink};
             background:radial-gradient(ellipse at 8% 0%,{metric_canvas} 0%,transparent 42%),linear-gradient(135deg,#E6E9ED 0%,#DDE2E7 52%,#E9ECEF 100%) !important;
             color:#263342 !important;
         }}
