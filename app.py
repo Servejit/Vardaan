@@ -881,7 +881,7 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
             if (
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
-                or db_value is None or db_value >= db_threshold
+                or db_value is None or db_value > db_threshold
                 or len(o2l_values) < 2
                 or any(value is None or value >= -1.50 for value in o2l_values[:2])
                 or change1 is None or change1 >= 0
