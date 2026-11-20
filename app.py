@@ -725,7 +725,7 @@ def load_autogreen_buy_signals():
         workbook.close()
 
 
-@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
+@st.cache_data(ttl=300, max_entries=10, show_spinner=False)
 def load_stock_of_the_day_rows(db_threshold=-2.0):
     """Use AutoGreen volume-qualified stocks only; never apply the High - 0.20% layer."""
     # Take the base volume-expansion list, not colour-qualified or High - 0.20% candidates.
@@ -1545,17 +1545,50 @@ def render_stock_of_the_day():
                 saved_threshold = -2.0
             if saved_threshold not in threshold_options:
                 saved_threshold = min(threshold_options, key=lambda option: abs(option - saved_threshold))
+            # Count stocks at every level from the complete -1.00 eligible set.
+            # Each lower threshold is a stricter subset; all other mandatory conditions stay applied.
+            threshold_base_rows = load_stock_of_the_day_rows(-1.0)
+            threshold_counts = {
+                option: sum(
+                    1 for stock in threshold_base_rows
+                    if float(stock.get("16< D-B / Avg.4", 9999)) <= option
+                )
+                for option in threshold_options
+            }
+            st.caption("Eligible stocks at each D-B level (all other conditions included)")
             selected_db_threshold = st.radio(
-                "D-B threshold",
+                "D-B threshold · stock count",
                 options=threshold_options,
                 index=threshold_options.index(saved_threshold),
-                format_func=lambda value: f"{value:.2f}",
+                format_func=lambda value: f"{value:.2f}  ·  {threshold_counts[value]} stocks",
                 horizontal=True,
                 key="stock_day_db_threshold_radio",
-                help="Choose one circular threshold option. The permitted range is -5.00 to -1.00."
+                help="Each count includes stocks that meet this D-B threshold and every other mandatory Stock of the Day condition."
             )
             selected_db_threshold = max(-5.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
+            selected_count = threshold_counts.get(selected_db_threshold, 0)
+            st.markdown(
+                f"""
+                <div style="margin-top:8px;padding:13px 16px;border-radius:14px;
+                            border:1px solid rgba(16,185,129,.38);
+                            background:linear-gradient(120deg,rgba(16,185,129,.13),rgba(59,130,246,.08));
+                            display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                  <div>
+                    <div style="font-size:10px;font-weight:850;letter-spacing:1.3px;opacity:.78;">
+                      STOCKS AVAILABLE AT SELECTED LEVEL
+                    </div>
+                    <div style="font-size:12px;font-weight:650;opacity:.82;margin-top:3px;">
+                      D-B threshold ≤ {selected_db_threshold:.2f}
+                    </div>
+                  </div>
+                  <div style="font-size:28px;font-weight:950;line-height:1;color:#059669;">
+                    {selected_count}
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
     
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
