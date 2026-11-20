@@ -1098,7 +1098,7 @@ def render_stock_of_the_day():
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">ENTRY · OPEN</div>
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">ENTRY PRICE</div>
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFFFFF;
                           margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
             </div>
