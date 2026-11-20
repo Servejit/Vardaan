@@ -1165,41 +1165,46 @@ def render_stock_of_the_day():
     if rendered == 0:
         st.info("Live price data is unavailable, so no BUY card is displayed.")
 
-    # Match the collapsed details panel to the Stock of the Day black/silver card.
+    # Match MORE DETAILS text and its border to the Stock of the Day card palette.
     if rendered > 0:
+        details_symbol = normalize_stock_symbol(rows[0].get("Stock", "A"))
+        details_border, details_shimmer = stock_day_palettes.get(details_symbol[:1].upper(), stock_day_palettes["A"])
         st.markdown(
-            """
+            f"""
             <style>
-            div[data-testid="stExpander"] {
+            div[data-testid="stExpander"] {{
+                background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
+                           linear-gradient(110deg,{details_border} 0%,{details_shimmer} 24%,#FFFFFF 38%,
+                                           {details_shimmer} 54%,{details_border} 76%,{details_shimmer} 100%) border-box !important;
+                border:2px solid transparent !important;
+                border-radius:14px !important;
+                box-shadow:0 8px 22px {details_shimmer}30,0 0 18px {details_shimmer}35,
+                           inset 0 1px 0 rgba(255,255,255,.95);
+                overflow:hidden;
+            }}
+            div[data-testid="stExpander"] summary {{
+                background:none !important;
+                color:{details_shimmer} !important;
+                font-weight:950 !important;
+                letter-spacing:1.2px;
+                padding:12px 16px !important;
+            }}
+            div[data-testid="stExpander"] summary:hover {{
+                background:{details_shimmer}12 !important;
+            }}
+            div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
                 background:#FFFFFF;
-                border: 1.5px solid #C49A45 !important;
-                border-radius: 14px !important;
-                box-shadow: 0 5px 18px rgba(145,105,34,.12),inset 0 1px 0 rgba(255,255,255,.95);
-                overflow: hidden;
-            }
-            div[data-testid="stExpander"] summary {
-                background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
-                -webkit-background-clip:text;background-clip:text;color:transparent !important;
-                font-weight: 900 !important;
-                letter-spacing: 1.2px;
-                padding: 12px 16px !important;
-            }
-            div[data-testid="stExpander"] summary:hover {
-                background-color:rgba(196,154,69,.10);
-            }
-            div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background:#FFFFFF;
-                border-top: 1px solid rgba(196,154,69,.48);
-                color: #66563B;
-                padding: 12px 16px 16px;
-            }
+                border-top:1px solid {details_shimmer}88;
+                color:{details_shimmer};
+                padding:12px 16px 16px;
+            }}
             div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
-            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] li {
-                color: #766A55 !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] strong {
-                color: #76539A !important;
-            }
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] li {{
+                color:{details_shimmer} !important;
+            }}
+            div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] strong {{
+                color:{details_shimmer} !important;
+            }}
             </style>
             """,
             unsafe_allow_html=True
