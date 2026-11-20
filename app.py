@@ -1523,45 +1523,6 @@ def render_stock_of_the_day():
             div[data-testid="stExpander"] [data-baseweb="slider"] div[aria-hidden="true"] {
                 border-color:#000000 !important;
             }
-            /* Theme-matched circular threshold choices. */
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {
-                display:flex !important;
-                flex-wrap:wrap !important;
-                justify-content:center !important;
-                gap:10px !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"] {
-                box-sizing:border-box !important;
-                width:78px !important;
-                min-width:78px !important;
-                height:78px !important;
-                min-height:78px !important;
-                border:1.5px solid var(--primary-color) !important;
-                border-radius:50% !important;
-                background:rgba(128,128,128,.055) !important;
-                display:flex !important;
-                flex-direction:column !important;
-                align-items:center !important;
-                justify-content:center !important;
-                padding:7px !important;
-                margin:0 !important;
-                text-align:center !important;
-                transition:all .18s ease !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"][aria-checked="true"] {
-                border:2px solid var(--primary-color) !important;
-                background:color-mix(in srgb,var(--primary-color) 15%,white) !important;
-                box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 13%,transparent),
-                           0 5px 14px color-mix(in srgb,var(--primary-color) 22%,transparent) !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"] p {
-                font-size:10px !important;
-                line-height:1.2 !important;
-                font-weight:850 !important;
-                white-space:normal !important;
-                text-align:center !important;
-                margin:0 !important;
-            }
             </style>
             """,
             unsafe_allow_html=True
@@ -1571,19 +1532,21 @@ def render_stock_of_the_day():
                 '<div style="font-weight:850;color:var(--text-color);">Find Next Stock at Your Own Risk</div>',
                 unsafe_allow_html=True
             )
-            # Theme-matched circular choices, from -4.00 through -1.00.
+            # Restore the standard slider, keeping the permitted range -4.00 to -1.00.
             threshold_options = [-4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0]
             db_threshold = max(-4.0, min(-1.0, float(db_threshold)))
             saved_threshold = st.session_state.get(
                 "stock_day_db_threshold_radio",
-                st.session_state.get("stock_day_db_threshold_slider", -2.0)
+                st.session_state.get(
+                    "stock_day_db_threshold_slider_v2",
+                    st.session_state.get("stock_day_db_threshold_slider", -2.0)
+                )
             )
             try:
                 saved_threshold = max(-4.0, min(-1.0, float(saved_threshold)))
             except (TypeError, ValueError):
                 saved_threshold = -2.0
-            if saved_threshold not in threshold_options:
-                saved_threshold = min(threshold_options, key=lambda option: abs(option - saved_threshold))
+            saved_threshold = round(round((saved_threshold + 4.0) / 0.5) * 0.5 - 4.0, 2)
             # Count stocks at every level from the complete -1.00 eligible set.
             # Each lower threshold is a stricter subset; all other mandatory conditions stay applied.
             threshold_base_rows = load_stock_of_the_day_rows(-1.0)
@@ -1595,14 +1558,15 @@ def render_stock_of_the_day():
                 for option in threshold_options
             }
             st.caption("Eligible stocks at each D-B level (all other conditions included)")
-            selected_db_threshold = st.radio(
-                "D-B threshold · stock count",
-                options=threshold_options,
-                index=threshold_options.index(saved_threshold),
-                format_func=lambda value: f"{value:.2f}  ·  {threshold_counts[value]} stocks",
-                horizontal=True,
-                key="stock_day_db_threshold_radio",
-                help="Each count includes stocks that meet this D-B threshold and every other mandatory Stock of the Day condition."
+            selected_db_threshold = st.slider(
+                "D-B threshold",
+                min_value=-4.0,
+                max_value=-1.0,
+                value=saved_threshold,
+                step=0.5,
+                format="%.2f",
+                key="stock_day_db_threshold_slider_v2",
+                help="Move the slider from -4.00 to -1.00. Stock counts update for the selected threshold."
             )
             selected_db_threshold = max(-4.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
