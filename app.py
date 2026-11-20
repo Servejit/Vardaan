@@ -939,6 +939,15 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
 
 def render_stock_of_the_day():
     """Show only Stock of the Day BUY cards in the main signal-card presentation."""
+    st.markdown(
+        """
+        <style>
+        [data-testid="stMainBlockContainer"] { padding-top: 0.8rem !important; }
+        .block-container { padding-top: 0.8rem !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     st.title("6thSense-Vardaan")
 
     try:
@@ -1682,6 +1691,15 @@ def render_qualified_stock_table(rows, accent, ink, tint):
 
 def render_autogreen_dashboard():
     """Select BUY and CONFIRMATION independently from all four base-qualified target stocks."""
+    st.markdown(
+        """
+        <style>
+        [data-testid="stMainBlockContainer"] { padding-top: 0.8rem !important; }
+        .block-container { padding-top: 0.8rem !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     st.title("6thSense-Vardaan")
 
 
