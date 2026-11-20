@@ -1557,7 +1557,6 @@ def render_stock_of_the_day():
                 )
                 for option in threshold_options
             }
-            st.caption("Eligible stocks at each D-B level (all other conditions included)")
             selected_db_threshold = st.slider(
                 "D-B threshold",
                 min_value=-4.0,
