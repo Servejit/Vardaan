@@ -1532,22 +1532,29 @@ def render_stock_of_the_day():
                 '<div style="font-weight:850;color:var(--text-color);">Find Next Stock at Your Own Risk</div>',
                 unsafe_allow_html=True
             )
-            # -1.00 is the highest permitted D-B threshold.
+            # Circular push-button choices; -1.00 is the highest permitted threshold.
+            threshold_options = [-5.0, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0]
             db_threshold = max(-5.0, min(-1.0, float(db_threshold)))
-            saved_slider_value = st.session_state.get("stock_day_db_threshold_slider", db_threshold)
-            st.session_state["stock_day_db_threshold_slider"] = max(
-                -5.0, min(-1.0, float(saved_slider_value))
+            saved_threshold = st.session_state.get(
+                "stock_day_db_threshold_radio",
+                st.session_state.get("stock_day_db_threshold_slider", -2.0)
             )
-            selected_db_threshold = st.slider(
+            try:
+                saved_threshold = max(-5.0, min(-1.0, float(saved_threshold)))
+            except (TypeError, ValueError):
+                saved_threshold = -2.0
+            if saved_threshold not in threshold_options:
+                saved_threshold = min(threshold_options, key=lambda option: abs(option - saved_threshold))
+            selected_db_threshold = st.radio(
                 "D-B threshold",
-                min_value=-5.0,
-                max_value=-1.0,
-                value=db_threshold,
-                step=0.5,
-                format="%.1f",
-                key="stock_day_db_threshold_slider",
-                help="Adjust the D-B qualification threshold when the NO SIGNAL card is displayed."
+                options=threshold_options,
+                index=threshold_options.index(saved_threshold),
+                format_func=lambda value: f"{value:.2f}",
+                horizontal=True,
+                key="stock_day_db_threshold_radio",
+                help="Choose one circular threshold option. The permitted range is -5.00 to -1.00."
             )
+            selected_db_threshold = max(-5.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
     
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
