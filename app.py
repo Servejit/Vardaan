@@ -942,7 +942,7 @@ def render_brand_flower():
     st.markdown(
         '''
         <div style="display:flex;justify-content:center;align-items:center;
-                    height:56px;margin:0 0 -5px;padding:0;">
+                    height:50px;margin:0 0 -5px;padding:0;">
           <svg viewBox="0 0 120 72" width="76" height="52" style="transform:translateY(-6px);"
                xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lotus flower emblem">
             <defs>
