@@ -764,7 +764,7 @@ def load_autogreen_buy_signals():
 
 
 @st.cache_data(ttl=300, max_entries=1, show_spinner=False)
-def load_stock_of_the_day_rows():
+def load_stock_of_the_day_rows(db_threshold=-2.0):
     """Use AutoGreen volume-qualified stocks only; never apply the High - 0.20% layer."""
     # Take the base volume-expansion list, not colour-qualified or High - 0.20% candidates.
     base_rows, _ = load_autogreen_buy_signals()
@@ -919,7 +919,7 @@ def load_stock_of_the_day_rows():
             if (
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
-                or db_value is None or db_value >= -2.0
+                or db_value is None or db_value >= db_threshold
                 or len(o2l_values) < 2
                 or any(value is None or value >= -1.50 for value in o2l_values[:2])
                 or change1 is None or change1 >= 0
@@ -987,7 +987,8 @@ def render_stock_of_the_day():
         return
 
     try:
-        rows = load_stock_of_the_day_rows()
+        db_threshold = float(st.session_state.get("stock_day_db_threshold_value", -2.0))
+        rows = load_stock_of_the_day_rows(db_threshold)
         if not rows:
             st.markdown(
                 """
@@ -1058,7 +1059,23 @@ def render_stock_of_the_day():
                 """,
                 unsafe_allow_html=True
             )
-            return
+            selected_db_threshold = st.slider(
+                "D-B threshold",
+                min_value=-5.0,
+                max_value=0.0,
+                value=db_threshold,
+                step=0.5,
+                format="%.1f",
+                key="stock_day_db_threshold_slider",
+                help="Adjust the D-B qualification threshold. This slider appears only when no Stock of the Day BUY signal is available."
+            )
+            st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
+            if selected_db_threshold != db_threshold:
+                with st.spinner("Rechecking Stock of the Day conditions..."):
+                    rows = load_stock_of_the_day_rows(selected_db_threshold)
+            if not rows:
+                return
+
 
         symbols = list(dict.fromkeys(
             normalize_stock_symbol(row.get("Stock"))
