@@ -540,7 +540,6 @@ SIGNAL_GITHUB_TOKEN = str(
 ).strip()
 
 
-@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def get_autogreen_master_bytes():
     """Fetch private Signal/master.xlsx through GitHub's authenticated API."""
     if not SIGNAL_GITHUB_TOKEN:
@@ -622,7 +621,6 @@ def _autogreen_db_parenthetical_number(value):
         return None
 
 
-@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def load_autogreen_buy_signals():
     """
     Read only AutoGreen from the GitHub master workbook.
