@@ -1613,27 +1613,37 @@ def is_stock_of_day_next_session_window():
 
 
 def has_vbl_style_black_border(cell):
-    """Match the four-sided medium border used by VBL in the AutoGreen sheet."""
+    """Return True for a cell with a black border on all four sides.
+
+    Excel may store visually identical black borders as theme, RGB, indexed,
+    or automatic colours. Accept those equivalent representations instead of
+    requiring the exact theme encoding used by the VBL reference cell.
+    """
+    def is_black_or_automatic(color):
+        if color is None:
+            # Excel's automatic border colour is black in the standard workbook theme.
+            return True
+        if color.type == "theme":
+            return color.theme == 1 and float(color.tint or 0) == 0
+        if color.type == "rgb":
+            rgb = str(color.rgb or "").upper()
+            return rgb[-6:] == "000000"
+        if color.type == "indexed":
+            return color.indexed in (8, 64)
+        if color.type == "auto":
+            return bool(color.auto)
+        return False
+
     border_sides = (
         cell.border.left,
         cell.border.right,
         cell.border.top,
         cell.border.bottom,
     )
-
-    # VBL (AutoGreen!A162) is the reference cell in the uploaded Master file.
-    # Its four sides all use a medium border with the same theme colour.
-    for side in border_sides:
-        if side.style is None or side.color is None:
-            return False
-        if side.color.type != "theme" or side.color.theme != 1:
-            return False
-        if float(side.color.tint or 0) != 0:
-            return False
-
-    return True
-
-
+    return all(
+        side.style is not None and is_black_or_automatic(side.color)
+        for side in border_sides
+    )
 def get_black_border_master_column_a_symbols(workbook_bytes):
     """Collect stocks with the same four-sided border formatting as VBL in AutoGreen!A:A."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=False)
