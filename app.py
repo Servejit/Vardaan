@@ -1481,6 +1481,7 @@ def render_stock_of_the_day():
             unsafe_allow_html=True
         )
         with st.expander("THRESHOLD FREQUENCY", expanded=False):
+            st.caption("Find Next Stock at Your Own Risk")
             selected_db_threshold = st.slider(
                 "D-B threshold",
                 min_value=-5.0,
