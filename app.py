@@ -980,6 +980,13 @@ def render_stock_of_the_day():
     st.title("6thSense-Vardaan")
 
     try:
+        master_bytes = get_autogreen_master_bytes()
+        ranks = get_autogreen_sum_o2l_ranks(master_bytes)
+    except Exception:
+        st.error("Master File Not Available")
+        return
+
+    try:
         rows = load_stock_of_the_day_rows()
         if not rows:
             st.info("No Stock of the Day BUY signal is available.")
@@ -990,8 +997,6 @@ def render_stock_of_the_day():
             for row in rows
             if normalize_stock_symbol(row.get("Stock"))
         ))
-        master_bytes = get_autogreen_master_bytes()
-        ranks = get_autogreen_sum_o2l_ranks(master_bytes)
         with st.spinner("Preparing Stock of the Day BUY card..."):
             quotes = get_autogreen_live_prices(tuple(symbols))
     except Exception as error:
