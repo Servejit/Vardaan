@@ -1180,15 +1180,6 @@ def render_stock_of_the_day():
             unsafe_allow_html=True
         )
         with st.expander("MORE DETAILS", expanded=False):
-            st.markdown("**EXTRA ADVANTAGES**")
-            st.markdown(
-                """
-                - Each additional dated O2L reading after the first two that is below -1.50 adds 1 advantage.
-                - **%Chg.3** below 0 adds 1 advantage.
-                - **%Chg.4** below 0 adds 1 advantage.
-                - Only stocks tied for the highest Extra Advantages score are displayed.
-                """
-            )
             # Present selected stock metrics in a compact black/silver data panel.
             if rows:
                 table_headers = list(rows[0].keys())
@@ -1209,7 +1200,7 @@ def render_stock_of_the_day():
                     <div class="sotd-table-heading">
                       <div>
                         <div class="sotd-table-title">STOCK DATA</div>
-                        <div class="sotd-table-subtitle">Selected stocks · Highest extra-advantage score</div>
+                        <div class="sotd-table-subtitle">Selected stock details</div>
                       </div>
                       <div class="sotd-table-count">{len(rows)} STOCK{"S" if len(rows) != 1 else ""}</div>
                     </div>
