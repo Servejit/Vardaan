@@ -1403,7 +1403,7 @@ def get_autogreen_sum_o2l_ranks(workbook_bytes):
         workbook.close()
 
 
-@st.cache_data(ttl=60, max_entries=1, show_spinner=False)
+@st.cache_data(ttl=15, max_entries=1, show_spinner=False)
 def get_autogreen_live_prices(symbols):
     """Fetch live NSE quotes, with Yahoo fallbacks for delayed/missing intraday bars."""
     import yfinance as yf
