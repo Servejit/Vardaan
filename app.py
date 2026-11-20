@@ -1237,17 +1237,17 @@ def render_stock_of_the_day():
                             f'<div class="sotd-metric-grid">{metric_tiles(row, columns)}</div></section>'
                         )
                 stock_panels.append(
-                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_border};"><div class="sotd-stock-panel-head">'
+                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_border};background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,linear-gradient(110deg,{panel_border} 0%,{panel_shimmer} 24%,#FFFFFF 38%,{panel_shimmer} 54%,{panel_border} 76%,{panel_shimmer} 100%) border-box;">'
                     f'<span class="sotd-stock-symbol" style="color:{panel_border};">{symbol}</span>'
                     f'<span class="sotd-stock-tag" style="color:{panel_border};">STOCK OF THE DAY</span></div>'
-                    f'{"".join(groups)}</article>'
+                    f'<div aria-hidden="true" class="sotd-static-glow" style="background:radial-gradient(circle,{panel_shimmer}45,transparent 72%);"></div><div class="sotd-stock-panel-content"><div class="sotd-stock-panel-head">' + f'{"".join(groups)}</div></div></article>'
                 )
 
             table_symbol = normalize_stock_symbol(rows[0].get("Stock", "STOCK")) if rows else "STOCK"
             table_border, table_shimmer = stock_day_palettes.get(table_symbol[:1].upper(), stock_day_palettes["A"])
             st.markdown(
                 f"""
-                <div class="sotd-table-heading" style="--sotd-table-border:{table_border};--sotd-table-shimmer:{table_shimmer};">
+                <div class="sotd-table-heading" style="--sotd-table-border:{table_border};--sotd-table-shimmer:{table_shimmer};background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,linear-gradient(110deg,{table_border} 0%,{table_shimmer} 24%,#FFFFFF 38%,{table_shimmer} 54%,{table_border} 76%,{table_shimmer} 100%) border-box;">
                   <div>
                     <div class="sotd-table-title">STOCK DATA</div>
                     <div class="sotd-table-subtitle">All qualifying readings · grouped for quick review</div>
@@ -1256,21 +1256,31 @@ def render_stock_of_the_day():
                 </div>
                 <style>
                 .sotd-table-heading {{
+                    position:relative;overflow:hidden;isolation:isolate;
                     display:flex;align-items:center;justify-content:space-between;gap:12px;
-                    margin:18px 0 12px;padding:14px 16px;border:1.5px solid var(--sotd-table-border,#C49A45);
-                    border-radius:13px;background:#FFFFFF;
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 7px 18px rgba(145,105,34,.10);
+                    margin:18px 0 12px;padding:14px 16px;border:2px solid transparent;
+                    border-radius:18px;background-clip:padding-box;
+                    box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,
+                               0 14px 30px var(--sotd-table-shimmer)30,
+                               0 0 22px var(--sotd-table-shimmer)55,
+                               0 0 34px var(--sotd-table-shimmer)30;
                 }}
-                .sotd-table-title {{color:var(--sotd-table-border,#9A6A19);font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
-                .sotd-table-subtitle {{color:var(--sotd-table-border,#766A55);font-size:.72rem;font-weight:600;margin-top:4px;}}
-                .sotd-table-count {{flex:0 0 auto;padding:6px 10px;border-radius:999px;
-                    border:1px solid var(--sotd-table-border,#C49A45);background:#FFFFFF;
-                    color:var(--sotd-table-border,#76539A);font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
-                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid var(--sotd-border,#C49A45);
-                    border-radius:13px;background:#FFFFFF;
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45);}}
+                .sotd-table-title {{position:relative;z-index:1;color:var(--sotd-table-border);font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
+                .sotd-table-subtitle {{position:relative;z-index:1;color:var(--sotd-table-border);font-size:.72rem;font-weight:600;margin-top:4px;}}
+                .sotd-table-count {{position:relative;z-index:1;flex:0 0 auto;padding:6px 10px;border-radius:999px;
+                    border:1px solid var(--sotd-table-border);background:#FFFFFF;
+                    color:var(--sotd-table-border);font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
+                .sotd-stock-panel {{position:relative;isolation:isolate;overflow:hidden;margin:0 0 16px;padding:15px;
+                    border:2px solid transparent;border-radius:19px;background-clip:padding-box;
+                    box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,
+                               0 14px 30px var(--sotd-shimmer)30,
+                               0 0 22px var(--sotd-shimmer)66,
+                               0 0 36px var(--sotd-shimmer)40;}}
+                .sotd-static-glow {{position:absolute;right:-38px;top:-76px;width:190px;height:190px;
+                    border-radius:50%;pointer-events:none;z-index:0;}}
+                .sotd-stock-panel-content {{position:relative;z-index:1;}}
                 .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
-                    padding:0 2px 10px;border-bottom:1px solid var(--sotd-border,#C49A45);margin-bottom:11px;}}
+                    padding:0 2px 10px;border-bottom:1px solid var(--sotd-border);margin-bottom:12px;}}
                 .sotd-stock-symbol {{color:var(--sotd-text,#76539A);font-size:1rem;font-weight:950;letter-spacing:.8px;}}
                 .sotd-stock-tag {{color:var(--sotd-text,#76539A);font-size:.58rem;font-weight:900;letter-spacing:1px;
                     padding:5px 8px;border:1px solid var(--sotd-border,#D5B66D);border-radius:20px;background:#FFFFFF;}}
@@ -1278,8 +1288,8 @@ def render_stock_of_the_day():
                 .sotd-group-heading {{color:var(--sotd-text,#76539A);font-size:.68rem;font-weight:950;letter-spacing:1.25px;
                     margin:0 0 7px 2px;}}
                 .sotd-metric-grid {{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;}}
-                .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(196,154,69,.38);
-                    border-radius:8px;background:#FFFFFF;}}
+                .sotd-metric-tile {{min-width:0;padding:9px 8px;border:1px solid var(--sotd-border);
+                    border-radius:10px;background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 72%,var(--sotd-border)18);}}
                 .sotd-metric-label {{color:var(--sotd-text,#806C48);font-size:.66rem;font-weight:850;line-height:1.3;
                     overflow-wrap:anywhere;}}
                 .sotd-metric-value {{color:var(--sotd-text,#24466F);font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
@@ -1289,7 +1299,7 @@ def render_stock_of_the_day():
                 @media(max-width:640px) {{
                     .sotd-table-heading {{padding:11px 12px;}}
                     .sotd-table-subtitle {{font-size:.64rem;}}
-                    .sotd-stock-panel {{padding:10px;}}
+                    .sotd-stock-panel {{padding:11px;}}
                     .sotd-metric-grid {{grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:6px;}}
                     .sotd-metric-tile {{padding:7px 5px;}}
                     .sotd-metric-label {{font-size:.61rem;}}
