@@ -1569,28 +1569,6 @@ def render_stock_of_the_day():
             )
             selected_db_threshold = max(-4.0, min(-1.0, float(selected_db_threshold)))
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
-            selected_count = threshold_counts.get(selected_db_threshold, 0)
-            st.markdown(
-                f"""
-                <div style="margin-top:8px;padding:13px 16px;border-radius:14px;
-                            border:1px solid rgba(16,185,129,.38);
-                            background:linear-gradient(120deg,rgba(16,185,129,.13),rgba(59,130,246,.08));
-                            display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                  <div>
-                    <div style="font-size:10px;font-weight:850;letter-spacing:1.3px;opacity:.78;">
-                      STOCKS AVAILABLE AT SELECTED LEVEL
-                    </div>
-                    <div style="font-size:12px;font-weight:650;opacity:.82;margin-top:3px;">
-                      D-B threshold ≤ {selected_db_threshold:.2f}
-                    </div>
-                  </div>
-                  <div style="font-size:28px;font-weight:950;line-height:1;color:#059669;">
-                    {selected_count}
-                  </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
     
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
