@@ -1073,68 +1073,72 @@ def render_stock_of_the_day():
         <div class="stock-day-buy-card" style="
             position:relative;overflow:hidden;isolation:isolate;
             border:2px solid transparent;border-radius:21px;
-            padding:23px 23px 22px;margin:12px 0 18px;color:#FFFFFF;
+            padding:23px 23px 22px;margin:12px 0 18px;color:#253047;
             background:
-                linear-gradient(125deg,#080B10 0%,#252D38 47%,#090C12 100%) padding-box,
-                linear-gradient(110deg,#626B78 0%,#E7EDF5 23%,#FFFFFF 36%,
-                                #9BA6B5 52%,#F8FAFC 68%,#626B78 100%) border-box;
+                linear-gradient(135deg,#FFFEFA 0%,#F8F5EB 48%,#FFFDF6 100%) padding-box,
+                linear-gradient(110deg,#9B722B 0%,#F7E6A7 18%,#C99A3B 36%,
+                                #FFF1BC 52%,#B8872D 70%,#F3D98A 86%,#9B722B 100%) border-box;
             background-size:100% 100%,300% 300%;
             animation:stockDayCardShimmer 5.8s linear infinite,
                       stockDayCardFloat 3.1s ease-in-out infinite;
-            box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,
-                       0 14px 34px rgba(0,0,0,.42),
-                       0 0 22px rgba(220,230,242,.30),
-                       0 0 38px rgba(153,169,190,.24);
+            box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,
+                       0 14px 30px rgba(115,83,25,.16),
+                       0 0 22px rgba(213,171,77,.24),
+                       0 0 38px rgba(231,199,119,.18);
         ">
           <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
                       pointer-events:none;z-index:0;filter:blur(7px);
-                      background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.12) 25%,
-                      rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
+                      background:linear-gradient(105deg,transparent 0%,rgba(196,151,55,.10) 25%,
+                      rgba(255,224,150,.62) 48%,rgba(255,255,255,.72) 58%,transparent 82%);
                       animation:stockDayCardGlow 6s ease-in-out infinite;"></div>
           <div style="position:absolute;right:-35px;top:-75px;width:205px;height:205px;
-                      border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);
+                      border-radius:50%;background:radial-gradient(circle,rgba(226,190,105,.28),transparent 70%);
                       pointer-events:none;"></div>
           <div style="position:relative;z-index:1;text-align:center;font-size:11px;
-                      font-weight:900;letter-spacing:3px;color:#D8E0EA;margin:0 0 15px;">
+                      font-weight:900;letter-spacing:3px;
+                      background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
+                      -webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 15px;">
             6THSENSE · VARDAAN
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
                       position:relative;z-index:1;">
             <div style="font-size:1.78rem;line-height:1.15;font-weight:950;letter-spacing:.7px;
-                        color:#FFFFFF;overflow-wrap:anywhere;">{html.escape(symbol)}</div>
+                        background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
+                        -webkit-background-clip:text;background-clip:text;color:transparent;overflow-wrap:anywhere;">{html.escape(symbol)}</div>
             <div style="font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;
-                        border:1px solid #B7C1CE;border-radius:999px;color:#F1F5F9;
-                        background:rgba(0,0,0,.28);white-space:nowrap;">
+                        border:1px solid #C49A45;border-radius:999px;color:#24734E;
+                        background:linear-gradient(135deg,#F1F8EA,#FFF9E8);white-space:nowrap;">
               BUY SIGNAL
             </div>
           </div>
           <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:#C5CFDC;
-                      margin-top:9px;position:relative;z-index:1;">RANK {rank_text}</div>
-          <div style="height:1px;background:linear-gradient(90deg,transparent,#AAB5C3,
-                      rgba(255,255,255,.72),#AAB5C3,transparent);margin:19px 0 17px;
+                      margin-top:9px;position:relative;z-index:1;color:#7655A4;">RANK {rank_text}</div>
+          <div style="height:1px;background:linear-gradient(90deg,transparent,#C69B43,
+                      rgba(255,236,184,.95),#C69B43,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">ENTRY PRICE</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFFFFF;
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#9B752F;">ENTRY PRICE</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#24466F;
                           margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
             </div>
             <div style="min-width:0;">
               <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 1</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#E6EDF5;
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#21835B;
                           margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
             </div>
             <div style="min-width:0;">
               <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 2</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFFFFF;
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#8756A6;
                           margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
             </div>
           </div>
           <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
-                      border:1px solid rgba(210,221,234,.48);border-radius:11px;
-                      background:rgba(255,255,255,.08);text-align:center;
-                      color:#F1F5F9;font-size:.72rem;font-weight:950;letter-spacing:.8px;">
+                      border:1px solid rgba(190,145,54,.58);border-radius:11px;
+                      background:linear-gradient(110deg,#FFF9E9,#F7F4FF,#EFF9F4);text-align:center;
+                      background-clip:padding-box;
+                      color:#76539A;font-size:.72rem;font-weight:950;letter-spacing:.8px;">
             {html.escape(status_text)}
           </div>
         </div>
