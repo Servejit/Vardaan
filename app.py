@@ -1155,34 +1155,34 @@ def render_stock_of_the_day():
             """
             <style>
             div[data-testid="stExpander"] {
-                background: linear-gradient(145deg, #171b22 0%, #252c35 52%, #171b22 100%);
-                border: 1px solid #9aa7b5 !important;
+                background: linear-gradient(145deg,#FFFEFA 0%,#F8F2E3 55%,#FFFDF7 100%);
+                border: 1.5px solid #C49A45 !important;
                 border-radius: 14px !important;
-                box-shadow: 0 5px 18px rgba(0,0,0,0.28), inset 0 1px 0 rgba(230,237,245,0.12);
+                box-shadow: 0 5px 18px rgba(145,105,34,.12),inset 0 1px 0 rgba(255,255,255,.95);
                 overflow: hidden;
             }
             div[data-testid="stExpander"] summary {
-                color: #E6EDF5 !important;
+                background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
+                -webkit-background-clip:text;background-clip:text;color:transparent !important;
                 font-weight: 900 !important;
                 letter-spacing: 1.2px;
                 padding: 12px 16px !important;
             }
             div[data-testid="stExpander"] summary:hover {
-                color: #FFFFFF !important;
-                background: linear-gradient(90deg, rgba(192,205,219,0.16), rgba(192,205,219,0.04));
+                background-color:rgba(196,154,69,.10);
             }
             div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background: rgba(12,16,22,0.72);
-                border-top: 1px solid rgba(190,202,216,0.35);
-                color: #E6EDF5;
+                background:linear-gradient(145deg,#FFFEFA,#F8F4E9);
+                border-top: 1px solid rgba(196,154,69,.48);
+                color: #66563B;
                 padding: 12px 16px 16px;
             }
             div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] p,
             div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] li {
-                color: #D8E0E9 !important;
+                color: #766A55 !important;
             }
             div[data-testid="stExpander"] [data-testid="stMarkdownContainer"] strong {
-                color: #FFFFFF !important;
+                color: #76539A !important;
             }
             </style>
             """,
@@ -1237,35 +1237,40 @@ def render_stock_of_the_day():
                 <style>
                 .sotd-table-heading {{
                     display:flex;align-items:center;justify-content:space-between;gap:12px;
-                    margin:18px 0 12px;padding:14px 16px;border:1px solid rgba(197,211,227,.5);
-                    border-radius:13px;background:linear-gradient(110deg,#101720,#303B49 48%,#151C25);
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.13);
+                    margin:18px 0 12px;padding:14px 16px;border:1.5px solid #C49A45;
+                    border-radius:13px;background:linear-gradient(120deg,#FFFEFA 0%,#F8F2E3 52%,#FFFDF7 100%);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 7px 18px rgba(145,105,34,.10);
                 }}
-                .sotd-table-title {{color:#F4F7FB;font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
-                .sotd-table-subtitle {{color:#AEBBCB;font-size:.72rem;font-weight:600;margin-top:4px;}}
+                .sotd-table-title {{background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
+                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
+                .sotd-table-subtitle {{color:#766A55;font-size:.72rem;font-weight:600;margin-top:4px;}}
                 .sotd-table-count {{flex:0 0 auto;padding:6px 10px;border-radius:999px;
-                    border:1px solid rgba(220,230,242,.48);background:rgba(225,234,244,.12);
-                    color:#F0F4F9;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
-                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1px solid rgba(174,190,207,.45);
-                    border-radius:13px;background:linear-gradient(145deg,#111820,#252F3B 52%,#121820);
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 7px 18px rgba(0,0,0,.22);}}
+                    border:1px solid #C49A45;background:linear-gradient(120deg,#FFF8E8,#F7F0FF);
+                    color:#76539A;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
+                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid #C49A45;
+                    border-radius:13px;background:linear-gradient(145deg,#FFFEFA 0%,#F8F4E9 55%,#FFFDF7 100%);
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 7px 18px rgba(145,105,34,.10);}}
                 .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
-                    padding:0 2px 10px;border-bottom:1px solid rgba(190,204,220,.22);margin-bottom:11px;}}
-                .sotd-stock-symbol {{color:#FFFFFF;font-size:1rem;font-weight:950;letter-spacing:.8px;}}
-                .sotd-stock-tag {{color:#BFCBD8;font-size:.58rem;font-weight:900;letter-spacing:1px;
-                    padding:5px 8px;border:1px solid rgba(190,204,220,.3);border-radius:20px;background:rgba(255,255,255,.06);}}
+                    padding:0 2px 10px;border-bottom:1px solid rgba(196,154,69,.48);margin-bottom:11px;}}
+                .sotd-stock-symbol {{background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
+                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:1rem;font-weight:950;letter-spacing:.8px;}}
+                .sotd-stock-tag {{color:#76539A;font-size:.58rem;font-weight:900;letter-spacing:1px;
+                    padding:5px 8px;border:1px solid #D5B66D;border-radius:20px;background:linear-gradient(120deg,#FFF8E8,#F7F0FF);}}
                 .sotd-metric-group {{margin-top:9px;}}
-                .sotd-group-heading {{color:#AEBBCB;font-size:.68rem;font-weight:950;letter-spacing:1.25px;
+                .sotd-group-heading {{background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
+                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.68rem;font-weight:950;letter-spacing:1.25px;
                     margin:0 0 7px 2px;}}
                 .sotd-metric-grid {{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;}}
-                .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(190,204,220,.18);
-                    border-radius:8px;background:linear-gradient(150deg,rgba(238,244,250,.09),rgba(125,143,164,.045));}}
-                .sotd-metric-label {{color:#AEBBCB;font-size:.66rem;font-weight:850;line-height:1.3;
+                .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(196,154,69,.38);
+                    border-radius:8px;background:linear-gradient(145deg,#FFFFFF 0%,#FBF7ED 100%);}}
+                .sotd-metric-label {{color:#806C48;font-size:.66rem;font-weight:850;line-height:1.3;
                     overflow-wrap:anywhere;}}
-                .sotd-metric-value {{color:#F3F6FA;font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
+                .sotd-metric-value {{background:linear-gradient(90deg,#24466F 0%,#287D78 52%,#8756A6 100%);
+                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
                     margin-top:5px;overflow-wrap:anywhere;}}
-                .sotd-metric-group.history .sotd-metric-tile {{background:linear-gradient(145deg,rgba(125,153,181,.13),rgba(255,255,255,.035));}}
-                .sotd-metric-group.change .sotd-metric-value {{color:#E5EDF6;}}
+                .sotd-metric-group.history .sotd-metric-tile {{background:linear-gradient(145deg,#FFFDF7,#F5F0FF);}}
+                .sotd-metric-group.change .sotd-metric-value {{background:linear-gradient(90deg,#21835B,#8756A6);
+                    -webkit-background-clip:text;background-clip:text;color:transparent;}}
                 @media(max-width:640px) {{
                     .sotd-table-heading {{padding:11px 12px;}}
                     .sotd-table-subtitle {{font-size:.64rem;}}
