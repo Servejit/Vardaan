@@ -959,17 +959,15 @@ def load_stock_of_the_day_rows():
             record["Extra Advantages"] = advantage_score
             matches.append((advantage_score, record))
 
-        # Show every stock tied for the highest number of extra advantages.
-        # If no stock has an extra advantage, all mandatory-condition matches remain visible.
-        if matches:
-            highest_advantage_score = max(score for score, _ in matches)
-            selected_matches = [
-                record for score, record in matches
-                if score == highest_advantage_score
-            ]
-            selected_matches.sort(key=lambda record: record["Stock"])
-            return selected_matches
-        return []
+        # Every stock that passes ALL mandatory conditions is a Stock of the Day.
+        # Extra advantages only determine display order; they never disqualify a match.
+        selected_matches = [
+            record for _, record in sorted(
+                matches,
+                key=lambda item: (-item[0], item[1]["Stock"])
+            )
+        ]
+        return selected_matches
 
     finally:
         workbook.close()
