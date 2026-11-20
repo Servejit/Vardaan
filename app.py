@@ -1055,6 +1055,14 @@ def render_stock_of_the_day():
         "Y": ("#F1E3A0", "#D9C13F"), "Z": ("#B9C5D4", "#71839B"),
     }
 
+    # Match the page heading to the same alphabet-based text colour as the BUY card.
+    heading_symbol = normalize_stock_symbol(rows[0].get("Stock", "A"))
+    heading_colour = stock_day_palettes.get(heading_symbol[:1].upper(), stock_day_palettes["A"])[1]
+    st.markdown(
+        f"<style>h1 {{ color:{heading_colour} !important; }}</style>",
+        unsafe_allow_html=True
+    )
+
     rendered = 0
     for row in rows:
         symbol = normalize_stock_symbol(row.get("Stock"))
