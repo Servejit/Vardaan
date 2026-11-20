@@ -1180,16 +1180,6 @@ def render_stock_of_the_day():
             unsafe_allow_html=True
         )
         with st.expander("MORE DETAILS", expanded=False):
-            st.markdown("**QUALIFYING CONDITIONS**")
-            st.markdown(
-                """
-                - AutoGreen volume expansion: both volume values above 100,000 and Volume Expand 1 greater than Volume Expand 2.
-                - First two O2H readings after Volume Expand 2: each below 0.50.
-                - Parenthetical value in **16< D-B / Avg.4**: below -2.00.
-                - First two dated O2L readings: each below -1.50.
-                - **%Chg.1** and **%Chg.2**: both below 0.
-                """
-            )
             st.markdown("**EXTRA ADVANTAGES**")
             st.markdown(
                 """
@@ -1199,7 +1189,7 @@ def render_stock_of_the_day():
                 - Only stocks tied for the highest Extra Advantages score are displayed.
                 """
             )
-            # Render the qualifying-stock table in the same black/silver card palette.
+            # Present selected stock metrics in a compact black/silver data panel.
             if rows:
                 table_headers = list(rows[0].keys())
                 header_html = "".join(
@@ -1208,55 +1198,97 @@ def render_stock_of_the_day():
                 )
                 body_html = "".join(
                     "<tr>" + "".join(
-                        f"<td>{html.escape('' if row.get(column) is None else str(row.get(column)))}</td>"
+                        f'<td class="{"stock-name" if column == "Stock" else "numeric-cell"}">'
+                        f"{html.escape('' if row.get(column) is None else str(row.get(column)))}</td>"
                         for column in table_headers
                     ) + "</tr>"
                     for row in rows
                 )
                 st.markdown(
-                    """
+                    f"""
+                    <div class="sotd-table-heading">
+                      <div>
+                        <div class="sotd-table-title">STOCK DATA</div>
+                        <div class="sotd-table-subtitle">Selected stocks · Highest extra-advantage score</div>
+                      </div>
+                      <div class="sotd-table-count">{len(rows)} STOCK{"S" if len(rows) != 1 else ""}</div>
+                    </div>
                     <style>
-                    .sotd-details-table-wrap {
-                        width: 100%;
-                        overflow-x: auto;
-                        border: 1px solid rgba(174,190,207,.58);
-                        border-radius: 11px;
-                        background: linear-gradient(145deg,#11161d,#202833 55%,#121820);
-                        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 5px 16px rgba(0,0,0,.24);
-                    }
-                    table.sotd-details-table {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 0;
-                        color: #E6EDF5;
-                        font-size: .88rem;
-                        white-space: nowrap;
-                    }
-                    .sotd-details-table th {
-                        padding: 11px 13px;
-                        color: #111820;
-                        text-align: left;
-                        font-weight: 900;
-                        letter-spacing: .35px;
-                        background: linear-gradient(180deg,#E1E8EF,#AEBBC9);
-                        border-bottom: 1px solid #8796A6;
-                    }
-                    .sotd-details-table td {
-                        padding: 10px 13px;
-                        color: #DCE4ED;
-                        background: rgba(30,38,48,.94);
-                        border-bottom: 1px solid rgba(170,186,203,.16);
-                    }
-                    .sotd-details-table tbody tr:nth-child(even) td {
-                        background: rgba(42,52,64,.94);
-                    }
-                    .sotd-details-table tbody tr:last-child td {
-                        border-bottom: 0;
-                    }
-                    .sotd-details-table tbody tr:hover td {
-                        background: rgba(112,132,153,.28);
-                        color: #FFFFFF;
-                    }
+                    .sotd-table-heading {{
+                        display:flex;align-items:center;justify-content:space-between;gap:12px;
+                        margin:18px 0 0;padding:14px 16px;
+                        border:1px solid rgba(197,211,227,.55);border-bottom:0;
+                        border-radius:13px 13px 0 0;
+                        background:linear-gradient(110deg,#111820 0%,#303B49 48%,#151C25 100%);
+                        box-shadow:inset 0 1px 0 rgba(255,255,255,.13);
+                    }}
+                    .sotd-table-title {{
+                        color:#F4F7FB;font-size:.86rem;font-weight:950;
+                        letter-spacing:1.65px;line-height:1.25;
+                    }}
+                    .sotd-table-subtitle {{
+                        color:#AEBBCB;font-size:.72rem;font-weight:600;
+                        margin-top:4px;letter-spacing:.2px;
+                    }}
+                    .sotd-table-count {{
+                        flex:0 0 auto;padding:6px 10px;border-radius:999px;
+                        border:1px solid rgba(220,230,242,.48);
+                        background:linear-gradient(180deg,rgba(225,234,244,.18),rgba(120,137,157,.10));
+                        color:#F0F4F9;font-size:.65rem;font-weight:900;letter-spacing:.8px;
+                    }}
+                    .sotd-details-table-wrap {{
+                        width:100%;overflow-x:auto;max-height:520px;
+                        border:1px solid rgba(174,190,207,.58);
+                        border-radius:0 0 13px 13px;
+                        background:linear-gradient(145deg,#11161d,#202833 55%,#121820);
+                        box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 20px rgba(0,0,0,.26);
+                    }}
+                    table.sotd-details-table {{
+                        width:100%;min-width:max-content;border-collapse:separate;
+                        border-spacing:0;color:#E6EDF5;font-size:.82rem;white-space:nowrap;
+                    }}
+                    .sotd-details-table th {{
+                        position:sticky;top:0;z-index:2;padding:11px 13px;
+                        color:#17202A;text-align:right;font-weight:950;
+                        font-size:.68rem;letter-spacing:.55px;text-transform:uppercase;
+                        background:linear-gradient(180deg,#F0F3F7 0%,#B8C4D1 100%);
+                        border-bottom:1px solid #8291A2;
+                    }}
+                    .sotd-details-table th:first-child {{
+                        left:0;z-index:4;text-align:left;
+                        background:linear-gradient(180deg,#E5EBF2 0%,#AAB8C7 100%);
+                    }}
+                    .sotd-details-table td {{
+                        padding:10px 13px;text-align:right;
+                        color:#DCE4ED;background:rgba(25,32,41,.97);
+                        border-bottom:1px solid rgba(170,186,203,.15);
+                        font-variant-numeric:tabular-nums;
+                    }}
+                    .sotd-details-table td:first-child {{
+                        position:sticky;left:0;z-index:1;text-align:left;
+                        color:#FFFFFF;font-weight:950;letter-spacing:.25px;
+                        background:linear-gradient(90deg,#202A36,#273342);
+                        border-right:1px solid rgba(190,204,220,.25);
+                    }}
+                    .sotd-details-table tbody tr:nth-child(even) td {{
+                        background:rgba(43,54,67,.97);
+                    }}
+                    .sotd-details-table tbody tr:nth-child(even) td:first-child {{
+                        background:linear-gradient(90deg,#293746,#304052);
+                    }}
+                    .sotd-details-table tbody tr:hover td {{
+                        background:rgba(101,124,148,.34);color:#FFFFFF;
+                    }}
+                    .sotd-details-table tbody tr:hover td:first-child {{
+                        background:linear-gradient(90deg,#35485C,#40556B);
+                    }}
+                    .sotd-details-table tbody tr:last-child td {{border-bottom:0;}}
+                    @media (max-width:640px) {{
+                        .sotd-table-heading {{padding:12px 11px;}}
+                        .sotd-table-title {{font-size:.78rem;}}
+                        .sotd-table-subtitle {{font-size:.65rem;}}
+                        .sotd-details-table th,.sotd-details-table td {{padding:9px 10px;}}
+                    }}
                     </style>
                     """,
                     unsafe_allow_html=True
@@ -1266,8 +1298,7 @@ def render_stock_of_the_day():
                     f'<thead><tr>{header_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
                     unsafe_allow_html=True
                 )
-            else:
-                st.caption("No qualifying stock details to display.")
+
 
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
