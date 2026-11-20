@@ -1246,14 +1246,14 @@ def render_stock_of_the_day():
                 .sotd-stock-tag {{color:#BFCBD8;font-size:.58rem;font-weight:900;letter-spacing:1px;
                     padding:5px 8px;border:1px solid rgba(190,204,220,.3);border-radius:20px;background:rgba(255,255,255,.06);}}
                 .sotd-metric-group {{margin-top:9px;}}
-                .sotd-group-heading {{color:#AEBBCB;font-size:.59rem;font-weight:950;letter-spacing:1.25px;
+                .sotd-group-heading {{color:#AEBBCB;font-size:.68rem;font-weight:950;letter-spacing:1.25px;
                     margin:0 0 7px 2px;}}
                 .sotd-metric-grid {{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;}}
                 .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(190,204,220,.18);
                     border-radius:8px;background:linear-gradient(150deg,rgba(238,244,250,.09),rgba(125,143,164,.045));}}
-                .sotd-metric-label {{color:#AEBBCB;font-size:.58rem;font-weight:850;line-height:1.25;
+                .sotd-metric-label {{color:#AEBBCB;font-size:.66rem;font-weight:850;line-height:1.3;
                     overflow-wrap:anywhere;}}
-                .sotd-metric-value {{color:#F3F6FA;font-size:.82rem;font-weight:900;font-variant-numeric:tabular-nums;
+                .sotd-metric-value {{color:#F3F6FA;font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
                     margin-top:5px;overflow-wrap:anywhere;}}
                 .sotd-metric-group.history .sotd-metric-tile {{background:linear-gradient(145deg,rgba(125,153,181,.13),rgba(255,255,255,.035));}}
                 .sotd-metric-group.change .sotd-metric-value {{color:#E5EDF6;}}
@@ -1261,10 +1261,10 @@ def render_stock_of_the_day():
                     .sotd-table-heading {{padding:11px 12px;}}
                     .sotd-table-subtitle {{font-size:.64rem;}}
                     .sotd-stock-panel {{padding:10px;}}
-                    .sotd-metric-grid {{grid-template-columns:repeat(auto-fit,minmax(75px,1fr));gap:5px;}}
+                    .sotd-metric-grid {{grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:6px;}}
                     .sotd-metric-tile {{padding:7px 5px;}}
-                    .sotd-metric-label {{font-size:.54rem;}}
-                    .sotd-metric-value {{font-size:.72rem;}}
+                    .sotd-metric-label {{font-size:.61rem;}}
+                    .sotd-metric-value {{font-size:.84rem;}}
                 }}
                 </style>
                 {''.join(stock_panels)}
