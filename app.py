@@ -1238,9 +1238,10 @@ def render_stock_of_the_day():
                         )
                 stock_panels.append(
                     f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_border};background:linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,linear-gradient(110deg,{panel_border} 0%,{panel_shimmer} 24%,#FFFFFF 38%,{panel_shimmer} 54%,{panel_border} 76%,{panel_shimmer} 100%) border-box;">'
+                    f'<div aria-hidden="true" class="sotd-static-glow" style="background:radial-gradient(circle,{panel_shimmer}45,transparent 72%);"></div><div class="sotd-stock-panel-content"><div class="sotd-stock-panel-head">'
                     f'<span class="sotd-stock-symbol" style="color:{panel_border};">{symbol}</span>'
                     f'<span class="sotd-stock-tag" style="color:{panel_border};">STOCK OF THE DAY</span></div>'
-                    f'<div aria-hidden="true" class="sotd-static-glow" style="background:radial-gradient(circle,{panel_shimmer}45,transparent 72%);"></div><div class="sotd-stock-panel-content"><div class="sotd-stock-panel-head">' + f'{"".join(groups)}</div></div></article>'
+                    f'{"".join(groups)}</div></article>'
                 )
 
             table_symbol = normalize_stock_symbol(rows[0].get("Stock", "STOCK")) if rows else "STOCK"
