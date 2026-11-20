@@ -1638,13 +1638,23 @@ def render_autogreen_dashboard():
     for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
         quote = target_quotes.get(symbol, {})
         rank = sum_o2l_ranks.get(symbol)
+        open_price = quote.get("open")
+        day_high = quote.get("high")
+        day_low = quote.get("low")
+        live_price = quote.get("price")
+        o2h_pct = ((day_high - open_price) / open_price) * 100 if open_price and day_high is not None else None
+        o2l_pct = ((day_low - open_price) / open_price) * 100 if open_price and day_low is not None else None
+        target_status = "Target Completed" if o2h_pct is not None and o2h_pct >= 1.0 else "—"
         target_table_rows.append({
             "Role": f"TARGET #{position}",
             "Symbol": symbol,
-            "Open": round(quote["open"], 2) if quote.get("open") is not None else "Unavailable",
-            "High": round(quote["high"], 2) if quote.get("high") is not None else "Unavailable",
-            "Low": round(quote["low"], 2) if quote.get("low") is not None else "Unavailable",
-            "Live Price": round(quote["price"], 2) if quote.get("price") is not None else "Unavailable",
+            "Open": round(open_price, 2) if open_price is not None else "Unavailable",
+            "High": round(day_high, 2) if day_high is not None else "Unavailable",
+            "Low": round(day_low, 2) if day_low is not None else "Unavailable",
+            "Live Price": round(live_price, 2) if live_price is not None else "Unavailable",
+            "O2H": f"{o2h_pct:+.2f}%" if o2h_pct is not None else "Unavailable",
+            "O2L": f"{o2l_pct:+.2f}%" if o2l_pct is not None else "Unavailable",
+            "Target Status": target_status,
             "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
             "Rank": rank,
         })
@@ -1674,46 +1684,30 @@ def render_autogreen_dashboard():
             "_Target Position": position,
         })
 
-    # All four target stocks (#1-#4) compete equally for BUY.
-    # Require price at least 0.20% below today's high; choose highest live
-    # % change, then lowest rank as the tie-breaker.
-    buy_candidates = [
-        item for item in target_records
-        if item["High Gap %"] >= 0.20
-    ]
-    buy_candidates.sort(key=lambda item: (
-        -item["Live % Chg"],
-        item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"),
-        item["Symbol"]
-    ))
-    best_buy = buy_candidates[0] if buy_candidates else None
-
-    # All four target stocks compete independently for CONFIRMATION.
-    # Apply the same High - 0.20% eligibility and rank by highest live % change,
-    # using the lowest Sum O2L.10 rank as the tie-breaker.
+    # BUY CONFIRMATION is evaluated independently for every one of the four target stocks.
+    # O2L must be below -1%, O2H must remain below +1%, and live price must be above Open.
+    # A stock whose O2H reaches +1% is marked Target Completed in the target table.
     confirmation_candidates = [
         item for item in target_records
-        if item["High Gap %"] >= 0.20
+        if item.get("Day Open") is not None
+        and item.get("Day High") is not None
+        and item.get("Day Low") is not None
+        and item["Day Open"] > 0
+        and ((item["Day Low"] - item["Day Open"]) / item["Day Open"]) * 100 < -1.0
+        and ((item["Day High"] - item["Day Open"]) / item["Day Open"]) * 100 < 1.0
+        and item["Live Price"] > item["Day Open"]
     ]
     confirmation_candidates.sort(key=lambda item: (
         -item["Live % Chg"],
         item["Sum O2L.10 Rank"] if item["Sum O2L.10 Rank"] is not None else float("inf"),
         item["Symbol"]
     ))
-    # Keep an independent copy because the same stock may qualify as both BUY
-    # and CONFIRMATION under these independent selection rules.
-    confirmation_row = (
-        dict(confirmation_candidates[0]) if confirmation_candidates else None
-    )
-    if confirmation_row:
+    for confirmation_row in confirmation_candidates:
         confirmation_row["_Role"] = "CONFIRMATION"
-    if best_buy:
-        best_buy["_Role"] = "BUY"
-    # Display only the independently selected BUY CONFIRMATION card.
-    # Keep BUY evaluation logic intact for the confirmation calculation.
-    selected_rows = [confirmation_row] if confirmation_row else []
-    high_gap_candidates = buy_candidates
-    buy_rows = [best_buy] if best_buy else []
+
+    # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
+    selected_rows = confirmation_candidates
+
 
     # The metrics panel always inherits the first (topmost) signal card palette.
     # With no active signal, it follows the Rose-Cherry NO SIGNAL card.
