@@ -1237,7 +1237,7 @@ def render_stock_of_the_day():
                             f'<div class="sotd-metric-grid">{metric_tiles(row, columns)}</div></section>'
                         )
                 stock_panels.append(
-                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};"><div class="sotd-stock-panel-head">'
+                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_shimmer};"><div class="sotd-stock-panel-head">'
                     f'<span class="sotd-stock-symbol">{symbol}</span>'
                     f'<span class="sotd-stock-tag">STOCK OF THE DAY</span></div>'
                     f'{"".join(groups)}</article>'
@@ -1270,25 +1270,21 @@ def render_stock_of_the_day():
                     box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45);}}
                 .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
                     padding:0 2px 10px;border-bottom:1px solid var(--sotd-border,#C49A45);margin-bottom:11px;}}
-                .sotd-stock-symbol {{background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
-                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:1rem;font-weight:950;letter-spacing:.8px;}}
-                .sotd-stock-tag {{color:#76539A;font-size:.58rem;font-weight:900;letter-spacing:1px;
-                    padding:5px 8px;border:1px solid #D5B66D;border-radius:20px;background:linear-gradient(120deg,#FFF8E8,#F7F0FF);}}
+                .sotd-stock-symbol {{color:var(--sotd-text,#76539A);font-size:1rem;font-weight:950;letter-spacing:.8px;}}
+                .sotd-stock-tag {{color:var(--sotd-text,#76539A);font-size:.58rem;font-weight:900;letter-spacing:1px;
+                    padding:5px 8px;border:1px solid var(--sotd-border,#D5B66D);border-radius:20px;background:#FFFFFF;}}
                 .sotd-metric-group {{margin-top:9px;}}
-                .sotd-group-heading {{background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
-                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.68rem;font-weight:950;letter-spacing:1.25px;
+                .sotd-group-heading {{color:var(--sotd-text,#76539A);font-size:.68rem;font-weight:950;letter-spacing:1.25px;
                     margin:0 0 7px 2px;}}
                 .sotd-metric-grid {{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:7px;}}
                 .sotd-metric-tile {{min-width:0;padding:8px 7px;border:1px solid rgba(196,154,69,.38);
                     border-radius:8px;background:#FFFFFF;}}
-                .sotd-metric-label {{color:#806C48;font-size:.66rem;font-weight:850;line-height:1.3;
+                .sotd-metric-label {{color:var(--sotd-text,#806C48);font-size:.66rem;font-weight:850;line-height:1.3;
                     overflow-wrap:anywhere;}}
-                .sotd-metric-value {{background:linear-gradient(90deg,#24466F 0%,#287D78 52%,#8756A6 100%);
-                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
+                .sotd-metric-value {{color:var(--sotd-text,#24466F);font-size:.95rem;font-weight:900;font-variant-numeric:tabular-nums;
                     margin-top:5px;overflow-wrap:anywhere;}}
                 .sotd-metric-group.history .sotd-metric-tile {{background:#FFFFFF;}}
-                .sotd-metric-group.change .sotd-metric-value {{background:linear-gradient(90deg,#21835B,#8756A6);
-                    -webkit-background-clip:text;background-clip:text;color:transparent;}}
+                .sotd-metric-group.change .sotd-metric-value {{color:var(--sotd-text,#21835B);}}
                 @media(max-width:640px) {{
                     .sotd-table-heading {{padding:11px 12px;}}
                     .sotd-table-subtitle {{font-size:.64rem;}}
