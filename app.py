@@ -971,10 +971,10 @@ def render_stock_of_the_day():
         db_threshold = float(st.session_state.get("stock_day_db_threshold_value", -2.0))
         rows = load_stock_of_the_day_rows(db_threshold)
 
-        # From 5 PM to 9 AM, Stock of the Day uses only the VBL-style
-        # four-sided black-bordered symbols from AutoGreen Column A.
+        # From 5 PM to 9 AM, Stock of the Day uses only stocks
+        # with explicitly white font in AutoGreen Column A.
         if is_next_session_mode:
-            border_symbols = get_black_border_master_column_a_symbols(master_bytes)
+            white_font_symbols = get_white_font_master_column_a_symbols(master_bytes)
             existing_rows_by_symbol = {
                 normalize_stock_symbol(row.get("Stock")): row
                 for row in rows
@@ -982,7 +982,7 @@ def render_stock_of_the_day():
             }
             rows = [
                 dict(existing_rows_by_symbol.get(symbol, {"Stock": symbol}), Stock=symbol)
-                for symbol in border_symbols
+                for symbol in white_font_symbols
             ]
 
         if not rows:
@@ -1612,40 +1612,23 @@ def is_stock_of_day_next_session_window():
     return current_time >= datetime.strptime("17:00", "%H:%M").time() or current_time < datetime.strptime("09:00", "%H:%M").time()
 
 
-def has_vbl_style_black_border(cell):
-    """Return True for a cell with a black border on all four sides.
-
-    Excel may store visually identical black borders as theme, RGB, indexed,
-    or automatic colours. Accept those equivalent representations instead of
-    requiring the exact theme encoding used by the VBL reference cell.
-    """
-    def is_black_or_automatic(color):
-        if color is None:
-            # Excel's automatic border colour is black in the standard workbook theme.
-            return True
-        if color.type == "theme":
-            return color.theme == 1 and float(color.tint or 0) == 0
-        if color.type == "rgb":
-            rgb = str(color.rgb or "").upper()
-            return rgb[-6:] == "000000"
-        if color.type == "indexed":
-            return color.indexed in (8, 64)
-        if color.type == "auto":
-            return bool(color.auto)
+def is_white_font_color(color):
+    """Recognise explicit white font colours in common Excel encodings."""
+    if color is None:
         return False
+    if color.type == "rgb":
+        return str(color.rgb or "").upper()[-6:] == "FFFFFF"
+    if color.type == "indexed":
+        # Excel's standard indexed palette uses 1 and 9 for white.
+        return color.indexed in (1, 9)
+    if color.type == "theme":
+        # Theme 0 is Light 1 (white) in the standard Office theme.
+        return color.theme == 0 and float(color.tint or 0) == 0
+    return False
 
-    border_sides = (
-        cell.border.left,
-        cell.border.right,
-        cell.border.top,
-        cell.border.bottom,
-    )
-    return all(
-        side.style is not None and is_black_or_automatic(side.color)
-        for side in border_sides
-    )
-def get_black_border_master_column_a_symbols(workbook_bytes):
-    """Collect stocks with the same four-sided border formatting as VBL in AutoGreen!A:A."""
+
+def get_white_font_master_column_a_symbols(workbook_bytes):
+    """Collect every stock with an explicitly white font in AutoGreen Column A."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=False)
     try:
         if "AutoGreen" not in workbook.sheetnames:
@@ -1662,10 +1645,12 @@ def get_black_border_master_column_a_symbols(workbook_bytes):
             cell = ws.cell(row=row_number, column=1)
             if not isinstance(cell.value, str):
                 continue
+
             symbol = normalize_stock_symbol(cell.value)
             if not symbol or symbol in ignored_labels or len(symbol) > 30:
                 continue
-            if has_vbl_style_black_border(cell):
+
+            if is_white_font_color(cell.font.color):
                 selected_symbols.append(symbol)
 
         return list(dict.fromkeys(selected_symbols))
