@@ -1271,11 +1271,6 @@ def render_stock_of_the_day():
                 """,
                 unsafe_allow_html=True
             )
-                st.markdown(
-                    f'<div class="sotd-details-table-wrap"><table class="sotd-details-table">'
-                    f'<thead><tr>{header_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
-                    unsafe_allow_html=True
-                )
 
 
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
