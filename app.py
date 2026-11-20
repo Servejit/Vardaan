@@ -1114,7 +1114,7 @@ def render_stock_of_the_day():
                       pointer-events:none;"></div>
           <div style="position:relative;z-index:1;text-align:center;font-size:11px;
                       font-weight:900;letter-spacing:3px;
-                      color:{shimmer_colour};margin:0 0 15px;">
+                      color:{border_colour};margin:0 0 15px;">
             6THSENSE · VARDAAN
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -1238,14 +1238,16 @@ def render_stock_of_the_day():
                         )
                 stock_panels.append(
                     f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_shimmer};"><div class="sotd-stock-panel-head">'
-                    f'<span class="sotd-stock-symbol">{symbol}</span>'
-                    f'<span class="sotd-stock-tag">STOCK OF THE DAY</span></div>'
+                    f'<span class="sotd-stock-symbol" style="color:{panel_border};">{symbol}</span>'
+                    f'<span class="sotd-stock-tag" style="color:{panel_border};">STOCK OF THE DAY</span></div>'
                     f'{"".join(groups)}</article>'
                 )
 
+            table_symbol = normalize_stock_symbol(rows[0].get("Stock", "STOCK")) if rows else "STOCK"
+            table_border, table_shimmer = stock_day_palettes.get(table_symbol[:1].upper(), stock_day_palettes["A"])
             st.markdown(
                 f"""
-                <div class="sotd-table-heading">
+                <div class="sotd-table-heading" style="--sotd-table-border:{table_border};--sotd-table-shimmer:{table_shimmer};">
                   <div>
                     <div class="sotd-table-title">STOCK DATA</div>
                     <div class="sotd-table-subtitle">All qualifying readings · grouped for quick review</div>
@@ -1255,16 +1257,15 @@ def render_stock_of_the_day():
                 <style>
                 .sotd-table-heading {{
                     display:flex;align-items:center;justify-content:space-between;gap:12px;
-                    margin:18px 0 12px;padding:14px 16px;border:1.5px solid #C49A45;
+                    margin:18px 0 12px;padding:14px 16px;border:1.5px solid var(--sotd-table-border,#C49A45);
                     border-radius:13px;background:#FFFFFF;
                     box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 7px 18px rgba(145,105,34,.10);
                 }}
-                .sotd-table-title {{background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
-                    -webkit-background-clip:text;background-clip:text;color:transparent;font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
-                .sotd-table-subtitle {{color:#766A55;font-size:.72rem;font-weight:600;margin-top:4px;}}
+                .sotd-table-title {{color:var(--sotd-table-border,#9A6A19);font-size:.86rem;font-weight:950;letter-spacing:1.65px;}}
+                .sotd-table-subtitle {{color:var(--sotd-table-border,#766A55);font-size:.72rem;font-weight:600;margin-top:4px;}}
                 .sotd-table-count {{flex:0 0 auto;padding:6px 10px;border-radius:999px;
-                    border:1px solid #C49A45;background:#FFFFFF;
-                    color:#76539A;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
+                    border:1px solid var(--sotd-table-border,#C49A45);background:#FFFFFF;
+                    color:var(--sotd-table-border,#76539A);font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
                 .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid var(--sotd-border,#C49A45);
                     border-radius:13px;background:#FFFFFF;
                     box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45);}}
