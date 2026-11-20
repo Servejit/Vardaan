@@ -2373,7 +2373,7 @@ def render_autogreen_dashboard():
             entry = item.get("Live Price")
             # Card target is +0.35% from Entry, capped at the stock-specific
             # maximum calculated from the session Open (+0.75% or +1.00%).
-            entry_based_target = entry * 1.0035
+            entry_based_target = entry * 1.0035 if entry is not None else None
             day_open = item.get("Day Open")
             o2h_cap_pct = float(item.get("O2H Target %", 1.0))
             open_based_max_target = (
