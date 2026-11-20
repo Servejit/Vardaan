@@ -1033,6 +1033,21 @@ def render_stock_of_the_day():
         @media (prefers-reduced-motion: reduce) {
             .stock-day-buy-card { animation:none !important; }
         }
+        /* Keep all three prices readable on narrow mobile screens. */
+        @media (max-width: 480px) {
+            .stock-day-buy-card { padding:18px 14px 18px !important; }
+            .stock-day-target-grid {
+                grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+                column-gap:10px !important;
+                row-gap:16px !important;
+            }
+            .stock-day-target-grid > div { min-width:0 !important; }
+            .stock-day-target-grid > div > div:last-child {
+                font-size:clamp(.88rem,4vw,1.15rem) !important;
+                white-space:normal !important;
+                overflow-wrap:anywhere !important;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True
@@ -1140,7 +1155,7 @@ def render_stock_of_the_day():
           <div style="height:1px;background:linear-gradient(90deg,transparent,#C69B43,
                       rgba(255,236,184,.95),#C69B43,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+          <div class="stock-day-target-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
               <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">ENTRY PRICE</div>
