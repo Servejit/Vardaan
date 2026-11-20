@@ -1816,40 +1816,13 @@ def render_autogreen_dashboard():
             for _, db_value, _, symbol in target_candidates[:4]
         ]
 
-    # Start with the first four preferred stocks. Only unlock the next four
-    # when all four first targets have reached Target Completed (O2H >= +1%).
+    # Keep the target list limited to the first four preferred stocks.
     target_quotes = {}
     target_table_rows = []
     if lowest_db_targets:
-        first_batch = lowest_db_targets[:4]
-        first_symbols = [symbol for _, symbol in first_batch]
-        with st.spinner("Fetching live prices for the first four target stocks..."):
+        first_symbols = [symbol for _, symbol in lowest_db_targets[:4]]
+        with st.spinner("Fetching live prices for the four target stocks..."):
             target_quotes = get_autogreen_live_prices(tuple(first_symbols))
-
-        first_four_completed = (
-            len(first_batch) == 4
-            and all(
-                (target_quotes.get(symbol, {}).get("open") or 0) > 0
-                and target_quotes.get(symbol, {}).get("high") is not None
-                and (
-                    (target_quotes[symbol]["high"] - target_quotes[symbol]["open"])
-                    / target_quotes[symbol]["open"]
-                ) * 100 >= 1.0
-                for _, symbol in first_batch
-            )
-        )
-
-        if first_four_completed and len(target_candidates) > 4:
-            next_batch = target_candidates[4:8]
-            next_symbols = [symbol for _, _, _, symbol in next_batch]
-            if next_symbols:
-                with st.spinner("All first four targets completed. Fetching the next four..."):
-                    next_quotes = get_autogreen_live_prices(tuple(next_symbols))
-                target_quotes.update(next_quotes)
-                lowest_db_targets.extend(
-                    (db_value, symbol)
-                    for _, db_value, _, symbol in next_batch
-                )
 
     # Target selection is based on all four stocks from the base-qualified AutoGreen list.
     # Colour-qualified signals are preferred for their existing card palette, but
