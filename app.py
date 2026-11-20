@@ -948,7 +948,7 @@ def load_stock_of_the_day_rows():
             dated_o2l_position = 0
             for position, value in enumerate(o2l_values, start=1):
                 heading = o2l_headings[position - 1] if position <= len(o2l_headings) else ""
-                if re.search(r"sum\\s*o2l[.\\s]*10", heading, re.IGNORECASE):
+                if re.search(r"sum\s*o2l[.\s]*10", heading, re.IGNORECASE):
                     column_name = "Sum O2L.10"
                 else:
                     dated_o2l_position += 1
@@ -1189,7 +1189,7 @@ def render_stock_of_the_day():
             if rows:
                 table_headers = list(rows[0].keys())
             core_columns = [column for column in ("O2H 1", "O2H 2", "16< D-B / Avg.4") if column in table_headers]
-            o2l_columns = [column for column in table_headers if column.startswith("O2L ")]
+            o2l_columns = [column for column in table_headers if column.startswith(("O2L.", "Sum O2L.10"))]
             change_columns = [column for column in table_headers if column.startswith("%Chg.")]
 
             def metric_tiles(row, columns):
