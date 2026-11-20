@@ -1708,6 +1708,12 @@ def render_autogreen_dashboard():
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
 
+    # Keep the existing High - 0.20% metric populated from the four target stocks.
+    high_gap_candidates = [
+        item for item in target_records
+        if item["High Gap %"] >= 0.20
+    ]
+
 
     # The metrics panel always inherits the first (topmost) signal card palette.
     # With no active signal, it follows the Rose-Cherry NO SIGNAL card.
