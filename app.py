@@ -2275,9 +2275,8 @@ def render_autogreen_dashboard():
             is_confirmation = item.get("_Role") == "CONFIRMATION"
             symbol = item["Symbol"]
             entry = item["Live Price"]
-            # Card target follows the same per-stock O2H cap: +0.75% or +1.00%.
-            target_cap_pct = min(1.0, max(0.0, float(item.get("O2H Target %", 1.0))))
-            target = entry * (1 + target_cap_pct / 100)
+            # BUY card target remains +0.35%; O2H completion keeps its separate +0.75%/+1.00% cap.
+            target = entry * 1.0035
             rank_value = item.get("Sum O2L.10 Rank")
             rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
             role_text = "BUY CONFIRMATION" if is_confirmation else "BUY SIGNAL"
