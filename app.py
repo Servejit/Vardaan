@@ -1756,7 +1756,44 @@ def render_autogreen_dashboard():
     )
     lowest_db_targets = []
     if not qualified_detail_error and qualified_detail_rows:
-        for detail in qualified_detail_rows:
+        # Give first priority to stocks whose %Chg history STARTS negative.
+        # If fewer than four negative starters exist, use positive starters
+        # next, choosing the smallest positive value first. D-B remains the
+        # tie-breaker within each %Chg preference group.
+        base_by_symbol_for_history = {item["Symbol"]: item for item in base_rows}
+
+        def target_selection_key(detail):
+            raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
+            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
+            db_match = (
+                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
+                if outer_match else None
+            )
+            try:
+                db_value = float(db_match.group(1).replace(",", "")) if db_match else float("inf")
+            except (TypeError, ValueError):
+                db_value = float("inf")
+
+            source = base_by_symbol_for_history.get(detail["Stock"], {})
+            first_change = source.get("%Chg.1")
+            try:
+                first_change = float(str(first_change).replace("%", "").replace("−", "-").replace(",", "").strip())
+            except (TypeError, ValueError):
+                first_change = None
+
+            if first_change is not None and first_change < 0:
+                history_priority = 0
+                history_value = first_change  # most negative first
+            elif first_change is not None and first_change > 0:
+                history_priority = 1
+                history_value = first_change  # smallest positive first
+            else:
+                history_priority = 2
+                history_value = float("inf")
+
+            return (history_priority, history_value, db_value, detail["Stock"])
+
+        for detail in sorted(qualified_detail_rows, key=target_selection_key):
             raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
             outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
             numeric_match = (
@@ -1771,8 +1808,26 @@ def render_autogreen_dashboard():
                     ))
                 except (TypeError, ValueError):
                     pass
-        lowest_db_targets.sort(key=lambda item: (item[0], item[1]))
-        lowest_db_targets = lowest_db_targets[:4]
+        # Preserve the chosen %Chg preference order; do not re-sort by D-B.
+        lowest_db_targets = [
+            (next(
+                float(match.group(1).replace(",", ""))
+                for match in [re.search(
+                    r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$",
+                    re.search(r"\(([^()]*)\)\s*\)?\s*$",
+                               str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")).group(1).strip()
+                )]
+                if match
+            ), detail["Stock"])
+            for detail in sorted(qualified_detail_rows, key=target_selection_key)
+            if re.search(r"\(([^()]*)\)\s*\)?\s*$",
+                         str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-"))
+            and re.search(
+                r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$",
+                re.search(r"\(([^()]*)\)\s*\)?\s*$",
+                           str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")).group(1).strip()
+            )
+        ][:4]
 
     target_symbols = [symbol for _, symbol in lowest_db_targets]
     target_quotes = {}
