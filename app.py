@@ -1030,12 +1030,30 @@ def render_stock_of_the_day():
     for row in rows:
         symbol = normalize_stock_symbol(row.get("Stock"))
         quote = quotes.get(symbol, {})
+        day_open = quote.get("open")
         day_high = quote.get("high")
-        if day_high is None or day_high <= 0:
+        live_price = quote.get("price")
+        if day_open is None or day_open <= 0 or day_high is None or day_high <= 0:
             continue
 
-        entry = day_high * (1 - 0.002)
-        target = entry * 1.0035
+        # Stock of the Day uses the actual session Open as entry.
+        entry = day_open
+        target1 = entry * 1.005
+        target2 = entry * 1.01
+
+        # Intraday High confirms targets already reached; live price takes
+        # precedence when it is currently trading above Target 2.
+        if live_price is not None and live_price > target2:
+            status_text = "TODAY TARGET HIT · PRICE RUNNING ABOVE TARGET PRICE"
+        elif day_high > target2:
+            status_text = "TARGET 1 & 2 ACHIEVED FOR THE DAY"
+        elif day_high >= target2:
+            status_text = "TARGET 2 ACHIEVED"
+        elif day_high >= target1:
+            status_text = "TARGET 1 ACHIEVED"
+        else:
+            status_text = "TARGETS PENDING"
+
         rank_value = ranks.get(symbol)
         rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
 
@@ -1077,18 +1095,29 @@ def render_stock_of_the_day():
           <div style="height:1px;background:linear-gradient(90deg,transparent,#AAB5C3,
                       rgba(255,255,255,.72),#AAB5C3,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
-          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-                      align-items:center;gap:18px;position:relative;z-index:1;">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+                      align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
-              <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;color:#C2CBD6;">ENTRY PRICE</div>
-              <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#FFFFFF;
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">ENTRY · OPEN</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFFFFF;
                           margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.70rem;font-weight:850;letter-spacing:1.15px;color:#C2CBD6;">TARGET PRICE</div>
-              <div style="font-size:1.48rem;line-height:1.25;font-weight:950;color:#E6EDF5;
-                          margin-top:7px;white-space:nowrap;">₹{target:,.2f}</div>
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 1 · +0.50%</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#E6EDF5;
+                          margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
             </div>
+            <div style="min-width:0;">
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 2 · +1.00%</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFFFFF;
+                          margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
+            </div>
+          </div>
+          <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
+                      border:1px solid rgba(210,221,234,.48);border-radius:11px;
+                      background:rgba(255,255,255,.08);text-align:center;
+                      color:#F1F5F9;font-size:.72rem;font-weight:950;letter-spacing:.8px;">
+            {html.escape(status_text)}
           </div>
         </div>
         """
