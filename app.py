@@ -1784,11 +1784,12 @@ def render_autogreen_dashboard():
 
         # Every one of the four D-B target stocks must reach BUY evaluation.
         # Do not drop a target merely because it has no colour-qualified signal row.
-        signal = (
+        signal = dict(
             signal_by_symbol.get(symbol)
             or base_by_symbol.get(symbol)
-            or {"Symbol": symbol, "Card Colour": "Green"}
+            or {"Symbol": symbol}
         )
+        signal.setdefault("Card Colour", "Copper-Orange")
         price = quote.get("price")
         high = quote.get("high")
         change_pct = quote.get("change_pct")
@@ -1844,11 +1845,12 @@ def render_autogreen_dashboard():
         "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4", "#8FFFF0"),
         "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF", "#BDEBFF"),
         "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF", "#EAD7FF"),
+        "Copper-Orange": ("#3D1D0B", "#A64B16", "#54250C", "#F2A15A", "#FFF0E2", "#FFD0A6"),
     }
     if selected_rows:
-        metric_colour_name = selected_rows[0].get("Card Colour", "Green")
+        metric_colour_name = selected_rows[0].get("Card Colour", "Copper-Orange")
         metric_c1, metric_c2, metric_c3, metric_border, metric_accent, metric_shimmer = metric_palettes.get(
-            metric_colour_name, metric_palettes["Green"]
+            metric_colour_name, metric_palettes["Copper-Orange"]
         )
         metric_outer = metric_border
         metric_glow = metric_c2 + "66"
@@ -1858,11 +1860,12 @@ def render_autogreen_dashboard():
         metric_outer, metric_glow = "#A83E59", "rgba(220,92,126,.30)"
 
     # Light pearl dashboard; the topmost signal card supplies the accent colour.
-    metric_colour_name = selected_rows[0].get("Card Colour", "Green") if selected_rows else "Rose-Cherry"
+    metric_colour_name = selected_rows[0].get("Card Colour", "Copper-Orange") if selected_rows else "Rose-Cherry"
     light_accents = {
         "Green": ("#287A59", "#1F674B", "#E5F1E9", "#DCEAE1"),
         "Blue": ("#2877A8", "#205F88", "#E4EEF6", "#D9E7F1"),
         "Purple": ("#8050A2", "#684083", "#EEE6F4", "#E4D9EE"),
+        "Copper-Orange": ("#A6531D", "#874014", "#F7E9DF", "#F1D9C8"),
         "Rose-Cherry": ("#B04B68", "#913B55", "#F3E5EA", "#EBD8DF"),
     }
     metric_ink, metric_accent_text, metric_tint, metric_canvas = light_accents.get(
@@ -2112,9 +2115,10 @@ def render_autogreen_dashboard():
                 "Green": ("#062d20", "#087447", "#063d2b", "#E6C76A", "#CFFFE4", "#8FFFF0"),
                 "Blue": ("#071b3d", "#075b91", "#092d57", "#78D9FF", "#D9F4FF", "#BDEBFF"),
                 "Purple": ("#29113f", "#713a91", "#35134f", "#E0B5FF", "#F2DFFF", "#EAD7FF"),
+                "Copper-Orange": ("#3D1D0B", "#A64B16", "#54250C", "#F2A15A", "#FFF0E2", "#FFD0A6"),
             }
             c1, c2, c3, border_colour, accent_colour, shimmer_colour = palette.get(
-                item.get("Card Colour"), palette["Green"]
+                item.get("Card Colour"), palette["Copper-Orange"]
             )
             card_html = f"""
             <div style="
