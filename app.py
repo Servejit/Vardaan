@@ -1237,7 +1237,7 @@ def render_stock_of_the_day():
                             f'<div class="sotd-metric-grid">{metric_tiles(row, columns)}</div></section>'
                         )
                 stock_panels.append(
-                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_shimmer};"><div class="sotd-stock-panel-head">'
+                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};--sotd-text:{panel_border};"><div class="sotd-stock-panel-head">'
                     f'<span class="sotd-stock-symbol" style="color:{panel_border};">{symbol}</span>'
                     f'<span class="sotd-stock-tag" style="color:{panel_border};">STOCK OF THE DAY</span></div>'
                     f'{"".join(groups)}</article>'
