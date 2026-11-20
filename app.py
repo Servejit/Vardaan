@@ -1124,12 +1124,12 @@ def render_stock_of_the_day():
                           margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 1</div>
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#21835B;">TARGET 1</div>
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#21835B;
                           margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#C2CBD6;">TARGET 2</div>
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#8756A6;">TARGET 2</div>
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#8756A6;
                           margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
             </div>
