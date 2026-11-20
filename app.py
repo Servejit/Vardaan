@@ -2866,63 +2866,109 @@ if (
 
 if st.session_state.user is None:
 
-    st.markdown(
-        """
-        <style>
-        [data-testid="stAppViewContainer"] {
-            background:
-                radial-gradient(ellipse at 8% 8%, rgba(131,185,76,.13), transparent 34%),
-                radial-gradient(ellipse at 92% 18%, rgba(213,174,82,.14), transparent 32%),
-                linear-gradient(145deg, #f4faf5 0%, #fbfdf9 48%, #fffaf0 100%);
+    # Login palette changes automatically according to Indian Standard Time.
+    st_autorefresh(interval=30_000, key="vardaan_login_theme_refresh")
+    login_clock = datetime.now(ZoneInfo("Asia/Kolkata"))
+    login_minute = login_clock.hour * 60 + login_clock.minute
+
+    if 9 * 60 <= login_minute <= 11 * 60:
+        login_theme = {
+            "name": "Emerald Sunrise",
+            "page_a": "#ECFDF5", "page_b": "#F7FEE7",
+            "deep": "#064E3B", "primary": "#10B981",
+            "accent": "#A3E635", "highlight": "#FACC15",
+            "heading": "#064E3B", "heading_end": "#FACC15",
+            "card": "#F4FFF8", "border": "#86D6AE",
+            "focus": "#10B981", "shadow": "16, 110, 75",
         }
-        [data-testid="stMainBlockContainer"] {
+    elif 11 * 60 + 1 <= login_minute <= 13 * 60:
+        login_theme = {
+            "name": "Ocean Spectrum",
+            "page_a": "#E0F2FE", "page_b": "#ECFEFF",
+            "deep": "#082F49", "primary": "#0284C7",
+            "accent": "#22D3EE", "highlight": "#818CF8",
+            "heading": "#082F49", "heading_end": "#818CF8",
+            "card": "#F2FBFF", "border": "#7DD3FC",
+            "focus": "#0284C7", "shadow": "2, 132, 199",
+        }
+    elif 13 * 60 + 1 <= login_minute <= 15 * 60 + 30:
+        login_theme = {
+            "name": "Royal Fusion",
+            "page_a": "#F3E8FF", "page_b": "#FCE7F3",
+            "deep": "#3B0764", "primary": "#9333EA",
+            "accent": "#EC4899", "highlight": "#F59E0B",
+            "heading": "#581C87", "heading_end": "#EC4899",
+            "card": "#FFF7FD", "border": "#D8B4FE",
+            "focus": "#9333EA", "shadow": "147, 51, 234",
+        }
+    else:
+        login_theme = {
+            "name": "Sunset Luxe",
+            "page_a": "#FFF7ED", "page_b": "#FCE7F3",
+            "deep": "#7C2D12", "primary": "#EA580C",
+            "accent": "#DC4568", "highlight": "#D6B36A",
+            "heading": "#7C2D12", "heading_end": "#DC4568",
+            "card": "#FFFAF5", "border": "#FDBA74",
+            "focus": "#EA580C", "shadow": "234, 88, 12",
+        }
+
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stAppViewContainer"] {{
+            background:
+                radial-gradient(ellipse at 8% 8%, {login_theme["accent"]}30, transparent 36%),
+                radial-gradient(ellipse at 92% 18%, {login_theme["highlight"]}35, transparent 34%),
+                linear-gradient(145deg, {login_theme["page_a"]} 0%, #FFFFFF 48%, {login_theme["page_b"]} 100%);
+        }}
+        [data-testid="stMainBlockContainer"] {{
             max-width: 680px;
             padding-top: 3.2rem;
-        }
-        [data-testid="stMainBlockContainer"] h1 {
+        }}
+        [data-testid="stMainBlockContainer"] h1 {{
             text-align: center;
             font-weight: 900;
             letter-spacing: -0.045em;
-            background: linear-gradient(100deg, #155B45 0%, #29966D 38%, #83B94C 70%, #B88C35 100%);
+            background: linear-gradient(100deg, {login_theme["deep"]} 0%, {login_theme["primary"]} 38%, {login_theme["accent"]} 70%, {login_theme["highlight"]} 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-        }
-        [data-testid="stMainBlockContainer"] h2 {
-            color: #24664D;
+        }}
+        [data-testid="stMainBlockContainer"] h2 {{
+            color: {login_theme["heading"]};
             text-align: center;
             font-weight: 800;
-        }
-        [data-testid="stMainBlockContainer"] [data-testid="stForm"] {
-            background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,249,242,.97) 58%, rgba(255,250,237,.96));
-            border: 1px solid #b8d8c1;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stForm"] {{
+            background: linear-gradient(145deg, rgba(255,255,255,.99), {login_theme["card"]} 58%, {login_theme["page_b"]} 100%);
+            border: 1px solid {login_theme["border"]};
             border-radius: 20px;
             padding: 1.35rem 1.35rem 1.1rem;
-            box-shadow: 0 14px 38px rgba(29,91,65,.10), 0 2px 8px rgba(185,145,61,.08);
-        }
-        [data-testid="stMainBlockContainer"] input {
+            box-shadow: 0 14px 38px rgba({login_theme["shadow"]},.12), 0 2px 8px {login_theme["highlight"]}20;
+        }}
+        [data-testid="stMainBlockContainer"] input {{
             border-radius: 11px;
-            border-color: #b8d2bf;
+            border-color: {login_theme["border"]};
             background: #ffffff;
-        }
-        [data-testid="stMainBlockContainer"] input:focus {
-            border-color: #29966D;
-            box-shadow: 0 0 0 1px #29966D;
-        }
+        }}
+        [data-testid="stMainBlockContainer"] input:focus {{
+            border-color: {login_theme["focus"]};
+            box-shadow: 0 0 0 1px {login_theme["focus"]};
+        }}
         [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button,
-        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button {
+        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button {{
             color: #ffffff;
             font-weight: 800;
             border: 0;
             border-radius: 12px;
-            background: linear-gradient(105deg, #155B45 0%, #29966D 42%, #83B94C 76%, #B88C35 100%);
-            box-shadow: 0 5px 14px rgba(41,150,109,.20);
-        }
+            background: linear-gradient(105deg, {login_theme["deep"]} 0%, {login_theme["primary"]} 42%, {login_theme["accent"]} 76%, {login_theme["highlight"]} 100%);
+            box-shadow: 0 5px 14px rgba({login_theme["shadow"]},.22);
+        }}
         [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button:hover,
-        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button:hover {
+        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button:hover {{
             filter: brightness(1.06);
-            box-shadow: 0 7px 18px rgba(41,150,109,.27);
-        }
+            box-shadow: 0 7px 18px rgba({login_theme["shadow"]},.29);
+        }}
         </style>
         """,
         unsafe_allow_html=True,
