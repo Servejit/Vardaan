@@ -1018,6 +1018,13 @@ def render_stock_of_the_day():
             0%,100% { transform:translateY(0); }
             50% { transform:translateY(-3px); }
         }
+        @keyframes stockDayCardGlow {
+            0% { transform:translate3d(-35%,-5%,0) rotate(18deg); opacity:0; }
+            18% { opacity:.62; }
+            52% { transform:translate3d(115%,3%,0) rotate(18deg); opacity:.42; }
+            82% { opacity:.18; }
+            100% { transform:translate3d(190%,-4%,0) rotate(18deg); opacity:0; }
+        }
         @media (prefers-reduced-motion: reduce) {
             .stock-day-buy-card { animation:none !important; }
         }
@@ -1069,10 +1076,16 @@ def render_stock_of_the_day():
             background-size:100% 100%,300% 300%;
             animation:stockDayCardShimmer 5.8s linear infinite,
                       stockDayCardFloat 3.1s ease-in-out infinite;
-            box-shadow:0 0 0 1px rgba(255,255,255,.13) inset,
-                       0 12px 30px rgba(0,0,0,.28),
-                       0 0 24px rgba(153,169,190,.24);
+            box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,
+                       0 14px 34px rgba(0,0,0,.42),
+                       0 0 22px rgba(220,230,242,.30),
+                       0 0 38px rgba(153,169,190,.24);
         ">
+          <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
+                      pointer-events:none;z-index:0;filter:blur(7px);
+                      background:linear-gradient(105deg,transparent 0%,rgba(170,176,184,.12) 25%,
+                      rgba(232,237,244,.42) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
+                      animation:stockDayCardGlow 6s ease-in-out infinite;"></div>
           <div style="position:absolute;right:-35px;top:-75px;width:205px;height:205px;
                       border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 70%);
                       pointer-events:none;"></div>
