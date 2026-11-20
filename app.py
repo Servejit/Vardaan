@@ -2866,6 +2866,68 @@ if (
 
 if st.session_state.user is None:
 
+    st.markdown(
+        """
+        <style>
+        [data-testid="stAppViewContainer"] {
+            background:
+                radial-gradient(ellipse at 8% 8%, rgba(131,185,76,.13), transparent 34%),
+                radial-gradient(ellipse at 92% 18%, rgba(213,174,82,.14), transparent 32%),
+                linear-gradient(145deg, #f4faf5 0%, #fbfdf9 48%, #fffaf0 100%);
+        }
+        [data-testid="stMainBlockContainer"] {
+            max-width: 680px;
+            padding-top: 3.2rem;
+        }
+        [data-testid="stMainBlockContainer"] h1 {
+            text-align: center;
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            background: linear-gradient(100deg, #155B45 0%, #29966D 38%, #83B94C 70%, #B88C35 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        [data-testid="stMainBlockContainer"] h2 {
+            color: #24664D;
+            text-align: center;
+            font-weight: 800;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stForm"] {
+            background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,249,242,.97) 58%, rgba(255,250,237,.96));
+            border: 1px solid #b8d8c1;
+            border-radius: 20px;
+            padding: 1.35rem 1.35rem 1.1rem;
+            box-shadow: 0 14px 38px rgba(29,91,65,.10), 0 2px 8px rgba(185,145,61,.08);
+        }
+        [data-testid="stMainBlockContainer"] input {
+            border-radius: 11px;
+            border-color: #b8d2bf;
+            background: #ffffff;
+        }
+        [data-testid="stMainBlockContainer"] input:focus {
+            border-color: #29966D;
+            box-shadow: 0 0 0 1px #29966D;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button,
+        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button {
+            color: #ffffff;
+            font-weight: 800;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(105deg, #155B45 0%, #29966D 42%, #83B94C 76%, #B88C35 100%);
+            box-shadow: 0 5px 14px rgba(41,150,109,.20);
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button:hover,
+        [data-testid="stMainBlockContainer"] [data-testid="stButton"] button:hover {
+            filter: brightness(1.06);
+            box-shadow: 0 7px 18px rgba(41,150,109,.27);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.title(
         "6thSense-Vardaan"
     )
