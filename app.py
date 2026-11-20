@@ -950,8 +950,8 @@ def render_stock_of_the_day():
             width: 76px; height: 52px;
             transform: translate(-50%, calc(-100% - 4px));
             background: var(--brand-flower-color, #C58A3A);
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 56 A26 26 0 0 1 86 56'/%3E%3Cpath d='M60 8 V19'/%3E%3Cpath d='M34 18 L40 27'/%3E%3Cpath d='M86 18 L80 27'/%3E%3Cpath d='M17 38 L29 42'/%3E%3Cpath d='M103 38 L91 42'/%3E%3Cpath d='M12 57 H108'/%3E%3C/svg%3E") center / contain no-repeat;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 56 A26 26 0 0 1 86 56'/%3E%3Cpath d='M60 8 V19'/%3E%3Cpath d='M34 18 L40 27'/%3E%3Cpath d='M86 18 L80 27'/%3E%3Cpath d='M17 38 L29 42'/%3E%3Cpath d='M103 38 L91 42'/%3E%3Cpath d='M12 57 H108'/%3E%3C/svg%3E") center / contain no-repeat;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 7 L67 29 L89 36 L67 43 L60 65 L53 43 L31 36 L53 29 Z'/%3E%3Cpath d='M60 7 V2 M89 36 H96 M60 65 V70 M31 36 H24'/%3E%3Cpath d='M43 19 L39 15 M77 19 L81 15 M77 53 L81 57 M43 53 L39 57' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 7 L67 29 L89 36 L67 43 L60 65 L53 43 L31 36 L53 29 Z'/%3E%3Cpath d='M60 7 V2 M89 36 H96 M60 65 V70 M31 36 H24'/%3E%3Cpath d='M43 19 L39 15 M77 19 L81 15 M77 53 L81 57 M43 53 L39 57' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
         }
         </style>
         """,
@@ -1711,8 +1711,8 @@ def render_autogreen_dashboard():
             width: 76px; height: 52px;
             transform: translate(-50%, calc(-100% - 4px));
             background: var(--brand-flower-color, #C58A3A);
-            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 56 A26 26 0 0 1 86 56'/%3E%3Cpath d='M60 8 V19'/%3E%3Cpath d='M34 18 L40 27'/%3E%3Cpath d='M86 18 L80 27'/%3E%3Cpath d='M17 38 L29 42'/%3E%3Cpath d='M103 38 L91 42'/%3E%3Cpath d='M12 57 H108'/%3E%3C/svg%3E") center / contain no-repeat;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M34 56 A26 26 0 0 1 86 56'/%3E%3Cpath d='M60 8 V19'/%3E%3Cpath d='M34 18 L40 27'/%3E%3Cpath d='M86 18 L80 27'/%3E%3Cpath d='M17 38 L29 42'/%3E%3Cpath d='M103 38 L91 42'/%3E%3Cpath d='M12 57 H108'/%3E%3C/svg%3E") center / contain no-repeat;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 7 L67 29 L89 36 L67 43 L60 65 L53 43 L31 36 L53 29 Z'/%3E%3Cpath d='M60 7 V2 M89 36 H96 M60 65 V70 M31 36 H24'/%3E%3Cpath d='M43 19 L39 15 M77 19 L81 15 M77 53 L81 57 M43 53 L39 57' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 7 L67 29 L89 36 L67 43 L60 65 L53 43 L31 36 L53 29 Z'/%3E%3Cpath d='M60 7 V2 M89 36 H96 M60 65 V70 M31 36 H24'/%3E%3Cpath d='M43 19 L39 15 M77 19 L81 15 M77 53 L81 57 M43 53 L39 57' stroke-width='2.4'/%3E%3C/svg%3E") center / contain no-repeat;
         }
         </style>
         """,
