@@ -1678,9 +1678,9 @@ def render_autogreen_dashboard():
         confirmation_row["_Role"] = "CONFIRMATION"
     if best_buy:
         best_buy["_Role"] = "BUY"
-    selected_rows = ([best_buy] if best_buy else []) + (
-        [confirmation_row] if confirmation_row else []
-    )
+    # Display only the independently selected BUY CONFIRMATION card.
+    # Keep BUY evaluation logic intact for the confirmation calculation.
+    selected_rows = [confirmation_row] if confirmation_row else []
     high_gap_candidates = buy_candidates
     buy_rows = [best_buy] if best_buy else []
 
@@ -1901,8 +1901,8 @@ def render_autogreen_dashboard():
           <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(high_gap_candidates)}</div>
         </div>
         <div style="text-align:center;padding:4px 7px;">
-          <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">BUY / Confirmation</div>
-          <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{len(buy_rows)} / {1 if confirmation_row else 0}</div>
+          <div style="font-size:clamp(12px,1.9vw,14px);font-weight:850;letter-spacing:.35px;color:{metric_ink};line-height:1.35;">BUY CONFIRMATION</div>
+          <div style="font-size:clamp(23px,3.2vw,30px);font-weight:950;color:#263342;margin-top:5px;line-height:1.1;">{1 if confirmation_row else 0}</div>
         </div>
       </div>
     </div>
@@ -1937,7 +1937,7 @@ def render_autogreen_dashboard():
             </div>
             <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;color:#E5C0CB;
                         margin-top:10px;">
-              No stock currently meets all BUY and confirmation conditions.
+              No stock currently meets the BUY CONFIRMATION conditions.
             </div>
           </div>
         </div>
