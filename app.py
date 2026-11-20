@@ -1324,13 +1324,13 @@ def render_stock_of_the_day():
                 animation:sotdDetailsBorderOnlyFlow 7s linear infinite !important;
             }}
             /* Theme-matched circular threshold selectors. */
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {{
                 display:flex !important;
                 flex-wrap:wrap !important;
                 justify-content:center !important;
                 gap:10px !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label {
+            }}
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label {{
                 width:78px !important;
                 min-width:78px !important;
                 height:78px !important;
@@ -1347,24 +1347,24 @@ def render_stock_of_the_day():
                 margin:0 !important;
                 text-align:center !important;
                 transition:all .18s ease !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {
+            }}
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {{
                 border:2px solid var(--primary-color) !important;
                 background:color-mix(in srgb,var(--primary-color) 15%,white) !important;
                 box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 13%,transparent),
                            0 5px 14px color-mix(in srgb,var(--primary-color) 22%,transparent) !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label p {
+            }}
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label p {{
                 font-size:10px !important;
                 line-height:1.2 !important;
                 font-weight:850 !important;
                 white-space:normal !important;
                 text-align:center !important;
                 margin:0 !important;
-            }
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label input {
+            }}
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label input {{
                 accent-color:var(--primary-color) !important;
-            }
+            }}
             div[data-testid="stExpander"] summary {{
                 background:none !important;
                 color:{details_shimmer} !important;
