@@ -3437,17 +3437,69 @@ else:
 # MASTER FILE
     # ============================================================
 
+    st.markdown("""
+    <style>
+    .masterx-hero {
+        position:relative; overflow:hidden; padding:25px 26px; margin:4px 0 18px;
+        border-radius:20px; color:#F8FAFC;
+        background:linear-gradient(112deg,#063B35 0%,#087E8B 27%,#2563EB 54%,#7045B5 77%,#B45383 100%);
+        box-shadow:0 12px 30px rgba(30,64,110,.18);
+        border:1px solid rgba(255,255,255,.22);
+    }
+    .masterx-hero:after {
+        content:""; position:absolute; width:190px; height:190px; right:-45px; top:-95px;
+        border:24px solid rgba(255,255,255,.10); border-radius:50%;
+    }
+    .masterx-kicker {font-size:10px;letter-spacing:2.1px;font-weight:850;opacity:.82;text-transform:uppercase;}
+    .masterx-title {font-size:clamp(25px,3vw,34px);font-weight:900;line-height:1.12;margin:7px 0 6px;}
+    .masterx-subtitle {font-size:13px;line-height:1.5;opacity:.88;max-width:680px;}
+    .masterx-status {
+        display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 0 18px;
+        border-radius:15px;background:linear-gradient(105deg,#ECFDF5,#EFF6FF 52%,#F5F3FF);
+        border:1px solid #C7DCEB;color:#173B50;
+    }
+    .masterx-status-dot {width:11px;height:11px;flex:0 0 11px;border-radius:50%;background:#10B981;box-shadow:0 0 0 5px rgba(16,185,129,.13);}
+    .masterx-status-dot.offline {background:#F59E0B;box-shadow:0 0 0 5px rgba(245,158,11,.14);}
+    .masterx-status-title {font-size:14px;font-weight:850;line-height:1.3;}
+    .masterx-status-note {font-size:11px;color:#557084;margin-top:3px;}
+    .masterx-section {
+        display:flex;align-items:center;gap:11px;padding:12px 15px;margin:18px 0 12px;
+        border-radius:13px;background:linear-gradient(100deg,#E7F8F2,#EAF2FF 48%,#F4ECFF);
+        border:1px solid #D5E2F0;color:#173B50;font-weight:850;font-size:14px;
+    }
+    .masterx-section-icon {
+        display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+        border-radius:10px;background:linear-gradient(135deg,#0D9488,#2563EB,#8B5CF6);
+        color:white;font-size:15px;
+    }
+    div[data-testid="stDownloadButton"] button {
+        border:0!important;color:white!important;font-weight:800!important;
+        background:linear-gradient(100deg,#0F766E,#2563EB 55%,#7C3AED)!important;
+        box-shadow:0 6px 16px rgba(37,99,235,.18)!important;border-radius:12px!important;
+    }
+    div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
+    </style>
+    """, unsafe_allow_html=True)
+
     master = get_master()
 
-    st.header(
-        "Master Excel"
-    )
+    st.markdown("""
+    <div class="masterx-hero">
+      <div class="masterx-kicker">6THSENSE • DATA CONTROL CENTRE</div>
+      <div class="masterx-title">Master Excel</div>
+      <div class="masterx-subtitle">Your central workbook, organised in one place. View, download and manage the master data securely.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     if master:
 
-        st.success(
-            "Master file is available."
-        )
+        st.markdown("""
+        <div class="masterx-status">
+          <span class="masterx-status-dot"></span>
+          <div><div class="masterx-status-title">Master workbook is available</div>
+          <div class="masterx-status-note">The latest stored Excel file is ready to download.</div></div>
+        </div>
+        """, unsafe_allow_html=True)
 
         st.download_button(
             "Download Master Excel",
@@ -3459,9 +3511,13 @@ else:
 
     else:
 
-        st.warning(
-            "Master file is not uploaded."
-        )
+        st.markdown("""
+        <div class="masterx-status">
+          <span class="masterx-status-dot offline"></span>
+          <div><div class="masterx-status-title">Master workbook not uploaded</div>
+          <div class="masterx-status-note">An administrator can upload the .xlsx workbook below.</div></div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
     # ============================================================
@@ -3472,17 +3528,17 @@ else:
 
         st.divider()
 
-        st.header(
-            "Admin Panel"
-        )
+        st.markdown("""
+        <div class="masterx-section"><span class="masterx-section-icon">⚙</span> ADMIN CONTROL PANEL</div>
+        """, unsafe_allow_html=True)
 
         # ========================================================
         # UPLOAD / REPLACE
         # ========================================================
 
-        st.subheader(
-            "Upload / Replace Master File"
-        )
+        st.markdown("""
+        <div class="masterx-section"><span class="masterx-section-icon">⇧</span> UPLOAD / REPLACE MASTER FILE</div>
+        """, unsafe_allow_html=True)
 
         uploaded = st.file_uploader(
             "Select .xlsx file",
@@ -3523,9 +3579,9 @@ else:
 
             st.divider()
 
-            st.subheader(
-                "Modify Master Excel"
-            )
+            st.markdown("""
+            <div class="masterx-section"><span class="masterx-section-icon">✎</span> MODIFY MASTER EXCEL</div>
+            """, unsafe_allow_html=True)
 
             try:
 
@@ -3603,9 +3659,9 @@ else:
 
         st.divider()
 
-        st.subheader(
-            "Delete Master File"
-        )
+        st.markdown("""
+        <div class="masterx-section"><span class="masterx-section-icon">⌫</span> DELETE MASTER FILE</div>
+        """, unsafe_allow_html=True)
 
         if master:
 
@@ -3641,9 +3697,9 @@ else:
 
         st.divider()
 
-        st.subheader(
-            "Add User"
-        )
+        st.markdown("""
+        <div class="masterx-section"><span class="masterx-section-icon">＋</span> ADD USER</div>
+        """, unsafe_allow_html=True)
 
         new_email = st.text_input(
             "New User Email"
