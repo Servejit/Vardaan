@@ -7,6 +7,7 @@ import html
 import requests
 from datetime import datetime, timezone
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
 
@@ -1403,7 +1404,7 @@ def get_autogreen_sum_o2l_ranks(workbook_bytes):
         workbook.close()
 
 
-@st.cache_data(ttl=15, max_entries=1, show_spinner=False)
+@st.cache_data(ttl=10, max_entries=1, show_spinner=False)
 def get_autogreen_live_prices(symbols):
     """Fetch live NSE quotes, with Yahoo fallbacks for delayed/missing intraday bars."""
     import yfinance as yf
@@ -2847,6 +2848,19 @@ with st.sidebar:
     )
 
 if page == "AutoGreen":
+    # Refresh the AutoGreen market data automatically during NSE trading hours.
+    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_open = (
+        market_now.weekday() < 5
+        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
+        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
+    )
+    if market_open:
+        st_autorefresh(
+            interval=15_000,
+            limit=None,
+            key="autogreen_live_market_refresh",
+        )
     render_autogreen_dashboard()
 
 elif page == "Stock of the Day":
