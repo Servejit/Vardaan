@@ -543,51 +543,13 @@ SIGNAL_GITHUB_TOKEN = str(
 
 
 def get_autogreen_master_bytes():
-    """Fetch private Signal/master.xlsx through GitHub's authenticated API."""
-    if not SIGNAL_GITHUB_TOKEN:
-        raise RuntimeError(
-            "SIGNAL_GITHUB_TOKEN is missing from Streamlit Secrets. "
-            "Add a GitHub token with Contents: Read access to Servejit/Signal."
-        )
-
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Authorization": f"Bearer {SIGNAL_GITHUB_TOKEN}",
-    }
-    response = requests.get(
-        f"{SIGNAL_GITHUB_API}/contents/{SIGNAL_MASTER_PATH}",
-        params={"ref": SIGNAL_GITHUB_BRANCH},
-        headers=headers,
-        timeout=30,
-    )
-    if response.status_code == 404:
-        raise RuntimeError(
-            "GitHub could not access Servejit/Signal/master.xlsx. Check that "
-            "SIGNAL_GITHUB_TOKEN has Contents: Read access to the private repository."
-        )
-    response.raise_for_status()
-    payload = response.json()
-    encoded = payload.get("content", "")
-    if encoded:
-        workbook_bytes = base64.b64decode(encoded)
-    else:
-        blob_sha = payload.get("sha")
-        if not blob_sha:
-            raise ValueError("GitHub did not return master.xlsx content or blob SHA.")
-        blob_response = requests.get(
-            f"{SIGNAL_GITHUB_API}/git/blobs/{blob_sha}",
-            headers={
-                **headers,
-                "Accept": "application/vnd.github.raw",
-            },
-            timeout=60,
-        )
-        blob_response.raise_for_status()
-        workbook_bytes = blob_response.content
-
+    """Read the shared Master Excel directly from Vardaan Supabase Storage."""
+    workbook_bytes = get_master()
     if not workbook_bytes:
-        raise ValueError("GitHub master.xlsx is empty.")
+        raise RuntimeError(
+            f"Could not download {MASTER_FILE} from Supabase bucket {BUCKET}. "
+            "Check that the file exists and SUPABASE_SERVICE_KEY has Storage read access."
+        )
     return workbook_bytes
 
 
@@ -982,8 +944,8 @@ def render_stock_of_the_day():
     try:
         master_bytes = get_autogreen_master_bytes()
         ranks = get_autogreen_sum_o2l_ranks(master_bytes)
-    except Exception:
-        st.error("Master File Not Available")
+    except Exception as error:
+        st.error(f"Master File Not Available: {error}")
         return
 
     try:
@@ -1723,12 +1685,12 @@ def render_autogreen_dashboard():
 
 
     try:
-        with st.spinner("Reading AutoGreen and Master ranking data from GitHub..."):
+        with st.spinner("Reading AutoGreen and Master ranking data from Supabase..."):
             base_rows, signal_rows = load_autogreen_buy_signals()
             master_bytes = get_autogreen_master_bytes()
             sum_o2l_ranks = get_autogreen_sum_o2l_ranks(master_bytes)
-    except Exception:
-        st.error("Master File Not Available")
+    except Exception as error:
+        st.error(f"Master File Not Available: {error}")
         return
 
     ranked_candidates = []
