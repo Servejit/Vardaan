@@ -1251,8 +1251,7 @@ def render_stock_of_the_day():
         st.markdown(card_html, unsafe_allow_html=True)
         rendered += 1
 
-    if rendered == 0:
-        st.info("Live price data is unavailable, so no BUY card is displayed.")
+    # Do not show a separate message when live price data is unavailable.
 
     # Match MORE DETAILS text and its border to the Stock of the Day card palette.
     if rendered > 0:
