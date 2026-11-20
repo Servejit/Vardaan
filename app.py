@@ -1756,25 +1756,12 @@ def render_autogreen_dashboard():
     )
     lowest_db_targets = []
     if not qualified_detail_error and qualified_detail_rows:
-        # Select by D-B ascending, using %Chg history as a preference tier:
-        # 1) first two history values are negative;
-        # 2) if more stocks are needed, first history value is negative;
-        # 3) if more are needed, smallest positive first history value.
-        base_by_symbol_for_history = {item["Symbol"]: item for item in base_rows}
-
-        def parse_history_change(value):
-            try:
-                return float(
-                    str(value).replace("%", "").replace("−", "-").replace(",", "").strip()
-                )
-            except (TypeError, ValueError):
-                return None
-
+        # Select strictly the four lowest D-B values; ignore %Chg history.
         def parse_target_db(detail):
             raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
-            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
+            outer_match = re.search(r"\\(([^()]*)\\)\\s*\\)?\\s*$", raw_db)
             numeric_match = (
-                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
+                re.search(r"([+\\-]?\\d+(?:,\\d{3})*(?:\\.\\d+)?)\\s*$", outer_match.group(1).strip())
                 if outer_match else None
             )
             try:
@@ -1785,36 +1772,11 @@ def render_autogreen_dashboard():
         target_candidates = []
         for detail in qualified_detail_rows:
             db_value = parse_target_db(detail)
-            if db_value is None:
-                continue
-            source = base_by_symbol_for_history.get(detail["Stock"], {})
-            first_change = parse_history_change(source.get("%Chg.1"))
-            second_change = parse_history_change(source.get("%Chg.2"))
+            if db_value is not None:
+                target_candidates.append((db_value, detail["Stock"]))
 
-            if first_change is not None and first_change < 0 and second_change is not None and second_change < 0:
-                preference_tier = 0
-            elif first_change is not None and first_change < 0:
-                preference_tier = 1
-            elif first_change is not None and first_change > 0:
-                preference_tier = 2
-            else:
-                preference_tier = 3
-
-            # Lowest D-B comes first within each history preference tier.
-            # For positive starters, the lowest positive %Chg is the tie-breaker.
-            positive_change_key = first_change if preference_tier == 2 else 0.0
-            target_candidates.append((
-                preference_tier,
-                db_value,
-                positive_change_key,
-                detail["Stock"],
-            ))
-
-        target_candidates.sort(key=lambda item: (item[0], item[1], item[2], item[3]))
-        lowest_db_targets = [
-            (db_value, symbol)
-            for _, db_value, _, symbol in target_candidates[:4]
-        ]
+        target_candidates.sort(key=lambda item: (item[0], item[1]))
+        lowest_db_targets = target_candidates[:4]
 
     # Keep the target list limited to the first four preferred stocks.
     target_quotes = {}
