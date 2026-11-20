@@ -1759,9 +1759,9 @@ def render_autogreen_dashboard():
         # Select strictly the four lowest D-B values; ignore %Chg history.
         def parse_target_db(detail):
             raw_db = str(detail.get("16< D-B / Avg.4", "")).strip().replace("−", "-")
-            outer_match = re.search(r"\\(([^()]*)\\)\\s*\\)?\\s*$", raw_db)
+            outer_match = re.search(r"\(([^()]*)\)\s*\)?\s*$", raw_db)
             numeric_match = (
-                re.search(r"([+\\-]?\\d+(?:,\\d{3})*(?:\\.\\d+)?)\\s*$", outer_match.group(1).strip())
+                re.search(r"([+\-]?\d+(?:,\d{3})*(?:\.\d+)?)\s*$", outer_match.group(1).strip())
                 if outer_match else None
             )
             try:
