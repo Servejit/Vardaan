@@ -1072,7 +1072,11 @@ def render_stock_of_the_day():
         target2 = entry * 1.01
         target1_achieved = day_high >= target1
         target2_tile = f"""
-            {target2_tile}
+            <div style="min-width:0;">
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
+                          margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
+            </div>
         """ if target1_achieved else ""
 
         # Intraday High confirms targets already reached; live price takes
@@ -1148,11 +1152,7 @@ def render_stock_of_the_day():
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
                           margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
             </div>
-            <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
-                          margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
-            </div>
+            {target2_tile}
           </div>
           <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
                       border:1px solid {border_colour};border-radius:11px;
