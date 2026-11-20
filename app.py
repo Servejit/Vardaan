@@ -1114,49 +1114,47 @@ def render_stock_of_the_day():
                       pointer-events:none;"></div>
           <div style="position:relative;z-index:1;text-align:center;font-size:11px;
                       font-weight:900;letter-spacing:3px;
-                      background:linear-gradient(90deg,#9A6A19,#C34D73,#287D78,#6652A5);
-                      -webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 15px;">
+                      color:{shimmer_colour};margin:0 0 15px;">
             6THSENSE · VARDAAN
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
                       position:relative;z-index:1;">
             <div style="font-size:1.78rem;line-height:1.15;font-weight:950;letter-spacing:.7px;
-                        background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
-                        -webkit-background-clip:text;background-clip:text;color:transparent;overflow-wrap:anywhere;">{html.escape(symbol)}</div>
+                        color:{shimmer_colour};overflow-wrap:anywhere;">{html.escape(symbol)}</div>
             <div style="font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;
-                        border:1px solid #C49A45;border-radius:999px;color:#24734E;
+                        border:1px solid {border_colour};border-radius:999px;color:{shimmer_colour};
                         background:linear-gradient(135deg,#F1F8EA,#FFF9E8);white-space:nowrap;">
               BUY SIGNAL
             </div>
           </div>
           <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:#C5CFDC;
-                      margin-top:9px;position:relative;z-index:1;color:#7655A4;">RANK {rank_text}</div>
+                      margin-top:9px;position:relative;z-index:1;color:{shimmer_colour};">RANK {rank_text}</div>
           <div style="height:1px;background:linear-gradient(90deg,transparent,#C69B43,
                       rgba(255,236,184,.95),#C69B43,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#9B752F;">ENTRY PRICE</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#24466F;
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">ENTRY PRICE</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
                           margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#21835B;">TARGET 1</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#21835B;
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 1</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
                           margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:#8756A6;">TARGET 2</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:#8756A6;
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
+              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
                           margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
             </div>
           </div>
           <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
-                      border:1px solid rgba(190,145,54,.58);border-radius:11px;
+                      border:1px solid {border_colour};border-radius:11px;
                       background:#FFFFFF;text-align:center;
                       background-clip:padding-box;
-                      color:#76539A;font-size:.72rem;font-weight:950;letter-spacing:.8px;">
+                      color:{shimmer_colour};font-size:.72rem;font-weight:950;letter-spacing:.8px;">
             {html.escape(status_text)}
           </div>
         </div>
