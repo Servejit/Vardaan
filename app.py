@@ -1654,6 +1654,7 @@ def render_autogreen_dashboard():
         target_status = "Target Completed" if o2h_pct is not None and o2h_pct >= 1.0 else "—"
         target_table_rows.append({
             "Role": f"TARGET #{position}",
+            "Target Status": target_status,
             "Symbol": symbol,
             "Open": round(open_price, 2) if open_price is not None else "Unavailable",
             "High": round(day_high, 2) if day_high is not None else "Unavailable",
@@ -1661,7 +1662,6 @@ def render_autogreen_dashboard():
             "Live Price": round(live_price, 2) if live_price is not None else "Unavailable",
             "O2H": f"{o2h_pct:+.2f}%" if o2h_pct is not None else "Unavailable",
             "O2L": f"{o2l_pct:+.2f}%" if o2l_pct is not None else "Unavailable",
-            "Target Status": target_status,
             "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
             "Rank": rank,
         })
