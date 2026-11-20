@@ -1038,9 +1038,27 @@ def render_stock_of_the_day():
         unsafe_allow_html=True
     )
 
+    # Alphabet-based Stock of the Day border and shimmer colours.
+    stock_day_palettes = {
+        "A": ("#A8D5A2", "#63C96B"), "B": ("#A9DDF2", "#4FC4F2"),
+        "C": ("#CBB6EF", "#9869E2"), "D": ("#E8D18A", "#D5A32D"),
+        "E": ("#E9A0B4", "#E34F78"), "F": ("#F4B8D0", "#EF68A5"),
+        "G": ("#A9CFF5", "#4D9FF0"), "H": ("#C9D0D8", "#8794A5"),
+        "I": ("#A8DED4", "#36BDA8"), "J": ("#A9E8E8", "#35C5C5"),
+        "K": ("#B8E2C1", "#55BD79"), "L": ("#D5E99B", "#A6CE39"),
+        "M": ("#F4C7A1", "#ED9858"), "N": ("#F3B0A8", "#E87868"),
+        "O": ("#F2D39A", "#E5AD3D"), "P": ("#D8C4F0", "#A987DF"),
+        "Q": ("#BCC8F2", "#8298E8"), "R": ("#E7A0A8", "#D94C60"),
+        "S": ("#C6D9B7", "#8EBA68"), "T": ("#A5DDD9", "#42B8B0"),
+        "U": ("#D0B9EF", "#9A72D8"), "V": ("#D7B5D9", "#AE70B5"),
+        "W": ("#B7DDF0", "#68B9E5"), "X": ("#D5D9DE", "#9AA4B0"),
+        "Y": ("#F1E3A0", "#D9C13F"), "Z": ("#B9C5D4", "#71839B"),
+    }
+
     rendered = 0
     for row in rows:
         symbol = normalize_stock_symbol(row.get("Stock"))
+        border_colour, shimmer_colour = stock_day_palettes.get(symbol[:1].upper(), stock_day_palettes["A"])
         quote = quotes.get(symbol, {})
         day_open = quote.get("open")
         day_high = quote.get("high")
@@ -1076,23 +1094,23 @@ def render_stock_of_the_day():
             padding:23px 23px 22px;margin:12px 0 18px;color:#253047;
             background:
                 linear-gradient(135deg,#FFFFFF 0%,#FFFFFF 48%,#FFFFFF 100%) padding-box,
-                linear-gradient(110deg,#9B722B 0%,#F7E6A7 18%,#C99A3B 36%,
-                                #FFF1BC 52%,#B8872D 70%,#F3D98A 86%,#9B722B 100%) border-box;
+                linear-gradient(110deg,{border_colour} 0%,{shimmer_colour} 24%,#FFFFFF 38%,
+                                {shimmer_colour} 54%,{border_colour} 76%,{shimmer_colour} 100%) border-box;
             background-size:100% 100%,300% 300%;
             animation:stockDayCardShimmer 5.8s linear infinite,
                       stockDayCardFloat 3.1s ease-in-out infinite;
             box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,
-                       0 14px 30px rgba(115,83,25,.16),
-                       0 0 22px rgba(213,171,77,.24),
-                       0 0 38px rgba(231,199,119,.18);
+                       0 14px 30px {shimmer_colour}30,
+                       0 0 22px {shimmer_colour}88,
+                       0 0 38px {shimmer_colour}55;
         ">
           <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
                       pointer-events:none;z-index:0;filter:blur(7px);
-                      background:linear-gradient(105deg,transparent 0%,rgba(196,151,55,.10) 25%,
-                      rgba(255,224,150,.62) 48%,rgba(255,255,255,.72) 58%,transparent 82%);
+                      background:linear-gradient(105deg,transparent 0%,{shimmer_colour}22 25%,
+                      {shimmer_colour}CC 48%,rgba(255,255,255,.72) 58%,transparent 82%);
                       animation:stockDayCardGlow 6s ease-in-out infinite;"></div>
           <div style="position:absolute;right:-35px;top:-75px;width:205px;height:205px;
-                      border-radius:50%;background:radial-gradient(circle,rgba(226,190,105,.28),transparent 70%);
+                      border-radius:50%;background:radial-gradient(circle,{shimmer_colour}66,transparent 70%);
                       pointer-events:none;"></div>
           <div style="position:relative;z-index:1;text-align:center;font-size:11px;
                       font-weight:900;letter-spacing:3px;
@@ -1205,7 +1223,9 @@ def render_stock_of_the_day():
 
             stock_panels = []
             for row in rows:
-                symbol = html.escape(str(row.get("Stock", "STOCK")))
+                raw_symbol = normalize_stock_symbol(row.get("Stock", "STOCK"))
+                symbol = html.escape(raw_symbol)
+                panel_border, panel_shimmer = stock_day_palettes.get(raw_symbol[:1].upper(), stock_day_palettes["A"])
                 groups = []
                 for heading, columns, css_class in (
                     ("CORE READINGS", core_columns, "core"),
@@ -1219,7 +1239,7 @@ def render_stock_of_the_day():
                             f'<div class="sotd-metric-grid">{metric_tiles(row, columns)}</div></section>'
                         )
                 stock_panels.append(
-                    f'<article class="sotd-stock-panel"><div class="sotd-stock-panel-head">'
+                    f'<article class="sotd-stock-panel" style="--sotd-border:{panel_border};--sotd-shimmer:{panel_shimmer};"><div class="sotd-stock-panel-head">'
                     f'<span class="sotd-stock-symbol">{symbol}</span>'
                     f'<span class="sotd-stock-tag">STOCK OF THE DAY</span></div>'
                     f'{"".join(groups)}</article>'
@@ -1247,11 +1267,11 @@ def render_stock_of_the_day():
                 .sotd-table-count {{flex:0 0 auto;padding:6px 10px;border-radius:999px;
                     border:1px solid #C49A45;background:#FFFFFF;
                     color:#76539A;font-size:.65rem;font-weight:900;letter-spacing:.8px;}}
-                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid #C49A45;
+                .sotd-stock-panel {{margin:0 0 14px;padding:13px;border:1.5px solid var(--sotd-border,#C49A45);
                     border-radius:13px;background:#FFFFFF;
-                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 7px 18px rgba(145,105,34,.10);}}
+                    box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 0 17px var(--sotd-shimmer,#C49A45)66;}}
                 .sotd-stock-panel-head {{display:flex;align-items:center;justify-content:space-between;gap:10px;
-                    padding:0 2px 10px;border-bottom:1px solid rgba(196,154,69,.48);margin-bottom:11px;}}
+                    padding:0 2px 10px;border-bottom:1px solid var(--sotd-border,#C49A45);margin-bottom:11px;}}
                 .sotd-stock-symbol {{background:linear-gradient(90deg,#173B68 0%,#8A4C91 48%,#B47A24 100%);
                     -webkit-background-clip:text;background-clip:text;color:transparent;font-size:1rem;font-weight:950;letter-spacing:.8px;}}
                 .sotd-stock-tag {{color:#76539A;font-size:.58rem;font-weight:900;letter-spacing:1px;
