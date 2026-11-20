@@ -1870,11 +1870,26 @@ def render_autogreen_dashboard():
         live_price = quote.get("price")
         o2h_pct = ((day_high - open_price) / open_price) * 100 if open_price and day_high is not None else None
         o2l_pct = ((day_low - open_price) / open_price) * 100 if open_price and day_low is not None else None
-        target_status = "Target Completed" if o2h_pct is not None and o2h_pct >= 1.0 else "Signal Awaited"
+        first_history_change = base_by_symbol.get(symbol, {}).get("%Chg.1")
+        try:
+            first_history_change = float(
+                str(first_history_change).replace(",", "").replace("%", "").strip()
+            )
+        except (TypeError, ValueError):
+            first_history_change = None
+        # Positive first %Chg history gets a tighter +0.75% O2H target;
+        # all other stocks retain the standard +1.00% target.
+        target_o2h_pct = 0.75 if first_history_change is not None and first_history_change > 0 else 1.0
+        target_status = (
+            "Target Completed"
+            if o2h_pct is not None and o2h_pct >= target_o2h_pct
+            else "Signal Awaited"
+        )
         target_table_rows.append({
             "Role": f"TARGET #{position}",
             "Target Status": target_status,
             "Symbol": symbol,
+            "O2H Target": f"+{target_o2h_pct:.2f}%",
             "Open": round(open_price, 2) if open_price is not None else "Unavailable",
             "High": round(day_high, 2) if day_high is not None else "Unavailable",
             "Low": round(day_low, 2) if day_low is not None else "Unavailable",
@@ -1907,13 +1922,15 @@ def render_autogreen_dashboard():
             "Day High": high,
             "Day Low": quote.get("low"),
             "High Gap %": gap_pct,
+            "O2H Target %": target_o2h_pct,
             "Sum O2L.10 Rank": rank,
             "_Target Position": position,
         })
 
     # BUY CONFIRMATION is evaluated independently for every one of the four target stocks.
-    # O2L must be below -1%, O2H must remain below +1%, and live price must be above Open.
-    # A stock whose O2H reaches +1% is marked Target Completed in the target table.
+    # O2L must be below -1%, O2H must remain below that stock's assigned target,
+    # and live price must be above Open. Positive first %Chg history uses +0.75%;
+    # all other stocks use +1.00%.
     confirmation_candidates = [
         item for item in target_records
         if item.get("Day Open") is not None
@@ -1921,7 +1938,8 @@ def render_autogreen_dashboard():
         and item.get("Day Low") is not None
         and item["Day Open"] > 0
         and ((item["Day Low"] - item["Day Open"]) / item["Day Open"]) * 100 < -1.0
-        and ((item["Day High"] - item["Day Open"]) / item["Day Open"]) * 100 < 1.0
+        and ((item["Day High"] - item["Day Open"]) / item["Day Open"]) * 100
+            < item.get("O2H Target %", 1.0)
         and item["Live Price"] > item["Day Open"]
     ]
     confirmation_candidates.sort(key=lambda item: (
