@@ -1323,48 +1323,6 @@ def render_stock_of_the_day():
                 background-size:100% 100%,300% 300% !important;
                 animation:sotdDetailsBorderOnlyFlow 7s linear infinite !important;
             }}
-            /* Theme-matched circular threshold selectors. */
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {{
-                display:flex !important;
-                flex-wrap:wrap !important;
-                justify-content:center !important;
-                gap:10px !important;
-            }}
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label {{
-                width:78px !important;
-                min-width:78px !important;
-                height:78px !important;
-                min-height:78px !important;
-                box-sizing:border-box !important;
-                border:1.5px solid color-mix(in srgb,var(--primary-color) 42%,#AAB3C0) !important;
-                border-radius:50% !important;
-                background:rgba(128,128,128,.055) !important;
-                display:flex !important;
-                flex-direction:column !important;
-                align-items:center !important;
-                justify-content:center !important;
-                padding:7px !important;
-                margin:0 !important;
-                text-align:center !important;
-                transition:all .18s ease !important;
-            }}
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {{
-                border:2px solid var(--primary-color) !important;
-                background:color-mix(in srgb,var(--primary-color) 15%,white) !important;
-                box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 13%,transparent),
-                           0 5px 14px color-mix(in srgb,var(--primary-color) 22%,transparent) !important;
-            }}
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label p {{
-                font-size:10px !important;
-                line-height:1.2 !important;
-                font-weight:850 !important;
-                white-space:normal !important;
-                text-align:center !important;
-                margin:0 !important;
-            }}
-            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] > label input {{
-                accent-color:var(--primary-color) !important;
-            }}
             div[data-testid="stExpander"] summary {{
                 background:none !important;
                 color:{details_shimmer} !important;
@@ -1564,6 +1522,45 @@ def render_stock_of_the_day():
             }
             div[data-testid="stExpander"] [data-baseweb="slider"] div[aria-hidden="true"] {
                 border-color:#000000 !important;
+            }
+            /* Theme-matched circular threshold choices. */
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] {
+                display:flex !important;
+                flex-wrap:wrap !important;
+                justify-content:center !important;
+                gap:10px !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"] {
+                box-sizing:border-box !important;
+                width:78px !important;
+                min-width:78px !important;
+                height:78px !important;
+                min-height:78px !important;
+                border:1.5px solid var(--primary-color) !important;
+                border-radius:50% !important;
+                background:rgba(128,128,128,.055) !important;
+                display:flex !important;
+                flex-direction:column !important;
+                align-items:center !important;
+                justify-content:center !important;
+                padding:7px !important;
+                margin:0 !important;
+                text-align:center !important;
+                transition:all .18s ease !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"][aria-checked="true"] {
+                border:2px solid var(--primary-color) !important;
+                background:color-mix(in srgb,var(--primary-color) 15%,white) !important;
+                box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color) 13%,transparent),
+                           0 5px 14px color-mix(in srgb,var(--primary-color) 22%,transparent) !important;
+            }
+            div[data-testid="stExpander"] [data-testid="stRadio"] [role="radiogroup"] [role="radio"] p {
+                font-size:10px !important;
+                line-height:1.2 !important;
+                font-weight:850 !important;
+                white-space:normal !important;
+                text-align:center !important;
+                margin:0 !important;
             }
             </style>
             """,
