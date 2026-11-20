@@ -937,8 +937,40 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
         workbook.close()
 
 
+def render_brand_flower():
+    """Display the small lotus-style 6thSense emblem above the dashboard heading."""
+    st.markdown(
+        '''
+        <div style="display:flex;justify-content:center;align-items:center;
+                    height:58px;margin:0 0 -5px;padding:0;">
+          <svg viewBox="0 0 120 72" width="76" height="52"
+               xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lotus flower emblem">
+            <defs>
+              <linearGradient id="sixthSenseLotus" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#F4D58D"/>
+                <stop offset="52%" stop-color="#C58A3A"/>
+                <stop offset="100%" stop-color="#9B5D2E"/>
+              </linearGradient>
+            </defs>
+            <g fill="none" stroke="url(#sixthSenseLotus)" stroke-width="3"
+               stroke-linecap="round" stroke-linejoin="round">
+              <path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>
+              <path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>
+              <path d="M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z"/>
+              <path d="M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z"/>
+              <path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>
+              <path d="M34 64 Q60 69 86 64"/>
+            </g>
+          </svg>
+        </div>
+        ''',
+        unsafe_allow_html=True,
+    )
+
+
 def render_stock_of_the_day():
     """Show only Stock of the Day BUY cards in the main signal-card presentation."""
+    render_brand_flower()
     st.title("6thSense-Vardaan")
 
     try:
@@ -1681,6 +1713,7 @@ def render_qualified_stock_table(rows, accent, ink, tint):
 
 def render_autogreen_dashboard():
     """Select BUY and CONFIRMATION independently from all four base-qualified target stocks."""
+    render_brand_flower()
     st.title("6thSense-Vardaan")
 
 
