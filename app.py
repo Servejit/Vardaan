@@ -1532,9 +1532,15 @@ def render_stock_of_the_day():
                 '<div style="font-weight:850;color:var(--text-color);">Find Next Stock at Your Own Risk</div>',
                 unsafe_allow_html=True
             )
+            # -1.00 is the lowest permitted D-B threshold.
+            db_threshold = max(-1.0, min(0.0, float(db_threshold)))
+            saved_slider_value = st.session_state.get("stock_day_db_threshold_slider", db_threshold)
+            st.session_state["stock_day_db_threshold_slider"] = max(
+                -1.0, min(0.0, float(saved_slider_value))
+            )
             selected_db_threshold = st.slider(
                 "D-B threshold",
-                min_value=-5.0,
+                min_value=-1.0,
                 max_value=0.0,
                 value=db_threshold,
                 step=0.5,
