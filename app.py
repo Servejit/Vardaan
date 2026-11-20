@@ -3761,226 +3761,247 @@ else:
             )
 
         # ========================================================
-        # ADD USER
         # ========================================================
-
-        st.divider()
+        # USER MANAGEMENT — ICE BLUE ADMIN CENTRE
+        # ========================================================
 
         st.markdown("""
-        <div class="masterx-section"><span class="masterx-section-icon">＋</span> ADD USER</div>
+        <style>
+        .userx-hero {
+            padding:18px 20px; margin:8px 0 16px; border-radius:17px;
+            color:#173B50; border:1px solid #B9DDED;
+            background:linear-gradient(112deg,#EAF7FF 0%,#DDF2FC 48%,#F7FCFF 100%);
+            box-shadow:0 7px 20px rgba(23,101,139,.08);
+        }
+        .userx-kicker {font-size:10px;letter-spacing:1.8px;font-weight:850;color:#168FC0;text-transform:uppercase;}
+        .userx-title {font-size:24px;font-weight:900;line-height:1.2;margin:5px 0;color:#123B5D;}
+        .userx-note {font-size:12px;color:#557084;line-height:1.5;}
+        .userx-stat {
+            padding:13px 14px;border-radius:14px;border:1px solid #C6E2F1;
+            background:linear-gradient(135deg,#FFFFFF 0%,#EAF7FF 100%);
+        }
+        .userx-stat-label {font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:#557084;}
+        .userx-stat-value {font-size:25px;font-weight:900;color:#155E91;line-height:1.2;margin-top:4px;}
+        .userx-section {
+            padding:10px 13px;margin:10px 0 12px;border-radius:12px;
+            background:linear-gradient(100deg,#E7F6FF,#DCEFFD 55%,#F0FAFF);
+            border:1px solid #C6E2F1;color:#173B50;font-weight:850;
+        }
+        div[data-testid="stExpander"] {
+            border:1px solid #C6E2F1 !important;border-radius:13px !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,#F4FBFF 100%) !important;
+        }
+        div[data-testid="stExpander"] summary {color:#173B50 !important;font-weight:750 !important;}
+        div[data-testid="stForm"] {
+            border:1px solid #C6E2F1 !important;border-radius:14px !important;
+            padding:14px !important;background:#F7FCFF !important;
+        }
+        div[data-testid="stButton"] button,
+        div[data-testid="stFormSubmitButton"] button {
+            border:1px solid #A9D7EA !important;border-radius:10px !important;
+            color:#155E91 !important;font-weight:800 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%) !important;
+            box-shadow:0 3px 10px rgba(23,101,139,.08) !important;
+        }
+        div[data-testid="stButton"] button:hover,
+        div[data-testid="stFormSubmitButton"] button:hover {
+            border-color:#168FC0 !important;background:linear-gradient(110deg,#DDF2FC,#FFFFFF) !important;
+        }
+        </style>
         """, unsafe_allow_html=True)
 
-        new_email = st.text_input(
-            "New User Email"
-        )
-
-        new_password = st.text_input(
-            "New User Password",
-            type="password"
-        )
-
-        new_role = st.selectbox(
-            "New User Role",
-            ["user", "admin"]
-        )
-
-        if st.button(
-            "Create User",
-            use_container_width=True
-        ):
-
-            try:
-
-                if not new_email.strip():
-                    st.error(
-                        "Enter an email."
-                    )
-
-                elif len(new_password) < 6:
-                    st.error(
-                        "Password must be at least 6 characters."
-                    )
-
-                else:
-
-                    # Create Auth user
-                    result = admin.auth.admin.create_user(
-                        {
-                            "email":
-                            new_email.strip(),
-
-                            "password":
-                            new_password,
-
-                            "email_confirm":
-                            True
-                        }
-                    )
-
-                    uid = result.user.id
-
-                    # Create profile using SERVICE client.
-                    # This avoids the RLS 403 for admin creation.
-                    admin.table(
-                        "profiles"
-                    ).insert(
-                        {
-                            "id": uid,
-                            "email":
-                            new_email.strip(),
-                            "role":
-                            new_role,
-                            "is_active":
-                            True
-                        }
-                    ).execute()
-
-                    st.success(
-                        "User created successfully."
-                    )
-
-                    st.rerun()
-
-            except Exception as e:
-                st.error(
-                    f"Create user error: {e}"
-                )
-
-        # ========================================================
-        # USER MANAGEMENT
-        # ========================================================
-
-        st.divider()
-
-        st.subheader(
-            "User Management"
-        )
+        st.markdown("""
+        <div class="userx-hero">
+          <div class="userx-kicker">6THSENSE • ADMINISTRATION</div>
+          <div class="userx-title">User Management</div>
+          <div class="userx-note">Manage accounts, access roles and account status from one place. These controls are available only to administrators.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
         try:
+            users = admin.table("profiles").select("*").order("email").execute().data or []
+            total_users = len(users)
+            active_users = sum(1 for item in users if bool(item.get("is_active", True)))
+            admin_users = sum(1 for item in users if str(item.get("role", "user")).lower() == "admin")
 
-            users = admin.table(
-                "profiles"
-            ).select(
-                "*"
-            ).order(
-                "email"
-            ).execute().data
-
-            for u in users:
-
-                uid = u["id"]
-
-                c1, c2, c3, c4 = st.columns(
-                    [4, 1, 1, 1]
-                )
-
-                c1.write(
-                    f"**{u['email']}**  \n"
-                    f"Role: {u['role']} | "
-                    f"{'Active' if u['is_active'] else 'Banned'}"
-                )
-
-                # ------------------------------------------------
-                # ROLE
-                # ------------------------------------------------
-
-                if c2.button(
-                    "Role",
-                    key=f"role_{uid}"
-                ):
-
-                    new_role = (
-                        "user"
-                        if u["role"] == "admin"
-                        else "admin"
+            metric_cols = st.columns(3)
+            metric_values = [
+                ("TOTAL USERS", total_users),
+                ("ACTIVE USERS", active_users),
+                ("ADMIN ACCOUNTS", admin_users),
+            ]
+            for metric_col, (metric_label, metric_value) in zip(metric_cols, metric_values):
+                with metric_col:
+                    st.markdown(
+                        '<div class="userx-stat"><div class="userx-stat-label">'
+                        + str(metric_label)
+                        + '</div><div class="userx-stat-value">'
+                        + str(metric_value)
+                        + '</div></div>',
+                        unsafe_allow_html=True,
                     )
 
-                    admin.table(
-                        "profiles"
-                    ).update(
-                        {
-                            "role":
-                            new_role
-                        }
-                    ).eq(
-                        "id",
-                        uid
-                    ).execute()
+            st.write("")
+            manage_tab, add_tab = st.tabs(["Manage Users", "＋ Add User"])
 
-                    st.rerun()
+            with manage_tab:
+                st.markdown('<div class="userx-section">ACCOUNT DIRECTORY</div>', unsafe_allow_html=True)
+                filter_cols = st.columns([2, 1])
+                search_email = filter_cols[0].text_input(
+                    "Search by email",
+                    placeholder="Type an email address…",
+                    key="vardaan_user_search",
+                ).strip().lower()
+                status_filter = filter_cols[1].selectbox(
+                    "Show",
+                    ["All users", "Active", "Disabled", "Admins", "Users"],
+                    key="vardaan_user_status_filter",
+                )
 
-                # ------------------------------------------------
-                # BAN / ACTIVATE
-                # ------------------------------------------------
+                visible_users = []
+                for item in users:
+                    item_email = str(item.get("email", "") or "")
+                    item_role = str(item.get("role", "user") or "user").lower()
+                    item_active = bool(item.get("is_active", True))
+                    if search_email and search_email not in item_email.lower():
+                        continue
+                    if status_filter == "Active" and not item_active:
+                        continue
+                    if status_filter == "Disabled" and item_active:
+                        continue
+                    if status_filter == "Admins" and item_role != "admin":
+                        continue
+                    if status_filter == "Users" and item_role != "user":
+                        continue
+                    visible_users.append(item)
 
-                if c3.button(
-                    (
-                        "Ban"
-                        if u["is_active"]
-                        else "Activate"
-                    ),
-                    key=f"active_{uid}"
-                ):
+                st.caption(f"Showing {len(visible_users)} of {total_users} accounts")
 
-                    admin.table(
-                        "profiles"
-                    ).update(
-                        {
-                            "is_active":
-                            not u["is_active"]
-                        }
-                    ).eq(
-                        "id",
-                        uid
-                    ).execute()
+                if not visible_users:
+                    st.info("No accounts match this search or filter.")
+                else:
+                    for item in visible_users:
+                        uid = item["id"]
+                        email = str(item.get("email", "") or "Email unavailable")
+                        current_role = str(item.get("role", "user") or "user").lower()
+                        current_active = bool(item.get("is_active", True))
+                        status_label = "Active" if current_active else "Disabled"
+                        role_label = "Admin" if current_role == "admin" else "User"
+                        is_current_admin = str(uid) == str(user.id)
 
-                    st.rerun()
+                        with st.expander(
+                            f"{'🟢' if current_active else '⚪'}  {email}  ·  {role_label}  ·  {status_label}",
+                            expanded=False,
+                        ):
+                            detail_cols = st.columns([1.25, 1])
+                            detail_cols[0].markdown("**Email address**")
+                            detail_cols[0].write(email)
+                            detail_cols[1].markdown("**Current access**")
+                            detail_cols[1].write(f"{role_label} · {status_label}")
 
-                # ------------------------------------------------
-                # DELETE
-                # ------------------------------------------------
+                            if is_current_admin:
+                                st.info("This is your signed-in administrator account. Your own role and access cannot be changed here.")
 
-                if c4.button(
-                    "Delete",
-                    key=f"delete_{uid}"
-                ):
-
-                    if uid == user.id:
-
-                        st.error(
-                            "You cannot delete yourself."
-                        )
-
-                    else:
-
-                        # Delete profile
-                        admin.table(
-                            "profiles"
-                        ).delete().eq(
-                            "id",
-                            uid
-                        ).execute()
-
-                        # Delete Auth account
-                        try:
-                            admin.auth.admin.delete_user(
-                                uid
+                            edit_cols = st.columns(2)
+                            selected_role = edit_cols[0].selectbox(
+                                "User role",
+                                ["user", "admin"],
+                                index=0 if current_role == "user" else 1,
+                                key=f"vardaan_edit_role_{uid}",
+                                disabled=is_current_admin,
+                                format_func=lambda value: "User" if value == "user" else "Admin",
                             )
-                        except Exception:
-                            pass
+                            selected_active = edit_cols[1].checkbox(
+                                "Account active",
+                                value=current_active,
+                                key=f"vardaan_edit_active_{uid}",
+                                disabled=is_current_admin,
+                            )
 
-                        st.success(
-                            "User deleted."
-                        )
+                            action_cols = st.columns([1, 1])
+                            if action_cols[0].button(
+                                "Save changes",
+                                key=f"vardaan_save_user_{uid}",
+                                use_container_width=True,
+                                disabled=is_current_admin or (
+                                    selected_role == current_role and selected_active == current_active
+                                ),
+                            ):
+                                admin.table("profiles").update({
+                                    "role": selected_role,
+                                    "is_active": selected_active,
+                                }).eq("id", uid).execute()
+                                st.success(f"Updated access settings for {email}.")
+                                st.rerun()
 
-                        st.rerun()
+                            if is_current_admin:
+                                st.caption("Your own account is protected from deletion.")
+                            else:
+                                confirm_delete = st.checkbox(
+                                    "I confirm that I want to permanently delete this account",
+                                    key=f"vardaan_confirm_delete_{uid}",
+                                )
+                                if action_cols[1].button(
+                                    "Delete user",
+                                    key=f"vardaan_delete_user_{uid}",
+                                    use_container_width=True,
+                                    disabled=not confirm_delete,
+                                ):
+                                    admin.table("profiles").delete().eq("id", uid).execute()
+                                    try:
+                                        admin.auth.admin.delete_user(uid)
+                                    except Exception as delete_auth_error:
+                                        st.warning(
+                                            "The profile was deleted, but the authentication account may need "
+                                            f"administrator cleanup: {delete_auth_error}"
+                                        )
+                                    else:
+                                        st.success(f"Deleted {email}.")
+                                    st.rerun()
 
+            with add_tab:
+                st.markdown('<div class="userx-section">CREATE A NEW ACCOUNT</div>', unsafe_allow_html=True)
+                st.caption("Create the login and assign its access level. New accounts are active immediately.")
+                with st.form("vardaan_add_user_form", clear_on_submit=True):
+                    new_email = st.text_input("User email", placeholder="name@example.com")
+                    new_password = st.text_input("Temporary password", type="password")
+                    new_role = st.selectbox(
+                        "Access role",
+                        ["user", "admin"],
+                        format_func=lambda value: "User" if value == "user" else "Admin",
+                    )
+                    create_user_submitted = st.form_submit_button(
+                        "Create user account",
+                        use_container_width=True,
+                    )
+
+                if create_user_submitted:
+                    clean_email = new_email.strip().lower()
+                    if not clean_email or "@" not in clean_email:
+                        st.error("Enter a valid email address.")
+                    elif len(new_password) < 6:
+                        st.error("Password must be at least 6 characters.")
+                    else:
+                        try:
+                            created = admin.auth.admin.create_user({
+                                "email": clean_email,
+                                "password": new_password,
+                                "email_confirm": True,
+                            })
+                            created_uid = created.user.id
+                            admin.table("profiles").insert({
+                                "id": created_uid,
+                                "email": clean_email,
+                                "role": new_role,
+                                "is_active": True,
+                            }).execute()
+                            st.success(f"Account created successfully for {clean_email}.")
+                            st.rerun()
+                        except Exception as create_error:
+                            st.error(f"Could not create the account: {create_error}")
 
         except Exception as e:
-
-            st.error(
-                f"User management error: {e}"
-            )
+            st.error(f"User management error: {e}")
 
 
     # ============================================================
