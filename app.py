@@ -1651,7 +1651,7 @@ def render_autogreen_dashboard():
         live_price = quote.get("price")
         o2h_pct = ((day_high - open_price) / open_price) * 100 if open_price and day_high is not None else None
         o2l_pct = ((day_low - open_price) / open_price) * 100 if open_price and day_low is not None else None
-        target_status = "Target Completed" if o2h_pct is not None and o2h_pct >= 1.0 else "—"
+        target_status = "Target Completed" if o2h_pct is not None and o2h_pct >= 1.0 else "Signal Awaited"
         target_table_rows.append({
             "Role": f"TARGET #{position}",
             "Target Status": target_status,
