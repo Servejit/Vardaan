@@ -1127,7 +1127,7 @@ def render_stock_of_the_day():
                 step=0.5,
                 format="%.1f",
                 key="stock_day_db_threshold_slider",
-                help="Adjust the D-B qualification threshold. This control appears only when no Stock of the Day BUY signal is available."
+                help="Adjust the D-B qualification threshold. The control remains available whether or not a Stock of the Day BUY signal is available."
             )
             st.session_state["stock_day_db_threshold_value"] = selected_db_threshold
             if selected_db_threshold != db_threshold:
