@@ -1086,11 +1086,19 @@ def render_stock_of_the_day():
         div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
             color:{heading_colour} !important;
         }}
-        /* Colour both the slider rail and its filled section. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::before,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div::after {{
-            background-color:{heading_colour} !important;
+        /* BaseWeb draws the horizontal rail on this nested track element.
+           Use background (not only background-color) to override its default gradient. */
+        div.stSlider > div[data-baseweb="slider"] > div > div,
+        div[data-testid="stSlider"] div[data-baseweb="slider"] > div > div {{
+            background:{heading_colour} !important;
+            background-image:none !important;
+            border-color:{heading_colour} !important;
+        }}
+        /* Keep the slider rail's inner track and tick line in the same colour. */
+        div.stSlider > div[data-baseweb="slider"] > div > div > div:not([role="slider"]),
+        div[data-testid="stSlider"] [data-testid="stTickBar"] {{
+            background:{heading_colour} !important;
+            border-color:{heading_colour} !important;
         }}
         div[data-testid="stSlider"] [role="slider"] {{
             background-color:{heading_colour} !important;
