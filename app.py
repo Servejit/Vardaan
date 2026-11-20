@@ -1075,7 +1075,15 @@ def render_stock_of_the_day():
         f"""
         <style>
         h1 {{ color:{heading_colour} !important; }}
-        /* Match slider label, selected value, and every tick number to the card text. */
+        /* Set the accent variables locally so the rest of the app keeps its theme. */
+        div[data-testid="stSlider"] {{
+            --primary-color:{heading_colour} !important;
+            --st-primary-color:{heading_colour} !important;
+            --slider-track-fill:{heading_colour} !important;
+            --slider-thumb-color:{heading_colour} !important;
+            accent-color:{heading_colour} !important;
+        }}
+        /* Match slider label, current value, and every tick number to the card text. */
         div[data-testid="stSlider"],
         div[data-testid="stSlider"] *,
         div[data-testid="stSlider"] label,
@@ -1086,24 +1094,33 @@ def render_stock_of_the_day():
         div[data-testid="stSlider"] [data-testid="stTickBarMax"] {{
             color:{heading_colour} !important;
         }}
-        /* Override BaseWeb's inline red fill and rail backgrounds. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] div[style*="background"],
-        div[data-testid="stSlider"] [data-baseweb="slider"] div[style*="background-color"] {{
+        /* Streamlit's default red accent is often written directly as an inline RGB style. */
+        div[data-testid="stSlider"] [style*="255, 75, 75"],
+        div[data-testid="stSlider"] [style*="255,75,75"],
+        div[data-testid="stSlider"] [style*="#ff4b4b"],
+        div[data-testid="stSlider"] [style*="#FF4B4B"] {{
             background:{heading_colour} !important;
             background-color:{heading_colour} !important;
             background-image:none !important;
             border-color:{heading_colour} !important;
         }}
-        /* Also cover the slider track and selected track when rendered without inline styles. */
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
-        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div:not([role="slider"]),
+        /* Force both the unfilled rail and filled rail to use the same card text colour. */
+        div[data-testid="stSlider"] [data-baseweb="slider"] div,
         div[data-testid="stSlider"] [data-testid="stTickBar"] {{
+            border-color:{heading_colour} !important;
+        }}
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div,
+        div[data-testid="stSlider"] [data-baseweb="slider"] > div > div > div {{
             background:{heading_colour} !important;
             background-color:{heading_colour} !important;
             background-image:none !important;
-            border-color:{heading_colour} !important;
         }}
         div[data-testid="stSlider"] [role="slider"] {{
+            background:{heading_colour} !important;
+            background-color:{heading_colour} !important;
+            border-color:{heading_colour} !important;
+        }}
+        div[data-testid="stSlider"] [data-baseweb="slider"] [role="presentation"] {{
             background:{heading_colour} !important;
             background-color:{heading_colour} !important;
             border-color:{heading_colour} !important;
