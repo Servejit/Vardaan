@@ -1808,7 +1808,14 @@ def render_autogreen_dashboard():
                     ))
                 except (TypeError, ValueError):
                     pass
-        # Keep %Chg preference order; D-B breaks ties within each group.
+        # Target 1 must always be the stock with the lowest D-B value overall.
+        # Keep the %Chg.1 preference order for selecting the remaining three.
+        if lowest_db_targets:
+            first_target = min(lowest_db_targets, key=lambda item: (item[0], item[1]))
+            remaining_targets = [
+                item for item in lowest_db_targets if item[1] != first_target[1]
+            ]
+            lowest_db_targets = [first_target] + remaining_targets
         lowest_db_targets = lowest_db_targets[:4]
 
     target_symbols = [symbol for _, symbol in lowest_db_targets]
