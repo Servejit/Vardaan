@@ -1550,9 +1550,8 @@ def render_autogreen_dashboard():
             base_rows, signal_rows = load_autogreen_buy_signals()
             master_bytes = get_autogreen_master_bytes()
             sum_o2l_ranks = get_autogreen_sum_o2l_ranks(master_bytes)
-    except Exception as error:
-        st.error(f"AutoGreen master data is unavailable: {error}")
-        st.info("Signals are paused; no old or estimated workbook values are used.")
+    except Exception:
+        st.error("Master File Not Available")
         return
 
     ranked_candidates = []
