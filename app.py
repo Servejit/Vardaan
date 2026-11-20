@@ -2980,6 +2980,66 @@ hr {
 [data-testid="stAlert"] {
     border-radius: 10px;
 }
+
+/* Professional sidebar navigation */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #e8eef6 0%, #f7f9fc 100%);
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
+    color: #173e68;
+    border: 0;
+    padding: 0;
+    margin-bottom: 0.15rem;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] > label {
+    color: #60758e;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0.75rem 0 0.55rem;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] {
+    gap: 0.45rem;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0.55rem 0.8rem;
+    margin: 0;
+    border: 1px solid #d7e1ed;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.78);
+    box-shadow: 0 2px 7px rgba(30, 61, 95, 0.035);
+    transition: all 150ms ease;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+    border-color: #8eabc9;
+    background: #ffffff;
+    transform: translateX(2px);
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+    border: 1px solid #376b9e;
+    background: linear-gradient(110deg, #dce9f7 0%, #f5f8fc 100%);
+    box-shadow: inset 3px 0 0 #285d91, 0 3px 10px rgba(30, 61, 95, 0.07);
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
+    color: #294663;
+    font-weight: 650;
+    font-size: 0.94rem;
+}
+[data-testid="stSidebar"] .stButton > button {
+    min-height: 2.75rem;
+    border-radius: 11px;
+    border: 1px solid #c6d3e2;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+    border-color: #4779ad;
+    box-shadow: 0 4px 12px rgba(35, 77, 120, 0.10);
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -2992,30 +3052,72 @@ hr {
 
 with st.sidebar:
 
-    st.write(
-        f"**User:** {user.email}"
+    st.markdown(
+        """
+        <div style="
+            padding: 0.55rem 0 0.9rem;
+            border-bottom: 1px solid #d5dfeb;
+            margin-bottom: 0.9rem;
+        ">
+            <div style="color:#71849a;font-size:0.68rem;font-weight:800;
+                        letter-spacing:0.18em;">6THSENSE</div>
+            <div style="color:#173e68;font-size:1.35rem;font-weight:850;
+                        letter-spacing:-0.04em;line-height:1.25;">VARDAAN</div>
+            <div style="color:#71849a;font-size:0.76rem;margin-top:0.2rem;">
+                Your market workspace
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.write(
-        f"**Role:** "
-        f"{'Admin' if is_admin else 'User'}"
+    st.markdown(
+        f"""
+        <div style="
+            padding:0.75rem 0.8rem;
+            border:1px solid #d7e1ed;
+            border-radius:12px;
+            background:rgba(255,255,255,0.78);
+            margin-bottom:0.65rem;
+        ">
+            <div style="font-size:0.68rem;color:#71849a;font-weight:800;
+                        letter-spacing:0.09em;text-transform:uppercase;">
+                Signed in as
+            </div>
+            <div style="font-size:0.86rem;color:#294663;font-weight:650;
+                        overflow-wrap:anywhere;margin-top:0.18rem;">
+                {html.escape(str(user.email or ""))}
+            </div>
+            <div style="font-size:0.75rem;color:#60758e;margin-top:0.35rem;">
+                {'Administrator' if is_admin else 'User'}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
+    st.caption("NAVIGATION")
+    page = st.radio(
+        "Go to",
+        ["AutoGreen", "Stock of the Day", "Master Excel"],
+        index=0,
+        format_func=lambda item: {
+            "AutoGreen": "🌿  AutoGreen",
+            "Stock of the Day": "⭐  Stock of the Day",
+            "Master Excel": "📊  Master Excel",
+        }[item],
+        key="main_dashboard_default_index",
+        label_visibility="collapsed"
+    )
+
+    st.divider()
     if st.button(
-        "Log out",
+        "↪  Log out",
         use_container_width=True,
-        type="primary",
+        type="secondary",
         key="sidebar_logout_button"
     ):
         logout()
-
-    st.divider()
-    page = st.radio(
-        "Dashboard",
-        ["AutoGreen", "Stock of the Day", "Master Excel"],
-        index=0,
-        key="main_dashboard_default_index"
-    )
 
 if page == "AutoGreen":
     # Refresh the AutoGreen market data automatically during NSE trading hours.
