@@ -967,8 +967,24 @@ def render_stock_of_the_day():
         return
 
     try:
+        is_next_session_mode = is_stock_of_day_next_session_window()
         db_threshold = float(st.session_state.get("stock_day_db_threshold_value", -2.0))
         rows = load_stock_of_the_day_rows(db_threshold)
+
+        # From 5 PM to 9 AM, Stock of the Day uses only the VBL-style
+        # four-sided black-bordered symbols from AutoGreen Column A.
+        if is_next_session_mode:
+            border_symbols = get_black_border_master_column_a_symbols(master_bytes)
+            existing_rows_by_symbol = {
+                normalize_stock_symbol(row.get("Stock")): row
+                for row in rows
+                if normalize_stock_symbol(row.get("Stock"))
+            }
+            rows = [
+                dict(existing_rows_by_symbol.get(symbol, {"Stock": symbol}), Stock=symbol)
+                for symbol in border_symbols
+            ]
+
         if not rows:
             st.markdown(
                 """
@@ -1199,29 +1215,52 @@ def render_stock_of_the_day():
         day_open = quote.get("open")
         day_high = quote.get("high")
         live_price = quote.get("price")
-        if day_open is None or day_open <= 0 or day_high is None or day_high <= 0:
+        if not is_next_session_mode and (
+            day_open is None or day_open <= 0 or day_high is None or day_high <= 0
+        ):
             continue
 
-        # Stock of the Day uses the actual session Open as entry.
-        entry = day_open
-        target1 = entry * 1.005
-        target2 = entry * 1.01
-        target1_achieved = day_high >= target1
-        # Intraday High confirms targets already reached; live price takes
-        # precedence when it is currently trading above Target 2.
-        if live_price is not None and live_price > target2:
-            status_text = "TODAY TARGET HIT · PRICE RUNNING ABOVE TARGET PRICE"
-        elif day_high > target2:
-            status_text = "TARGET 1 & 2 ACHIEVED FOR THE DAY"
-        elif day_high >= target2:
-            status_text = "TARGET 2 ACHIEVED"
-        elif day_high >= target1:
-            status_text = "TARGET 1 ACHIEVED"
+        if is_next_session_mode:
+            # No live quote is required after hours; the card announces the
+            # next-session plan using the next session's opening price.
+            entry = None
+            target1 = None
+            target2 = None
+            status_text = "NEXT SESSION · BUY CONFIRMATION"
+            rank_label = "Stock of the Day- Next Session"
+            entry_display = "Open Price"
+            target1_label = "TARGET PRICE"
+            target1_display = "Open Price +0.50%"
+            target2_html = ""
+            grid_columns = 2
         else:
-            status_text = "TARGETS PENDING"
-
-        rank_value = ranks.get(symbol)
-        rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
+            # Preserve the existing daytime Stock of the Day calculations.
+            entry = day_open
+            target1 = entry * 1.005
+            target2 = entry * 1.01
+            if live_price is not None and live_price > target2:
+                status_text = "TODAY TARGET HIT · PRICE RUNNING ABOVE TARGET PRICE"
+            elif day_high > target2:
+                status_text = "TARGET 1 & 2 ACHIEVED FOR THE DAY"
+            elif day_high >= target2:
+                status_text = "TARGET 2 ACHIEVED"
+            elif day_high >= target1:
+                status_text = "TARGET 1 ACHIEVED"
+            else:
+                status_text = "TARGETS PENDING"
+            rank_value = ranks.get(symbol)
+            rank_text = f"{rank_value:g}" if isinstance(rank_value, (int, float)) else "—"
+            rank_label = f"RANK {rank_text}"
+            entry_display = f"₹{entry:,.2f}"
+            target1_label = "TARGET 1"
+            target1_display = f"₹{target1:,.2f}"
+            target2_html = f'''
+                <div style="min-width:0;">
+                  <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
+                  <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
+                              margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
+                </div>'''
+            grid_columns = 3
 
         card_html = f"""
         <div class="stock-day-buy-card" style="
@@ -1260,31 +1299,27 @@ def render_stock_of_the_day():
             <div style="font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;
                         border:1px solid {border_colour};border-radius:999px;color:{shimmer_colour};
                         background:linear-gradient(135deg,#F1F8EA,#FFF9E8);white-space:nowrap;">
-              BUY SIGNAL
+              {"BUY CONFIRMATION" if is_next_session_mode else "BUY SIGNAL"}
             </div>
           </div>
           <div style="font-size:.72rem;font-weight:900;letter-spacing:1.25px;color:#C5CFDC;
-                      margin-top:9px;position:relative;z-index:1;color:{shimmer_colour};">RANK {rank_text}</div>
+                      margin-top:9px;position:relative;z-index:1;color:{shimmer_colour};">{rank_label}</div>
           <div style="height:1px;background:linear-gradient(90deg,transparent,#C69B43,
                       rgba(255,236,184,.95),#C69B43,transparent);margin:19px 0 17px;
                       position:relative;z-index:1;"></div>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+          <div style="display:grid;grid-template-columns:repeat({grid_columns},minmax(0,1fr));
                       align-items:center;gap:10px;position:relative;z-index:1;">
             <div style="min-width:0;">
               <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">ENTRY PRICE</div>
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
-                          margin-top:7px;white-space:nowrap;">₹{entry:,.2f}</div>
+                          margin-top:7px;white-space:nowrap;">{entry_display}</div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 1</div>
+              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">{target1_label}</div>
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
-                          margin-top:7px;white-space:nowrap;">₹{target1:,.2f}</div>
+                          margin-top:7px;white-space:nowrap;">{target1_display}</div>
             </div>
-            <div style="min-width:0;">
-              <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
-              <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
-                          margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
-            </div>
+            {target2_html}
           </div>
           <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
                       border:1px solid {border_colour};border-radius:11px;
@@ -2044,22 +2079,6 @@ def render_autogreen_dashboard():
 
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
-
-    # Evening / overnight selection is independent of the daytime BUY logic and is used only on the Stock of the Day dashboard.
-    is_next_session_window = is_stock_of_day_next_session_window()
-    if is_next_session_window:
-        black_border_symbols = get_black_border_master_column_a_symbols(master_bytes)
-        next_session_rows = []
-        for selected_symbol in black_border_symbols:
-            source_row = signal_by_symbol.get(selected_symbol) or base_by_symbol.get(selected_symbol) or {"Symbol": selected_symbol}
-            next_row = dict(source_row)
-            next_row["Symbol"] = selected_symbol
-            next_row["Card Colour"] = source_row.get("Card Colour", "Copper-Orange")
-            next_row["Sum O2L.10 Rank"] = None
-            next_row["_Role"] = "CONFIRMATION"
-            next_row["_Next Session Stock"] = True
-            next_session_rows.append(next_row)
-        selected_rows = next_session_rows
 
     # Keep the existing High - 0.20% metric populated from the four target stocks.
     high_gap_candidates = [
