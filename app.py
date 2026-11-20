@@ -945,9 +945,14 @@ def load_stock_of_the_day_rows():
                 "O2H 2": round(o2h_values[1], 2),
                 "16< D-B / Avg.4": round(db_value, 2),
             }
+            dated_o2l_position = 0
             for position, value in enumerate(o2l_values, start=1):
                 heading = o2l_headings[position - 1] if position <= len(o2l_headings) else ""
-                column_name = f"O2L {position}" + (f" · {heading}" if heading else "")
+                if re.search(r"sum\\s*o2l[.\\s]*10", heading, re.IGNORECASE):
+                    column_name = "Sum O2L.10"
+                else:
+                    dated_o2l_position += 1
+                    column_name = f"O2L.{dated_o2l_position}" + (f" · {heading}" if heading else "")
                 record[column_name] = round(value, 2) if value is not None else "—"
             record["%Chg.1"] = round(change1, 2)
             record["%Chg.2"] = round(change2, 2)
