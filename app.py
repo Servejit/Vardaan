@@ -77,7 +77,7 @@ sb = st.session_state["_supabase_auth_client"]
 
 
 def render_master_missing_no_signal_card():
-    """Show a full Rose-Cherry-style NO SIGNAL card in the mustard-gold theme."""
+    """Apply the mustard-gold dashboard theme and show the matching NO SIGNAL card."""
     no_master_card = """
     <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
                 background:linear-gradient(110deg,#8B6814 0%,#E2B93F 28%,#FFF0A8 48%,#C99A22 72%,#8B6814 100%);
@@ -110,6 +110,67 @@ def render_master_missing_no_signal_card():
       </div>
     </div>
     <style>
+    /* Full dashboard theme: mustard-gold replaces the Rose-Cherry palette. */
+    .stApp {
+        background:radial-gradient(ellipse at 8% 0%,#FFF3C9 0%,transparent 42%),
+                   linear-gradient(135deg,#FFF9E8 0%,#F6E8BD 52%,#FFF8E5 100%) !important;
+        color:#49380A !important;
+    }
+    [data-testid="stHeader"] {
+        background:rgba(255,247,224,.96) !important;
+        border-bottom:1px solid #D8B95F !important;
+    }
+    [data-testid="stSidebar"] {
+        background:linear-gradient(180deg,#EAD28B 0%,#F8EDC9 48%,#FFF8E7 100%) !important;
+        border-right:1.5px solid #B58A25 !important;
+        box-shadow:inset -8px 0 24px rgba(153,112,20,.12) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+        color:#59430D !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stSidebar"] [data-baseweb="select"] > div,
+    [data-testid="stSidebar"] input,
+    [data-testid="stSidebar"] textarea {
+        background:linear-gradient(135deg,#FFFDF5 0%,#F8EDC9 100%) !important;
+        border-color:#C5A044 !important;
+        color:#49380A !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+        border-color:#A98216 !important;
+        box-shadow:0 3px 12px rgba(169,130,22,.18) !important;
+    }
+    h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] {
+        color:#49380A;
+    }
+    div[data-testid="stExpander"] {
+        background:linear-gradient(135deg,#FFFDF6 0%,#F8EDCC 100%) padding-box,
+                   linear-gradient(110deg,#A98216 0%,#F4D66F 48%,#A98216 100%) border-box !important;
+        border:1.5px solid transparent !important;
+        border-radius:14px !important;
+        box-shadow:0 8px 22px rgba(112,83,12,.12) !important;
+    }
+    div[data-testid="stExpander"] summary,
+    div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+        color:#59430D !important;
+    }
+    [data-testid="stTextInput"] input,
+    [data-testid="stNumberInput"] input,
+    [data-testid="stTextArea"] textarea,
+    [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+        background:#FFFDF6 !important;
+        border-color:#C5A044 !important;
+        color:#49380A !important;
+    }
+    [data-testid="stButton"] button,
+    [data-testid="stDownloadButton"] button {
+        border-color:#B58A25 !important;
+        color:#59430D !important;
+    }
     @keyframes masterMustardBorder { 0% {background-position:200% 50%;} 100% {background-position:-100% 50%;} }
     @keyframes masterMustardFloat { 0%,100% {transform:translateY(0);} 50% {transform:translateY(-3px);} }
     @keyframes masterMustardGlow {
