@@ -1904,7 +1904,7 @@ def render_autogreen_dashboard():
             master_bytes = get_autogreen_master_bytes()
             sum_o2l_ranks = get_autogreen_sum_o2l_ranks(master_bytes)
     except Exception as error:
-        st.error(f"Master File Not Available: {error}")
+        st.error("Master file not available")
         return
 
     ranked_candidates = []
