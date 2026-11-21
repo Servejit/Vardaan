@@ -77,111 +77,111 @@ sb = st.session_state["_supabase_auth_client"]
 
 
 def render_master_missing_no_signal_card():
-    """Apply the mustard-gold dashboard theme and show the matching NO SIGNAL card."""
+    """Apply the teal dashboard theme and show the matching NO SIGNAL card."""
     no_master_card = """
     <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                background:linear-gradient(110deg,#8B6814 0%,#E2B93F 28%,#FFF0A8 48%,#C99A22 72%,#8B6814 100%);
-                background-size:300% 300%;animation:masterMustardBorder 6s linear infinite;
+                background:linear-gradient(110deg,#075B59 0%,#27B7A8 28%,#B8F3E8 48%,#138F86 72%,#075B59 100%);
+                background-size:300% 300%;animation:masterTealBorder 6s linear infinite;
                 box-shadow:0 0 0 1px rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.42),
-                0 0 22px rgba(218,174,55,.30);">
+                0 0 22px rgba(32,190,174,.30);">
       <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
                   border-radius:18px;
                   background:radial-gradient(ellipse at 50% 0%,rgba(255,220,130,.20),transparent 54%),
-                  linear-gradient(145deg,#30230D 0%,#624713 48%,#2A1D09 100%);
-                  color:#FFF8E5;animation:masterMustardFloat 5s ease-in-out infinite;">
+                  linear-gradient(145deg,#082D31 0%,#0B6663 48%,#061F27 100%);
+                  color:#F2FFFC;animation:masterTealFloat 5s ease-in-out infinite;">
         <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
                     pointer-events:none;z-index:0;filter:blur(7px);
-                    background:linear-gradient(105deg,transparent 0%,rgba(220,181,91,.12) 25%,
-                    rgba(255,244,205,.48) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
-                    animation:masterMustardGlow 6s ease-in-out infinite;"></div>
+                    background:linear-gradient(105deg,transparent 0%,rgba(65,210,190,.12) 25%,
+                    rgba(205,255,246,.48) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
+                    animation:masterTealGlow 6s ease-in-out infinite;"></div>
         <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;
-                    color:#F0D58A;text-shadow:0 0 12px rgba(255,220,150,.34);">6THSENSE · VARDAAN</div>
+                    color:#A7F3E8;text-shadow:0 0 12px rgba(90,230,210,.34);">6THSENSE · VARDAAN</div>
         <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;
-                    font-weight:950;letter-spacing:2.2px;margin:13px 0 10px;color:#FFF3CF;
-                    text-shadow:0 2px 18px rgba(255,210,110,.30);">NO SIGNAL</div>
+                    font-weight:950;letter-spacing:2.2px;margin:13px 0 10px;color:#D8FFF7;
+                    text-shadow:0 2px 18px rgba(70,220,195,.30);">NO SIGNAL</div>
         <div style="position:relative;z-index:1;width:74px;height:1px;margin:0 auto 15px;
-                    background:linear-gradient(90deg,transparent,#E8C45F,transparent);"></div>
+                    background:linear-gradient(90deg,transparent,#42CDBB,transparent);"></div>
         <div style="position:relative;z-index:1;font-size:12px;font-weight:900;letter-spacing:1.65px;
-                    color:#EBCB78;">MASTER FILE NOT AVAILABLE</div>
+                    color:#8FE5D8;">MASTER FILE NOT AVAILABLE</div>
         <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;
-                    color:#E6D5A8;margin-top:10px;">
+                    color:#B7E9E2;margin-top:10px;">
           Signal cards are hidden until the Master file is available.
         </div>
       </div>
     </div>
     <style>
-    /* Full dashboard theme: mustard-gold replaces the Rose-Cherry palette. */
+    /* Full dashboard theme: teal replaces the Rose-Cherry palette. */
     .stApp {
-        background:radial-gradient(ellipse at 8% 0%,#FFF3C9 0%,transparent 42%),
-                   linear-gradient(135deg,#FFF9E8 0%,#F6E8BD 52%,#FFF8E5 100%) !important;
-        color:#49380A !important;
+        background:radial-gradient(ellipse at 8% 0%,#C9F7F0 0%,transparent 42%),
+                   linear-gradient(135deg,#E9FFFB 0%,#C9F0EA 52%,#F2FFFC 100%) !important;
+        color:#123F40 !important;
     }
     [data-testid="stHeader"] {
-        background:rgba(255,247,224,.96) !important;
-        border-bottom:1px solid #D8B95F !important;
+        background:rgba(229,251,247,.96) !important;
+        border-bottom:1px solid #58BDB1 !important;
     }
     [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#EAD28B 0%,#F8EDC9 48%,#FFF8E7 100%) !important;
-        border-right:1.5px solid #B58A25 !important;
-        box-shadow:inset -8px 0 24px rgba(153,112,20,.12) !important;
+        background:linear-gradient(180deg,#A9E7DE 0%,#D2F3EE 48%,#EEFCF9 100%) !important;
+        border-right:1.5px solid #238E85 !important;
+        box-shadow:inset -8px 0 24px rgba(20,125,115,.12) !important;
     }
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
     [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-        color:#59430D !important;
+        color:#164D4B !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
     [data-testid="stSidebar"] [data-baseweb="select"] > div,
     [data-testid="stSidebar"] input,
     [data-testid="stSidebar"] textarea {
-        background:linear-gradient(135deg,#FFFDF5 0%,#F8EDC9 100%) !important;
-        border-color:#C5A044 !important;
-        color:#49380A !important;
+        background:linear-gradient(135deg,#F3FFFC 0%,#D2F3EE 100%) !important;
+        border-color:#64BFB4 !important;
+        color:#123F40 !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
-        border-color:#A98216 !important;
-        box-shadow:0 3px 12px rgba(169,130,22,.18) !important;
+        border-color:#137F77 !important;
+        box-shadow:0 3px 12px rgba(19,127,119,.18) !important;
     }
     h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] {
-        color:#49380A;
+        color:#123F40;
     }
     div[data-testid="stExpander"] {
-        background:linear-gradient(135deg,#FFFDF6 0%,#F8EDCC 100%) padding-box,
-                   linear-gradient(110deg,#A98216 0%,#F4D66F 48%,#A98216 100%) border-box !important;
+        background:linear-gradient(135deg,#F7FFFD 0%,#DDF6F1 100%) padding-box,
+                   linear-gradient(110deg,#137F77 0%,#64D6C8 48%,#137F77 100%) border-box !important;
         border:1.5px solid transparent !important;
         border-radius:14px !important;
-        box-shadow:0 8px 22px rgba(112,83,12,.12) !important;
+        box-shadow:0 8px 22px rgba(18,100,92,.12) !important;
     }
     div[data-testid="stExpander"] summary,
     div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-        color:#59430D !important;
+        color:#164D4B !important;
     }
     [data-testid="stTextInput"] input,
     [data-testid="stNumberInput"] input,
     [data-testid="stTextArea"] textarea,
     [data-testid="stSelectbox"] [data-baseweb="select"] > div {
-        background:#FFFDF6 !important;
-        border-color:#C5A044 !important;
-        color:#49380A !important;
+        background:#F7FFFD !important;
+        border-color:#64BFB4 !important;
+        color:#123F40 !important;
     }
     [data-testid="stButton"] button,
     [data-testid="stDownloadButton"] button {
-        border-color:#B58A25 !important;
-        color:#59430D !important;
+        border-color:#238E85 !important;
+        color:#164D4B !important;
     }
-    @keyframes masterMustardBorder { 0% {background-position:200% 50%;} 100% {background-position:-100% 50%;} }
-    @keyframes masterMustardFloat { 0%,100% {transform:translateY(0);} 50% {transform:translateY(-3px);} }
-    @keyframes masterMustardGlow {
+    @keyframes masterTealBorder { 0% {background-position:200% 50%;} 100% {background-position:-100% 50%;} }
+    @keyframes masterTealFloat { 0%,100% {transform:translateY(0);} 50% {transform:translateY(-3px);} }
+    @keyframes masterTealGlow {
       0% {transform:translate3d(-35%,-5%,0) rotate(18deg);opacity:0;}
       18% {opacity:.62;} 52% {transform:translate3d(115%,3%,0) rotate(18deg);opacity:.42;}
       82% {opacity:.18;} 100% {transform:translate3d(190%,-4%,0) rotate(18deg);opacity:0;}
     }
     @media (prefers-reduced-motion:reduce) {
-      @keyframes masterMustardBorder { from {background-position:0 50%;} to {background-position:0 50%;} }
-      @keyframes masterMustardFloat { from {transform:none;} to {transform:none;} }
-      @keyframes masterMustardGlow { from {opacity:0;} to {opacity:0;} }
+      @keyframes masterTealBorder { from {background-position:0 50%;} to {background-position:0 50%;} }
+      @keyframes masterTealFloat { from {transform:none;} to {transform:none;} }
+      @keyframes masterTealGlow { from {opacity:0;} to {opacity:0;} }
     }
     </style>
     """
