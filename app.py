@@ -44,6 +44,9 @@ admin = create_client(
 if "user" not in st.session_state:
     st.session_state.user = None
 
+# Reset once per Streamlit rerun so the message is shown at most once per dashboard load.
+st.session_state["_master_file_unavailable_shown"] = False
+
 if "profile" not in st.session_state:
     st.session_state.profile = None
 
@@ -72,6 +75,13 @@ sb = st.session_state["_supabase_auth_client"]
 # ============================================================
 # FUNCTIONS
 # ============================================================
+
+def show_master_file_unavailable_once():
+    """Display the Master-file warning no more than once per dashboard run."""
+    if not st.session_state.get("_master_file_unavailable_shown", False):
+        show_master_file_unavailable_once()
+        st.session_state["_master_file_unavailable_shown"] = True
+
 
 def get_profile(uid):
     r = admin.table("profiles").select("*").eq(
@@ -546,7 +556,7 @@ def get_autogreen_master_bytes():
     """Read the shared Master Excel directly from Vardaan Supabase Storage."""
     workbook_bytes = get_master()
     if not workbook_bytes:
-        raise RuntimeError("Master file not available")
+        raise RuntimeError()
     return workbook_bytes
 
 
