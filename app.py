@@ -546,10 +546,7 @@ def get_autogreen_master_bytes():
     """Read the shared Master Excel directly from Vardaan Supabase Storage."""
     workbook_bytes = get_master()
     if not workbook_bytes:
-        raise RuntimeError(
-            f"Could not download {MASTER_FILE} from Supabase bucket {BUCKET}. "
-            "Check that the file exists and SUPABASE_SERVICE_KEY has Storage read access."
-        )
+        raise RuntimeError("Master file not available")
     return workbook_bytes
 
 
@@ -963,7 +960,7 @@ def render_stock_of_the_day():
         master_bytes = get_autogreen_master_bytes()
         ranks = get_autogreen_sum_o2l_ranks(master_bytes)
     except Exception as error:
-        st.error(f"Master File Not Available: {error}")
+        st.error("Master file not available")
         return
 
     try:
