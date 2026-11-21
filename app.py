@@ -77,40 +77,40 @@ sb = st.session_state["_supabase_auth_client"]
 
 
 def render_master_missing_no_signal_card():
-    """Show the mustard NO SIGNAL card whenever the required Master workbook is unavailable."""
+    """Show a full Rose-Cherry-style NO SIGNAL card in the mustard-gold theme."""
     no_master_card = """
     <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
-                background:linear-gradient(110deg,#A98216 0%,#F4D66F 28%,#FFF5C7 48%,#D5A928 72%,#A98216 100%);
-                background-size:300% 300%;animation:masterMustardShimmer 5.5s linear infinite;
-                box-shadow:0 0 0 1px rgba(255,255,255,.7),0 14px 34px rgba(112,83,12,.20),
-                0 0 22px rgba(213,169,40,.28);">
+                background:linear-gradient(110deg,#8B6814 0%,#E2B93F 28%,#FFF0A8 48%,#C99A22 72%,#8B6814 100%);
+                background-size:300% 300%;animation:masterMustardBorder 6s linear infinite;
+                box-shadow:0 0 0 1px rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.42),
+                0 0 22px rgba(218,174,55,.30);">
       <div style="position:relative;overflow:hidden;text-align:center;padding:30px 24px 28px;
                   border-radius:18px;
-                  background:radial-gradient(ellipse at 50% 0%,rgba(255,248,210,.95),transparent 58%),
-                  linear-gradient(145deg,#FFFBEA 0%,#F8E8A8 48%,#F2D77A 100%);
-                  color:#49380A;animation:masterMustardFloat 5s ease-in-out infinite;">
+                  background:radial-gradient(ellipse at 50% 0%,rgba(255,220,130,.20),transparent 54%),
+                  linear-gradient(145deg,#30230D 0%,#624713 48%,#2A1D09 100%);
+                  color:#FFF8E5;animation:masterMustardFloat 5s ease-in-out infinite;">
         <div aria-hidden="true" style="position:absolute;top:-55%;left:-72%;width:72%;height:210%;
                     pointer-events:none;z-index:0;filter:blur(7px);
-                    background:linear-gradient(105deg,transparent 0%,rgba(169,130,22,.10) 25%,
-                    rgba(255,255,255,.88) 48%,rgba(255,255,255,.38) 58%,transparent 82%);
+                    background:linear-gradient(105deg,transparent 0%,rgba(220,181,91,.12) 25%,
+                    rgba(255,244,205,.48) 48%,rgba(255,255,255,.25) 58%,transparent 82%);
                     animation:masterMustardGlow 6s ease-in-out infinite;"></div>
         <div style="position:relative;z-index:1;font-size:11px;font-weight:900;letter-spacing:3px;
-                    color:#8A6810;text-shadow:0 0 12px rgba(255,255,255,.7);">6THSENSE · VARDAAN</div>
+                    color:#F0D58A;text-shadow:0 0 12px rgba(255,220,150,.34);">6THSENSE · VARDAAN</div>
         <div style="position:relative;z-index:1;font-size:clamp(30px,5vw,42px);line-height:1.1;
-                    font-weight:950;letter-spacing:2.2px;margin:13px 0 10px;color:#72530A;
-                    text-shadow:0 2px 18px rgba(169,130,22,.16);">NO SIGNAL</div>
+                    font-weight:950;letter-spacing:2.2px;margin:13px 0 10px;color:#FFF3CF;
+                    text-shadow:0 2px 18px rgba(255,210,110,.30);">NO SIGNAL</div>
         <div style="position:relative;z-index:1;width:74px;height:1px;margin:0 auto 15px;
-                    background:linear-gradient(90deg,transparent,#A98216,transparent);"></div>
+                    background:linear-gradient(90deg,transparent,#E8C45F,transparent);"></div>
         <div style="position:relative;z-index:1;font-size:12px;font-weight:900;letter-spacing:1.65px;
-                    color:#8A6810;">MASTER FILE NOT AVAILABLE</div>
-        <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:600;
-                    color:#715B20;margin-top:10px;">
+                    color:#EBCB78;">MASTER FILE NOT AVAILABLE</div>
+        <div style="position:relative;z-index:1;font-size:13px;line-height:1.65;font-weight:550;
+                    color:#E6D5A8;margin-top:10px;">
           Signal cards are hidden until the Master file is available.
         </div>
       </div>
     </div>
     <style>
-    @keyframes masterMustardShimmer { 0% {background-position:200% 50%;} 100% {background-position:-100% 50%;} }
+    @keyframes masterMustardBorder { 0% {background-position:200% 50%;} 100% {background-position:-100% 50%;} }
     @keyframes masterMustardFloat { 0%,100% {transform:translateY(0);} 50% {transform:translateY(-3px);} }
     @keyframes masterMustardGlow {
       0% {transform:translate3d(-35%,-5%,0) rotate(18deg);opacity:0;}
@@ -118,7 +118,9 @@ def render_master_missing_no_signal_card():
       82% {opacity:.18;} 100% {transform:translate3d(190%,-4%,0) rotate(18deg);opacity:0;}
     }
     @media (prefers-reduced-motion:reduce) {
-      .master-mustard-card { animation:none !important; }
+      @keyframes masterMustardBorder { from {background-position:0 50%;} to {background-position:0 50%;} }
+      @keyframes masterMustardFloat { from {transform:none;} to {transform:none;} }
+      @keyframes masterMustardGlow { from {opacity:0;} to {opacity:0;} }
     }
     </style>
     """
