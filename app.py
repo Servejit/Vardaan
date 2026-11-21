@@ -110,6 +110,9 @@ def render_master_missing_no_signal_card():
       </div>
     </div>
     <style>
+    .stApp { --brand-flower-color:#27B7A8 !important; }
+    [data-testid="stSidebar"] { --brand-flower-color:#27B7A8 !important; }
+    
     /* Full dashboard theme: teal replaces the Rose-Cherry palette. */
     .stApp {
         background:radial-gradient(ellipse at 8% 0%,#C9F7F0 0%,transparent 42%),
