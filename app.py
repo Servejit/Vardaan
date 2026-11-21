@@ -79,7 +79,7 @@ sb = st.session_state["_supabase_auth_client"]
 def show_master_file_unavailable_once():
     """Display the Master-file warning no more than once per dashboard run."""
     if not st.session_state.get("_master_file_unavailable_shown", False):
-        show_master_file_unavailable_once()
+        st.error("Master file not available")
         st.session_state["_master_file_unavailable_shown"] = True
 
 
