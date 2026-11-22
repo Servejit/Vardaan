@@ -4225,6 +4225,9 @@ else:
                             credential_success_key = f"vardaan_credentials_success_{uid}"
                             if st.session_state.get(credential_success_key):
                                 st.success(st.session_state.pop(credential_success_key))
+                            access_success_key = f"vardaan_access_success_{uid}"
+                            if st.session_state.get(access_success_key):
+                                st.success(st.session_state.pop(access_success_key))
 
                             with st.form(f"vardaan_credentials_form_{uid}", clear_on_submit=True):
                                 st.markdown("**Change login username and password**")
@@ -4312,7 +4315,7 @@ else:
                                     "role": selected_role,
                                     "is_active": selected_active,
                                 }).eq("id", uid).execute()
-                                st.success(f"Updated access settings for {email}.")
+                                st.session_state[access_success_key] = f"Changes saved successfully for {email}."
                                 st.rerun()
 
                             if is_current_admin:
