@@ -4554,6 +4554,15 @@ _bottom_nav_theme = (
     if _bottom_nav_page == "Master Excel"
     else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
+# Match the Master Excel bottom selector to the exact Ice Blue sidebar button
+# treatment (light selected state, blue outline and left accent), not a dark fill.
+if _bottom_nav_page == "Master Excel":
+    _bottom_nav_theme = {
+        **_bottom_nav_theme,
+        "border": "#B9DDED",
+        "tint": "#EAF7FF",
+        "accent": "#168FC0",
+    }
 st.markdown(
     f"""
     <style>
@@ -4589,15 +4598,15 @@ st.markdown(
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
         border:1.5px solid {_bottom_nav_theme["accent"]} !important;
-        background:linear-gradient(110deg,{_bottom_nav_theme["deep"]} 0%,{_bottom_nav_theme["primary"]} 100%) !important;
-        box-shadow:inset 0 -3px 0 {_bottom_nav_theme["accent"]},0 3px 10px {_bottom_nav_theme["ink"]}20 !important;
+        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+        box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px {_bottom_nav_theme["ink"]}12 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
         color:{_bottom_nav_theme["ink"]} !important;font-weight:800 !important;
         font-size:.9rem !important;text-align:center !important;margin:0 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
-        color:#FFFFFF !important;
+        color:{_bottom_nav_theme["ink"]} !important;
     }}
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{
