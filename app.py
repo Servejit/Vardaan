@@ -4020,8 +4020,8 @@ elif page == "Master Excel":
     }
     </style>
     """, unsafe_allow_html=True)
-    st.title("Master Excel")
-    st.caption("Your central workbook, organised in one place. View, download and manage the master data securely.")
+    st.title("6thSense-Vardaan")
+    st.caption("Master Excel")
 
     master = get_master()
 
