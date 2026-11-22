@@ -1280,6 +1280,12 @@ def render_stock_of_the_day():
         sidebar_border, sidebar_accent, sidebar_soft, sidebar_text = (
             "#8794A5", "#202833", "#E7EAEE", "#344456"
         )
+    st.session_state["_vardaan_active_theme"] = {
+        "deep": sidebar_text, "primary": heading_colour, "accent": sidebar_border,
+        "ink": sidebar_text, "accent_text": sidebar_text,
+        "tint": sidebar_soft, "canvas": "#FFFFFF",
+        "border": sidebar_border, "soft_text": sidebar_text,
+    }
     st.markdown(
         f"""
         <style>
@@ -2283,6 +2289,12 @@ def render_autogreen_dashboard():
     metric_ink, metric_accent_text, metric_tint, metric_canvas = light_accents.get(
         metric_colour_name, light_accents["Rose-Cherry"]
     )
+    st.session_state["_vardaan_active_theme"] = {
+        "deep": metric_c1, "primary": metric_c2, "accent": metric_c3,
+        "ink": metric_ink, "accent_text": metric_accent_text,
+        "tint": metric_tint, "canvas": metric_canvas,
+        "border": metric_ink, "soft_text": metric_accent,
+    }
     st.markdown(
         f"""
         <style>
@@ -3830,153 +3842,7 @@ with st.sidebar:
     ):
         logout()
 
-st.markdown(
-    """
-    <style>
-    /* Modern Vardaan workspace shell; the active signal-card palette overrides this fallback. */
-    [data-testid="stMainBlockContainer"] {
-        max-width: 1440px;
-        padding-top: 1.35rem;
-        padding-bottom: 3rem;
-    }
-    [data-testid="stHeader"] {
-        background:rgba(243,229,234,.96);
-        border-bottom:1px solid #D9A9B8;
-    }
-    [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#EBD8DF 0%,#F3E5EA 48%,#FFFFFF 100%) !important;
-        border-right:1.5px solid #B04B68 !important;
-        box-shadow:inset -8px 0 24px rgba(176,75,104,.10) !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
-        color:#913B55 !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {
-        border-color:#B04B6888 !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {
-        border-color:#B04B6899 !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%) !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="font-size:1.35rem"] {
-        color:#B04B68 !important;
-    }
-    [data-testid="stSidebar"] .stButton > button {
-        border-color:#B04B6888 !important;
-        color:#913B55 !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%) !important;
-    }
-    .vardaan-welcome {
-        position:relative; overflow:hidden; isolation:isolate;
-        padding:22px 24px 20px; margin:0 0 18px;
-        border:1px solid rgba(255,255,255,.72); border-radius:22px;
-        background:
-          radial-gradient(circle at 88% 12%,rgba(255,255,255,.30),transparent 27%),
-          linear-gradient(115deg,#3B1025 0%,#7E2342 48%,#A83E59 100%);
-        box-shadow:0 14px 34px rgba(126,35,66,.20),inset 0 1px 0 rgba(255,255,255,.22);
-    }
-    .vardaan-welcome:after {
-        content:"";position:absolute;z-index:-1;width:210px;height:210px;
-        right:-52px;top:-120px;border:1px solid rgba(255,255,255,.25);
-        border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.055),
-        0 0 0 46px rgba(255,255,255,.04);
-    }
-    .vardaan-kicker {
-        color:#F0B5C7;font-size:.68rem;font-weight:850;
-        letter-spacing:.19em;text-transform:uppercase;
-    }
-    .vardaan-heading {
-        color:#FFFFFF;font-size:clamp(1.55rem,4vw,2.15rem);
-        line-height:1.12;font-weight:900;letter-spacing:-.045em;
-        margin:7px 0 5px;
-    }
-    .vardaan-subheading {
-        color:rgba(240,255,252,.86);font-size:.88rem;
-        line-height:1.5;max-width:620px;
-    }
-    .vardaan-nav-label {
-        color:#913B55;font-size:.68rem;font-weight:900;
-        letter-spacing:.16em;text-transform:uppercase;
-        margin:0 0 8px 2px;
-    }
-    /* Streamlit horizontal radio styled as premium dashboard tabs */
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {
-        display:flex;gap:9px;flex-wrap:wrap;
-        padding:8px;margin:0 0 20px;
-        border:1px solid #EBD8DF;border-radius:17px;
-        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%);
-        box-shadow:0 5px 18px rgba(145,59,85,.10);
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {
-        flex:1 1 145px;justify-content:center;
-        min-height:44px;padding:9px 14px;margin:0;
-        border:1px solid transparent;border-radius:12px;
-        background:transparent;transition:all .18s ease;
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {
-        color:#913B55;font-size:.86rem;font-weight:800;
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-        border-color:#913B55;background:linear-gradient(135deg,#7E2342,#A83E59);
-        box-shadow:0 5px 13px rgba(145,59,85,.25);
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {
-        color:#FFFFFF !important;
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:hover:not(:has(input:checked)) {
-        background:#F3E5EA;border-color:#D9A9B8;
-    }
-    [data-testid="stMainBlockContainer"] [data-testid="stMetric"] {
-        border:1px solid rgba(176,75,104,.28);
-        border-radius:16px;background:linear-gradient(145deg,#FFFFFF,#F3E5EA);
-        box-shadow:0 6px 18px rgba(145,59,85,.08);
-        padding:15px 16px;
-    }
-    [data-testid="stMainBlockContainer"] .stButton > button,
-    [data-testid="stMainBlockContainer"] .stDownloadButton > button {
-        border-radius:11px;min-height:2.65rem;font-weight:750;
-        transition:transform .16s ease,box-shadow .16s ease;
-    }
-    [data-testid="stMainBlockContainer"] .stButton > button:hover,
-    [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover {
-        transform:translateY(-1px);box-shadow:0 6px 15px rgba(145,59,85,.15);
-    }
-    @media(max-width:640px) {
-        [data-testid="stMainBlockContainer"] {padding:1rem .8rem 2rem;}
-        .vardaan-welcome {padding:18px 17px;border-radius:18px;}
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] {
-            gap:6px;padding:6px;
-        }
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {
-            flex-basis:100%;min-height:42px;
-        }
-    }
-    </style>
-    <div class="vardaan-welcome">
-      <div class="vardaan-kicker">6THSENSE · MARKET WORKSPACE</div>
-      <div class="vardaan-heading">Vardaan</div>
-      <div class="vardaan-subheading">Your market dashboard, signals and stock insights — together in one place.</div>
-    </div>
-    <div class="vardaan-nav-label">Choose your dashboard</div>
-    """,
-    unsafe_allow_html=True,
-)
-page = st.radio(
-    "Choose dashboard",
-    ["AutoGreen", "Stock of the Day", "Master Excel"],
-    index=0,
-    format_func=lambda item: {
-        "AutoGreen": "🌿  AutoGreen",
-        "Stock of the Day": "⭐  Stock of the Day",
-        "Master Excel": "📊  Master Excel",
-    }[item],
-    key="main_dashboard_default_index_v2",
-    on_change=sync_main_dashboard_to_sidebar,
-    horizontal=True,
-    label_visibility="collapsed",
-)
+page = st.session_state.get("main_dashboard_default_index_v2", "AutoGreen")
 
 if page == "AutoGreen":
     # Refresh the AutoGreen market data automatically during NSE trading hours.
@@ -4659,6 +4525,149 @@ elif page == "Master Excel":
             "USER ACCESS â€” Read-only"
         )
 
+
+    # Reapply the active signal-card palette to the entire Master Excel workspace.
+    # This final layer also overrides the older fixed blue admin/master component styles.
+    active_theme = st.session_state.get("_vardaan_active_theme") or {
+        "deep": "#3B1025", "primary": "#7E2342", "accent": "#A83E59",
+        "ink": "#913B55", "accent_text": "#913B55",
+        "tint": "#F3E5EA", "canvas": "#EBD8DF",
+        "border": "#B04B68", "soft_text": "#F0B5C7",
+    }
+    st.markdown(
+        f"""
+        <style>
+        .masterx-hero {{
+            border-color:{active_theme["border"]}88 !important;
+            background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.25),transparent 28%),
+                       linear-gradient(112deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 52%,{active_theme["accent"]} 100%) !important;
+            box-shadow:0 12px 30px {active_theme["ink"]}24 !important;
+        }}
+        .masterx-status {{
+            background:linear-gradient(105deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
+            border-color:{active_theme["border"]}88 !important;
+            color:{active_theme["ink"]} !important;
+        }}
+        .masterx-status-title,.masterx-status-note {{ color:{active_theme["ink"]} !important; }}
+        .masterx-status-dot {{ background:{active_theme["primary"]} !important; box-shadow:0 0 0 5px {active_theme["border"]}22 !important; }}
+        .masterx-section,.userx-section {{
+            background:linear-gradient(100deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
+            border-color:{active_theme["border"]}88 !important;
+            color:{active_theme["ink"]} !important;
+        }}
+        .masterx-section-icon {{
+            background:linear-gradient(135deg,{active_theme["deep"]},{active_theme["primary"]},{active_theme["accent"]}) !important;
+        }}
+        .userx-hero {{
+            color:{active_theme["ink"]} !important;
+            border-color:{active_theme["border"]}88 !important;
+            background:linear-gradient(112deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
+            box-shadow:0 7px 20px {active_theme["ink"]}14 !important;
+        }}
+        .userx-kicker,.userx-title,.userx-note,.userx-stat-label,.userx-stat-value {{ color:{active_theme["ink"]} !important; }}
+        .userx-stat {{
+            border-color:{active_theme["border"]}88 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+        }}
+        .masterx-hero,.masterx-status,.masterx-section,.userx-hero,.userx-section,
+        .userx-stat {{ transition:background .2s ease,border-color .2s ease; }}
+        [data-testid="stSidebar"] {{
+            background:linear-gradient(180deg,{active_theme["canvas"]} 0%,{active_theme["tint"]} 52%,#FFFFFF 100%) !important;
+            border-right:1.5px solid {active_theme["border"]} !important;
+            box-shadow:inset -8px 0 24px {active_theme["border"]}18 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+        [data-testid="stSidebar"] [data-testid="stText"] {{ color:{active_theme["ink"]} !important; }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+        [data-testid="stSidebar"] .stButton > button,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {{
+            border-color:{active_theme["border"]}88 !important;
+            color:{active_theme["ink"]} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border-color:{active_theme["border"]} !important;
+            background:linear-gradient(110deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 100%) !important;
+            box-shadow:inset 4px 0 0 {active_theme["accent"]},0 3px 10px {active_theme["ink"]}20 !important;
+        }}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{ color:#FFFFFF !important; }}
+        [data-testid="stSidebar"] .stButton > button:hover,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {{
+            border-color:{active_theme["primary"]} !important;
+            background:linear-gradient(110deg,{active_theme["tint"]},#FFFFFF) !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] {{
+            border-color:{active_theme["border"]}88 !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] summary,
+        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+            color:{active_theme["ink"]} !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stForm"] {{
+            border-color:{active_theme["border"]}88 !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+        }}
+        [data-testid="stMainBlockContainer"] .stButton > button,
+        [data-testid="stMainBlockContainer"] .stDownloadButton > button,
+        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button {{
+            border-color:{active_theme["border"]} !important;
+            color:{active_theme["accent_text"]} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+            box-shadow:0 4px 12px {active_theme["ink"]}16 !important;
+        }}
+        [data-testid="stMainBlockContainer"] .stButton > button:hover,
+        [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover,
+        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button:hover {{
+            border-color:{active_theme["primary"]} !important;
+            background:linear-gradient(110deg,{active_theme["tint"]},#FFFFFF) !important;
+        }}
+        /* Bottom dashboard navigation: always visible after the current page content. */
+        .vardaan-bottom-nav-label {{
+            color:{active_theme["ink"]};font-size:.68rem;font-weight:900;
+            letter-spacing:.16em;text-transform:uppercase;margin:22px 0 8px 2px;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {{
+            border:1px solid {active_theme["border"]}88 !important;
+            border-radius:17px !important;padding:8px !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
+            box-shadow:0 5px 18px {active_theme["ink"]}16 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            color:{active_theme["ink"]} !important;font-weight:800 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border-color:{active_theme["border"]} !important;
+            background:linear-gradient(135deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 100%) !important;
+            box-shadow:0 5px 13px {active_theme["ink"]}30 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{ color:#FFFFFF !important; }}
+        @media(max-width:640px) {{
+            [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] {{ gap:6px;padding:6px; }}
+            [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {{ flex-basis:100%;min-height:44px; }}
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<div class="vardaan-bottom-nav-label">DASHBOARDS</div>', unsafe_allow_html=True)
+    st.radio(
+        "Choose dashboard",
+        ["AutoGreen", "Stock of the Day", "Master Excel"],
+        format_func=lambda item: {
+            "AutoGreen": "🌿  AutoGreen",
+            "Stock of the Day": "⭐  Stock of the Day",
+            "Master Excel": "📊  Master Excel",
+        }[item],
+        key="main_dashboard_default_index_v2",
+        on_change=sync_main_dashboard_to_sidebar,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
 
 else:
     # Never show Master Excel for an unknown/stale navigation value.
