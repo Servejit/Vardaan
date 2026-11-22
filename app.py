@@ -4224,6 +4224,7 @@ else:
                             current_login_email = str(email or "").strip().lower()
                             with st.form(f"vardaan_credentials_form_{uid}", clear_on_submit=True):
                                 st.markdown("**Change login username and password**")
+                                st.info(f"Selected account — current login username: {current_login_email or 'Unavailable'}")
                                 st.caption(
                                     "To change only the password, leave the username field empty. "
                                     "To change the username too, enter the new email / User ID."
