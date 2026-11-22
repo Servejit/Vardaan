@@ -4654,22 +4654,25 @@ elif page == "Master Excel":
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="vardaan-bottom-nav-label">DASHBOARDS</div>', unsafe_allow_html=True)
-    st.radio(
-        "Choose dashboard",
-        ["AutoGreen", "Stock of the Day", "Master Excel"],
-        format_func=lambda item: {
-            "AutoGreen": "🌿  AutoGreen",
-            "Stock of the Day": "⭐  Stock of the Day",
-            "Master Excel": "📊  Master Excel",
-        }[item],
-        key="main_dashboard_default_index_v2",
-        on_change=sync_main_dashboard_to_sidebar,
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-
 else:
     # Never show Master Excel for an unknown/stale navigation value.
     st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
     render_autogreen_dashboard()
+
+    
+# Shared main dashboard navigation is deliberately rendered after page content,
+# so the three theme-matched buttons always stay at the very bottom.
+st.markdown('<div class="vardaan-nav-label">DASHBOARDS</div>', unsafe_allow_html=True)
+st.radio(
+    "Choose dashboard",
+    ["AutoGreen", "Stock of the Day", "Master Excel"],
+    format_func=lambda item: {
+        "AutoGreen": "🌿  AutoGreen",
+        "Stock of the Day": "⭐  Stock of the Day",
+        "Master Excel": "📊  Master Excel",
+    }[item],
+    key="main_dashboard_default_index_v2",
+    on_change=sync_main_dashboard_to_sidebar,
+    horizontal=True,
+    label_visibility="collapsed",
+)
