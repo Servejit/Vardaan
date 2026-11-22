@@ -3721,10 +3721,105 @@ with st.sidebar:
 
 st.markdown(
     """
-    <div style="font-size:0.72rem;font-weight:850;letter-spacing:0.12em;
-                color:#60758e;text-transform:uppercase;margin:0.25rem 0 0.35rem;">
-        DASHBOARD NAVIGATION
+    <style>
+    /* Modern Vardaan workspace shell */
+    [data-testid="stMainBlockContainer"] {
+        max-width: 1440px;
+        padding-top: 1.35rem;
+        padding-bottom: 3rem;
+    }
+    .vardaan-welcome {
+        position:relative; overflow:hidden; isolation:isolate;
+        padding:22px 24px 20px; margin:0 0 18px;
+        border:1px solid rgba(255,255,255,.72); border-radius:22px;
+        background:
+          radial-gradient(circle at 88% 12%,rgba(255,255,255,.34),transparent 27%),
+          linear-gradient(115deg,#073F3D 0%,#087E78 48%,#24A69A 100%);
+        box-shadow:0 14px 34px rgba(8,95,89,.18),inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .vardaan-welcome:after {
+        content:"";position:absolute;z-index:-1;width:210px;height:210px;
+        right:-52px;top:-120px;border:1px solid rgba(255,255,255,.25);
+        border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.055),
+        0 0 0 46px rgba(255,255,255,.04);
+    }
+    .vardaan-kicker {
+        color:#BDF5EA;font-size:.68rem;font-weight:850;
+        letter-spacing:.19em;text-transform:uppercase;
+    }
+    .vardaan-heading {
+        color:#FFFFFF;font-size:clamp(1.55rem,4vw,2.15rem);
+        line-height:1.12;font-weight:900;letter-spacing:-.045em;
+        margin:7px 0 5px;
+    }
+    .vardaan-subheading {
+        color:rgba(240,255,252,.86);font-size:.88rem;
+        line-height:1.5;max-width:620px;
+    }
+    .vardaan-nav-label {
+        color:#52736F;font-size:.68rem;font-weight:900;
+        letter-spacing:.16em;text-transform:uppercase;
+        margin:0 0 8px 2px;
+    }
+    /* Streamlit horizontal radio styled as premium dashboard tabs */
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {
+        display:flex;gap:9px;flex-wrap:wrap;
+        padding:8px;margin:0 0 20px;
+        border:1px solid #D8EAE6;border-radius:17px;
+        background:rgba(255,255,255,.78);
+        box-shadow:0 5px 18px rgba(20,80,72,.055);
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {
+        flex:1 1 145px;justify-content:center;
+        min-height:44px;padding:9px 14px;margin:0;
+        border:1px solid transparent;border-radius:12px;
+        background:transparent;transition:all .18s ease;
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {
+        color:#41645F;font-size:.86rem;font-weight:800;
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        border-color:#087E78;background:linear-gradient(135deg,#087E78,#20A497);
+        box-shadow:0 5px 13px rgba(8,126,120,.22);
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {
+        color:#FFFFFF !important;
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:hover:not(:has(input:checked)) {
+        background:#EAF7F4;border-color:#C7E5DE;
+    }
+    [data-testid="stMainBlockContainer"] [data-testid="stMetric"] {
+        border:1px solid rgba(180,211,203,.72);
+        border-radius:16px;background:linear-gradient(145deg,#FFFFFF,#F2FAF8);
+        box-shadow:0 6px 18px rgba(26,83,74,.055);
+        padding:15px 16px;
+    }
+    [data-testid="stMainBlockContainer"] .stButton > button,
+    [data-testid="stMainBlockContainer"] .stDownloadButton > button {
+        border-radius:11px;min-height:2.65rem;font-weight:750;
+        transition:transform .16s ease,box-shadow .16s ease;
+    }
+    [data-testid="stMainBlockContainer"] .stButton > button:hover,
+    [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover {
+        transform:translateY(-1px);box-shadow:0 6px 15px rgba(18,91,82,.12);
+    }
+    @media(max-width:640px) {
+        [data-testid="stMainBlockContainer"] {padding:1rem .8rem 2rem;}
+        .vardaan-welcome {padding:18px 17px;border-radius:18px;}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] {
+            gap:6px;padding:6px;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {
+            flex-basis:100%;min-height:42px;
+        }
+    }
+    </style>
+    <div class="vardaan-welcome">
+      <div class="vardaan-kicker">6THSENSE · MARKET WORKSPACE</div>
+      <div class="vardaan-heading">Vardaan</div>
+      <div class="vardaan-subheading">Your market dashboard, signals and stock insights — together in one place.</div>
     </div>
+    <div class="vardaan-nav-label">Choose your dashboard</div>
     """,
     unsafe_allow_html=True,
 )
@@ -3733,9 +3828,9 @@ page = st.radio(
     ["AutoGreen", "Stock of the Day", "Master Excel"],
     index=0,
     format_func=lambda item: {
-        "AutoGreen": "🌿 AutoGreen",
-        "Stock of the Day": "⭐ Stock of the Day",
-        "Master Excel": "📊 Master Excel",
+        "AutoGreen": "🌿  AutoGreen",
+        "Stock of the Day": "⭐  Stock of the Day",
+        "Master Excel": "📊  Master Excel",
     }[item],
     key="main_dashboard_default_index_v2",
     horizontal=True,
