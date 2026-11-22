@@ -3990,6 +3990,14 @@ elif page == "Master Excel":
     </style>
     """, unsafe_allow_html=True)
 
+    st.markdown("""
+    <div class="masterx-hero">
+      <div class="masterx-kicker">6THSENSE • DATA CONTROL CENTRE</div>
+      <div class="masterx-title">Master Excel</div>
+      <div class="masterx-subtitle">Your central workbook, organised in one place. View, download and manage the master data securely.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     master = get_master()
 
     if master:
@@ -4512,170 +4520,10 @@ elif page == "Master Excel":
         )
 
 
-    # Master Excel keeps its original Ice Blue theme, independent of
-    # the signal-card palette used by AutoGreen and Stock of the Day.
-    active_theme = {
-        "deep": "#123B5D",
-        "primary": "#17658B",
-        "accent": "#278FB8",
-        "ink": "#173B50",
-        "accent_text": "#155E91",
-        "tint": "#DDF2FC",
-        "canvas": "#EAF7FF",
-        "border": "#A9D7EA",
-        "soft_text": "#557084",
-    }
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background:radial-gradient(ellipse at 8% 0%,{active_theme["canvas"]} 0%,transparent 42%),
-                       linear-gradient(135deg,#F7F8FA 0%,{active_theme["tint"]} 52%,#FFFFFF 100%) !important;
-        }}
-        [data-testid="stHeader"] {{ background:{active_theme["canvas"]}DD !important; }}
-        [data-testid="stMainBlockContainer"] h1,
-        [data-testid="stMainBlockContainer"] h2,
-        [data-testid="stMainBlockContainer"] h3 {{ color:{active_theme["ink"]} !important; }}
-        .vardaan-nav-label {{
-            color:{active_theme["ink"]} !important;font-size:.68rem;font-weight:900;
-            letter-spacing:.16em;text-transform:uppercase;margin:22px 0 8px 2px;
-        }}
-        .masterx-hero {{
-            border-color:{active_theme["border"]}88 !important;
-            background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.25),transparent 28%),
-                       linear-gradient(112deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 52%,{active_theme["accent"]} 100%) !important;
-            box-shadow:0 12px 30px {active_theme["ink"]}24 !important;
-        }}
-        .masterx-status {{
-            background:linear-gradient(105deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
-            border-color:{active_theme["border"]}88 !important;
-            color:{active_theme["ink"]} !important;
-        }}
-        .masterx-status-title,.masterx-status-note {{ color:{active_theme["ink"]} !important; }}
-        .masterx-status-dot {{ background:{active_theme["primary"]} !important; box-shadow:0 0 0 5px {active_theme["border"]}22 !important; }}
-        .masterx-section,.userx-section {{
-            background:linear-gradient(100deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
-            border-color:{active_theme["border"]}88 !important;
-            color:{active_theme["ink"]} !important;
-        }}
-        .masterx-section-icon {{
-            background:linear-gradient(135deg,{active_theme["deep"]},{active_theme["primary"]},{active_theme["accent"]}) !important;
-        }}
-        .userx-hero {{
-            color:{active_theme["ink"]} !important;
-            border-color:{active_theme["border"]}88 !important;
-            background:linear-gradient(112deg,#FFFFFF 0%,{active_theme["tint"]} 55%,{active_theme["canvas"]} 100%) !important;
-            box-shadow:0 7px 20px {active_theme["ink"]}14 !important;
-        }}
-        .userx-kicker,.userx-title,.userx-note,.userx-stat-label,.userx-stat-value {{ color:{active_theme["ink"]} !important; }}
-        .userx-stat {{
-            border-color:{active_theme["border"]}88 !important;
-            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-        }}
-        .masterx-hero,.masterx-status,.masterx-section,.userx-hero,.userx-section,
-        .userx-stat {{ transition:background .2s ease,border-color .2s ease; }}
-        [data-testid="stSidebar"] {{
-            background:linear-gradient(180deg,{active_theme["canvas"]} 0%,{active_theme["tint"]} 52%,#FFFFFF 100%) !important;
-            border-right:1.5px solid {active_theme["border"]} !important;
-            box-shadow:inset -8px 0 24px {active_theme["border"]}18 !important;
-        }}
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
-        [data-testid="stSidebar"] label,
-        [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
-        [data-testid="stSidebar"] [data-testid="stText"] {{ color:{active_theme["ink"]} !important; }}
-        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
-        [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {{
-            border-color:{active_theme["border"]}88 !important;
-            color:{active_theme["ink"]} !important;
-            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-        }}
-        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-            border-color:{active_theme["border"]} !important;
-            background:linear-gradient(110deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 100%) !important;
-            box-shadow:inset 4px 0 0 {active_theme["accent"]},0 3px 10px {active_theme["ink"]}20 !important;
-        }}
-        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{ color:#FFFFFF !important; }}
-        [data-testid="stSidebar"] .stButton > button:hover,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {{
-            border-color:{active_theme["primary"]} !important;
-            background:linear-gradient(110deg,{active_theme["tint"]},#FFFFFF) !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] {{
-            border-color:{active_theme["border"]}88 !important;
-            background:linear-gradient(145deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] summary,
-        [data-testid="stMainBlockContainer"] [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
-            color:{active_theme["ink"]} !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stForm"] {{
-            border-color:{active_theme["border"]}88 !important;
-            background:linear-gradient(145deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-        }}
-        [data-testid="stMainBlockContainer"] .stButton > button,
-        [data-testid="stMainBlockContainer"] .stDownloadButton > button,
-        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button {{
-            border-color:{active_theme["border"]} !important;
-            color:{active_theme["accent_text"]} !important;
-            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-            box-shadow:0 4px 12px {active_theme["ink"]}16 !important;
-        }}
-        [data-testid="stMainBlockContainer"] .stButton > button:hover,
-        [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover,
-        [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button:hover {{
-            border-color:{active_theme["primary"]} !important;
-            background:linear-gradient(110deg,{active_theme["tint"]},#FFFFFF) !important;
-        }}
-        /* Bottom dashboard navigation: always visible after the current page content. */
-        .vardaan-bottom-nav-label {{
-            color:{active_theme["ink"]};font-size:.68rem;font-weight:900;
-            letter-spacing:.16em;text-transform:uppercase;margin:22px 0 8px 2px;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {{
-            border:1px solid {active_theme["border"]}88 !important;
-            border-radius:17px !important;padding:8px !important;
-            background:linear-gradient(135deg,#FFFFFF 0%,{active_theme["tint"]} 100%) !important;
-            box-shadow:0 5px 18px {active_theme["ink"]}16 !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
-            color:{active_theme["ink"]} !important;font-weight:800 !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-            border-color:{active_theme["border"]} !important;
-            background:linear-gradient(135deg,{active_theme["deep"]} 0%,{active_theme["primary"]} 100%) !important;
-            box-shadow:0 5px 13px {active_theme["ink"]}30 !important;
-        }}
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{ color:#FFFFFF !important; }}
-        @media(max-width:640px) {{
-            [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] {{ gap:6px;padding:6px; }}
-            [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {{ flex-basis:100%;min-height:44px; }}
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 else:
     # Never show Master Excel for an unknown/stale navigation value.
     st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
     render_autogreen_dashboard()
 
-    
-# Shared main dashboard navigation is deliberately rendered after page content,
-# so the three theme-matched buttons always stay at the very bottom.
-st.markdown('<div class="vardaan-nav-label">DASHBOARDS</div>', unsafe_allow_html=True)
-st.radio(
-    "Choose dashboard",
-    ["AutoGreen", "Stock of the Day", "Master Excel"],
-    format_func=lambda item: {
-        "AutoGreen": "🌿  AutoGreen",
-        "Stock of the Day": "⭐  Stock of the Day",
-        "Master Excel": "📊  Master Excel",
-    }[item],
-    key="main_dashboard_default_index_v2",
-    on_change=sync_main_dashboard_to_sidebar,
-    horizontal=True,
-    label_visibility="collapsed",
-)
+
