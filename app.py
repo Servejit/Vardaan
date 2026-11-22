@@ -305,6 +305,11 @@ def save_master(data):
         }
     )
     get_master.clear()
+    # Clear workbook-derived results so the newly uploaded file is used immediately.
+    for cache_name in ("load_autogreen_buy_signals", "load_stock_of_the_day_rows"):
+        cached_function = globals().get(cache_name)
+        if cached_function is not None:
+            cached_function.clear()
 
 
 def delete_master():
@@ -709,6 +714,7 @@ def _autogreen_db_parenthetical_number(value):
         return None
 
 
+@st.cache_data(ttl=60, max_entries=1, show_spinner=False)
 def load_autogreen_buy_signals():
     """
     Read only AutoGreen from the GitHub master workbook.
@@ -1782,6 +1788,7 @@ def get_white_font_master_column_a_symbols(workbook_bytes):
         workbook.close()
 
 
+@st.cache_data(ttl=300, max_entries=2, show_spinner=False)
 def get_autogreen_sum_o2l_ranks(workbook_bytes):
     """Rank all Master stocks by Sum O2L.10; lowest value receives rank 1."""
     workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
