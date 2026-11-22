@@ -3694,6 +3694,13 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
+    # Set AutoGreen as the first dashboard for every signed-in account,
+    # including administrators. Do this before creating the radio widget.
+    dashboard_default_initialized_key = f"_dashboard_default_initialized_{user.id}"
+    if not st.session_state.get(dashboard_default_initialized_key):
+        st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
+        st.session_state[dashboard_default_initialized_key] = True
+
     st.caption("NAVIGATION")
     page = st.radio(
         "Go to",
