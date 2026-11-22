@@ -3526,6 +3526,11 @@ if st.session_state.user is None:
                 st.session_state.is_admin = (
                     prof["role"] == "admin"
                 )
+                # Start each fresh login on AutoGreen, with both navigation
+                # controls visibly selecting the same dashboard.
+                st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
+                st.session_state["sidebar_dashboard_nav_v1"] = "AutoGreen"
+                st.session_state["bottom_dashboard_nav_v1"] = "AutoGreen"
                 st.session_state.session_login_started_at = time.time()
                 st.session_state.pop("session_expired_notice", None)
 
@@ -3822,14 +3827,17 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # Set AutoGreen as the first dashboard for every signed-in account,
-    # including administrators. Do this before creating the radio widget.
-    dashboard_default_initialized_key = f"_dashboard_default_initialized_{user.id}"
+    # Default every signed-in account (including admins) to AutoGreen once
+    # per browser session. Versioned marker also corrects sessions created by
+    # the earlier default logic, and both visible selectors start in sync.
+    dashboard_default_initialized_key = f"_dashboard_default_initialized_v3_{user.id}"
     if not st.session_state.get(dashboard_default_initialized_key):
         st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
+        st.session_state["sidebar_dashboard_nav_v1"] = "AutoGreen"
+        st.session_state["bottom_dashboard_nav_v1"] = "AutoGreen"
         st.session_state[dashboard_default_initialized_key] = True
 
-    # Keep sidebar and main-page dashboard selectors synchronized.
+    # Recover safely if a selector key is missing without changing an existing choice.
     if "sidebar_dashboard_nav_v1" not in st.session_state:
         st.session_state["sidebar_dashboard_nav_v1"] = st.session_state.get(
             "main_dashboard_default_index_v2", "AutoGreen"
