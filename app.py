@@ -3995,33 +3995,6 @@ elif page == "Master Excel":
     </style>
     """, unsafe_allow_html=True)
 
-    # Use the same centred flower mark and heading treatment as the other dashboards.
-    st.markdown("""
-    <style>
-    [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
-    .block-container { padding-top: 3.5rem !important; }
-    [data-testid="stMainBlockContainer"] h1 {
-        position:relative;
-        text-align:center !important;
-        color:#155E91 !important;
-        padding-top:0 !important;
-    }
-    [data-testid="stMainBlockContainer"] h1::before {
-        content:"";
-        position:absolute;
-        left:50%;
-        top:0;
-        width:76px;
-        height:52px;
-        transform:translate(-50%,calc(-100% + 26px));
-        background:#168FC0;
-        -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
-        mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    st.title("6thSense-Vardaan")
-    st.caption("Master Excel")
 
     master = get_master()
 
