@@ -3682,6 +3682,22 @@ hr {
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #e8eef6 0%, #f7f9fc 100%);
 }
+/* Compact sidebar width while preserving its existing theme and navigation. */
+@media (min-width: 768px) {
+    [data-testid="stSidebar"] {
+        width: 260px !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+        flex: 0 0 260px !important;
+    }
+}
+@media (max-width: 767px) {
+    [data-testid="stSidebar"] {
+        width: min(82vw, 260px) !important;
+        min-width: min(82vw, 260px) !important;
+        max-width: min(82vw, 260px) !important;
+    }
+}
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
     color: #173e68;
     border: 0;
