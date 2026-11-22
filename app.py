@@ -4244,7 +4244,7 @@ else:
 
                             if credentials_submitted:
                                 if not replacement_email or not re.fullmatch(
-                                    r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+",
+                                    r"[^\s@]+@[^\s@]+\.[^\s@]+",
                                     replacement_email,
                                 ):
                                     st.error("Enter a valid new username email address.")
