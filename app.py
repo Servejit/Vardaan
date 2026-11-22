@@ -1378,12 +1378,12 @@ def render_stock_of_the_day():
             entry_display = f"₹{entry:,.2f}"
             target1_label = "TARGET 1"
             target1_display = f"₹{target1:,.2f}"
-            target2_html = f'''
-                <div style="min-width:0;">
-                  <div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>
-                  <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
-                              margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>
-                </div>'''
+            target2_html = (
+                f'<div style="min-width:0;">'
+                f'<div style="font-size:.66rem;font-weight:850;letter-spacing:.8px;color:{shimmer_colour};">TARGET 2</div>'
+                f'<div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};margin-top:7px;white-space:nowrap;">₹{target2:,.2f}</div>'
+                f'</div>'
+            )
             grid_columns = 3
 
         card_html = f"""
@@ -1443,7 +1443,7 @@ def render_stock_of_the_day():
               <div style="font-size:1.25rem;line-height:1.25;font-weight:950;color:{shimmer_colour};
                           margin-top:7px;white-space:nowrap;">{target1_display}</div>
             </div>
-            {target2_html}
+{target2_html}
           </div>
           <div style="position:relative;z-index:1;margin-top:18px;padding:10px 12px;
                       border:1px solid {border_colour};border-radius:11px;
