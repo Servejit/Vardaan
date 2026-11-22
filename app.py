@@ -4222,6 +4222,10 @@ else:
                                 st.info("This is your signed-in administrator account. Your own role and access cannot be changed here.")
 
                             current_login_email = str(email or "").strip().lower()
+                            credential_success_key = f"vardaan_credentials_success_{uid}"
+                            if st.session_state.get(credential_success_key):
+                                st.success(st.session_state.pop(credential_success_key))
+
                             with st.form(f"vardaan_credentials_form_{uid}", clear_on_submit=True):
                                 st.markdown("**Change login username and password**")
                                 st.info(f"Selected account — current login username: {current_login_email or 'Unavailable'}")
@@ -4270,10 +4274,10 @@ else:
                                                 "email": replacement_email,
                                             }).eq("id", uid).execute()
 
-                                        st.success(
+                                        st.session_state[credential_success_key] = (
                                             ("Login username updated" if replacement_email else "")
                                             + (" and " if replacement_email and replacement_password else "")
-                                            + ("password changed." if replacement_password else ".")
+                                            + ("password changed successfully." if replacement_password else "updated successfully.")
                                         )
                                         st.rerun()
                                     except Exception as credential_error:
