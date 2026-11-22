@@ -3802,11 +3802,40 @@ with st.sidebar:
 st.markdown(
     """
     <style>
-    /* Modern Vardaan workspace shell */
+    /* Modern Vardaan workspace shell; the active signal-card palette overrides this fallback. */
     [data-testid="stMainBlockContainer"] {
         max-width: 1440px;
         padding-top: 1.35rem;
         padding-bottom: 3rem;
+    }
+    [data-testid="stHeader"] {
+        background:rgba(243,229,234,.96);
+        border-bottom:1px solid #D9A9B8;
+    }
+    [data-testid="stSidebar"] {
+        background:linear-gradient(180deg,#EBD8DF 0%,#F3E5EA 48%,#FFFFFF 100%) !important;
+        border-right:1.5px solid #B04B68 !important;
+        box-shadow:inset -8px 0 24px rgba(176,75,104,.10) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+        color:#913B55 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {
+        border-color:#B04B6888 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {
+        border-color:#B04B6899 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="font-size:1.35rem"] {
+        color:#B04B68 !important;
+    }
+    [data-testid="stSidebar"] .stButton > button {
+        border-color:#B04B6888 !important;
+        color:#913B55 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%) !important;
     }
     .vardaan-welcome {
         position:relative; overflow:hidden; isolation:isolate;
