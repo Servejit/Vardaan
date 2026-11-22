@@ -4512,17 +4512,19 @@ elif page == "Master Excel":
         )
 
 
-    # Reapply the active signal-card palette to the entire Master Excel workspace.
-    # This final layer also overrides the older fixed blue admin/master component styles.
-    active_theme = st.session_state.get("_vardaan_active_theme")
-    if not active_theme:
-        active_theme = {
-            "deep": "#3B1025", "primary": "#7E2342", "accent": "#A83E59",
-            "ink": "#913B55", "accent_text": "#913B55",
-            "tint": "#F3E5EA", "canvas": "#EBD8DF",
-            "border": "#B04B68", "soft_text": "#F0B5C7",
-        }
-        st.session_state["_vardaan_active_theme"] = active_theme
+    # Master Excel keeps its original Ice Blue theme, independent of
+    # the signal-card palette used by AutoGreen and Stock of the Day.
+    active_theme = {
+        "deep": "#123B5D",
+        "primary": "#17658B",
+        "accent": "#278FB8",
+        "ink": "#173B50",
+        "accent_text": "#155E91",
+        "tint": "#DDF2FC",
+        "canvas": "#EAF7FF",
+        "border": "#A9D7EA",
+        "soft_text": "#557084",
+    }
     st.markdown(
         f"""
         <style>
