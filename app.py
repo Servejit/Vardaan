@@ -3708,20 +3708,8 @@ with st.sidebar:
         st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
         st.session_state[dashboard_default_initialized_key] = True
 
-    st.caption("NAVIGATION")
-    page = st.radio(
-        "Go to",
-        ["AutoGreen", "Stock of the Day", "Master Excel"],
-        index=0,
-        format_func=lambda item: {
-            "AutoGreen": "🌿  AutoGreen",
-            "Stock of the Day": "⭐  Stock of the Day",
-            "Master Excel": "📊  Master Excel",
-        }[item],
-        key="main_dashboard_default_index_v2",
-        label_visibility="collapsed"
-    )
-
+    # Dashboard navigation is rendered in the main page below so it remains
+    # visible on mobile browsers even when Streamlit collapses the sidebar.
     st.divider()
     if st.button(
         "↪  Log out",
@@ -3730,6 +3718,29 @@ with st.sidebar:
         key="sidebar_logout_button"
     ):
         logout()
+
+st.markdown(
+    """
+    <div style="font-size:0.72rem;font-weight:850;letter-spacing:0.12em;
+                color:#60758e;text-transform:uppercase;margin:0.25rem 0 0.35rem;">
+        DASHBOARD NAVIGATION
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+page = st.radio(
+    "Choose dashboard",
+    ["AutoGreen", "Stock of the Day", "Master Excel"],
+    index=0,
+    format_func=lambda item: {
+        "AutoGreen": "🌿 AutoGreen",
+        "Stock of the Day": "⭐ Stock of the Day",
+        "Master Excel": "📊 Master Excel",
+    }[item],
+    key="main_dashboard_default_index_v2",
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 if page == "AutoGreen":
     # Refresh the AutoGreen market data automatically during NSE trading hours.
