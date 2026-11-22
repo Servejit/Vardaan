@@ -3996,6 +3996,15 @@ elif page == "Master Excel":
     """, unsafe_allow_html=True)
 
 
+    st.markdown("""
+    <div class="masterx-hero">
+      <div class="masterx-kicker">6THSENSE • DATA CONTROL CENTRE</div>
+      <div class="masterx-title">Master Excel</div>
+      <div class="masterx-subtitle">Your central workbook, organised in one place. View, download and manage the master data securely.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
     master = get_master()
 
     if master:
