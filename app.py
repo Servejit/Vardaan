@@ -4537,6 +4537,18 @@ elif page == "Master Excel":
     st.markdown(
         f"""
         <style>
+        .stApp {{
+            background:radial-gradient(ellipse at 8% 0%,{active_theme["canvas"]} 0%,transparent 42%),
+                       linear-gradient(135deg,#F7F8FA 0%,{active_theme["tint"]} 52%,#FFFFFF 100%) !important;
+        }}
+        [data-testid="stHeader"] {{ background:{active_theme["canvas"]}DD !important; }}
+        [data-testid="stMainBlockContainer"] h1,
+        [data-testid="stMainBlockContainer"] h2,
+        [data-testid="stMainBlockContainer"] h3 {{ color:{active_theme["ink"]} !important; }}
+        .vardaan-nav-label {{
+            color:{active_theme["ink"]} !important;font-size:.68rem;font-weight:900;
+            letter-spacing:.16em;text-transform:uppercase;margin:22px 0 8px 2px;
+        }}
         .masterx-hero {{
             border-color:{active_theme["border"]}88 !important;
             background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.25),transparent 28%),
