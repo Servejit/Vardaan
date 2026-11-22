@@ -4221,15 +4221,16 @@ else:
                             if is_current_admin:
                                 st.info("This is your signed-in administrator account. Your own role and access cannot be changed here.")
 
+                            current_login_email = str(email or "").strip().lower()
                             with st.form(f"vardaan_credentials_form_{uid}", clear_on_submit=True):
                                 st.markdown("**Change login username and password**")
                                 st.caption(
-                                    "The username is the email / User ID used on the login screen. "
-                                    "Leave the password blank if you only want to change the username."
+                                    "To change only the password, leave the username field empty. "
+                                    "To change the username too, enter the new email / User ID."
                                 )
                                 replacement_email = st.text_input(
-                                    "New username (email / User ID)",
-                                    value=email if email != "Email unavailable" else "",
+                                    "New username (leave empty to keep current username)",
+                                    value="",
                                     key=f"vardaan_new_login_email_{uid}",
                                 ).strip().lower()
                                 replacement_password = st.text_input(
@@ -4243,30 +4244,35 @@ else:
                                 )
 
                             if credentials_submitted:
-                                if not replacement_email or not re.fullmatch(
+                                if replacement_email and not re.fullmatch(
                                     r"[^\s@]+@[^\s@]+\.[^\s@]+",
                                     replacement_email,
                                 ):
-                                    st.error("Enter a valid new username email address.")
+                                    st.error("Enter a valid new username email address, or leave it empty to keep the current username.")
                                 elif replacement_password and len(replacement_password) < 6:
                                     st.error("New password must be at least 6 characters.")
-                                elif replacement_email == email.lower() and not replacement_password:
-                                    st.info("No login details were changed.")
+                                elif not replacement_email and not replacement_password:
+                                    st.info("Enter a new password or a new username.")
                                 else:
                                     try:
-                                        auth_updates = {
-                                            "email": replacement_email,
-                                            "email_confirm": True,
-                                        }
+                                        auth_updates = {}
+                                        if replacement_email:
+                                            auth_updates["email"] = replacement_email
+                                            auth_updates["email_confirm"] = True
                                         if replacement_password:
                                             auth_updates["password"] = replacement_password
+
                                         admin.auth.admin.update_user_by_id(uid, auth_updates)
-                                        admin.table("profiles").update({
-                                            "email": replacement_email,
-                                        }).eq("id", uid).execute()
+
+                                        if replacement_email:
+                                            admin.table("profiles").update({
+                                                "email": replacement_email,
+                                            }).eq("id", uid).execute()
+
                                         st.success(
-                                            "Login username updated"
-                                            + (" and password changed." if replacement_password else ".")
+                                            ("Login username updated" if replacement_email else "")
+                                            + (" and " if replacement_email and replacement_password else "")
+                                            + ("password changed." if replacement_password else ".")
                                         )
                                         st.rerun()
                                     except Exception as credential_error:
