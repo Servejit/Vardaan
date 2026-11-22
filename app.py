@@ -3806,15 +3806,20 @@ with st.sidebar:
             "main_dashboard_default_index_v2", "AutoGreen"
         )
 
-    def sync_sidebar_dashboard_to_main():
-        st.session_state["main_dashboard_default_index_v2"] = st.session_state[
-            "sidebar_dashboard_nav_v1"
-        ]
+    if "bottom_dashboard_nav_v1" not in st.session_state:
+        st.session_state["bottom_dashboard_nav_v1"] = st.session_state.get(
+            "main_dashboard_default_index_v2", "AutoGreen"
+        )
 
-    def sync_main_dashboard_to_sidebar():
-        st.session_state["sidebar_dashboard_nav_v1"] = st.session_state[
-            "main_dashboard_default_index_v2"
-        ]
+    def sync_sidebar_dashboard_to_main():
+        selected_dashboard = st.session_state["sidebar_dashboard_nav_v1"]
+        st.session_state["main_dashboard_default_index_v2"] = selected_dashboard
+        st.session_state["bottom_dashboard_nav_v1"] = selected_dashboard
+
+    def sync_bottom_dashboard_to_main():
+        selected_dashboard = st.session_state["bottom_dashboard_nav_v1"]
+        st.session_state["main_dashboard_default_index_v2"] = selected_dashboard
+        st.session_state["sidebar_dashboard_nav_v1"] = selected_dashboard
 
     st.markdown(
         '<div class="vardaan-nav-label">YOUR DASHBOARDS</div>',
@@ -4525,5 +4530,97 @@ else:
     # Never show Master Excel for an unknown/stale navigation value.
     st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
     render_autogreen_dashboard()
+
+
+# Matching dashboard shortcuts at the bottom of the dashboard page.
+# The active dashboard keeps its own palette; Master Excel uses Ice Blue.
+_bottom_nav_theme = st.session_state.get("_vardaan_active_theme") or {
+    "deep": "#123B5D",
+    "primary": "#17658B",
+    "accent": "#278FB8",
+    "ink": "#173B50",
+    "accent_text": "#155E91",
+    "tint": "#DDF2FC",
+    "canvas": "#EAF7FF",
+    "border": "#A9D7EA",
+    "soft_text": "#557084",
+}
+st.markdown(
+    f"""
+    <style>
+    .vardaan-bottom-nav-label {{
+        color:{_bottom_nav_theme["ink"]} !important;
+        font-size:.68rem;font-weight:900;letter-spacing:.16em;
+        text-transform:uppercase;margin:24px 0 9px 2px;
+    }}
+    [data-testid="stMainBlockContainer"] .vardaan-bottom-nav
+    {{ width:100%; }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"]:has(input)
+    > div[role="radiogroup"] {{
+        display:flex !important;flex-direction:row !important;
+        align-items:stretch !important;gap:8px !important;
+        width:100% !important;padding:7px !important;
+        border:1px solid {_bottom_nav_theme["border"]}88 !important;
+        border-radius:14px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["tint"]} 100%) !important;
+        box-shadow:0 3px 10px {_bottom_nav_theme["ink"]}12 !important;
+    }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {{
+        flex:1 1 0 !important;min-width:0 !important;
+        min-height:44px !important;margin:0 !important;padding:9px 8px !important;
+        display:flex !important;align-items:center !important;justify-content:center !important;
+        border:1px solid {_bottom_nav_theme["border"]}88 !important;
+        border-radius:11px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["tint"]} 100%) !important;
+        box-shadow:0 2px 8px {_bottom_nav_theme["ink"]}12 !important;
+    }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:hover {{
+        border-color:{_bottom_nav_theme["accent"]} !important;
+        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+    }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+        border:1.5px solid {_bottom_nav_theme["accent"]} !important;
+        background:linear-gradient(110deg,{_bottom_nav_theme["deep"]} 0%,{_bottom_nav_theme["primary"]} 100%) !important;
+        box-shadow:inset 0 -3px 0 {_bottom_nav_theme["accent"]},0 3px 10px {_bottom_nav_theme["ink"]}20 !important;
+    }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+        color:{_bottom_nav_theme["ink"]} !important;font-weight:800 !important;
+        font-size:.9rem !important;text-align:center !important;margin:0 !important;
+    }}
+    [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
+        color:#FFFFFF !important;
+    }}
+    @media(max-width:640px) {{
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] {{
+            gap:5px !important;padding:5px !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {{
+            min-height:48px !important;padding:7px 4px !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            font-size:.78rem !important;
+        }}
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="vardaan-bottom-nav-label">DASHBOARDS</div>',
+    unsafe_allow_html=True,
+)
+st.radio(
+    "Dashboard shortcuts",
+    ["AutoGreen", "Stock of the Day", "Master Excel"],
+    format_func=lambda item: {
+        "AutoGreen": "🌿  AutoGreen",
+        "Stock of the Day": "⭐  Stock of the Day",
+        "Master Excel": "📊  Master Excel",
+    }[item],
+    key="bottom_dashboard_nav_v1",
+    on_change=sync_bottom_dashboard_to_main,
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
 
