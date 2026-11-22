@@ -4535,8 +4535,10 @@ else:
 
 
 # Matching dashboard shortcuts at the bottom of the dashboard page.
-# The active dashboard keeps its own palette; Master Excel uses Ice Blue.
-_bottom_nav_theme = st.session_state.get("_vardaan_active_theme") or {
+# Select the palette from the dashboard currently being rendered. Master Excel
+# always uses its fixed Ice Blue palette, regardless of the previously viewed page.
+_bottom_nav_page = st.session_state.get("main_dashboard_default_index_v2", "AutoGreen")
+_master_excel_ice_blue_theme = {
     "deep": "#123B5D",
     "primary": "#17658B",
     "accent": "#278FB8",
@@ -4547,6 +4549,11 @@ _bottom_nav_theme = st.session_state.get("_vardaan_active_theme") or {
     "border": "#A9D7EA",
     "soft_text": "#557084",
 }
+_bottom_nav_theme = (
+    _master_excel_ice_blue_theme
+    if _bottom_nav_page == "Master Excel"
+    else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
+)
 st.markdown(
     f"""
     <style>
