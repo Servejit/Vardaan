@@ -3821,10 +3821,6 @@ with st.sidebar:
         st.session_state["main_dashboard_default_index_v2"] = selected_dashboard
         st.session_state["sidebar_dashboard_nav_v1"] = selected_dashboard
 
-    st.markdown(
-        '<div class="vardaan-nav-label">YOUR DASHBOARDS</div>',
-        unsafe_allow_html=True,
-    )
     st.radio(
         "Sidebar dashboard navigation",
         ["AutoGreen", "Stock of the Day", "Master Excel"],
