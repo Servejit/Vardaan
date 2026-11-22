@@ -3704,7 +3704,7 @@ with st.sidebar:
             "Stock of the Day": "⭐  Stock of the Day",
             "Master Excel": "📊  Master Excel",
         }[item],
-        key="main_dashboard_default_index",
+        key="main_dashboard_default_index_v2",
         label_visibility="collapsed"
     )
 
