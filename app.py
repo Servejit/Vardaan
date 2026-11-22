@@ -3925,12 +3925,6 @@ elif page == "Master Excel":
     }
     div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
 
-    /* Master Excel page: keep the complete sidebar in the fixed ice-blue theme. */
-    [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#DDF2FC 0%,#EAF7FF 42%,#F7FCFF 100%) !important;
-        border-right:1.5px solid #9CCFE5 !important;
-        box-shadow:inset -8px 0 24px rgba(23,101,139,.08) !important;
-    }
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
     [data-testid="stSidebar"] label,
@@ -3997,14 +3991,6 @@ elif page == "Master Excel":
     """, unsafe_allow_html=True)
 
     master = get_master()
-
-    st.markdown("""
-    <div class="masterx-hero">
-      <div class="masterx-kicker">6THSENSE • DATA CONTROL CENTRE</div>
-      <div class="masterx-title">Master Excel</div>
-      <div class="masterx-subtitle">Your central workbook, organised in one place. View, download and manage the master data securely.</div>
-    </div>
-    """, unsafe_allow_html=True)
 
     if master:
 
@@ -4528,12 +4514,15 @@ elif page == "Master Excel":
 
     # Reapply the active signal-card palette to the entire Master Excel workspace.
     # This final layer also overrides the older fixed blue admin/master component styles.
-    active_theme = st.session_state.get("_vardaan_active_theme") or {
-        "deep": "#3B1025", "primary": "#7E2342", "accent": "#A83E59",
-        "ink": "#913B55", "accent_text": "#913B55",
-        "tint": "#F3E5EA", "canvas": "#EBD8DF",
-        "border": "#B04B68", "soft_text": "#F0B5C7",
-    }
+    active_theme = st.session_state.get("_vardaan_active_theme")
+    if not active_theme:
+        active_theme = {
+            "deep": "#3B1025", "primary": "#7E2342", "accent": "#A83E59",
+            "ink": "#913B55", "accent_text": "#913B55",
+            "tint": "#F3E5EA", "canvas": "#EBD8DF",
+            "border": "#B04B68", "soft_text": "#F0B5C7",
+        }
+        st.session_state["_vardaan_active_theme"] = active_theme
     st.markdown(
         f"""
         <style>
