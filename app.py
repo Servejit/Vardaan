@@ -3788,8 +3788,39 @@ with st.sidebar:
         st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
         st.session_state[dashboard_default_initialized_key] = True
 
-    # Dashboard navigation is rendered in the main page below so it remains
-    # visible on mobile browsers even when Streamlit collapses the sidebar.
+    # Keep sidebar and main-page dashboard selectors synchronized.
+    if "sidebar_dashboard_nav_v1" not in st.session_state:
+        st.session_state["sidebar_dashboard_nav_v1"] = st.session_state.get(
+            "main_dashboard_default_index_v2", "AutoGreen"
+        )
+
+    def sync_sidebar_dashboard_to_main():
+        st.session_state["main_dashboard_default_index_v2"] = st.session_state[
+            "sidebar_dashboard_nav_v1"
+        ]
+
+    def sync_main_dashboard_to_sidebar():
+        st.session_state["sidebar_dashboard_nav_v1"] = st.session_state[
+            "main_dashboard_default_index_v2"
+        ]
+
+    st.markdown(
+        '<div class="vardaan-nav-label">YOUR DASHBOARDS</div>',
+        unsafe_allow_html=True,
+    )
+    st.radio(
+        "Sidebar dashboard navigation",
+        ["AutoGreen", "Stock of the Day", "Master Excel"],
+        format_func=lambda item: {
+            "AutoGreen": "🌿  AutoGreen",
+            "Stock of the Day": "⭐  Stock of the Day",
+            "Master Excel": "📊  Master Excel",
+        }[item],
+        key="sidebar_dashboard_nav_v1",
+        on_change=sync_sidebar_dashboard_to_main,
+        label_visibility="collapsed",
+    )
+
     st.divider()
     if st.button(
         "↪  Log out",
@@ -3942,6 +3973,7 @@ page = st.radio(
         "Master Excel": "📊  Master Excel",
     }[item],
     key="main_dashboard_default_index_v2",
+    on_change=sync_main_dashboard_to_sidebar,
     horizontal=True,
     label_visibility="collapsed",
 )
