@@ -1285,6 +1285,44 @@ def render_stock_of_the_day():
         <style>
         .stApp {{ --brand-flower-color:{heading_colour}; }}
         h1 {{ color:{heading_colour} !important; }}
+        /* Match the complete workspace shell to the first visible Stock of the Day card. */
+        .vardaan-welcome {{
+            border-color:{sidebar_border}88 !important;
+            background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.30),transparent 27%),
+                       linear-gradient(115deg,{sidebar_text} 0%,{heading_colour} 52%,{sidebar_border} 100%) !important;
+            box-shadow:0 14px 34px {sidebar_border}28,inset 0 1px 0 rgba(255,255,255,.22) !important;
+        }}
+        .vardaan-kicker {{ color:#FFFFFF !important; }}
+        .vardaan-heading {{ color:#FFFFFF !important; }}
+        .vardaan-subheading {{ color:rgba(255,255,255,.88) !important; }}
+        .vardaan-nav-label {{ color:{sidebar_text} !important; }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {{
+            border-color:{sidebar_border}88 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+            box-shadow:0 5px 18px {sidebar_border}18 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            color:{sidebar_text} !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border-color:{sidebar_border} !important;
+            background:linear-gradient(135deg,{sidebar_text} 0%,{heading_colour} 100%) !important;
+            box-shadow:0 5px 13px {sidebar_border}35 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
+            color:#FFFFFF !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stMetric"] {{
+            border-color:{sidebar_border}88 !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+            box-shadow:0 6px 18px {sidebar_border}18 !important;
+        }}
+        [data-testid="stMainBlockContainer"] .stButton > button,
+        [data-testid="stMainBlockContainer"] .stDownloadButton > button {{
+            border-color:{sidebar_border} !important;
+            color:{sidebar_text} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{sidebar_soft} 100%) !important;
+        }}
         /* Sidebar follows the current topmost Stock of the Day card palette. */
         [data-testid="stSidebar"] {{
             background:linear-gradient(180deg,{sidebar_soft} 0%,#FFFFFF 100%) !important;
@@ -2254,8 +2292,50 @@ def render_autogreen_dashboard():
             color:#263342 !important;
         }}
         [data-testid="stHeader"] {{ background:rgba(231,234,238,.96) !important; }}
-        /* 6thSense-Vardaan heading follows the active AutoGreen theme colour */
+        /* Apply the topmost AutoGreen signal-card palette across the entire workspace. */
         .stApp h1 {{ color:{metric_ink} !important; }}
+        .vardaan-welcome {{
+            border-color:{metric_ink}66 !important;
+            background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.30),transparent 27%),
+                       linear-gradient(115deg,{metric_c1} 0%,{metric_c2} 48%,{metric_c3} 100%) !important;
+            box-shadow:0 14px 34px {metric_ink}22,inset 0 1px 0 rgba(255,255,255,.22) !important;
+        }}
+        .vardaan-kicker {{ color:{metric_accent} !important; }}
+        .vardaan-heading {{ color:#FFFFFF !important; }}
+        .vardaan-subheading {{ color:{metric_shimmer} !important; }}
+        .vardaan-nav-label {{ color:{metric_ink} !important; }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {{
+            border-color:{metric_ink}55 !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+            box-shadow:0 5px 18px {metric_ink}14 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {{
+            color:{metric_accent_text} !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            border-color:{metric_ink} !important;
+            background:linear-gradient(135deg,{metric_c1} 0%,{metric_c2} 100%) !important;
+            box-shadow:0 5px 13px {metric_ink}30 !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
+            color:#FFFFFF !important;
+        }}
+        [data-testid="stMainBlockContainer"] [data-testid="stMetric"] {{
+            border-color:{metric_ink}55 !important;
+            background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+            box-shadow:0 6px 18px {metric_ink}14 !important;
+        }}
+        [data-testid="stMainBlockContainer"] .stButton > button,
+        [data-testid="stMainBlockContainer"] .stDownloadButton > button {{
+            border-color:{metric_ink}88 !important;
+            color:{metric_accent_text} !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,{metric_tint} 100%) !important;
+        }}
+        [data-testid="stMainBlockContainer"] .stButton > button:hover,
+        [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover {{
+            border-color:{metric_ink} !important;
+            background:linear-gradient(110deg,{metric_tint} 0%,{metric_canvas} 100%) !important;
+        }}
         /* MORE DASHBOARD follows the active signal-card colour */
         [data-testid="stExpander"] {{
             background:linear-gradient(145deg,#FFFFFF 0%,{metric_tint} 58%,{metric_canvas} 100%) !important;
@@ -3733,9 +3813,9 @@ st.markdown(
         padding:22px 24px 20px; margin:0 0 18px;
         border:1px solid rgba(255,255,255,.72); border-radius:22px;
         background:
-          radial-gradient(circle at 88% 12%,rgba(255,255,255,.34),transparent 27%),
-          linear-gradient(115deg,#073F3D 0%,#087E78 48%,#24A69A 100%);
-        box-shadow:0 14px 34px rgba(8,95,89,.18),inset 0 1px 0 rgba(255,255,255,.22);
+          radial-gradient(circle at 88% 12%,rgba(255,255,255,.30),transparent 27%),
+          linear-gradient(115deg,#3B1025 0%,#7E2342 48%,#A83E59 100%);
+        box-shadow:0 14px 34px rgba(126,35,66,.20),inset 0 1px 0 rgba(255,255,255,.22);
     }
     .vardaan-welcome:after {
         content:"";position:absolute;z-index:-1;width:210px;height:210px;
@@ -3744,7 +3824,7 @@ st.markdown(
         0 0 0 46px rgba(255,255,255,.04);
     }
     .vardaan-kicker {
-        color:#BDF5EA;font-size:.68rem;font-weight:850;
+        color:#F0B5C7;font-size:.68rem;font-weight:850;
         letter-spacing:.19em;text-transform:uppercase;
     }
     .vardaan-heading {
@@ -3757,7 +3837,7 @@ st.markdown(
         line-height:1.5;max-width:620px;
     }
     .vardaan-nav-label {
-        color:#52736F;font-size:.68rem;font-weight:900;
+        color:#913B55;font-size:.68rem;font-weight:900;
         letter-spacing:.16em;text-transform:uppercase;
         margin:0 0 8px 2px;
     }
@@ -3765,9 +3845,9 @@ st.markdown(
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] > div[role="radiogroup"] {
         display:flex;gap:9px;flex-wrap:wrap;
         padding:8px;margin:0 0 20px;
-        border:1px solid #D8EAE6;border-radius:17px;
-        background:rgba(255,255,255,.78);
-        box-shadow:0 5px 18px rgba(20,80,72,.055);
+        border:1px solid #EBD8DF;border-radius:17px;
+        background:linear-gradient(135deg,#FFFFFF 0%,#F3E5EA 100%);
+        box-shadow:0 5px 18px rgba(145,59,85,.10);
     }
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label {
         flex:1 1 145px;justify-content:center;
@@ -3776,22 +3856,22 @@ st.markdown(
         background:transparent;transition:all .18s ease;
     }
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label p {
-        color:#41645F;font-size:.86rem;font-weight:800;
+        color:#913B55;font-size:.86rem;font-weight:800;
     }
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-        border-color:#087E78;background:linear-gradient(135deg,#087E78,#20A497);
-        box-shadow:0 5px 13px rgba(8,126,120,.22);
+        border-color:#913B55;background:linear-gradient(135deg,#7E2342,#A83E59);
+        box-shadow:0 5px 13px rgba(145,59,85,.25);
     }
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {
         color:#FFFFFF !important;
     }
     [data-testid="stMainBlockContainer"] [data-testid="stRadio"] [role="radiogroup"] label:hover:not(:has(input:checked)) {
-        background:#EAF7F4;border-color:#C7E5DE;
+        background:#F3E5EA;border-color:#D9A9B8;
     }
     [data-testid="stMainBlockContainer"] [data-testid="stMetric"] {
-        border:1px solid rgba(180,211,203,.72);
-        border-radius:16px;background:linear-gradient(145deg,#FFFFFF,#F2FAF8);
-        box-shadow:0 6px 18px rgba(26,83,74,.055);
+        border:1px solid rgba(176,75,104,.28);
+        border-radius:16px;background:linear-gradient(145deg,#FFFFFF,#F3E5EA);
+        box-shadow:0 6px 18px rgba(145,59,85,.08);
         padding:15px 16px;
     }
     [data-testid="stMainBlockContainer"] .stButton > button,
@@ -3801,7 +3881,7 @@ st.markdown(
     }
     [data-testid="stMainBlockContainer"] .stButton > button:hover,
     [data-testid="stMainBlockContainer"] .stDownloadButton > button:hover {
-        transform:translateY(-1px);box-shadow:0 6px 15px rgba(18,91,82,.12);
+        transform:translateY(-1px);box-shadow:0 6px 15px rgba(145,59,85,.15);
     }
     @media(max-width:640px) {
         [data-testid="stMainBlockContainer"] {padding:1rem .8rem 2rem;}
