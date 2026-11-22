@@ -3121,6 +3121,98 @@ if st.session_state.recovery:
 
 
 # ============================================================
+# INACTIVE ACCOUNT PLAN REQUEST
+# ============================================================
+
+PLAN_REQUEST_WEBHOOK = "https://script.google.com/macros/s/AKfycbxYNlRDjUOBtRsb1Bgdfq6zS0wI8Ans9w_82OM-2eO2DoQFccRaF7cmcIUs10Xd3HJqyQ/exec"
+
+
+@st.dialog("Your Trial Session Has Ended", width="small")
+def show_inactive_plan_dialog():
+    pending = st.session_state.get("inactive_account_request") or {}
+    if not pending:
+        return
+
+    st.markdown(
+        """
+        <div style="text-align:center;padding:8px 4px 14px;">
+          <div style="font-size:38px;">⏳</div>
+          <div style="font-size:17px;font-weight:800;color:#174B43;margin:7px 0;">
+            Your Trial Session Has Ended
+          </div>
+          <div style="font-size:13px;line-height:1.6;color:#64748B;">
+            Select a plan to request an extension. We will email the administrator.
+            Your account will remain inactive until it is reviewed.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    plans = {
+        "₹250 — Trial extension for 15 days": "15_days",
+        "₹500 — 1 month": "1_month",
+        "₹1,200 — 3 months": "3_months",
+    }
+    selected_label = st.radio(
+        "Choose your plan",
+        list(plans.keys()),
+        key="inactive_plan_choice",
+    )
+
+    if st.session_state.get("inactive_plan_request_sent"):
+        st.success(
+            "Your request has been emailed successfully. "
+            "Your account is still inactive pending administrator approval."
+        )
+        if st.button("Close", use_container_width=True):
+            st.session_state.pop("inactive_account_request", None)
+            st.session_state.pop("inactive_plan_request_sent", None)
+            st.rerun()
+        return
+
+    if st.button("Request Plan", type="primary", use_container_width=True):
+        request_token = str(st.secrets.get("PLAN_REQUEST_TOKEN", "") or "").strip()
+        if not request_token:
+            st.error(
+                "Plan request email is not configured yet. "
+                "Please contact the administrator."
+            )
+            return
+
+        payload = {
+            "action": "plan_request",
+            "token": request_token,
+            "plan": plans[selected_label],
+            "account_email": str(pending.get("email", "")).strip(),
+            "account_id": str(pending.get("user_id", "")).strip(),
+        }
+
+        try:
+            with st.spinner("Sending your request..."):
+                response = requests.post(
+                    PLAN_REQUEST_WEBHOOK,
+                    json=payload,
+                    timeout=25,
+                )
+                response.raise_for_status()
+                result = response.json()
+
+            if result.get("success"):
+                st.session_state["inactive_plan_request_sent"] = True
+                st.rerun()
+            else:
+                st.error(
+                    result.get("message", "Could not send the request. Please try again.")
+                )
+        except Exception:
+            st.error(
+                "We could not send your request right now. Please try again later "
+                "or contact the administrator."
+            )
+
+
+# ============================================================
 # LOGIN
 # ============================================================
 
@@ -3304,9 +3396,16 @@ if st.session_state.user is None:
                 )
 
             elif not prof["is_active"]:
-                st.error(
-                    "Your account is inactive."
-                )
+                st.session_state["inactive_account_request"] = {
+                    "email": str(getattr(user, "email", "") or email).strip(),
+                    "user_id": str(user.id),
+                }
+                st.session_state.pop("inactive_plan_request_sent", None)
+                try:
+                    sb.auth.sign_out()
+                except Exception:
+                    pass
+                st.rerun()
 
             else:
 
@@ -3324,6 +3423,9 @@ if st.session_state.user is None:
             st.error(
                 "Invalid email or password."
             )
+
+    if st.session_state.get("inactive_account_request"):
+        show_inactive_plan_dialog()
 
     # --------------------------------------------------------
     # FORGOT PASSWORD
