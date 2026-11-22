@@ -3765,7 +3765,7 @@ elif page == "Stock of the Day":
     render_stock_of_the_day()
 
 
-else:
+elif page == "Master Excel":
 
 # MASTER FILE
     # ============================================================
@@ -4411,3 +4411,9 @@ else:
         st.info(
             "USER ACCESS â€” Read-only"
         )
+
+
+else:
+    # Never show Master Excel for an unknown/stale navigation value.
+    st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
+    render_autogreen_dashboard()
