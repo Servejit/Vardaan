@@ -3239,7 +3239,7 @@ if st.session_state.recovery:
 PLAN_REQUEST_WEBHOOK = "https://script.google.com/macros/s/AKfycbxYNlRDjUOBtRsb1Bgdfq6zS0wI8Ans9w_82OM-2eO2DoQFccRaF7cmcIUs10Xd3HJqyQ/exec"
 
 
-@st.dialog("Your Trial Session Has Ended", width="small")
+@st.dialog("Your Trial Session Has Ended", width="medium")
 def show_inactive_plan_dialog():
     pending = st.session_state.get("inactive_account_request") or {}
     if not pending:
@@ -3247,35 +3247,104 @@ def show_inactive_plan_dialog():
 
     st.markdown(
         """
-        <div style="text-align:center;padding:8px 4px 14px;">
-          <div style="font-size:38px;">⏳</div>
-          <div style="font-size:17px;font-weight:800;color:#174B43;margin:7px 0;">
+        <style>
+        [data-testid="stDialog"] [role="dialog"] {
+            border: 1px solid #D8E8E2;
+            border-radius: 24px;
+            background: linear-gradient(145deg, #FFFFFF 0%, #F7FCF9 100%);
+            box-shadow: 0 24px 70px rgba(15, 60, 45, .18);
+        }
+        [data-testid="stDialog"] [data-testid="stDialogHeader"] {
+            border-bottom: 1px solid #E6F0EB;
+            padding-bottom: .75rem;
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] > label {
+            color: #23483C;
+            font-weight: 800;
+            font-size: .9rem;
+            margin-bottom: .65rem;
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] [role="radiogroup"] {
+            gap: 10px;
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] [role="radiogroup"] > label {
+            align-items: center;
+            border: 1px solid #DCEAE3;
+            border-radius: 15px;
+            background: #FFFFFF;
+            padding: 13px 15px;
+            min-height: 56px;
+            box-shadow: 0 3px 10px rgba(20, 70, 50, .045);
+            transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] [role="radiogroup"] > label:hover {
+            border-color: #55A987;
+            background: #F4FBF7;
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] [role="radiogroup"] > label:has(input:checked) {
+            border: 1.6px solid #16845B;
+            background: linear-gradient(105deg, #EAF8F0 0%, #F8FDF9 100%);
+            box-shadow: inset 4px 0 0 #16845B, 0 5px 15px rgba(22, 132, 91, .10);
+        }
+        [data-testid="stDialog"] [data-testid="stRadio"] [role="radiogroup"] > label p {
+            color: #173F31 !important;
+            font-weight: 750;
+            line-height: 1.35;
+            margin: 0;
+        }
+        [data-testid="stDialog"] [data-testid="stButton"] button {
+            min-height: 48px;
+            border: 0;
+            border-radius: 13px;
+            color: #FFFFFF;
+            font-weight: 850;
+            letter-spacing: .01em;
+            background: linear-gradient(100deg, #075B42 0%, #13865C 55%, #28A879 100%);
+            box-shadow: 0 8px 18px rgba(19, 134, 92, .22);
+        }
+        [data-testid="stDialog"] [data-testid="stButton"] button:hover {
+            border: 0;
+            background: linear-gradient(100deg, #064B38 0%, #0F754F 55%, #219568 100%);
+            box-shadow: 0 10px 22px rgba(19, 134, 92, .28);
+        }
+        </style>
+        <div style="text-align:center;padding:8px 8px 18px;">
+          <div style="display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;
+                      border-radius:18px;background:linear-gradient(145deg,#E2F7EB,#F3FBF6);
+                      border:1px solid #CBE9D8;font-size:28px;margin-bottom:12px;">⏳</div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:2.2px;color:#16845B;margin-bottom:7px;">
+            6THSENSE · VARDAAN
+          </div>
+          <div style="font-size:24px;line-height:1.2;font-weight:900;letter-spacing:-.6px;color:#173F31;margin-bottom:9px;">
             Your Trial Session Has Ended
           </div>
-          <div style="font-size:13px;line-height:1.6;color:#64748B;">
-            Select a plan to request an extension. We will email the administrator.
-            Your account will remain inactive until it is reviewed.
+          <div style="max-width:420px;margin:0 auto;font-size:13px;line-height:1.65;color:#61766B;">
+            Choose an access plan below to request an extension. We’ll email your request to the administrator for review.
           </div>
         </div>
+        <div style="height:1px;background:linear-gradient(90deg,transparent,#DCEAE3,transparent);margin:0 0 15px;"></div>
         """,
         unsafe_allow_html=True,
     )
 
     plans = {
-        "₹250 — Trial extension for 15 days": "15_days",
-        "₹500 — 1 month": "1_month",
-        "₹1,200 — 3 months": "3_months",
+        "₹250  ·  15 days  ·  Trial extension": "15_days",
+        "₹500  ·  1 month": "1_month",
+        "₹1,200  ·  3 months": "3_months",
     }
-    selected_label = st.radio(
-        "Choose your plan",
-        list(plans.keys()),
-        key="inactive_plan_choice",
-    )
 
     if st.session_state.get("inactive_plan_request_sent"):
-        st.success(
-            "Your request has been emailed successfully. "
-            "Your account is still inactive pending administrator approval."
+        st.markdown(
+            """
+            <div style="text-align:center;padding:18px 8px 12px;">
+              <div style="font-size:34px;margin-bottom:8px;">✉️</div>
+              <div style="font-size:18px;font-weight:850;color:#176B4C;">Request sent successfully</div>
+              <div style="font-size:13px;line-height:1.6;color:#64766D;margin-top:7px;">
+                Your plan request has been emailed to the administrator. Your account will remain inactive until approval.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         if st.button("Close", use_container_width=True):
             st.session_state.pop("inactive_account_request", None)
@@ -3283,7 +3352,25 @@ def show_inactive_plan_dialog():
             st.rerun()
         return
 
-    if st.button("Request Plan", type="primary", use_container_width=True):
+    selected_label = st.radio(
+        "SELECT YOUR ACCESS PLAN",
+        list(plans.keys()),
+        key="inactive_plan_choice",
+    )
+
+    st.markdown(
+        """
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 0 14px;
+                    border-radius:12px;background:#F1F8F4;border:1px solid #DFEEE5;
+                    color:#526B5E;font-size:12px;line-height:1.5;">
+          <span style="font-size:16px;">🔒</span>
+          <span>Your account stays inactive until the administrator reviews and approves your request.</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if st.button("Submit Extension Request  →", type="primary", use_container_width=True):
         request_token = str(st.secrets.get("PLAN_REQUEST_TOKEN", "") or "").strip()
         if not request_token:
             st.error(
