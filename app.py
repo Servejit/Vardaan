@@ -78,6 +78,19 @@ sb = st.session_state["_supabase_auth_client"]
 
 def render_master_missing_no_signal_card():
     """Apply the teal dashboard theme and show the matching NO SIGNAL card."""
+    # Keep the bottom dashboard shortcuts in the same teal palette as this
+    # unavailable-data screen instead of retaining the previous dashboard palette.
+    st.session_state["_vardaan_active_theme"] = {
+        "deep": "#075B59",
+        "primary": "#0B6663",
+        "accent": "#27B7A8",
+        "ink": "#123F40",
+        "accent_text": "#137F77",
+        "tint": "#D2F3EE",
+        "canvas": "#E9FFFB",
+        "border": "#58BDB1",
+        "soft_text": "#164D4B",
+    }
     no_master_card = """
     <div style="max-width:620px;margin:18px auto 24px;padding:1.5px;border-radius:20px;
                 background:linear-gradient(110deg,#075B59 0%,#27B7A8 28%,#B8F3E8 48%,#138F86 72%,#075B59 100%);
