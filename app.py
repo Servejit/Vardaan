@@ -3236,7 +3236,7 @@ if st.session_state.recovery:
 # INACTIVE ACCOUNT PLAN REQUEST
 # ============================================================
 
-PLAN_REQUEST_WEBHOOK = "https://script.google.com/macros/s/AKfycbxYNlRDjUOBtRsb1Bgdfq6zS0wI8Ans9w_82OM-2eO2DoQFccRaF7cmcIUs10Xd3HJqyQ/exec"
+PLAN_REQUEST_WEBHOOK = "https://script.google.com/macros/s/AKfycbyQQuarJ89YwLFKu00yJRQIujMZEcPYujIeWLazGN9ej1rG1HWjreddIJ-NXUoxCDU8bg/exec"
 
 
 @st.dialog("Your Trial Session Has Ended", width="medium")
