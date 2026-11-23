@@ -2187,6 +2187,19 @@ def render_autogreen_dashboard():
             if o2h_pct is not None and o2h_pct >= target_o2h_pct
             else "Signal Awaited"
         )
+        # Use the same BUY-card target rule: +0.35% from live entry,
+        # capped at this stock's Open-based O2H target (+0.75% or +1.00%).
+        entry_based_target = live_price * 1.0035 if live_price is not None else None
+        open_based_max_target = (
+            open_price * (1 + target_o2h_pct / 100)
+            if open_price is not None and open_price > 0
+            else entry_based_target
+        )
+        target_price = (
+            min(entry_based_target, open_based_max_target)
+            if entry_based_target is not None
+            else None
+        )
         target_table_rows.append({
             "Role": f"TARGET #{position}",
             "Target Status": target_status,
@@ -2199,6 +2212,7 @@ def render_autogreen_dashboard():
             "O2L": f"{o2l_pct:+.2f}%" if o2l_pct is not None else "Unavailable",
             "% Chg": f'{quote["change_pct"]:+.2f}%' if quote.get("change_pct") is not None else "Unavailable",
             "Rank": rank,
+            "Target Price": f"₹{target_price:,.2f}" if target_price is not None else "Unavailable",
         })
 
         # Every one of the four D-B target stocks must reach BUY evaluation.
