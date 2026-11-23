@@ -3125,6 +3125,18 @@ def clear_index_session_data():
         st.session_state.pop(key, None)
 
 
+
+
+def clear_inactive_plan_request_session():
+    """Keep a plan-request confirmation private to the inactive account flow."""
+    for key in (
+        "inactive_account_request",
+        "inactive_plan_request_sent",
+        "inactive_plan_choice",
+    ):
+        st.session_state.pop(key, None)
+
+
 def logout():
     try:
         sb.auth.sign_out()
@@ -3132,6 +3144,7 @@ def logout():
         pass
 
     clear_index_session_data()
+    clear_inactive_plan_request_session()
     st.session_state.user = None
     st.session_state.profile = None
     st.session_state.is_admin = False
@@ -3149,6 +3162,7 @@ def expire_login_session():
         pass
 
     clear_index_session_data()
+    clear_inactive_plan_request_session()
     st.session_state.user = None
     st.session_state.profile = None
     st.session_state.is_admin = False
@@ -3608,6 +3622,9 @@ if st.session_state.user is None:
 
             else:
 
+                # Never carry a previous account's plan-request confirmation
+                # into a newly authenticated admin or user session.
+                clear_inactive_plan_request_session()
                 st.session_state.user = user
                 st.session_state.profile = prof
                 st.session_state.is_admin = (
