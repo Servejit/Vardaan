@@ -2274,6 +2274,12 @@ def render_autogreen_dashboard():
         ):
             target_row["Target Status"] = "Signal Generated"
 
+    # Once the assigned O2H target is reached, replace the numeric target price
+    # with the completion label in the four-stock Target Stocks table.
+    for target_row in target_table_rows:
+        if target_row["Target Status"] == "Target Completed":
+            target_row["Target Price"] = "Target Completed"
+
     # Display every target stock that satisfies the new BUY CONFIRMATION conditions.
     selected_rows = confirmation_candidates
 
