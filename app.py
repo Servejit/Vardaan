@@ -2249,9 +2249,9 @@ def render_index_toppers_dashboard():
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
-                        style = "background-color: #E4D5A5; color: #25272D; font-weight: 900;"
+                        style = "background-color: #DCC9EA; color: #35134F; font-weight: 900;"
                     elif any(stock_name == item["Stock Name"] for item in lowest_three):
-                        style = "background-color: #F4EACB; color: #25272D; font-weight: 800;"
+                        style = "background-color: #EEE6F4; color: #35134F; font-weight: 800;"
                     else:
                         style = ""
                     return [style] * len(row)
