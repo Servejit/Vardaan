@@ -3995,11 +3995,11 @@ if st.session_state.user is None:
             box-shadow: 0 7px 18px rgba({login_theme["shadow"]},.29);
         }}
         
-        @keyframes dependentSignalShimmer {
-            0% { background-position:0% 50%; filter:brightness(1); }
-            50% { background-position:100% 50%; filter:brightness(1.12); }
-            100% { background-position:0% 50%; filter:brightness(1); }
-        }
+        @keyframes dependentSignalShimmer {{
+            0% {{ background-position:0% 50%; filter:brightness(1); }}
+            50% {{ background-position:100% 50%; filter:brightness(1.12); }}
+            100% {{ background-position:0% 50%; filter:brightness(1); }}
+        }}
         </style>
         """,
         unsafe_allow_html=True,
