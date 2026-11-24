@@ -12,8 +12,8 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 
-# Temporary Orange preview; set to False to restore the Chocolate Index Toppers theme.
-TEMPORARY_ORANGE_THEME = True
+# Temporary Peach preview; set to False to restore the Chocolate Index Toppers theme.
+TEMPORARY_PEACH_THEME = True
 from supabase import create_client, ClientOptions
 
 # ============================================================
@@ -2464,14 +2464,14 @@ def render_index_toppers_dashboard():
         top_choice = eligible[0] if eligible else None
         highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
-        if TEMPORARY_ORANGE_THEME:
+        if TEMPORARY_PEACH_THEME:
             st.markdown("""
             <style>
-            .stApp { --brand-flower-color:#F28C28 !important; }
-            [data-testid="stSidebar"] { --brand-flower-color:#F28C28 !important; }
+            .stApp { --brand-flower-color:#F4B99F !important; }
+            [data-testid="stSidebar"] { --brand-flower-color:#F4B99F !important; }
             [data-testid="stSidebar"] {
-                background:linear-gradient(180deg,#FFF0DF 0%,#FFEDD5 48%,#FFF7ED 100%) !important;
-                border-right:1.5px solid #F97316 !important;
+                background:linear-gradient(180deg,#FFF1E8 0%,#FCE5D8 48%,#FFF6F1 100%) !important;
+                border-right:1.5px solid #EFAF91 !important;
                 box-shadow:inset -8px 0 24px rgba(234,88,12,.14) !important;
             }
             [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
@@ -2479,98 +2479,98 @@ def render_index_toppers_dashboard():
             [data-testid="stSidebar"] label,
             [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
             [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-                color:#7C2D12 !important;
+                color:#70443A !important;
             }
             [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
             [data-testid="stSidebar"] [data-baseweb="select"] > div,
             [data-testid="stSidebar"] input,
             [data-testid="stSidebar"] textarea {
-                background:linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 100%) !important;
-                border-color:#FDBA74 !important;
-                color:#7C2D12 !important;
+                background:linear-gradient(135deg,#FFF6F1 0%,#FCE5D8 100%) !important;
+                border-color:#F2C3AE !important;
+                color:#70443A !important;
             }
             [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover,
             [data-testid="stSidebar"] [data-baseweb="select"] > div:hover {
-                border-color:#EA580C !important;
+                border-color:#D98F75 !important;
                 box-shadow:0 3px 12px rgba(234,88,12,.18) !important;
             }
             [data-testid="stSidebar"] .stButton > button,
             [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
-                border:1px solid #EA580C !important;
-                color:#FFF7ED !important;
-                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                border:1px solid #D98F75 !important;
+                color:#FFF6F1 !important;
+                background:linear-gradient(110deg,#9A6253 0%,#D98F75 55%,#EFAF91 100%) !important;
                 box-shadow:0 4px 12px rgba(194,65,12,.18) !important;
             }
             [data-testid="stSidebar"] .stButton > button:hover,
             [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#FDBA74 !important;
+                border-color:#F2C3AE !important;
                 filter:brightness(1.08) !important;
             }
-            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#7C2D12 !important; }
+            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#70443A !important; }
             .stApp {
-                background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
-                           linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
-                color:#7C2D12 !important;
+                background:radial-gradient(ellipse at 8% 0%,#F8DCCF 0%,transparent 44%),
+                           linear-gradient(135deg,#FFF6F1 0%,#FCE5D8 52%,#FFFAF7 100%) !important;
+                color:#70443A !important;
             }
             [data-testid="stHeader"] {
                 background:rgba(255,247,237,.97) !important;
-                border-bottom:1px solid #F28C28 !important;
+                border-bottom:1px solid #F4B99F !important;
             }
             [data-testid="stMainBlockContainer"] {
-                --signal-nav-border:#FDBA74;
-                --signal-nav-accent:#EA580C;
-                --signal-nav-soft:#FFEDD5;
-                --signal-nav-canvas:#FFF7ED;
-                --signal-nav-text:#7C2D12;
+                --signal-nav-border:#F2C3AE;
+                --signal-nav-accent:#D98F75;
+                --signal-nav-soft:#FCE5D8;
+                --signal-nav-canvas:#FFF6F1;
+                --signal-nav-text:#70443A;
             }
             .index-topper-hero {
-                border-color:#F97316 !important;
+                border-color:#EFAF91 !important;
                 background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.28),transparent 27%),
-                           linear-gradient(115deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) !important;
+                           linear-gradient(115deg,#9A6253 0%,#D98F75 48%,#B97862 100%) !important;
                 box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
             }
-            .index-topper-kicker,.index-topper-metric-label { color:#FED7AA !important; }
-            .index-topper-sub { color:#FFEDD5 !important; }
+            .index-topper-kicker,.index-topper-metric-label { color:#F6D5C8 !important; }
+            .index-topper-sub { color:#FCE5D8 !important; }
             .index-topper-card {
-                background:linear-gradient(130deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) padding-box,
-                           linear-gradient(115deg,#F97316 0%,#FDBA74 35%,#FFFFFF 52%,#FB923C 75%,#9A3412 100%) border-box !important;
+                background:linear-gradient(130deg,#9A6253 0%,#D98F75 48%,#B97862 100%) padding-box,
+                           linear-gradient(115deg,#EFAF91 0%,#F2C3AE 35%,#FFFFFF 52%,#E8A58D 75%,#9A6253 100%) border-box !important;
                 box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
             }
-            .index-topper-card-label { color:#FED7AA !important; }
+            .index-topper-card-label { color:#F6D5C8 !important; }
             .index-topper-pill {
-                color:#7C2D12 !important;
-                background:linear-gradient(110deg,#FFEDD5,#FDBA74) !important;
+                color:#70443A !important;
+                background:linear-gradient(110deg,#FCE5D8,#F2C3AE) !important;
             }
-            .index-topper-target { color:#FED7AA !important; }
-            .index-topper-table-wrap { border-color:#F97316 !important; background:#FFF7ED !important; }
-            .index-topper-table { color:#7C2D12 !important; }
+            .index-topper-target { color:#F6D5C8 !important; }
+            .index-topper-table-wrap { border-color:#EFAF91 !important; background:#FFF6F1 !important; }
+            .index-topper-table { color:#70443A !important; }
             .index-topper-table th {
-                background:linear-gradient(110deg,#FDBA74,#FFEDD5) !important;
-                color:#7C2D12 !important;border-bottom-color:#EA580C !important;
+                background:linear-gradient(110deg,#F2C3AE,#FCE5D8) !important;
+                color:#70443A !important;border-bottom-color:#D98F75 !important;
             }
-            .index-topper-table td { border-bottom-color:#FED7AA !important; }
-            .index-topper-table tr:nth-child(even) { background:#FFF7ED !important; }
-            .index-topper-table tr.top-three { background:#FFEDD5 !important; }
-            .index-topper-table tr.top-choice { background:#FDBA74 !important; }
-            .index-topper-section { color:#C2410C !important; }
-            div[data-testid="stExpander"] { border-color:#FDBA74 !important; }
+            .index-topper-table td { border-bottom-color:#F6D5C8 !important; }
+            .index-topper-table tr:nth-child(even) { background:#FFF6F1 !important; }
+            .index-topper-table tr.top-three { background:#FCE5D8 !important; }
+            .index-topper-table tr.top-choice { background:#F2C3AE !important; }
+            .index-topper-section { color:#B97862 !important; }
+            div[data-testid="stExpander"] { border-color:#F2C3AE !important; }
             div[data-testid="stExpander"] summary {
-                background:#FFF7ED !important;color:#9A3412 !important;
+                background:#FFF6F1 !important;color:#9A6253 !important;
             }
-            div[data-testid="stExpander"] summary:hover { background:#FFEDD5 !important; }
+            div[data-testid="stExpander"] summary:hover { background:#FCE5D8 !important; }
             div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background:#FFFFFF !important;color:#7C2D12 !important;
-                border-top-color:#FED7AA !important;
+                background:#FFFFFF !important;color:#70443A !important;
+                border-top-color:#F6D5C8 !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
-                border-color:#EA580C !important;color:#FFF7ED !important;
-                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                border-color:#D98F75 !important;color:#FFF6F1 !important;
+                background:linear-gradient(110deg,#9A6253 0%,#D98F75 55%,#EFAF91 100%) !important;
                 box-shadow:0 5px 14px rgba(194,65,12,.2) !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button:hover,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#FDBA74 !important;filter:brightness(1.08) !important;
+                border-color:#F2C3AE !important;filter:brightness(1.08) !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -5592,16 +5592,16 @@ _master_excel_ice_blue_theme = {
 }
 _index_toppers_sidebar_theme = {
     # Follow the temporary preview switch; False restores the original Chocolate palette.
-    "deep": "#9A3412" if TEMPORARY_ORANGE_THEME else "#3B2118",
-    "primary": "#EA580C" if TEMPORARY_ORANGE_THEME else "#8A5638",
-    "accent": "#F97316" if TEMPORARY_ORANGE_THEME else "#A97858",
-    "ink": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#3B2118",
-    "accent_text": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#3B2118",
-    "tint": "#FFEDD5" if TEMPORARY_ORANGE_THEME else "#EAD9CC",
-    "canvas": "#FFF7ED" if TEMPORARY_ORANGE_THEME else "#F7F0EA",
-    "border": "#FDBA74" if TEMPORARY_ORANGE_THEME else "#D6B49A",
-    "soft_text": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#4A2B20",
-    "left_accent": "#EA580C" if TEMPORARY_ORANGE_THEME else "#8A5638",
+    "deep": "#9A6253" if TEMPORARY_PEACH_THEME else "#3B2118",
+    "primary": "#D98F75" if TEMPORARY_PEACH_THEME else "#8A5638",
+    "accent": "#EFAF91" if TEMPORARY_PEACH_THEME else "#A97858",
+    "ink": "#70443A" if TEMPORARY_PEACH_THEME else "#3B2118",
+    "accent_text": "#70443A" if TEMPORARY_PEACH_THEME else "#3B2118",
+    "tint": "#FCE5D8" if TEMPORARY_PEACH_THEME else "#EAD9CC",
+    "canvas": "#FFF6F1" if TEMPORARY_PEACH_THEME else "#F7F0EA",
+    "border": "#F2C3AE" if TEMPORARY_PEACH_THEME else "#D6B49A",
+    "soft_text": "#70443A" if TEMPORARY_PEACH_THEME else "#4A2B20",
+    "left_accent": "#D98F75" if TEMPORARY_PEACH_THEME else "#8A5638",
 }
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
