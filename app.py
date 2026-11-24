@@ -1103,8 +1103,8 @@ def render_stock_of_the_day():
             position: absolute;
             left: 50%;
             top: 0;
-            width: 96px;
-            height: 96px;
+            width: 70px;
+            height: 70px;
             box-sizing: border-box;
             border: 2px solid transparent;
             border-radius: 50%;
@@ -1125,7 +1125,7 @@ def render_stock_of_the_day():
             background-origin: padding-box, border-box;
             background-clip: padding-box, border-box;
             animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
+            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
         }
@@ -2211,8 +2211,8 @@ def render_index_toppers_dashboard():
             position: absolute;
             left: 50%;
             top: 0;
-            width: 96px;
-            height: 96px;
+            width: 70px;
+            height: 70px;
             box-sizing: border-box;
             border: 2px solid transparent;
             border-radius: 50%;
@@ -2233,7 +2233,7 @@ def render_index_toppers_dashboard():
             background-origin: padding-box, border-box;
             background-clip: padding-box, border-box;
             animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
+            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
         }
@@ -2507,8 +2507,8 @@ def render_autogreen_dashboard():
             position: absolute;
             left: 50%;
             top: 0;
-            width: 96px;
-            height: 96px;
+            width: 70px;
+            height: 70px;
             box-sizing: border-box;
             border: 2px solid transparent;
             border-radius: 50%;
@@ -2529,7 +2529,7 @@ def render_autogreen_dashboard():
             background-origin: padding-box, border-box;
             background-clip: padding-box, border-box;
             animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
+            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
         }
