@@ -2458,6 +2458,18 @@ def render_index_toppers_dashboard():
                             ],
                         },
                     ])
+                    .set_table_styles([
+                        {
+                            "selector": "th:nth-child(10), td:nth-child(10), th:nth-child(11), td:nth-child(11)",
+                            "props": [
+                                ("width", "82px"),
+                                ("min-width", "82px"),
+                                ("max-width", "82px"),
+                                ("white-space", "nowrap"),
+                                ("text-align", "center"),
+                            ],
+                        },
+                    ], overwrite=False)
                     .apply(highlight_index_topper_row, axis=1)
                     .format({
                         "% Chg": "{:+.2f}%",
