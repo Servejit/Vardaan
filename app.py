@@ -7,6 +7,7 @@ import html
 import requests
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
+import pandas as pd
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
@@ -2241,32 +2242,38 @@ def render_index_toppers_dashboard():
                     })
 
                 columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
-                html_rows = []
-                for row in candidates:
-                    row_class = "top-choice" if top_choice and row["Stock Name"] == top_choice["Stock Name"] else (
-                        "top-three" if row in lowest_three else ""
-                    )
-                    values = {
-                        "Stock Name": row["Stock Name"], "Index": row["Index"],
-                        "% Chg": f'{row["% Chg"]:+.2f}%',
-                        "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
-                        "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
-                        "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
-                        "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
-                        "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
-                        "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
-                    }
-                    html_rows.append(
-                        f'<tr class="{row_class}">' +
-                        "".join(f'<td>{html.escape(str(values[column]))}</td>' for column in columns) +
-                        '</tr>'
-                    )
-                table_html = (
-                    '<div class="index-topper-table-wrap"><table class="index-topper-table"><thead><tr>' +
-                    "".join(f'<th>{column}</th>' for column in columns) +
-                    '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
+                # Native Streamlit dataframe enables sorting by clicking every column heading.
+                # Preserve the existing highlights for the lowest-three candidates and Top Choice.
+                table_df = pd.DataFrame(table_rows)
+
+                def highlight_index_topper_row(row):
+                    stock_name = row.get("Stock Name")
+                    if top_choice and stock_name == top_choice["Stock Name"]:
+                        style = "background-color: #E4D5A5; color: #25272D; font-weight: 900;"
+                    elif any(stock_name == item["Stock Name"] for item in lowest_three):
+                        style = "background-color: #F4EACB; color: #25272D; font-weight: 800;"
+                    else:
+                        style = ""
+                    return [style] * len(row)
+
+                styled_table = (
+                    table_df.style
+                    .apply(highlight_index_topper_row, axis=1)
+                    .format({
+                        "% Chg": "{:+.2f}%",
+                        "Price": "₹{:,.2f}",
+                        "O2L%": "{:+.2f}%",
+                        "O2H%": "{:+.2f}%",
+                        "Open": "₹{:,.2f}",
+                        "High": "₹{:,.2f}",
+                        "Low": "₹{:,.2f}",
+                    }, na_rep="—")
                 )
-                st.markdown(table_html, unsafe_allow_html=True)
+                st.dataframe(
+                    styled_table,
+                    hide_index=True,
+                    use_container_width=True,
+                )
             else:
                 st.warning("Live stock quotes are not available for the selected indices right now.")
 
