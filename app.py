@@ -2383,9 +2383,20 @@ def render_index_toppers_dashboard():
         eligible.sort(key=lambda row: (round(row["O2H%"], 8), row["% Chg"]))
         top_choice = eligible[0] if eligible else None
 
+        # Load Master values once for every candidate and reuse the exact same
+        # lookup for both the Top Choice card and the sortable table.
+        index_toppers_master_values = get_index_toppers_master_values(
+            tuple(dict.fromkeys(
+                [row["Stock Name"] for row in candidates]
+                + [row["Stock Name"] for row in lowest_three]
+                + ([top_choice["Stock Name"]] if top_choice else [])
+            ))
+        )
+
         if top_choice:
-            top_choice_master_values = get_index_toppers_master_values((top_choice["Stock Name"],))
-            top_choice_master_row = top_choice_master_values.get(normalize_stock_symbol(top_choice["Stock Name"]), {})
+            top_choice_master_row = index_toppers_master_values.get(
+                normalize_stock_symbol(top_choice["Stock Name"]), {}
+            )
             top_choice_avg_o2l = top_choice_master_row.get("16< D-B / Avg.4", "—")
             top_choice_avg_o2h = top_choice_master_row.get("16> C-B / Avg.4", "—")
             top_choice_master_parts = []
@@ -2439,9 +2450,7 @@ def render_index_toppers_dashboard():
 
         with st.expander("TOP 5 LIVE % GAINERS · EACH INDEX", expanded=False):
             if candidates:
-                master_values = get_index_toppers_master_values(
-                    tuple(row["Stock Name"] for row in candidates)
-                )
+                master_values = index_toppers_master_values
                 table_rows = []
                 for row in candidates:
                     table_rows.append({
