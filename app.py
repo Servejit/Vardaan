@@ -2273,9 +2273,6 @@ def render_index_toppers_dashboard():
         fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
         with st.expander("Selection & calculation details", expanded=False):
             st.markdown(
-                "- **Selection:** Top 5 live % gainers from each of Nifty 50, Nifty Next 50 and Nifty Midcap 50. "
-                "The 15 stocks are filtered to the 3 lowest O2L% values. From those 3, the lowest O2H% is selected "
-                "only when live price is above today's open. If O2H% is tied, the lower live % change is preferred.\n"
                 "- **O2L%:** (Today's Low − Today's Open) ÷ Today's Open × 100.\n"
                 "- **O2H%:** (Today's High − Today's Open) ÷ Today's Open × 100.\n"
                 "- **Target:** Entry price +0.35%, capped at +1.00% from today's open.\n"
