@@ -2367,7 +2367,7 @@ def render_index_toppers_dashboard():
 
         if top_choice:
             top_choice_master_values = get_index_toppers_master_values((top_choice["Stock Name"],))
-            top_choice_master_row = top_choice_master_values.get(top_choice["Stock Name"], {})
+            top_choice_master_row = top_choice_master_values.get(normalize_stock_symbol(top_choice["Stock Name"]), {})
             top_choice_avg_o2l = top_choice_master_row.get("16< D-B / Avg.4", "—")
             top_choice_avg_o2h = top_choice_master_row.get("16> C-B / Avg.4", "—")
             entry = top_choice["Price"]
@@ -2423,8 +2423,8 @@ def render_index_toppers_dashboard():
                         "Open": row.get("Open"),
                         "High": row.get("High"),
                         "Low": row.get("Low"),
-                        "Avg.O2L.4": master_values.get(row["Stock Name"], {}).get("16< D-B / Avg.4", "—"),
-                        "Avg.O2H.4": master_values.get(row["Stock Name"], {}).get("16> C-B / Avg.4", "—"),
+                        "Avg.O2L.4": master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16< D-B / Avg.4", "—"),
+                        "Avg.O2H.4": master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16> C-B / Avg.4", "—"),
                     })
 
                 columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "Avg.O2L.4", "Avg.O2H.4"]
