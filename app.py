@@ -2446,10 +2446,10 @@ def render_autogreen_dashboard():
         <div aria-hidden="true" style="
             width:100%;max-width:620px;height:3px;margin:0 auto 18px;
             border-radius:999px;
-            background:linear-gradient(110deg,#075B59 0%,#27B7A8 28%,#B8F3E8 48%,#138F86 72%,#075B59 100%);
+            background:linear-gradient(110deg,transparent 0%,var(--brand-flower-color,#27B7A8) 27%,rgba(255,255,255,.92) 50%,var(--brand-flower-color,#27B7A8) 73%,transparent 100%);
             background-size:300% 300%;
             animation:dependentSignalShimmer 4.2s linear infinite;
-            box-shadow:0 0 10px rgba(32,190,174,.28);
+            box-shadow:0 0 10px rgba(30,60,80,.14);
         "></div>
         """,
         unsafe_allow_html=True,
