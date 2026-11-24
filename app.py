@@ -2101,6 +2101,51 @@ def render_index_toppers_dashboard():
         background:#FFFFFF !important;
         color:#3B2118 !important;
     }
+    /* Gentle AutoGreen-style motion: soft moving highlight on sidebar items. */
+    @keyframes indexSidebarShimmer {
+        0% { transform:translate3d(-150%,0,0) skewX(-18deg); opacity:0; }
+        18% { opacity:.42; }
+        58% { opacity:.22; }
+        100% { transform:translate3d(340%,0,0) skewX(-18deg); opacity:0; }
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+        position:relative !important;
+        overflow:hidden !important;
+        isolation:isolate;
+        transition:background .25s ease,border-color .25s ease,box-shadow .25s ease !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label::after,
+    [data-testid="stSidebar"] .stButton > button::after,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button::after {
+        content:"";
+        position:absolute;
+        inset:-35% auto -35% -48%;
+        width:32%;
+        pointer-events:none;
+        z-index:2;
+        background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0) 25%,
+            rgba(255,255,255,.78) 48%,rgba(255,255,255,.20) 58%,transparent 82%);
+        filter:blur(1px);
+        animation:indexSidebarShimmer 6.5s ease-in-out infinite;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:nth-child(2)::after { animation-delay:-2s; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:nth-child(3)::after { animation-delay:-4s; }
+    [data-testid="stSidebar"] .stButton > button::after { animation-delay:-3s; }
+    @media (prefers-reduced-motion:reduce) {
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label::after,
+        [data-testid="stSidebar"] .stButton > button::after,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button::after {
+            animation:none !important;
+            display:none !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+        [data-testid="stSidebar"] .stButton > button,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+            transition:none !important;
+        }
+    }
     h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#3B2118;}
     [data-testid="stDataFrame"],[data-testid="stTable"] {
         border:1px solid #A97858 !important;
