@@ -2030,6 +2030,86 @@ def get_autogreen_live_prices(symbols):
     return results
 
 
+def get_index_toppers_master_values(symbols):
+    """Read the D-B and C-B display values from this repository's Master workbook."""
+    wanted_headers = ("16< D-B / Avg.4", "16> C-B / Avg.4")
+    details = {}
+    workbook = None
+    try:
+        master_bytes = get_autogreen_master_bytes()
+        workbook = load_workbook(
+            io.BytesIO(master_bytes),
+            data_only=True,
+            read_only=True,
+        )
+
+        def clean_header(value):
+            return " ".join(str(value or "").strip().casefold().split())
+
+        selected_sheet = None
+        header_row_number = None
+        header_columns = {}
+        for sheet in sorted(
+            workbook.worksheets,
+            key=lambda ws: (ws.title.casefold() != "summary", ws.title.casefold()),
+        ):
+            for row_number, row in enumerate(
+                sheet.iter_rows(
+                    min_row=1,
+                    max_row=min(sheet.max_row or 1, 30),
+                    values_only=True,
+                ),
+                start=1,
+            ):
+                found = {
+                    clean_header(value): index
+                    for index, value in enumerate(row)
+                    if value is not None
+                }
+                if all(clean_header(name) in found for name in wanted_headers):
+                    selected_sheet = sheet
+                    header_row_number = row_number
+                    header_columns = {
+                        name: found[clean_header(name)] for name in wanted_headers
+                    }
+                    break
+            if selected_sheet is not None:
+                break
+
+        if selected_sheet is None:
+            return {}
+
+        wanted_symbols = {normalize_stock_symbol(symbol) for symbol in symbols}
+        for row in selected_sheet.iter_rows(
+            min_row=header_row_number + 1,
+            values_only=True,
+        ):
+            if not row:
+                continue
+            symbol = normalize_stock_symbol(row[0] if len(row) else None)
+            if symbol not in wanted_symbols:
+                continue
+            values = {}
+            for heading in wanted_headers:
+                column_index = header_columns[heading]
+                value = row[column_index] if column_index < len(row) else None
+                if value is None or str(value).strip() == "":
+                    values[heading] = "—"
+                    continue
+                try:
+                    rendered = f"{float(str(value).replace(',', '').replace('%', '').strip()):g}"
+                except (TypeError, ValueError):
+                    rendered = str(value).strip()
+                values[heading] = f"({rendered})"
+            details[symbol] = values
+        return details
+    except Exception:
+        return {}
+    finally:
+        if workbook is not None:
+            workbook.close()
+
+
 def render_index_toppers_dashboard():
     """Rank the three requested NSE indices and build the live Top Choice card."""
     from zoneinfo import ZoneInfo
@@ -2317,6 +2397,9 @@ def render_index_toppers_dashboard():
 
         with st.expander("TOP 5 LIVE % GAINERS · EACH INDEX", expanded=False):
             if candidates:
+                master_values = get_index_toppers_master_values(
+                    tuple(row["Stock Name"] for row in candidates)
+                )
                 table_rows = []
                 for row in candidates:
                     table_rows.append({
@@ -2329,9 +2412,11 @@ def render_index_toppers_dashboard():
                         "Open": row.get("Open"),
                         "High": row.get("High"),
                         "Low": row.get("Low"),
+                        "16< D-B": master_values.get(row["Stock Name"], {}).get("16< D-B / Avg.4", "—"),
+                        "16> C-B": master_values.get(row["Stock Name"], {}).get("16> C-B / Avg.4", "—"),
                     })
 
-                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
+                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "16< D-B", "16> C-B"]
                 # Native Streamlit dataframe enables sorting by clicking every column heading.
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows)
