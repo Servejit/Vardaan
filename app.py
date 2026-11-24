@@ -4708,6 +4708,31 @@ elif page == "Master Excel":
     }
     div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
 
+    /* Match the Signal repository's Master Excel dashboard sidebar theme. */
+    .stApp { --signal-nav-border:#B9DDED; --signal-nav-accent:#168FC0; --signal-nav-soft:#DDF2FC; --signal-nav-canvas:#EAF7FF; --signal-nav-text:#173B50; }
+    [data-testid="stSidebar"] {
+        background:linear-gradient(180deg,#DDF2FC 0%,#EAF7FF 42%,#F7FCFF 100%) !important;
+        border-right:1.5px solid #9CCFE5 !important;
+        box-shadow:inset -8px 0 24px rgba(23,101,139,.08) !important;
+    }
+
+    /* Keep the Master Excel upload drop area light, matching Signal. */
+    [data-testid="stFileUploader"] section {
+        background:#FFFFFF !important;
+        border:1px dashed #A9D7EA !important;
+        border-radius:12px !important;
+        color:#173B50 !important;
+    }
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploader"] section * {
+        color:#173B50 !important;
+    }
+    [data-testid="stFileUploader"] button {
+        background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%) !important;
+        border:1px solid #A9D7EA !important;
+        color:#155E91 !important;
+    }
+
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div,
     [data-testid="stSidebar"] label,
