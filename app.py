@@ -2225,50 +2225,50 @@ def render_index_toppers_dashboard():
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown('<div class="index-topper-section">TOP 5 LIVE % GAINERS · EACH INDEX</div>', unsafe_allow_html=True)
-        if candidates:
-            table_rows = []
-            for row in candidates:
-                table_rows.append({
-                    "Stock Name": row["Stock Name"],
-                    "Index": row["Index"],
-                    "% Chg": f'{row["% Chg"]:+.2f}%',
-                    "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
-                    "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
-                    "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
-                    "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
-                    "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
-                    "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
-                })
-            columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
-            html_rows = []
-            for row in candidates:
-                row_class = "top-choice" if top_choice and row["Stock Name"] == top_choice["Stock Name"] else (
-                    "top-three" if row in lowest_three else ""
+        with st.expander("TOP 5 LIVE % GAINERS · EACH INDEX", expanded=False):
+            if candidates:
+                table_rows = []
+                for row in candidates:
+                    table_rows.append({
+                        "Stock Name": row["Stock Name"],
+                        "Index": row["Index"],
+                        "% Chg": f'{row["% Chg"]:+.2f}%',
+                        "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
+                        "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
+                        "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
+                        "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
+                        "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
+                        "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
+                    })
+                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
+                html_rows = []
+                for row in candidates:
+                    row_class = "top-choice" if top_choice and row["Stock Name"] == top_choice["Stock Name"] else (
+                        "top-three" if row in lowest_three else ""
+                    )
+                    values = {
+                        "Stock Name": row["Stock Name"], "Index": row["Index"],
+                        "% Chg": f'{row["% Chg"]:+.2f}%',
+                        "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
+                        "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
+                        "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
+                        "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
+                        "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
+                        "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
+                    }
+                    html_rows.append(
+                        f'<tr class="{row_class}">' +
+                        "".join(f'<td>{html.escape(str(values[column]))}</td>' for column in columns) +
+                        '</tr>'
+                    )
+                table_html = (
+                    '<div class="index-topper-table-wrap"><table class="index-topper-table"><thead><tr>' +
+                    "".join(f'<th>{column}</th>' for column in columns) +
+                    '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
                 )
-                values = {
-                    "Stock Name": row["Stock Name"], "Index": row["Index"],
-                    "% Chg": f'{row["% Chg"]:+.2f}%',
-                    "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
-                    "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
-                    "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
-                    "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
-                    "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
-                    "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
-                }
-                html_rows.append(
-                    f'<tr class="{row_class}">' +
-                    "".join(f'<td>{html.escape(str(values[column]))}</td>' for column in columns) +
-                    '</tr>'
-                )
-            table_html = (
-                '<div class="index-topper-table-wrap"><table class="index-topper-table"><thead><tr>' +
-                "".join(f'<th>{column}</th>' for column in columns) +
-                '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
-            )
-            st.markdown(table_html, unsafe_allow_html=True)
-        else:
-            st.warning("Live stock quotes are not available for the selected indices right now.")
+                st.markdown(table_html, unsafe_allow_html=True)
+            else:
+                st.warning("Live stock quotes are not available for the selected indices right now.")
 
     except Exception as error:
         st.error(f"Index Toppers could not be loaded: {error}")
