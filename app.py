@@ -2018,6 +2018,267 @@ def get_autogreen_live_prices(symbols):
             results[symbol] = quote
     return results
 
+
+def render_index_toppers_dashboard():
+    """Rank the three requested NSE indices and build the live Top Choice card."""
+    from zoneinfo import ZoneInfo
+
+    # Refresh every 15 seconds during NSE hours; outside hours refresh once a minute.
+    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_open = (
+        market_now.weekday() < 5
+        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
+        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
+    )
+    st_autorefresh(
+        interval=15_000 if market_open else 60_000,
+        limit=None,
+        key="index_toppers_live_refresh",
+    )
+
+    st.markdown("""
+    <style>
+    .stApp {
+        background:radial-gradient(ellipse at 12% 0%,#5B4A25 0%,transparent 36%),
+                   linear-gradient(135deg,#111318 0%,#252830 52%,#15171D 100%) !important;
+        color:#F4F1E8 !important;
+    }
+    [data-testid="stHeader"] {background:rgba(18,20,25,.94) !important;}
+    [data-testid="stSidebar"] {
+        background:linear-gradient(180deg,#292B31 0%,#17191E 100%) !important;
+        border-right:1px solid #B99A52 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {color:#E9DFBF !important;}
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+        border:1px solid #81734F !important;border-radius:10px !important;
+        background:linear-gradient(135deg,#303239 0%,#202228 100%) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        border:1.5px solid #D8B65A !important;
+        background:linear-gradient(110deg,#51452B 0%,#303239 100%) !important;
+        box-shadow:inset 4px 0 0 #D8B65A,0 3px 12px rgba(216,182,90,.18) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {color:#F3E8C7 !important;}
+    [data-testid="stSidebar"] .stButton > button {
+        border-color:#B99A52 !important;color:#F3E8C7 !important;
+        background:linear-gradient(135deg,#34363C 0%,#25272D 100%) !important;
+    }
+    h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#F0EBDD;}
+    [data-testid="stDataFrame"],[data-testid="stTable"] {
+        border:1px solid #A88C4C !important;border-radius:12px !important;
+    }
+    .index-topper-hero {
+        padding:23px 25px;margin:5px 0 18px;border-radius:19px;
+        color:#F8F4E8;border:1px solid #D6B65E;
+        background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.18),transparent 28%),
+                   linear-gradient(115deg,#17191E 0%,#48413A 48%,#777B82 100%);
+        box-shadow:0 12px 30px rgba(0,0,0,.30),0 0 20px rgba(214,182,94,.15);
+    }
+    .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#E2C36E;}
+    .index-topper-title {font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;}
+    .index-topper-sub {font-size:13px;line-height:1.55;color:#E3E0D8;}
+    .index-topper-card {
+        position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
+        color:#F7F4EA;border:2px solid transparent;
+        background:linear-gradient(130deg,#17191E 0%,#34363D 48%,#17191E 100%) padding-box,
+                   linear-gradient(115deg,#8E8F92 0%,#E5C76D 28%,#FFFFFF 48%,#B5B8BE 68%,#A9873C 100%) border-box;
+        box-shadow:0 12px 32px rgba(0,0,0,.36),0 0 25px rgba(218,185,91,.18);
+    }
+    .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#E6C96F;text-align:center;}
+    .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#FFF9E9;letter-spacing:.7px;}
+    .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#17191E;
+        background:linear-gradient(110deg,#D7D9DE,#F1D77D);padding:8px 13px;border-radius:999px;}
+    .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#C6C8CD;}
+    .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#F7F4EA;margin-top:5px;}
+    .index-topper-target {color:#E6C96F !important;}
+    .index-topper-table-wrap {overflow-x:auto;border:1px solid #A88C4C;border-radius:12px;background:#F8F7F3;}
+    .index-topper-table {width:100%;min-width:900px;border-collapse:collapse;color:#25272D;}
+    .index-topper-table th {padding:11px 12px;text-align:left;white-space:nowrap;background:linear-gradient(110deg,#D9DADD,#F2E5B8);
+        color:#292A2E;font-size:12px;font-weight:900;border-bottom:2px solid #B99A52;}
+    .index-topper-table td {padding:10px 12px;white-space:nowrap;font-size:12px;font-weight:650;border-bottom:1px solid #E4E1D8;}
+    .index-topper-table tr:nth-child(even) {background:#EEEDE9;}
+    .index-topper-table tr.top-three {background:#F4EACB;font-weight:850;}
+    .index-topper-table tr.top-choice {background:#E4D5A5;font-weight:950;}
+    .index-topper-section {color:#E5C66B;font-size:14px;font-weight:900;letter-spacing:1px;margin:18px 0 9px;}
+    [data-testid="stMainBlockContainer"] {--signal-nav-border:#A88C4C;--signal-nav-accent:#D2B45F;
+        --signal-nav-soft:#E9D9A8;--signal-nav-canvas:#34363D;--signal-nav-text:#F2E8C8;}
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="index-topper-hero">
+      <div class="index-topper-kicker">6THSENSE · LIVE MARKET SELECTION</div>
+      <div class="index-topper-title">Index Toppers</div>
+      <div class="index-topper-sub">Top 5 live % gainers from each selected index → lowest 3 O2L% → lowest O2H% with live price above today's open.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    index_specs = [
+        ("NIFTY 50", "50"),
+        ("NIFTY NEXT 50", "NEXT 50"),
+        ("NIFTY MIDCAP 50", "MID 50"),
+    ]
+
+    try:
+        index_groups = load_github_index_groups()
+        missing_groups = [label for label, key in index_specs if key not in index_groups]
+        if missing_groups:
+            raise ValueError("Constituent list is missing: " + ", ".join(missing_groups))
+
+        candidates = []
+        symbols = []
+        for index_label, group_key in index_specs:
+            for member in index_groups[group_key]:
+                symbol = normalize_stock_symbol(member.get("NSE Symbol"))
+                if symbol and symbol not in symbols:
+                    symbols.append(symbol)
+
+        with st.spinner("Fetching live quotes for the three indices..."):
+            quotes = get_autogreen_live_prices(tuple(symbols))
+
+        for index_label, group_key in index_specs:
+            index_rows = []
+            for member in index_groups[group_key]:
+                symbol = normalize_stock_symbol(member.get("NSE Symbol"))
+                quote = quotes.get(symbol, {})
+                change = quote.get("change_pct")
+                if not symbol or change is None:
+                    continue
+                index_rows.append({
+                    "Index": index_label,
+                    "Stock Name": symbol,
+                    "% Chg": float(change),
+                    "Price": quote.get("price"),
+                    "Open": quote.get("open"),
+                    "High": quote.get("high"),
+                    "Low": quote.get("low"),
+                })
+            index_rows.sort(key=lambda row: row["% Chg"], reverse=True)
+            for row in index_rows[:5]:
+                open_price = row.get("Open")
+                low_price = row.get("Low")
+                high_price = row.get("High")
+                if open_price is not None and open_price > 0 and low_price is not None:
+                    row["O2L%"] = ((low_price - open_price) / open_price) * 100
+                else:
+                    row["O2L%"] = None
+                if open_price is not None and open_price > 0 and high_price is not None:
+                    row["O2H%"] = ((high_price - open_price) / open_price) * 100
+                else:
+                    row["O2H%"] = None
+                candidates.append(row)
+
+        # First selection: the three lowest (most negative) O2L% readings.
+        o2l_ranked = sorted(
+            [row for row in candidates if row.get("O2L%") is not None],
+            key=lambda row: row["O2L%"]
+        )
+        lowest_three = o2l_ranked[:3]
+
+        # Final selection: lowest O2H% among the three, only while price is above open.
+        eligible = [
+            row for row in lowest_three
+            if row.get("Price") is not None
+            and row.get("Open") is not None
+            and row["Price"] > row["Open"]
+            and row.get("O2H%") is not None
+        ]
+        eligible.sort(key=lambda row: (round(row["O2H%"], 8), row["% Chg"]))
+        top_choice = eligible[0] if eligible else None
+
+        if top_choice:
+            entry = top_choice["Price"]
+            target = entry * 1.0035
+            st.markdown(f"""
+            <div class="index-topper-card">
+              <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;">
+                <div class="index-topper-symbol">{html.escape(top_choice["Stock Name"])}</div>
+                <div class="index-topper-pill">TOP CHOICE</div>
+              </div>
+              <div style="font-size:11px;color:#D4D5D9;margin-top:8px;letter-spacing:.8px;">
+                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%
+              </div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,#D8B65A,#D9DCE1,transparent);margin:20px 0 17px;"></div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
+                <div><div class="index-topper-metric-label">ENTRY PRICE</div>
+                  <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
+                <div><div class="index-topper-metric-label">TARGET PRICE</div>
+                  <div class="index-topper-metric-value index-topper-target">₹{target:,.2f}</div></div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div class="index-topper-card" style="text-align:center;">
+              <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
+              <div style="font-size:30px;font-weight:950;margin:14px 0;color:#F4E8C5;">NO TOP CHOICE</div>
+              <div style="font-size:13px;color:#D4D5D9;">No stock among the lowest three O2L% candidates currently has its live price above today's open.</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown('<div class="index-topper-section">TOP 5 LIVE % GAINERS · EACH INDEX</div>', unsafe_allow_html=True)
+        if candidates:
+            table_rows = []
+            for row in candidates:
+                table_rows.append({
+                    "Stock Name": row["Stock Name"],
+                    "Index": row["Index"],
+                    "% Chg": f'{row["% Chg"]:+.2f}%',
+                    "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
+                    "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
+                    "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
+                    "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
+                    "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
+                    "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
+                })
+            columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
+            html_rows = []
+            for row in candidates:
+                row_class = "top-choice" if top_choice and row["Stock Name"] == top_choice["Stock Name"] else (
+                    "top-three" if row in lowest_three else ""
+                )
+                values = {
+                    "Stock Name": row["Stock Name"], "Index": row["Index"],
+                    "% Chg": f'{row["% Chg"]:+.2f}%',
+                    "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
+                    "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
+                    "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
+                    "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
+                    "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
+                    "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
+                }
+                html_rows.append(
+                    f'<tr class="{row_class}">' +
+                    "".join(f'<td>{html.escape(str(values[column]))}</td>' for column in columns) +
+                    '</tr>'
+                )
+            table_html = (
+                '<div class="index-topper-table-wrap"><table class="index-topper-table"><thead><tr>' +
+                "".join(f'<th>{column}</th>' for column in columns) +
+                '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
+            )
+            st.markdown(table_html, unsafe_allow_html=True)
+            st.caption("Gold highlight = lowest three O2L% candidates. Dark gold highlight = final Top Choice.")
+        else:
+            st.warning("Live stock quotes are not available for the selected indices right now.")
+
+        st.caption(
+            "O2L% = (Today's Low − Today's Open) ÷ Today's Open × 100. "
+            "O2H% = (Today's High − Today's Open) ÷ Today's Open × 100. "
+            "Target Price uses the existing +0.35% entry-based target. "
+            "Quotes are supplied by Yahoo Finance and may be delayed."
+        )
+        fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
+        st.caption(f"Last page refresh: {fetched_at} IST")
+    except Exception as error:
+        st.error(f"Index Toppers could not be loaded: {error}")
+        st.info("The dashboard will retry automatically. Check the index constituent CSV and live quote availability if this continues.")
+
+
+
 def render_accent_table(rows, accent, ink, tint, min_width=720):
     """Render a light, readable table with an accent inherited from the top signal card."""
     if not rows:
@@ -3984,10 +4245,11 @@ with st.sidebar:
 
     st.radio(
         "Sidebar dashboard navigation",
-        ["AutoGreen", "Stock of the Day", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
+            "Index Toppers": "🏆  Index Toppers",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="sidebar_dashboard_nav_v1",
@@ -4039,6 +4301,9 @@ elif page == "Stock of the Day":
     )
     render_stock_of_the_day()
 
+
+elif page == "Index Toppers":
+    render_index_toppers_dashboard()
 
 elif page == "Master Excel":
 
@@ -4787,10 +5052,11 @@ with st.container(key="vardaan-bottom-nav"):
     )
     st.radio(
         "Dashboard shortcuts",
-        ["AutoGreen", "Stock of the Day", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
+            "Index Toppers": "🏆  Index Toppers",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="bottom_dashboard_nav_v1",
