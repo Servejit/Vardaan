@@ -2464,7 +2464,8 @@ def render_index_toppers_dashboard():
         if fallback_mode:
             st.markdown("""
             <style>
-            :root { --brand-flower-color:#F28C28 !important; }
+            .stApp { --brand-flower-color:#F28C28 !important; }
+            [data-testid="stSidebar"] { --brand-flower-color:#F28C28 !important; }
             .stApp {
                 background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
                            linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
