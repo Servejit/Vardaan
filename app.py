@@ -2232,41 +2232,49 @@ def render_index_toppers_dashboard():
                     table_rows.append({
                         "Stock Name": row["Stock Name"],
                         "Index": row["Index"],
-                        "% Chg": f'{row["% Chg"]:+.2f}%',
-                        "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
-                        "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
-                        "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
-                        "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
-                        "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
-                        "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
+                        "% Chg": row["% Chg"],
+                        "Price": row.get("Price"),
+                        "O2L%": row.get("O2L%"),
+                        "O2H%": row.get("O2H%"),
+                        "Open": row.get("Open"),
+                        "High": row.get("High"),
+                        "Low": row.get("Low"),
                     })
-                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low"]
-                html_rows = []
-                for row in candidates:
-                    row_class = "top-choice" if top_choice and row["Stock Name"] == top_choice["Stock Name"] else (
-                        "top-three" if row in lowest_three else ""
-                    )
-                    values = {
-                        "Stock Name": row["Stock Name"], "Index": row["Index"],
-                        "% Chg": f'{row["% Chg"]:+.2f}%',
-                        "Price": f'₹{row["Price"]:,.2f}' if row.get("Price") is not None else "—",
-                        "O2L%": f'{row["O2L%"]:+.2f}%' if row.get("O2L%") is not None else "—",
-                        "O2H%": f'{row["O2H%"]:+.2f}%' if row.get("O2H%") is not None else "—",
-                        "Open": f'₹{row["Open"]:,.2f}' if row.get("Open") is not None else "—",
-                        "High": f'₹{row["High"]:,.2f}' if row.get("High") is not None else "—",
-                        "Low": f'₹{row["Low"]:,.2f}' if row.get("Low") is not None else "—",
-                    }
-                    html_rows.append(
-                        f'<tr class="{row_class}">' +
-                        "".join(f'<td>{html.escape(str(values[column]))}</td>' for column in columns) +
-                        '</tr>'
-                    )
-                table_html = (
-                    '<div class="index-topper-table-wrap"><table class="index-topper-table"><thead><tr>' +
-                    "".join(f'<th>{column}</th>' for column in columns) +
-                    '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
+
+                # Native Streamlit data table: every column header supports ascending/descending sorting.
+                # Keep numeric values numeric so percentage and price columns sort by value, not text.
+                comparison_df = pd.DataFrame(table_rows)
+                highlighted_stocks = {
+                    row["Stock Name"] for row in lowest_three
+                }
+                top_choice_name = top_choice["Stock Name"] if top_choice else None
+
+                def style_index_toppers_row(row):
+                    stock_name = row["Stock Name"]
+                    if stock_name == top_choice_name:
+                        return ["background-color: #5B4517; color: #FFF4D6; font-weight: 800;"] * len(row)
+                    if stock_name in highlighted_stocks:
+                        return ["background-color: #F6E7B7; color: #3E3218; font-weight: 700;"] * len(row)
+                    return [""] * len(row)
+
+                styled_comparison = (
+                    comparison_df.style
+                    .apply(style_index_toppers_row, axis=1)
+                    .format({
+                        "% Chg": "{:+.2f}%",
+                        "Price": lambda value: f"₹{value:,.2f}" if pd.notna(value) else "—",
+                        "O2L%": lambda value: f"{value:+.2f}%" if pd.notna(value) else "—",
+                        "O2H%": lambda value: f"{value:+.2f}%" if pd.notna(value) else "—",
+                        "Open": lambda value: f"₹{value:,.2f}" if pd.notna(value) else "—",
+                        "High": lambda value: f"₹{value:,.2f}" if pd.notna(value) else "—",
+                        "Low": lambda value: f"₹{value:,.2f}" if pd.notna(value) else "—",
+                    })
                 )
-                st.markdown(table_html, unsafe_allow_html=True)
+                st.dataframe(
+                    styled_comparison,
+                    use_container_width=True,
+                    hide_index=True,
+                )
             else:
                 st.warning("Live stock quotes are not available for the selected indices right now.")
 
