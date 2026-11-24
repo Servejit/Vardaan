@@ -2111,7 +2111,6 @@ def render_index_toppers_dashboard():
     <div class="index-topper-hero">
       <div class="index-topper-kicker">6THSENSE · LIVE MARKET SELECTION</div>
       <div class="index-topper-title">Index Toppers</div>
-      <div class="index-topper-sub">Top 5 live % gainers from each selected index → lowest 3 O2L% → lowest O2H% with live price above today's open.</div>
     </div>
     """, unsafe_allow_html=True)
 
