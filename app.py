@@ -2110,7 +2110,7 @@ def render_index_toppers_dashboard():
     st.markdown("""
     <div class="index-topper-hero">
       <div class="index-topper-kicker">6THSENSE · LIVE MARKET SELECTION</div>
-      <div class="index-topper-title">Index Toppers</div>
+      <div class="index-topper-title">6THSENSE-VARDAAN</div>
     </div>
     """, unsafe_allow_html=True)
 
