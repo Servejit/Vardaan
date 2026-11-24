@@ -2101,51 +2101,6 @@ def render_index_toppers_dashboard():
         background:#FFFFFF !important;
         color:#3B2118 !important;
     }
-    /* Gentle AutoGreen-style motion: soft moving highlight on sidebar items. */
-    @keyframes indexSidebarShimmer {
-        0% { transform:translate3d(-150%,0,0) skewX(-18deg); opacity:0; }
-        18% { opacity:.42; }
-        58% { opacity:.22; }
-        100% { transform:translate3d(340%,0,0) skewX(-18deg); opacity:0; }
-    }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
-    [data-testid="stSidebar"] .stButton > button,
-    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
-        position:relative !important;
-        overflow:hidden !important;
-        isolation:isolate;
-        transition:background .25s ease,border-color .25s ease,box-shadow .25s ease !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label::after,
-    [data-testid="stSidebar"] .stButton > button::after,
-    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button::after {
-        content:"";
-        position:absolute;
-        inset:-35% auto -35% -48%;
-        width:32%;
-        pointer-events:none;
-        z-index:2;
-        background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0) 25%,
-            rgba(255,255,255,.78) 48%,rgba(255,255,255,.20) 58%,transparent 82%);
-        filter:blur(1px);
-        animation:indexSidebarShimmer 6.5s ease-in-out infinite;
-    }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:nth-child(2)::after { animation-delay:-2s; }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:nth-child(3)::after { animation-delay:-4s; }
-    [data-testid="stSidebar"] .stButton > button::after { animation-delay:-3s; }
-    @media (prefers-reduced-motion:reduce) {
-        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label::after,
-        [data-testid="stSidebar"] .stButton > button::after,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button::after {
-            animation:none !important;
-            display:none !important;
-        }
-        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
-        [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
-            transition:none !important;
-        }
-    }
     h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#3B2118;}
     [data-testid="stDataFrame"],[data-testid="stTable"] {
         border:1px solid #A97858 !important;
@@ -2967,6 +2922,34 @@ def render_autogreen_dashboard():
             0%,100% { transform:translateY(0); }
             50% { transform:translateY(-2px); }
         }
+        @keyframes signalCardSweep {
+            0% { transform:translate3d(-145%,0,0) skewX(-18deg); opacity:0; }
+            16% { opacity:.48; }
+            54% { opacity:.24; }
+            100% { transform:translate3d(330%,0,0) skewX(-18deg); opacity:0; }
+        }
+        .index-signal-card {
+            position:relative;
+            overflow:hidden;
+            isolation:isolate;
+        }
+        .index-signal-card::after {
+            content:"";
+            position:absolute;
+            top:-35%;
+            bottom:-35%;
+            left:-48%;
+            width:34%;
+            z-index:0;
+            pointer-events:none;
+            background:linear-gradient(105deg,transparent 0%,rgba(255,255,255,0) 25%,
+                rgba(255,255,255,.42) 48%,rgba(255,255,255,.16) 58%,transparent 82%);
+            filter:blur(2px);
+            animation:signalCardSweep 6.2s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion:reduce) {
+            .index-signal-card::after { animation:none !important; display:none !important; }
+        }
         </style>
         """,
         unsafe_allow_html=True
@@ -3070,7 +3053,7 @@ def render_autogreen_dashboard():
                 item.get("Card Colour"), palette["Copper-Orange"]
             )
             card_html = f"""
-            <div style="
+            <div class="index-signal-card" style="
                 position:relative;overflow:hidden;
                 background:
                     linear-gradient(125deg,{c1} 0%,{c2} 46%,{c3} 100%) padding-box,
