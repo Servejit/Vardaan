@@ -2466,6 +2466,43 @@ def render_index_toppers_dashboard():
             <style>
             .stApp { --brand-flower-color:#F28C28 !important; }
             [data-testid="stSidebar"] { --brand-flower-color:#F28C28 !important; }
+            [data-testid="stSidebar"] {
+                background:linear-gradient(180deg,#FFF0DF 0%,#FFEDD5 48%,#FFF7ED 100%) !important;
+                border-right:1.5px solid #F97316 !important;
+                box-shadow:inset -8px 0 24px rgba(234,88,12,.14) !important;
+            }
+            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+            [data-testid="stSidebar"] label,
+            [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+            [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+                color:#7C2D12 !important;
+            }
+            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+            [data-testid="stSidebar"] [data-baseweb="select"] > div,
+            [data-testid="stSidebar"] input,
+            [data-testid="stSidebar"] textarea {
+                background:linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 100%) !important;
+                border-color:#FDBA74 !important;
+                color:#7C2D12 !important;
+            }
+            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover,
+            [data-testid="stSidebar"] [data-baseweb="select"] > div:hover {
+                border-color:#EA580C !important;
+                box-shadow:0 3px 12px rgba(234,88,12,.18) !important;
+            }
+            [data-testid="stSidebar"] .stButton > button,
+            [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
+                border:1px solid #EA580C !important;
+                color:#FFF7ED !important;
+                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                box-shadow:0 4px 12px rgba(194,65,12,.18) !important;
+            }
+            [data-testid="stSidebar"] .stButton > button:hover,
+            [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
+                border-color:#FDBA74 !important;
+                filter:brightness(1.08) !important;
+            }
             .stApp {
                 background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
                            linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
