@@ -5591,17 +5591,17 @@ _master_excel_ice_blue_theme = {
     "soft_text": "#557084",
 }
 _index_toppers_sidebar_theme = {
-    # Temporary Orange palette used by Index Toppers bottom navigation.
-    "deep": "#9A3412",
-    "primary": "#EA580C",
-    "accent": "#F97316",
-    "ink": "#7C2D12",
-    "accent_text": "#7C2D12",
-    "tint": "#FFEDD5",
-    "canvas": "#FFF7ED",
-    "border": "#FDBA74",
-    "soft_text": "#7C2D12",
-    "left_accent": "#EA580C",
+    # Follow the temporary preview switch; False restores the original Chocolate palette.
+    "deep": "#9A3412" if TEMPORARY_ORANGE_THEME else "#3B2118",
+    "primary": "#EA580C" if TEMPORARY_ORANGE_THEME else "#8A5638",
+    "accent": "#F97316" if TEMPORARY_ORANGE_THEME else "#A97858",
+    "ink": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#3B2118",
+    "accent_text": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#3B2118",
+    "tint": "#FFEDD5" if TEMPORARY_ORANGE_THEME else "#EAD9CC",
+    "canvas": "#FFF7ED" if TEMPORARY_ORANGE_THEME else "#F7F0EA",
+    "border": "#FDBA74" if TEMPORARY_ORANGE_THEME else "#D6B49A",
+    "soft_text": "#7C2D12" if TEMPORARY_ORANGE_THEME else "#4A2B20",
+    "left_accent": "#EA580C" if TEMPORARY_ORANGE_THEME else "#8A5638",
 }
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
