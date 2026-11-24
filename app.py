@@ -1098,37 +1098,6 @@ def render_stock_of_the_day():
             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
         }
-        h1::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 70px;
-            height: 70px;
-            box-sizing: border-box;
-            border: 2px solid transparent;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            background:
-                linear-gradient(transparent, transparent) padding-box,
-                linear-gradient(
-                    110deg,
-                    var(--brand-flower-color, #27B7A8) 0%,
-                    var(--brand-flower-color, #27B7A8) 24%,
-                    rgba(255,255,255,.98) 36%,
-                    var(--brand-flower-color, #27B7A8) 48%,
-                    var(--brand-flower-color, #27B7A8) 72%,
-                    rgba(255,255,255,.55) 84%,
-                    var(--brand-flower-color, #27B7A8) 100%
-                ) border-box;
-            background-size: 100% 100%, 300% 300%;
-            background-origin: padding-box, border-box;
-            background-clip: padding-box, border-box;
-            animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
-            z-index: 1;
-            pointer-events: none;
-        }
 
         </style>
         """,
@@ -2206,37 +2175,6 @@ def render_index_toppers_dashboard():
         -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
         mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
     }
-        h1::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 70px;
-            height: 70px;
-            box-sizing: border-box;
-            border: 2px solid transparent;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            background:
-                linear-gradient(transparent, transparent) padding-box,
-                linear-gradient(
-                    110deg,
-                    var(--brand-flower-color, #27B7A8) 0%,
-                    var(--brand-flower-color, #27B7A8) 24%,
-                    rgba(255,255,255,.98) 36%,
-                    var(--brand-flower-color, #27B7A8) 48%,
-                    var(--brand-flower-color, #27B7A8) 72%,
-                    rgba(255,255,255,.55) 84%,
-                    var(--brand-flower-color, #27B7A8) 100%
-                ) border-box;
-            background-size: 100% 100%, 300% 300%;
-            background-origin: padding-box, border-box;
-            background-clip: padding-box, border-box;
-            animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
-            z-index: 1;
-            pointer-events: none;
-        }
 
 
     </style>
@@ -2501,37 +2439,6 @@ def render_autogreen_dashboard():
             background: var(--brand-flower-color, #C58A3A);
             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
-        }
-        h1::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 70px;
-            height: 70px;
-            box-sizing: border-box;
-            border: 2px solid transparent;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            background:
-                linear-gradient(transparent, transparent) padding-box,
-                linear-gradient(
-                    110deg,
-                    var(--brand-flower-color, #27B7A8) 0%,
-                    var(--brand-flower-color, #27B7A8) 24%,
-                    rgba(255,255,255,.98) 36%,
-                    var(--brand-flower-color, #27B7A8) 48%,
-                    var(--brand-flower-color, #27B7A8) 72%,
-                    rgba(255,255,255,.55) 84%,
-                    var(--brand-flower-color, #27B7A8) 100%
-                ) border-box;
-            background-size: 100% 100%, 300% 300%;
-            background-origin: padding-box, border-box;
-            background-clip: padding-box, border-box;
-            animation: dependentSignalShimmer 4.2s linear infinite;
-            box-shadow: 0 0 5px var(--brand-flower-color, #27B7A8);
-            z-index: 1;
-            pointer-events: none;
         }
 
         </style>
