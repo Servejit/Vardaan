@@ -2031,10 +2031,38 @@ def get_autogreen_live_prices(symbols):
 
 
 def get_index_toppers_master_values(symbols):
-    """Read the D-B and C-B display values from this repository's Master workbook."""
+    """Read D-B and C-B values by matching stock symbols anywhere in Master rows."""
     wanted_headers = ("16< D-B / Avg.4", "16> C-B / Avg.4")
+    wanted_symbols = {
+        normalize_stock_symbol(symbol)
+        for symbol in symbols
+        if normalize_stock_symbol(symbol)
+    }
     details = {}
     workbook = None
+
+    def clean_header(value):
+        return " ".join(str(value or "").strip().casefold().split())
+
+    def display_master_value(value):
+        if value is None or str(value).strip() == "":
+            return "—"
+        raw_value = str(value).strip().replace(",", "").replace("−", "-")
+        matches = re.findall(
+            r"\(\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*\)",
+            raw_value,
+        )
+        if matches:
+            try:
+                return "{:.2f}".format(float(matches[-1]))
+            except (TypeError, ValueError):
+                pass
+        try:
+            cleaned = raw_value.replace("%", "").strip()
+            return "{:.2f}".format(float(cleaned))
+        except (TypeError, ValueError):
+            return "—"
+
     try:
         master_bytes = get_autogreen_master_bytes()
         workbook = load_workbook(
@@ -2043,16 +2071,15 @@ def get_index_toppers_master_values(symbols):
             read_only=True,
         )
 
-        def clean_header(value):
-            return " ".join(str(value or "").strip().casefold().split())
-
-        selected_sheet = None
-        header_row_number = None
-        header_columns = {}
-        for sheet in sorted(
+        # A Summary sheet may contain the headings but not the stock rows.
+        # Check every sheet rather than stopping at the first header match.
+        sheets = sorted(
             workbook.worksheets,
             key=lambda ws: (ws.title.casefold() != "summary", ws.title.casefold()),
-        ):
+        )
+        for sheet in sheets:
+            header_row_number = None
+            header_columns = {}
             for row_number, row in enumerate(
                 sheet.iter_rows(
                     min_row=1,
@@ -2067,48 +2094,39 @@ def get_index_toppers_master_values(symbols):
                     if value is not None
                 }
                 if all(clean_header(name) in found for name in wanted_headers):
-                    selected_sheet = sheet
                     header_row_number = row_number
                     header_columns = {
                         name: found[clean_header(name)] for name in wanted_headers
                     }
                     break
-            if selected_sheet is not None:
-                break
 
-        if selected_sheet is None:
-            return {}
+            if header_row_number is None:
+                continue
 
-        wanted_symbols = {normalize_stock_symbol(symbol) for symbol in symbols}
-        for row in selected_sheet.iter_rows(
-            min_row=header_row_number + 1,
-            values_only=True,
-        ):
-            if not row:
-                continue
-            symbol = normalize_stock_symbol(row[0] if len(row) else None)
-            if symbol not in wanted_symbols:
-                continue
-            values = {}
-            for heading in wanted_headers:
-                column_index = header_columns[heading]
-                value = row[column_index] if column_index < len(row) else None
-                if value is None or str(value).strip() == "":
-                    values[heading] = "—"
+            for row in sheet.iter_rows(
+                min_row=header_row_number + 1,
+                values_only=True,
+            ):
+                if not row:
                     continue
-                raw_value = str(value).strip()
-                # Master cells may contain descriptive text followed by the
-                # required numeric value in parentheses, e.g. "xxxx(1.23)".
-                if "(" in raw_value and ")" in raw_value:
-                    raw_value = raw_value.rsplit("(", 1)[-1].split(")", 1)[0].strip()
-                try:
-                    numeric_value = float(
-                        raw_value.replace(",", "").replace("%", "").strip()
-                    )
-                    values[heading] = f"{numeric_value:.2f}"
-                except (TypeError, ValueError):
-                    values[heading] = "—"
-            details[symbol] = values
+                # Stock symbol may be in a column other than column A.
+                matched_symbol = None
+                for cell in row:
+                    normalized = normalize_stock_symbol(cell)
+                    if normalized in wanted_symbols:
+                        matched_symbol = normalized
+                        break
+                if not matched_symbol:
+                    continue
+
+                values = details.setdefault(matched_symbol, {})
+                for heading in wanted_headers:
+                    column_index = header_columns[heading]
+                    value = row[column_index] if column_index < len(row) else None
+                    rendered = display_master_value(value)
+                    if rendered != "—" or heading not in values:
+                        values[heading] = rendered
+
         return details
     except Exception:
         return {}
