@@ -5091,10 +5091,21 @@ _master_excel_ice_blue_theme = {
     "border": "#A9D7EA",
     "soft_text": "#557084",
 }
+_vardaan_teal_theme = {
+    "deep": "#075B59",
+    "primary": "#0B6663",
+    "accent": "#27B7A8",
+    "ink": "#123F40",
+    "accent_text": "#137F77",
+    "tint": "#D2F3EE",
+    "canvas": "#E9FFFB",
+    "border": "#58BDB1",
+    "soft_text": "#164D4B",
+}
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
     if _bottom_nav_page == "Master Excel"
-    else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
+    else _vardaan_teal_theme
 )
 # Match the Master Excel bottom selector to the exact Ice Blue sidebar button
 # treatment (light selected state, blue outline and left accent), not a dark fill.
