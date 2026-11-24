@@ -2046,25 +2046,25 @@ def render_index_toppers_dashboard():
     }
     [data-testid="stHeader"] {background:rgba(231,234,238,.96) !important;}
     [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#35134f 0%,#29113f 100%) !important;
-        border-right:1px solid #8050A2 !important;
+        background:linear-gradient(180deg,#9B79B5 0%,#80609D 52%,#70518D 100%) !important;
+        border-right:1px solid #A98BC0 !important;
     }
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {color:#F2DFFF !important;}
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {color:#FFFFFF !important;}
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
-        border:1px solid #8050A288 !important;border-radius:10px !important;
-        background:linear-gradient(135deg,#35134f 0%,#29113f 100%) !important;
+        border:1px solid #B99BCF !important;border-radius:10px !important;
+        background:linear-gradient(135deg,#80609D 0%,#70518D 100%) !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-        border:1.5px solid #E0B5FF !important;
-        background:linear-gradient(110deg,#713a91 0%,#35134f 100%) !important;
-        box-shadow:inset 4px 0 0 #E0B5FF,0 3px 12px rgba(128,80,162,.24) !important;
+        border:1.5px solid #F2DFFF !important;
+        background:linear-gradient(110deg,#B18BCB 0%,#8966A6 100%) !important;
+        box-shadow:inset 4px 0 0 #F2DFFF,0 3px 12px rgba(128,80,162,.20) !important;
     }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {color:#F2DFFF !important;}
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {color:#FFFFFF !important;}
     [data-testid="stSidebar"] .stButton > button {
-        border-color:#8050A2 !important;color:#F2DFFF !important;
-        background:linear-gradient(135deg,#35134f 0%,#29113f 100%) !important;
+        border-color:#B99BCF !important;color:#FFFFFF !important;
+        background:linear-gradient(135deg,#80609D 0%,#70518D 100%) !important;
     }
     h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#263342;}
     [data-testid="stDataFrame"],[data-testid="stTable"] {
