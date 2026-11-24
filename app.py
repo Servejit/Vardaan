@@ -5195,6 +5195,16 @@ st.markdown(
         color:{_bottom_nav_theme["accent_text"]} !important;
     }}
 
+    /* Keep shortcut text on the dashboard theme colour, including Streamlit's selected state. */
+    .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,
+    .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label *,
+    .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked),
+    .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) * {{
+        color:{_bottom_nav_theme["accent_text"]} !important;
+        -webkit-text-fill-color:{_bottom_nav_theme["accent_text"]} !important;
+        opacity:1 !important;
+    }}
+
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{ gap:.35rem !important; }}
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
