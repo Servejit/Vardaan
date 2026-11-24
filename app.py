@@ -2270,15 +2270,6 @@ def render_index_toppers_dashboard():
         else:
             st.warning("Live stock quotes are not available for the selected indices right now.")
 
-        fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
-        with st.expander("Calculation details", expanded=False):
-            st.markdown(
-                "- **O2L%:** (Today's Low − Today's Open) ÷ Today's Open × 100.\n"
-                "- **O2H%:** (Today's High − Today's Open) ÷ Today's Open × 100.\n"
-                "- **Target:** Entry price +0.35%, capped at +1.00% from today's open.\n"
-                "- **Quote source:** Yahoo Finance; quotes may be delayed.\n"
-                f"- **Last refresh:** {fetched_at} IST"
-            )
     except Exception as error:
         st.error(f"Index Toppers could not be loaded: {error}")
         st.info("The dashboard will retry automatically. Check the index constituent CSV and live quote availability if this continues.")
