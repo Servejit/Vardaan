@@ -4301,7 +4301,7 @@ with st.sidebar:
                         letter-spacing:-0.04em;line-height:1.25;">VARDAAN</div>
             <div aria-hidden="true" style="
                 width:100%;height:3px;margin:0.48rem 0 0.55rem;border-radius:999px;
-                background:linear-gradient(90deg,#17658B 0%,#27B7A8 38%,#8B72C8 68%,#D6A45B 100%);
+                background:linear-gradient(270deg,#17658B 0%,#27B7A8 38%,#8B72C8 68%,#D6A45B 100%);
                 box-shadow:0 1px 7px rgba(39,183,168,.24);
             "></div>
             <div style="color:#71849a;font-size:0.76rem;margin-top:0.2rem;">
