@@ -2577,6 +2577,7 @@ def render_index_toppers_dashboard():
                     styled_table,
                     hide_index=True,
                     use_container_width=True,
+                    theme="light",
                 )
             else:
                 st.warning("Live stock quotes are not available for the selected indices right now.")
