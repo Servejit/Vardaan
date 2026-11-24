@@ -2499,7 +2499,7 @@ def render_index_toppers_dashboard():
                 columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "Avg.O2L.4", "Avg.O2H.4"]
                 # Native Streamlit dataframe enables sorting by clicking every column heading.
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
-                table_df = pd.DataFrame(table_rows)
+                table_df = pd.DataFrame(table_rows, columns=columns)
 
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
@@ -2554,9 +2554,9 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "th:nth-child(10), td:nth-child(10), th:nth-child(11), td:nth-child(11)",
                             "props": [
-                                ("width", "82px"),
-                                ("min-width", "82px"),
-                                ("max-width", "82px"),
+                                ("width", "112px"),
+                                ("min-width", "112px"),
+                                ("max-width", "112px"),
                                 ("white-space", "nowrap"),
                                 ("text-align", "center"),
                             ],
