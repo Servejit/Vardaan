@@ -5076,19 +5076,17 @@ else:
     render_autogreen_dashboard()
 
 
-# Matching dashboard shortcuts at the bottom of the dashboard page.
-# Select the palette from the dashboard currently being rendered. Master Excel
-# always uses its fixed Ice Blue palette, regardless of the previously viewed page.
+# Matching dashboard shortcuts: same dimensions and states as sidebar navigation.
 _bottom_nav_page = st.session_state.get("main_dashboard_default_index_v2", "AutoGreen")
 _master_excel_ice_blue_theme = {
     "deep": "#123B5D",
     "primary": "#17658B",
-    "accent": "#278FB8",
+    "accent": "#168FC0",
     "ink": "#173B50",
     "accent_text": "#155E91",
     "tint": "#DDF2FC",
     "canvas": "#EAF7FF",
-    "border": "#A9D7EA",
+    "border": "#B9DDED",
     "soft_text": "#557084",
 }
 _bottom_nav_theme = (
@@ -5096,71 +5094,52 @@ _bottom_nav_theme = (
     if _bottom_nav_page == "Master Excel"
     else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
-# Match the Master Excel bottom selector to the exact Ice Blue sidebar button
-# treatment (light selected state, blue outline and left accent), not a dark fill.
-if _bottom_nav_page == "Master Excel":
-    _bottom_nav_theme = {
-        **_bottom_nav_theme,
-        "border": "#B9DDED",
-        "tint": "#EAF7FF",
-        "accent": "#168FC0",
-    }
 st.markdown(
     f"""
     <style>
     .vardaan-bottom-nav-label {{
-        color:{_bottom_nav_theme["ink"]} !important;
-        font-size:.68rem;font-weight:900;letter-spacing:.16em;
-        text-transform:uppercase;margin:24px 0 9px 2px;
+        color:{_bottom_nav_theme["soft_text"]} !important;
+        font-size:.72rem;font-weight:800;letter-spacing:.12em;
+        text-transform:uppercase;margin:.75rem 0 .55rem 2px;
     }}
-    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav
-    {{ width:100%; }}
-    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"]:has(input)
-    > div[role="radiogroup"] {{
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav {{ width:100%; }}
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] > div[role="radiogroup"] {{
         display:flex !important;flex-direction:row !important;
-        align-items:stretch !important;gap:8px !important;
-        width:100% !important;padding:7px !important;
-        border:1px solid {_bottom_nav_theme["ink"]}55 !important;
-        border-radius:12px !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
-        box-shadow:0 2px 8px {_bottom_nav_theme["ink"]}12 !important;
+        align-items:stretch !important;gap:.45rem !important;width:100% !important;
+        padding:0 !important;border:0 !important;border-radius:0 !important;
+        background:transparent !important;box-shadow:none !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
         flex:1 1 0 !important;min-width:0 !important;
-        min-height:44px !important;margin:0 !important;padding:9px 8px !important;
         display:flex !important;align-items:center !important;justify-content:center !important;
-        border:1px solid {_bottom_nav_theme["ink"]}55 !important;
-        border-radius:12px !important;
+        min-height:3rem !important;padding:.55rem .8rem !important;margin:0 !important;
+        border:1px solid {_bottom_nav_theme["border"]} !important;
+        border-radius:11px !important;
         background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
-        box-shadow:0 2px 8px {_bottom_nav_theme["ink"]}12 !important;
+        box-shadow:0 2px 8px rgba(23,101,139,.08) !important;
+        transition:all 150ms ease !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:hover {{
-        border-color:{_bottom_nav_theme["ink"]} !important;
+        border-color:{_bottom_nav_theme["accent"]} !important;
         background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
         transform:translateX(2px) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-        border:1.5px solid {_bottom_nav_theme["ink"]} !important;
-        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
-        box-shadow:inset 4px 0 0 {_bottom_nav_theme["ink"]},0 3px 10px {_bottom_nav_theme["ink"]}20 !important;
+        border:1.5px solid {_bottom_nav_theme["accent"]} !important;
+        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+        box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px rgba(23,101,139,.12) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
-        color:{_bottom_nav_theme["accent_text"]} !important;font-weight:650 !important;
-        font-size:.9rem !important;text-align:center !important;margin:0 !important;
-    }}
-    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
         color:{_bottom_nav_theme["accent_text"]} !important;
+        font-weight:750 !important;font-size:.94rem !important;
+        text-align:center !important;margin:0 !important;
     }}
     @media(max-width:640px) {{
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{
-            gap:5px !important;padding:5px !important;
-        }}
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{ gap:.35rem !important; }}
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
-            min-height:48px !important;padding:7px 4px !important;
+            min-height:3rem !important;padding:.5rem .3rem !important;
         }}
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
-            font-size:.78rem !important;
-        }}
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{ font-size:.78rem !important; }}
     }}
     </style>
     """,
