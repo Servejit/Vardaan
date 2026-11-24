@@ -12,8 +12,8 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 
-# Temporary Wine preview; set to False to restore the Chocolate Index Toppers theme.
-TEMPORARY_PISTACHIO_THEME = True
+# Chocolate theme restored. Set the preview switch to True only when testing Pistachio.
+TEMPORARY_PISTACHIO_THEME = False
 from supabase import create_client, ClientOptions
 
 # ============================================================
