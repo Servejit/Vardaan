@@ -2223,6 +2223,26 @@ def render_index_toppers_dashboard():
         border:1px solid #A97858 !important;
         border-radius:12px !important;
     }
+    /* Match Signal's light expander and white table surface in Index Toppers. */
+    div[data-testid="stExpander"] {
+        background:#FFFFFF !important;
+        border:1px solid #D6B49A !important;
+        border-radius:14px !important;
+        overflow:hidden !important;
+    }
+    div[data-testid="stExpander"] summary {
+        background:#F7F0EA !important;
+        color:#4A2B20 !important;
+        font-weight:700 !important;
+    }
+    div[data-testid="stExpander"] summary:hover {
+        background:#EAD9CC !important;
+    }
+    div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+        background:#FFFFFF !important;
+        color:#3B2118 !important;
+        border-top:1px solid #E1CDBD !important;
+    }
     [data-testid="stMainBlockContainer"] .stButton > button,
     [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
         border:1px solid #8A5638 !important;
@@ -2488,7 +2508,9 @@ def render_index_toppers_dashboard():
                     elif any(stock_name == item["Stock Name"] for item in lowest_three):
                         style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
                     else:
-                        style = ""
+                        # Explicit white base row prevents Vardaan's dark table theme
+                        # from showing through; highlighted rows remain chocolate/beige.
+                        style = "background-color: #FFFFFF; color: #3B2118;"
                     return [style] * len(row)
 
                 styled_table = (
