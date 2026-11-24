@@ -2159,42 +2159,29 @@ def render_index_toppers_dashboard():
         --signal-nav-text:#3B2118;
     }
     
-    .index-topper-brand {
-        display:flex;flex-direction:column;align-items:center;justify-content:center;
-        text-align:center;margin:0 auto 16px;padding:2px 0 4px;
+
+    [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
+    .block-container { padding-top: 3.5rem !important; }
+    h1 {
+        position: relative;
+        color: #4A2B20 !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.045em !important;
+        text-align: center !important;
     }
-    .index-topper-brand-flower {
-        width:64px;height:42px;display:block;margin:0 auto 5px;
-        color:#8A5638;filter:drop-shadow(0 3px 5px rgba(74,43,32,.16));
-    }
-    .index-topper-brand-title {
-        color:#4A2B20;font-size:clamp(19px,3vw,25px);font-weight:950;
-        letter-spacing:2.4px;line-height:1.15;text-transform:uppercase;
-        text-shadow:0 2px 10px rgba(117,74,52,.12);
-    }
-    .index-topper-brand-rule {
-        width:112px;height:2px;margin:9px auto 0;border-radius:99px;
-        background:linear-gradient(90deg,transparent,#8A5638,#D6B49A,#8A5638,transparent);
+    h1::before {
+        content: ""; position: absolute; left: 50%; top: 0;
+        width: 76px; height: 52px;
+        transform: translate(-50%, calc(-100% + 26px));
+        background: var(--brand-flower-color, #8A5638);
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center / contain no-repeat;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-
-    <div class="index-topper-brand">
-      <svg class="index-topper-brand-flower" viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>
-        <path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>
-        <path d="M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z"/>
-        <path d="M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z"/>
-        <path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>
-        <path d="M34 64 Q60 69 86 64"/>
-      </svg>
-      <div class="index-topper-brand-title">6THSENSE - VARDAAN</div>
-      <div class="index-topper-brand-rule"></div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.title("6THSENSE - VARDAAN")
 
     st.markdown("""
     <div class="index-topper-hero">
