@@ -2506,7 +2506,7 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "tbody tr:nth-child(odd) td",
                             "props": [
-                                ("background-color", "#F7F0EA"),
+                                ("background-color", "#FFFFFF"),
                                 ("color", "#3B2118"),
                                 ("border-bottom", "1px solid #E1CDBD"),
                             ],
@@ -2514,7 +2514,7 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "tbody tr:nth-child(even) td",
                             "props": [
-                                ("background-color", "#FAF3ED"),
+                                ("background-color", "#FFFFFF"),
                                 ("color", "#3B2118"),
                                 ("border-bottom", "1px solid #E1CDBD"),
                             ],
