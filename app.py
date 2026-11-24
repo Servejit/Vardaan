@@ -4670,25 +4670,25 @@ elif page == "Master Excel":
     <style>
     .masterx-hero {
         position:relative; overflow:hidden; padding:25px 26px; margin:4px 0 18px;
-        border-radius:20px; color:#F8FAFC;
-        background:linear-gradient(112deg,#123B5D 0%,#17658B 28%,#278FB8 56%,#69B9D8 80%,#B9E8F5 100%);
-        box-shadow:0 12px 30px rgba(30,64,110,.18);
-        border:1px solid rgba(255,255,255,.22);
+        border-radius:20px; color:#173B50;
+        background:linear-gradient(112deg,#FFFFFF 0%,#F4FAFF 42%,#EAF7FF 72%,#DDF2FC 100%);
+        box-shadow:0 10px 26px rgba(56,130,165,.10);
+        border:1px solid #B9DDED;
     }
     .masterx-hero:after {
         content:""; position:absolute; width:190px; height:190px; right:-45px; top:-95px;
-        border:24px solid rgba(255,255,255,.10); border-radius:50%;
+        border:24px solid rgba(22,143,192,.10); border-radius:50%;
     }
-    .masterx-kicker {font-size:10px;letter-spacing:2.1px;font-weight:850;opacity:.82;text-transform:uppercase;}
-    .masterx-title {font-size:clamp(25px,3vw,34px);font-weight:900;line-height:1.12;margin:7px 0 6px;}
-    .masterx-subtitle {font-size:13px;line-height:1.5;opacity:.88;max-width:680px;}
+    .masterx-kicker {font-size:10px;letter-spacing:2.1px;font-weight:850;color:#168FC0;text-transform:uppercase;}
+    .masterx-title {font-size:clamp(25px,3vw,34px);font-weight:900;line-height:1.12;margin:7px 0 6px;color:#123B5D;}
+    .masterx-subtitle {font-size:13px;line-height:1.5;color:#557084;max-width:680px;}
     .masterx-status {
         display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 0 18px;
         border-radius:15px;background:linear-gradient(105deg,#EAF7FF,#DDF2FC 52%,#EFF9FF);
         border:1px solid #B9DDED;color:#173B50;
     }
     .masterx-status-dot {width:11px;height:11px;flex:0 0 11px;border-radius:50%;background:#38BDF8;box-shadow:0 0 0 5px rgba(56,189,248,.16);}
-    .masterx-status-dot.offline {background:#F59E0B;box-shadow:0 0 0 5px rgba(245,158,11,.14);}
+    .masterx-status-dot.offline {background:#38BDF8;box-shadow:0 0 0 5px rgba(56,189,248,.16);}
     .masterx-status-title {font-size:14px;font-weight:850;line-height:1.3;}
     .masterx-status-note {font-size:11px;color:#557084;margin-top:3px;}
     .masterx-section {
@@ -4698,15 +4698,15 @@ elif page == "Master Excel":
     }
     .masterx-section-icon {
         display:flex;align-items:center;justify-content:center;width:30px;height:30px;
-        border-radius:10px;background:linear-gradient(135deg,#1D4ED8,#38BDF8,#A5E8F7);
-        color:white;font-size:15px;
+        border-radius:10px;background:linear-gradient(135deg,#FFFFFF,#DDF2FC,#B9E8F5);
+        color:#155E91;font-size:15px;
     }
     div[data-testid="stDownloadButton"] button {
-        border:0!important;color:white!important;font-weight:800!important;
-        background:linear-gradient(100deg,#155E91,#168FC0 55%,#62C4E6)!important;
-        box-shadow:0 6px 16px rgba(30,144,190,.20)!important;border-radius:12px!important;
+        border:1px solid #B9DDED!important;color:#155E91!important;font-weight:800!important;
+        background:linear-gradient(100deg,#FFFFFF,#EAF7FF 55%,#DDF2FC)!important;
+        box-shadow:0 4px 12px rgba(56,130,165,.10)!important;border-radius:12px!important;
     }
-    div[data-testid="stDownloadButton"] button:hover {filter:brightness(1.07);border:0!important;}
+    div[data-testid="stDownloadButton"] button:hover {background:#DDF2FC!important;border-color:#168FC0!important;}
 
     /* Master Excel page: keep the complete sidebar in the fixed ice-blue theme. */
     .stApp { --signal-nav-border:#B9DDED; --signal-nav-accent:#168FC0; --signal-nav-soft:#DDF2FC; --signal-nav-canvas:#EAF7FF; --signal-nav-text:#173B50; }
@@ -4776,6 +4776,44 @@ elif page == "Master Excel":
     [data-testid="stSidebar"] textarea:focus {
         border-color:#168FC0 !important;
         box-shadow:0 0 0 2px rgba(56,189,248,.18) !important;
+    }
+    
+    /* Keep every Master Excel control within the same ice-blue and white palette. */
+    [data-testid="stMainBlockContainer"] .stButton > button,
+    [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button {
+        border:1px solid #B9DDED !important;
+        border-radius:11px !important;
+        color:#155E91 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#EAF7FF 58%,#DDF2FC 100%) !important;
+        box-shadow:0 3px 10px rgba(56,130,165,.09) !important;
+        font-weight:800 !important;
+    }
+    [data-testid="stMainBlockContainer"] .stButton > button:hover,
+    [data-testid="stMainBlockContainer"] [data-testid="stFormSubmitButton"] button:hover {
+        border-color:#168FC0 !important;
+        background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
+        color:#123B5D !important;
+    }
+    [data-testid="stFileUploader"] section {
+        background:#FFFFFF !important;
+        border:1px dashed #A9D7EA !important;
+        border-radius:12px !important;
+        color:#173B50 !important;
+    }
+    [data-testid="stFileUploader"] section *,
+    [data-testid="stFileUploader"] button {
+        color:#155E91 !important;
+    }
+    [data-testid="stFileUploader"] button {
+        border:1px solid #A9D7EA !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%) !important;
+    }
+    [data-testid="stMainBlockContainer"] input,
+    [data-testid="stMainBlockContainer"] textarea,
+    [data-testid="stMainBlockContainer"] [data-baseweb="select"] > div {
+        border-color:#B9DDED !important;
+        background-color:#FFFFFF !important;
+        color:#173B50 !important;
     }
     </style>
     """, unsafe_allow_html=True)
