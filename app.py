@@ -2464,7 +2464,7 @@ def render_index_toppers_dashboard():
         top_choice = eligible[0] if eligible else None
         highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
-        if TEMPORARY_WINE_THEME:
+        if TEMPORARY_PISTACHIO_THEME:
             st.markdown("""
             <style>
             .stApp { --brand-flower-color:#91A96B !important; }
@@ -5592,16 +5592,16 @@ _master_excel_ice_blue_theme = {
 }
 _index_toppers_sidebar_theme = {
     # Follow the temporary preview switch; False restores the original Chocolate palette.
-    "deep": "#5C1E35" if TEMPORARY_WINE_THEME else "#3B2118",
-    "primary": "#9E4059" if TEMPORARY_WINE_THEME else "#8A5638",
-    "accent": "#C9788D" if TEMPORARY_WINE_THEME else "#A97858",
-    "ink": "#542334" if TEMPORARY_WINE_THEME else "#3B2118",
-    "accent_text": "#542334" if TEMPORARY_WINE_THEME else "#3B2118",
-    "tint": "#F1D5DE" if TEMPORARY_WINE_THEME else "#EAD9CC",
-    "canvas": "#FDF5F7" if TEMPORARY_WINE_THEME else "#F7F0EA",
-    "border": "#D9A4B2" if TEMPORARY_WINE_THEME else "#D6B49A",
-    "soft_text": "#542334" if TEMPORARY_WINE_THEME else "#4A2B20",
-    "left_accent": "#9E4059" if TEMPORARY_WINE_THEME else "#8A5638",
+    "deep": "#34452A" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
+    "primary": "#718A50" if TEMPORARY_PISTACHIO_THEME else "#8A5638",
+    "accent": "#A8BD82" if TEMPORARY_PISTACHIO_THEME else "#A97858",
+    "ink": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
+    "accent_text": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
+    "tint": "#E3EBD4" if TEMPORARY_PISTACHIO_THEME else "#EAD9CC",
+    "canvas": "#F7F9F1" if TEMPORARY_PISTACHIO_THEME else "#F7F0EA",
+    "border": "#C4D5A8" if TEMPORARY_PISTACHIO_THEME else "#D6B49A",
+    "soft_text": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#4A2B20",
+    "left_accent": "#718A50" if TEMPORARY_PISTACHIO_THEME else "#8A5638",
 }
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
