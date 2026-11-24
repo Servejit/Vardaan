@@ -2923,10 +2923,10 @@ def render_autogreen_dashboard():
             50% { transform:translateY(-2px); }
         }
         @keyframes signalCardSweep {
-            0% { transform:translate3d(-145%,0,0) skewX(-18deg); opacity:0; }
+            0% { transform:translate3d(-145%,-90%,0) skewX(-18deg); opacity:0; }
             16% { opacity:.48; }
             54% { opacity:.24; }
-            100% { transform:translate3d(330%,0,0) skewX(-18deg); opacity:0; }
+            100% { transform:translate3d(330%,90%,0) skewX(-18deg); opacity:0; }
         }
         .index-signal-card {
             position:relative;
