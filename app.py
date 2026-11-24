@@ -5713,3 +5713,41 @@ with st.container(key="vardaan-bottom-nav"):
         horizontal=True,
         label_visibility="collapsed",
     )
+
+ 
+# Sidebar navigation matches the dashboard's bottom navigation in the active theme.
+st.markdown("""
+<style>
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label {
+    border:1px solid var(--signal-nav-border,#B9DDED) !important;
+    border-radius:11px !important;
+    background:linear-gradient(135deg,#FFFFFF 0%,var(--signal-nav-canvas,#EAF7FF) 100%) !important;
+    color:var(--signal-nav-text,#173B50) !important;
+    box-shadow:0 2px 8px rgba(23,101,139,.08) !important;
+    padding:.55rem .8rem !important;
+    margin:.2rem 0 !important;
+    transition:all 150ms ease !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:hover {
+    border-color:var(--signal-nav-accent,#168FC0) !important;
+    background:linear-gradient(110deg,var(--signal-nav-soft,#DDF2FC) 0%,#FFFFFF 100%) !important;
+    transform:translateX(2px) !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+    border:1.5px solid var(--signal-nav-accent,#168FC0) !important;
+    background:linear-gradient(110deg,var(--signal-nav-soft,#DDF2FC) 0%,#FFFFFF 100%) !important;
+    box-shadow:inset 4px 0 0 var(--signal-nav-accent,#168FC0),0 3px 10px rgba(23,101,139,.12) !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label p,
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label span {
+    color:var(--signal-nav-text,#173B50) !important;
+    -webkit-text-fill-color:var(--signal-nav-text,#173B50) !important;
+    font-weight:750 !important;
+}
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p,
+[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) span {
+    color:var(--signal-nav-text,#173B50) !important;
+    -webkit-text-fill-color:var(--signal-nav-text,#173B50) !important;
+}
+</style>
+""", unsafe_allow_html=True)
