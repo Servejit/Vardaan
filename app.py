@@ -11,9 +11,6 @@ import pandas as pd
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
-
-# Chocolate theme restored. Set the preview switch to True only when testing Pistachio.
-TEMPORARY_PISTACHIO_THEME = False
 from supabase import create_client, ClientOptions
 
 # ============================================================
@@ -2464,113 +2461,74 @@ def render_index_toppers_dashboard():
         top_choice = eligible[0] if eligible else None
         highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
-        if TEMPORARY_PISTACHIO_THEME:
+        if fallback_mode:
             st.markdown("""
             <style>
-            .stApp { --brand-flower-color:#91A96B !important; }
-            [data-testid="stSidebar"] { --brand-flower-color:#91A96B !important; }
-            [data-testid="stSidebar"] {
-                background:linear-gradient(180deg,#EDF3E3 0%,#E3EBD4 48%,#F7F9F1 100%) !important;
-                border-right:1.5px solid #A8BD82 !important;
-                box-shadow:inset -8px 0 24px rgba(113,138,80,.14) !important;
-            }
-            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
-            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-            [data-testid="stSidebar"] label,
-            [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
-            [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-                color:#34412F !important;
-            }
-            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
-            [data-testid="stSidebar"] [data-baseweb="select"] > div,
-            [data-testid="stSidebar"] input,
-            [data-testid="stSidebar"] textarea {
-                background:linear-gradient(135deg,#F7F9F1 0%,#E3EBD4 100%) !important;
-                border-color:#C4D5A8 !important;
-                color:#34412F !important;
-            }
-            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover,
-            [data-testid="stSidebar"] [data-baseweb="select"] > div:hover {
-                border-color:#718A50 !important;
-                box-shadow:0 3px 12px rgba(113,138,80,.18) !important;
-            }
-            [data-testid="stSidebar"] .stButton > button,
-            [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
-                border:1px solid #718A50 !important;
-                color:#F7F9F1 !important;
-                background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
-                box-shadow:0 4px 12px rgba(81,107,60,.18) !important;
-            }
-            [data-testid="stSidebar"] .stButton > button:hover,
-            [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#C4D5A8 !important;
-                filter:brightness(1.08) !important;
-            }
-            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#34412F !important; }
+            :root { --brand-flower-color:#F28C28 !important; }
             .stApp {
-                background:radial-gradient(ellipse at 8% 0%,#D7E3C3 0%,transparent 44%),
-                           linear-gradient(135deg,#F7F9F1 0%,#E3EBD4 52%,#FBFCF7 100%) !important;
-                color:#34412F !important;
+                background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
+                           linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
+                color:#7C2D12 !important;
             }
             [data-testid="stHeader"] {
                 background:rgba(255,247,237,.97) !important;
-                border-bottom:1px solid #91A96B !important;
+                border-bottom:1px solid #F28C28 !important;
             }
             [data-testid="stMainBlockContainer"] {
-                --signal-nav-border:#C4D5A8;
-                --signal-nav-accent:#718A50;
-                --signal-nav-soft:#E3EBD4;
-                --signal-nav-canvas:#F7F9F1;
-                --signal-nav-text:#34412F;
+                --signal-nav-border:#FDBA74;
+                --signal-nav-accent:#EA580C;
+                --signal-nav-soft:#FFEDD5;
+                --signal-nav-canvas:#FFF7ED;
+                --signal-nav-text:#7C2D12;
             }
             .index-topper-hero {
-                border-color:#A8BD82 !important;
+                border-color:#F97316 !important;
                 background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.28),transparent 27%),
-                           linear-gradient(115deg,#34452A 0%,#718A50 48%,#536B3C 100%) !important;
-                box-shadow:0 14px 34px rgba(81,107,60,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
+                           linear-gradient(115deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) !important;
+                box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
             }
-            .index-topper-kicker,.index-topper-metric-label { color:#D5E1C2 !important; }
-            .index-topper-sub { color:#E3EBD4 !important; }
+            .index-topper-kicker,.index-topper-metric-label { color:#FED7AA !important; }
+            .index-topper-sub { color:#FFEDD5 !important; }
             .index-topper-card {
-                background:linear-gradient(130deg,#34452A 0%,#718A50 48%,#536B3C 100%) padding-box,
-                           linear-gradient(115deg,#A8BD82 0%,#C4D5A8 35%,#FFFFFF 52%,#91A96B 75%,#34452A 100%) border-box !important;
-                box-shadow:0 12px 32px rgba(81,107,60,.24),0 0 25px rgba(145,169,107,.2) !important;
+                background:linear-gradient(130deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) padding-box,
+                           linear-gradient(115deg,#F97316 0%,#FDBA74 35%,#FFFFFF 52%,#FB923C 75%,#9A3412 100%) border-box !important;
+                box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
             }
-            .index-topper-card-label { color:#D5E1C2 !important; }
+            .index-topper-card-label { color:#FED7AA !important; }
             .index-topper-pill {
-                color:#34412F !important;
-                background:linear-gradient(110deg,#E3EBD4,#C4D5A8) !important;
+                color:#7C2D12 !important;
+                background:linear-gradient(110deg,#FFEDD5,#FDBA74) !important;
             }
-            .index-topper-target { color:#D5E1C2 !important; }
-            .index-topper-table-wrap { border-color:#A8BD82 !important; background:#F7F9F1 !important; }
-            .index-topper-table { color:#34412F !important; }
+            .index-topper-target { color:#FED7AA !important; }
+            .index-topper-table-wrap { border-color:#F97316 !important; background:#FFF7ED !important; }
+            .index-topper-table { color:#7C2D12 !important; }
             .index-topper-table th {
-                background:linear-gradient(110deg,#C4D5A8,#E3EBD4) !important;
-                color:#34412F !important;border-bottom-color:#718A50 !important;
+                background:linear-gradient(110deg,#FDBA74,#FFEDD5) !important;
+                color:#7C2D12 !important;border-bottom-color:#EA580C !important;
             }
-            .index-topper-table td { border-bottom-color:#D5E1C2 !important; }
-            .index-topper-table tr:nth-child(even) { background:#F7F9F1 !important; }
-            .index-topper-table tr.top-three { background:#E3EBD4 !important; }
-            .index-topper-table tr.top-choice { background:#C4D5A8 !important; }
-            .index-topper-section { color:#536B3C !important; }
-            div[data-testid="stExpander"] { border-color:#C4D5A8 !important; }
+            .index-topper-table td { border-bottom-color:#FED7AA !important; }
+            .index-topper-table tr:nth-child(even) { background:#FFF7ED !important; }
+            .index-topper-table tr.top-three { background:#FFEDD5 !important; }
+            .index-topper-table tr.top-choice { background:#FDBA74 !important; }
+            .index-topper-section { color:#C2410C !important; }
+            div[data-testid="stExpander"] { border-color:#FDBA74 !important; }
             div[data-testid="stExpander"] summary {
-                background:#F7F9F1 !important;color:#34452A !important;
+                background:#FFF7ED !important;color:#9A3412 !important;
             }
-            div[data-testid="stExpander"] summary:hover { background:#E3EBD4 !important; }
+            div[data-testid="stExpander"] summary:hover { background:#FFEDD5 !important; }
             div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background:#FFFFFF !important;color:#34412F !important;
-                border-top-color:#D5E1C2 !important;
+                background:#FFFFFF !important;color:#7C2D12 !important;
+                border-top-color:#FED7AA !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
-                border-color:#718A50 !important;color:#F7F9F1 !important;
-                background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
-                box-shadow:0 5px 14px rgba(81,107,60,.2) !important;
+                border-color:#EA580C !important;color:#FFF7ED !important;
+                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                box-shadow:0 5px 14px rgba(194,65,12,.2) !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button:hover,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#C4D5A8 !important;filter:brightness(1.08) !important;
+                border-color:#FDBA74 !important;filter:brightness(1.08) !important;
             }
             </style>
             """, unsafe_allow_html=True)
@@ -2662,42 +2620,16 @@ def render_index_toppers_dashboard():
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows, columns=columns)
 
-                # Match the full table palette to the active Index Toppers mode.
-                if fallback_mode:
-                    table_header_bg = "#FDBA74"
-                    table_header_text = "#7C2D12"
-                    table_header_border = "#EA580C"
-                    table_base_bg = "#FFF7ED"
-                    table_base_text = "#7C2D12"
-                    table_row_border = "#FED7AA"
-                    table_highlight_bg = "#FFEDD5"
-                    table_highlight_text = "#7C2D12"
-                    table_choice_bg = "#FB923C"
-                    table_choice_text = "#431407"
-                    table_border = "#F97316"
-                else:
-                    table_header_bg = "#D9B89C"
-                    table_header_text = "#4A2B20"
-                    table_header_border = "#8A5638"
-                    table_base_bg = "#FFFFFF"
-                    table_base_text = "#3B2118"
-                    table_row_border = "#E1CDBD"
-                    table_highlight_bg = "#EAD9CC"
-                    table_highlight_text = "#4A2B20"
-                    table_choice_bg = "#C99D7B"
-                    table_choice_text = "#3B2118"
-                    table_border = "#A97858"
-
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
-                        style = f"background-color: {table_choice_bg}; color: {table_choice_text}; font-weight: 900;"
+                        style = "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
                     elif any(stock_name == item["Stock Name"] for item in highlighted_candidates):
-                        style = f"background-color: {table_highlight_bg}; color: {table_highlight_text}; font-weight: 800;"
+                        style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
                     else:
                         # Explicit white base row prevents Vardaan's dark table theme
                         # from showing through; highlighted rows remain chocolate/beige.
-                        style = f"background-color: {table_base_bg}; color: {table_base_text};"
+                        style = "background-color: #FFFFFF; color: #3B2118;"
                     return [style] * len(row)
 
                 styled_table = (
@@ -2706,33 +2638,33 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "th",
                             "props": [
-                                ("background-color", table_header_bg),
-                                ("color", table_header_text),
+                                ("background-color", "#D9B89C"),
+                                ("color", "#4A2B20"),
                                 ("font-weight", "900"),
-                                ("border-bottom", f"2px solid {table_header_border}"),
+                                ("border-bottom", "2px solid #8A5638"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(odd) td",
                             "props": [
-                                ("background-color", table_base_bg),
-                                ("color", table_base_text),
-                                ("border-bottom", f"1px solid {table_row_border}"),
+                                ("background-color", "#FFFFFF"),
+                                ("color", "#3B2118"),
+                                ("border-bottom", "1px solid #E1CDBD"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(even) td",
                             "props": [
-                                ("background-color", table_base_bg),
-                                ("color", table_base_text),
-                                ("border-bottom", f"1px solid {table_row_border}"),
+                                ("background-color", "#FFFFFF"),
+                                ("color", "#3B2118"),
+                                ("border-bottom", "1px solid #E1CDBD"),
                             ],
                         },
                         {
                             "selector": "table",
                             "props": [
-                                ("background-color", table_base_bg),
-                                ("border", f"1px solid {table_border}"),
+                                ("background-color", "#F7F0EA"),
+                                ("border", "1px solid #A97858"),
                                 ("border-collapse", "collapse"),
                             ],
                         },
@@ -4953,23 +4885,6 @@ elif page == "Master Excel":
         background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
         color:#123B5D !important;
     }
-    /* Keep sidebar actions restored to the original Chocolate palette. */
-    [data-testid="stSidebar"] .stButton > button,
-    [data-testid="stSidebar"] [data-testid="stDownloadButton"] button,
-    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
-        border:1px solid #C99D7B !important;
-        color:#4A2B20 !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,#EAD9CC 100%) !important;
-        box-shadow:0 5px 14px rgba(74,43,32,.12) !important;
-    }
-    [data-testid="stSidebar"] .stButton > button:hover,
-    [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover,
-    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
-        border-color:#8A5638 !important;
-        color:#3B2118 !important;
-        background:linear-gradient(110deg,#EAD9CC 0%,#D9B89C 100%) !important;
-        filter:brightness(1.03) !important;
-    }
     [data-testid="stSidebar"] input,
     [data-testid="stSidebar"] textarea {
         border-color:#A9D7EA !important;
@@ -5608,17 +5523,17 @@ _master_excel_ice_blue_theme = {
     "soft_text": "#557084",
 }
 _index_toppers_sidebar_theme = {
-    # Follow the temporary preview switch; False restores the original Chocolate palette.
-    "deep": "#34452A" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
-    "primary": "#718A50" if TEMPORARY_PISTACHIO_THEME else "#8A5638",
-    "accent": "#A8BD82" if TEMPORARY_PISTACHIO_THEME else "#A97858",
-    "ink": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
-    "accent_text": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#3B2118",
-    "tint": "#E3EBD4" if TEMPORARY_PISTACHIO_THEME else "#EAD9CC",
-    "canvas": "#F7F9F1" if TEMPORARY_PISTACHIO_THEME else "#F7F0EA",
-    "border": "#C4D5A8" if TEMPORARY_PISTACHIO_THEME else "#D6B49A",
-    "soft_text": "#34412F" if TEMPORARY_PISTACHIO_THEME else "#4A2B20",
-    "left_accent": "#718A50" if TEMPORARY_PISTACHIO_THEME else "#8A5638",
+    # Exact Chocolate Brown palette used by Index Toppers sidebar navigation.
+    "deep": "#3B2118",
+    "primary": "#8A5638",
+    "accent": "#A97858",
+    "ink": "#3B2118",
+    "accent_text": "#3B2118",
+    "tint": "#EAD9CC",
+    "canvas": "#F7F0EA",
+    "border": "#D6B49A",
+    "soft_text": "#4A2B20",
+    "left_accent": "#8A5638",
 }
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
@@ -5713,41 +5628,3 @@ with st.container(key="vardaan-bottom-nav"):
         horizontal=True,
         label_visibility="collapsed",
     )
-
- 
-# Sidebar navigation matches the dashboard's bottom navigation in the active theme.
-st.markdown("""
-<style>
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label {
-    border:1px solid var(--signal-nav-border,#B9DDED) !important;
-    border-radius:11px !important;
-    background:linear-gradient(135deg,#FFFFFF 0%,var(--signal-nav-canvas,#EAF7FF) 100%) !important;
-    color:var(--signal-nav-text,#173B50) !important;
-    box-shadow:0 2px 8px rgba(23,101,139,.08) !important;
-    padding:.55rem .8rem !important;
-    margin:.2rem 0 !important;
-    transition:all 150ms ease !important;
-}
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:hover {
-    border-color:var(--signal-nav-accent,#168FC0) !important;
-    background:linear-gradient(110deg,var(--signal-nav-soft,#DDF2FC) 0%,#FFFFFF 100%) !important;
-    transform:translateX(2px) !important;
-}
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-    border:1.5px solid var(--signal-nav-accent,#168FC0) !important;
-    background:linear-gradient(110deg,var(--signal-nav-soft,#DDF2FC) 0%,#FFFFFF 100%) !important;
-    box-shadow:inset 4px 0 0 var(--signal-nav-accent,#168FC0),0 3px 10px rgba(23,101,139,.12) !important;
-}
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label p,
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label span {
-    color:var(--signal-nav-text,#173B50) !important;
-    -webkit-text-fill-color:var(--signal-nav-text,#173B50) !important;
-    font-weight:750 !important;
-}
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p,
-[data-testid="stSidebar"] .st-key-sidebar_dashboard_nav_v1 [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) span {
-    color:var(--signal-nav-text,#173B50) !important;
-    -webkit-text-fill-color:var(--signal-nav-text,#173B50) !important;
-}
-</style>
-""", unsafe_allow_html=True)
