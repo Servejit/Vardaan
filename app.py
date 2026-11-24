@@ -2395,12 +2395,36 @@ def render_index_toppers_dashboard():
             ))
         )
 
+        # Build the display table rows first. The Top Choice card reads its
+        # two Master metrics directly from this same table row.
+        master_values = index_toppers_master_values
+        table_rows = []
+        for row in candidates:
+            table_rows.append({
+                "Stock Name": row["Stock Name"],
+                "Index": row["Index"],
+                "% Chg": row["% Chg"],
+                "Price": row.get("Price"),
+                "O2L%": row.get("O2L%"),
+                "O2H%": row.get("O2H%"),
+                "Open": row.get("Open"),
+                "High": row.get("High"),
+                "Low": row.get("Low"),
+                "Avg.O2L.4": f'({master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16< D-B / Avg.4", "—")})',
+                "Avg.O2H.4": f'({master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16> C-B / Avg.4", "—")})',
+            })
+
         if top_choice:
-            top_choice_master_row = index_toppers_master_values.get(
-                normalize_stock_symbol(top_choice["Stock Name"]), {}
+            top_choice_table_row = next(
+                (
+                    row for row in table_rows
+                    if normalize_stock_symbol(row["Stock Name"])
+                    == normalize_stock_symbol(top_choice["Stock Name"])
+                ),
+                {},
             )
-            top_choice_avg_o2l = top_choice_master_row.get("16< D-B / Avg.4", "—")
-            top_choice_avg_o2h = top_choice_master_row.get("16> C-B / Avg.4", "—")
+            top_choice_avg_o2l = top_choice_table_row.get("Avg.O2L.4", "(—)")
+            top_choice_avg_o2h = top_choice_table_row.get("Avg.O2H.4", "(—)")
             top_choice_master_parts = []
             if top_choice_avg_o2l != "—":
                 top_choice_master_parts.append(
@@ -2452,23 +2476,6 @@ def render_index_toppers_dashboard():
 
         with st.expander("TOP 5 LIVE % GAINERS · EACH INDEX", expanded=False):
             if candidates:
-                master_values = index_toppers_master_values
-                table_rows = []
-                for row in candidates:
-                    table_rows.append({
-                        "Stock Name": row["Stock Name"],
-                        "Index": row["Index"],
-                        "% Chg": row["% Chg"],
-                        "Price": row.get("Price"),
-                        "O2L%": row.get("O2L%"),
-                        "O2H%": row.get("O2H%"),
-                        "Open": row.get("Open"),
-                        "High": row.get("High"),
-                        "Low": row.get("Low"),
-                        "Avg.O2L.4": f'({master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16< D-B / Avg.4", "—")})',
-                        "Avg.O2H.4": f'({master_values.get(normalize_stock_symbol(row["Stock Name"]), {}).get("16> C-B / Avg.4", "—")})',
-                    })
-
                 columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "Avg.O2L.4", "Avg.O2H.4"]
                 # Native Streamlit dataframe enables sorting by clicking every column heading.
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
