@@ -2387,37 +2387,152 @@ def render_index_toppers_dashboard():
                     row["O2H%"] = None
                 candidates.append(row)
 
-        # First selection: the three lowest (most negative) O2L% readings.
+        # Load Master values for all candidates before selection so Avg.O2L.4
+        # can control each stock's individual Open-based price cap.
+        index_toppers_master_values = get_index_toppers_master_values(
+            tuple(dict.fromkeys(row["Stock Name"] for row in candidates))
+        )
+        master_values = index_toppers_master_values
+
+        def get_numeric_avg_o2l4(stock_row):
+            master_row = master_values.get(
+                normalize_stock_symbol(stock_row["Stock Name"]), {}
+            )
+            raw_value = master_row.get("16< D-B / Avg.4", "—")
+            match = re.search(
+                r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)",
+                str(raw_value).replace("−", "-").replace(",", ""),
+            )
+            try:
+                return float(match.group(0)) if match else None
+            except (TypeError, ValueError):
+                return None
+
+        for candidate in candidates:
+            candidate["_avg_o2l4_numeric"] = get_numeric_avg_o2l4(candidate)
+
+        # Rank all candidates by lowest (most negative) O2L%.
         o2l_ranked = sorted(
             [row for row in candidates if row.get("O2L%") is not None],
             key=lambda row: row["O2L%"]
         )
         lowest_three = o2l_ranked[:3]
+        next_two = o2l_ranked[3:5]
 
-        # Final selection: lowest O2H% among the three, while price is
-        # above open but still below the Open +1% target cap. This prevents
-        # showing a Top Choice whose capped target is already at/below entry.
-        eligible = [
-            row for row in lowest_three
-            if row.get("Price") is not None
-            and row.get("Open") is not None
-            and row["Open"] > 0
-            and row["Price"] > row["Open"]
-            and row["Price"] < row["Open"] * 1.01
-            and row.get("O2H%") is not None
-        ]
-        eligible.sort(key=lambda row: (round(row["O2H%"], 8), row["% Chg"]))
+        def get_eligible_stocks(stock_rows):
+            eligible_rows = []
+            for row in stock_rows:
+                open_price = row.get("Open")
+                live_price = row.get("Price")
+                if (
+                    open_price is None or open_price <= 0
+                    or live_price is None
+                    or row.get("O2H%") is None
+                ):
+                    continue
+
+                # Avg.O2L.4 below -3.00 gives this stock its own +1.50% cap.
+                cap_multiplier = (
+                    1.015 if row.get("_avg_o2l4_numeric") is not None
+                    and row["_avg_o2l4_numeric"] < -3.00 else 1.01
+                )
+                row["_open_cap_multiplier"] = cap_multiplier
+
+                if open_price < live_price < open_price * cap_multiplier:
+                    eligible_rows.append(row)
+
+            eligible_rows.sort(
+                key=lambda row: (round(row["O2H%"], 8), row["% Chg"])
+            )
+            return eligible_rows
+
+        # First attempt: the three lowest O2L% stocks.
+        primary_eligible = get_eligible_stocks(lowest_three)
+        fallback_mode = False
+        fallback_eligible = []
+
+        # If none qualifies, check the next two lowest O2L% stocks (#4 and #5).
+        if not primary_eligible:
+            fallback_eligible = get_eligible_stocks(next_two)
+            if fallback_eligible:
+                fallback_mode = True
+
+        eligible = primary_eligible if primary_eligible else fallback_eligible
         top_choice = eligible[0] if eligible else None
+        highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
-        # Load Master values once for every candidate and reuse the exact same
-        # lookup for both the Top Choice card and the sortable table.
-        index_toppers_master_values = get_index_toppers_master_values(
-            tuple(dict.fromkeys(
-                [row["Stock Name"] for row in candidates]
-                + [row["Stock Name"] for row in lowest_three]
-                + ([top_choice["Stock Name"]] if top_choice else [])
-            ))
-        )
+        if fallback_mode:
+            st.markdown("""
+            <style>
+            :root { --brand-flower-color:#F28C28 !important; }
+            .stApp {
+                background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
+                           linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
+                color:#7C2D12 !important;
+            }
+            [data-testid="stHeader"] {
+                background:rgba(255,247,237,.97) !important;
+                border-bottom:1px solid #F28C28 !important;
+            }
+            [data-testid="stMainBlockContainer"] {
+                --signal-nav-border:#FDBA74;
+                --signal-nav-accent:#EA580C;
+                --signal-nav-soft:#FFEDD5;
+                --signal-nav-canvas:#FFF7ED;
+                --signal-nav-text:#7C2D12;
+            }
+            .index-topper-hero {
+                border-color:#F97316 !important;
+                background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.28),transparent 27%),
+                           linear-gradient(115deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) !important;
+                box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
+            }
+            .index-topper-kicker,.index-topper-metric-label { color:#FED7AA !important; }
+            .index-topper-sub { color:#FFEDD5 !important; }
+            .index-topper-card {
+                background:linear-gradient(130deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) padding-box,
+                           linear-gradient(115deg,#F97316 0%,#FDBA74 35%,#FFFFFF 52%,#FB923C 75%,#9A3412 100%) border-box !important;
+                box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
+            }
+            .index-topper-card-label { color:#FED7AA !important; }
+            .index-topper-pill {
+                color:#7C2D12 !important;
+                background:linear-gradient(110deg,#FFEDD5,#FDBA74) !important;
+            }
+            .index-topper-target { color:#FED7AA !important; }
+            .index-topper-table-wrap { border-color:#F97316 !important; background:#FFF7ED !important; }
+            .index-topper-table { color:#7C2D12 !important; }
+            .index-topper-table th {
+                background:linear-gradient(110deg,#FDBA74,#FFEDD5) !important;
+                color:#7C2D12 !important;border-bottom-color:#EA580C !important;
+            }
+            .index-topper-table td { border-bottom-color:#FED7AA !important; }
+            .index-topper-table tr:nth-child(even) { background:#FFF7ED !important; }
+            .index-topper-table tr.top-three { background:#FFEDD5 !important; }
+            .index-topper-table tr.top-choice { background:#FDBA74 !important; }
+            .index-topper-section { color:#C2410C !important; }
+            div[data-testid="stExpander"] { border-color:#FDBA74 !important; }
+            div[data-testid="stExpander"] summary {
+                background:#FFF7ED !important;color:#9A3412 !important;
+            }
+            div[data-testid="stExpander"] summary:hover { background:#FFEDD5 !important; }
+            div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+                background:#FFFFFF !important;color:#7C2D12 !important;
+                border-top-color:#FED7AA !important;
+            }
+            [data-testid="stMainBlockContainer"] .stButton > button,
+            [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
+                border-color:#EA580C !important;color:#FFF7ED !important;
+                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                box-shadow:0 5px 14px rgba(194,65,12,.2) !important;
+            }
+            [data-testid="stMainBlockContainer"] .stButton > button:hover,
+            [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
+                border-color:#FDBA74 !important;filter:brightness(1.08) !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
 
         # Build the display table rows first. The Top Choice card reads its
         # two Master metrics directly from this same table row.
@@ -2465,7 +2580,7 @@ def render_index_toppers_dashboard():
             entry = top_choice["Price"]
             entry_based_target = entry * 1.0035
             open_based_cap = (
-                top_choice["Open"] * 1.01
+                top_choice["Open"] * top_choice.get("_open_cap_multiplier", 1.01)
                 if top_choice.get("Open") is not None and top_choice["Open"] > 0
                 else entry_based_target
             )
@@ -2509,7 +2624,7 @@ def render_index_toppers_dashboard():
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
                         style = "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
-                    elif any(stock_name == item["Stock Name"] for item in lowest_three):
+                    elif any(stock_name == item["Stock Name"] for item in highlighted_candidates):
                         style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
                     else:
                         # Explicit white base row prevents Vardaan's dark table theme
