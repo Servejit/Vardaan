@@ -2267,18 +2267,21 @@ def render_index_toppers_dashboard():
                 '</tr></thead><tbody>' + "".join(html_rows) + '</tbody></table></div>'
             )
             st.markdown(table_html, unsafe_allow_html=True)
-            st.caption("Gold highlight = lowest three O2L% candidates. Dark gold highlight = final Top Choice.")
         else:
             st.warning("Live stock quotes are not available for the selected indices right now.")
 
-        st.caption(
-            "O2L% = (Today's Low − Today's Open) ÷ Today's Open × 100. "
-            "O2H% = (Today's High − Today's Open) ÷ Today's Open × 100. "
-            "Target Price uses the existing +0.35% entry-based target, capped at +1.00% from today's open. "
-            "Quotes are supplied by Yahoo Finance and may be delayed."
-        )
         fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
-        st.caption(f"Last page refresh: {fetched_at} IST")
+        with st.expander("Selection & calculation details", expanded=False):
+            st.markdown(
+                "- **Selection:** Top 5 live % gainers from each of Nifty 50, Nifty Next 50 and Nifty Midcap 50. "
+                "The 15 stocks are filtered to the 3 lowest O2L% values. From those 3, the lowest O2H% is selected "
+                "only when live price is above today's open. If O2H% is tied, the lower live % change is preferred.\n"
+                "- **O2L%:** (Today's Low − Today's Open) ÷ Today's Open × 100.\n"
+                "- **O2H%:** (Today's High − Today's Open) ÷ Today's Open × 100.\n"
+                "- **Target:** Entry price +0.35%, capped at +1.00% from today's open.\n"
+                "- **Quote source:** Yahoo Finance; quotes may be delayed.\n"
+                f"- **Last refresh:** {fetched_at} IST"
+            )
     except Exception as error:
         st.error(f"Index Toppers could not be loaded: {error}")
         st.info("The dashboard will retry automatically. Check the index constituent CSV and live quote availability if this continues.")
