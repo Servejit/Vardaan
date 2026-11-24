@@ -2271,7 +2271,7 @@ def render_index_toppers_dashboard():
             st.warning("Live stock quotes are not available for the selected indices right now.")
 
         fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
-        with st.expander("Selection & calculation details", expanded=False):
+        with st.expander("Calculation details", expanded=False):
             st.markdown(
                 "- **O2L%:** (Today's Low − Today's Open) ÷ Today's Open × 100.\n"
                 "- **O2H%:** (Today's High − Today's Open) ÷ Today's Open × 100.\n"
