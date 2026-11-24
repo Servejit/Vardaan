@@ -5150,14 +5150,6 @@ _bottom_nav_theme = (
     else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
 _bottom_nav_left_accent = _bottom_nav_theme.get("left_accent", _bottom_nav_theme["accent"])
-_stock_day_selected_text_css = (
-    '[data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav '
-    '[data-testid="stRadio"] [role="radiogroup"] label:has(input:checked), '
-    '[data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav '
-    '[data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) * '
-    '{ color:#000000 !important; }'
-    if _bottom_nav_page in ("AutoGreen", "Stock of the Day") else ""
-)
 st.markdown(
     f"""
     <style>
@@ -5198,7 +5190,6 @@ st.markdown(
         font-weight:750 !important;font-size:.94rem !important;
         text-align:center !important;margin:0 !important;
     }}
-    {_stock_day_selected_text_css}
 
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{ gap:.35rem !important; }}
