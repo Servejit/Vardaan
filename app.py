@@ -2031,7 +2031,7 @@ def get_autogreen_live_prices(symbols):
 
 
 def get_index_toppers_master_values(symbols):
-    """Read D-B and C-B values by matching stock symbols anywhere in Master rows."""
+    """Read the two Index Toppers metrics from the same Master sheet and symbol column used by the Master dashboard."""
     wanted_headers = ("16< D-B / Avg.4", "16> C-B / Avg.4")
     wanted_symbols = {
         normalize_stock_symbol(symbol)
@@ -2048,6 +2048,8 @@ def get_index_toppers_master_values(symbols):
         if value is None or str(value).strip() == "":
             return "—"
         raw_value = str(value).strip().replace(",", "").replace("−", "-")
+        # Master cells can contain a value with a parenthetical annotation;
+        # use the numeric value inside the parentheses when present.
         matches = re.findall(
             r"\(\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*\)",
             raw_value,
@@ -2058,28 +2060,31 @@ def get_index_toppers_master_values(symbols):
             except (TypeError, ValueError):
                 pass
         try:
-            cleaned = raw_value.replace("%", "").strip()
-            return "{:.2f}".format(float(cleaned))
+            return "{:.2f}".format(float(raw_value.replace("%", "").strip()))
         except (TypeError, ValueError):
             return "—"
 
     try:
         master_bytes = get_autogreen_master_bytes()
+        if not master_bytes:
+            return {}
         workbook = load_workbook(
             io.BytesIO(master_bytes),
             data_only=True,
             read_only=True,
         )
 
-        # A Summary sheet may contain the headings but not the stock rows.
-        # Check every sheet rather than stopping at the first header match.
+        # Match the Master dashboard's sheet selection: prefer Summary,
+        # then use the first sheet containing both required column headings.
         sheets = sorted(
             workbook.worksheets,
             key=lambda ws: (ws.title.casefold() != "summary", ws.title.casefold()),
         )
+        selected_sheet = None
+        header_row_number = None
+        header_columns = {}
+
         for sheet in sheets:
-            header_row_number = None
-            header_columns = {}
             for row_number, row in enumerate(
                 sheet.iter_rows(
                     min_row=1,
@@ -2094,38 +2099,36 @@ def get_index_toppers_master_values(symbols):
                     if value is not None
                 }
                 if all(clean_header(name) in found for name in wanted_headers):
+                    selected_sheet = sheet
                     header_row_number = row_number
                     header_columns = {
                         name: found[clean_header(name)] for name in wanted_headers
                     }
                     break
+            if selected_sheet is not None:
+                break
 
-            if header_row_number is None:
+        if selected_sheet is None:
+            return {}
+
+        # The Master dashboard identifies each stock from column A.
+        for row in selected_sheet.iter_rows(
+            min_row=header_row_number + 1,
+            values_only=True,
+        ):
+            if not row:
+                continue
+            matched_symbol = normalize_stock_symbol(row[0] if len(row) else None)
+            if matched_symbol not in wanted_symbols:
                 continue
 
-            for row in sheet.iter_rows(
-                min_row=header_row_number + 1,
-                values_only=True,
-            ):
-                if not row:
-                    continue
-                # Stock symbol may be in a column other than column A.
-                matched_symbol = None
-                for cell in row:
-                    normalized = normalize_stock_symbol(cell)
-                    if normalized in wanted_symbols:
-                        matched_symbol = normalized
-                        break
-                if not matched_symbol:
-                    continue
-
-                values = details.setdefault(matched_symbol, {})
-                for heading in wanted_headers:
-                    column_index = header_columns[heading]
-                    value = row[column_index] if column_index < len(row) else None
-                    rendered = display_master_value(value)
-                    if rendered != "—" or heading not in values:
-                        values[heading] = rendered
+            values = details.setdefault(matched_symbol, {})
+            for heading in wanted_headers:
+                column_index = header_columns[heading]
+                raw_value = row[column_index] if column_index < len(row) else None
+                rendered = display_master_value(raw_value)
+                if rendered != "—" or heading not in values:
+                    values[heading] = rendered
 
         return details
     except Exception:
@@ -2133,7 +2136,6 @@ def get_index_toppers_master_values(symbols):
     finally:
         if workbook is not None:
             workbook.close()
-
 
 def render_index_toppers_dashboard():
     """Rank the three requested NSE indices and build the live Top Choice card."""
