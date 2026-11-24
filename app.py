@@ -2162,13 +2162,7 @@ def render_index_toppers_dashboard():
 
     [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
     .block-container { padding-top: 3.5rem !important; }
-    h1 {
-        position: relative;
-        color: #4A2B20 !important;
-        font-weight: 900 !important;
-        letter-spacing: -0.045em !important;
-        text-align: center !important;
-    }
+    h1 { position: relative; }
     h1::before {
         content: ""; position: absolute; left: 50%; top: 0;
         width: 76px; height: 52px;
@@ -2181,7 +2175,7 @@ def render_index_toppers_dashboard():
     </style>
     """, unsafe_allow_html=True)
 
-    st.title("6THSENSE - VARDAAN")
+    st.title("6thSense-Vardaan")
 
     st.markdown("""
     <div class="index-topper-hero">
