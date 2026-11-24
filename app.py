@@ -2620,16 +2620,42 @@ def render_index_toppers_dashboard():
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows, columns=columns)
 
+                # Match the full table palette to the active Index Toppers mode.
+                if fallback_mode:
+                    table_header_bg = "#FDBA74"
+                    table_header_text = "#7C2D12"
+                    table_header_border = "#EA580C"
+                    table_base_bg = "#FFF7ED"
+                    table_base_text = "#7C2D12"
+                    table_row_border = "#FED7AA"
+                    table_highlight_bg = "#FFEDD5"
+                    table_highlight_text = "#7C2D12"
+                    table_choice_bg = "#FB923C"
+                    table_choice_text = "#431407"
+                    table_border = "#F97316"
+                else:
+                    table_header_bg = "#D9B89C"
+                    table_header_text = "#4A2B20"
+                    table_header_border = "#8A5638"
+                    table_base_bg = "#FFFFFF"
+                    table_base_text = "#3B2118"
+                    table_row_border = "#E1CDBD"
+                    table_highlight_bg = "#EAD9CC"
+                    table_highlight_text = "#4A2B20"
+                    table_choice_bg = "#C99D7B"
+                    table_choice_text = "#3B2118"
+                    table_border = "#A97858"
+
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
-                        style = "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
+                        style = f"background-color: {table_choice_bg}; color: {table_choice_text}; font-weight: 900;"
                     elif any(stock_name == item["Stock Name"] for item in highlighted_candidates):
-                        style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
+                        style = f"background-color: {table_highlight_bg}; color: {table_highlight_text}; font-weight: 800;"
                     else:
                         # Explicit white base row prevents Vardaan's dark table theme
                         # from showing through; highlighted rows remain chocolate/beige.
-                        style = "background-color: #FFFFFF; color: #3B2118;"
+                        style = f"background-color: {table_base_bg}; color: {table_base_text};"
                     return [style] * len(row)
 
                 styled_table = (
@@ -2638,33 +2664,33 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "th",
                             "props": [
-                                ("background-color", "#D9B89C"),
-                                ("color", "#4A2B20"),
+                                ("background-color", table_header_bg),
+                                ("color", table_header_text),
                                 ("font-weight", "900"),
-                                ("border-bottom", "2px solid #8A5638"),
+                                ("border-bottom", f"2px solid {table_header_border}"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(odd) td",
                             "props": [
-                                ("background-color", "#FFFFFF"),
-                                ("color", "#3B2118"),
-                                ("border-bottom", "1px solid #E1CDBD"),
+                                ("background-color", table_base_bg),
+                                ("color", table_base_text),
+                                ("border-bottom", f"1px solid {table_row_border}"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(even) td",
                             "props": [
-                                ("background-color", "#FFFFFF"),
-                                ("color", "#3B2118"),
-                                ("border-bottom", "1px solid #E1CDBD"),
+                                ("background-color", table_base_bg),
+                                ("color", table_base_text),
+                                ("border-bottom", f"1px solid {table_row_border}"),
                             ],
                         },
                         {
                             "selector": "table",
                             "props": [
-                                ("background-color", "#F7F0EA"),
-                                ("border", "1px solid #A97858"),
+                                ("background-color", table_base_bg),
+                                ("border", f"1px solid {table_border}"),
                                 ("border-collapse", "collapse"),
                             ],
                         },
