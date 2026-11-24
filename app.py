@@ -5431,39 +5431,3 @@ with st.container(key="vardaan-bottom-nav"):
         horizontal=True,
         label_visibility="collapsed",
     )
-
-
-
-
-# Unified dropdown styling across every dashboard, using the active dashboard palette.
-st.markdown("""
-<style>
-div[data-testid="stExpander"] {
-    border: 1.5px solid var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-    border-left: 5px solid var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-    border-radius: 14px !important;
-    background: linear-gradient(145deg, #FFFFFF 0%, var(--signal-nav-soft, #EAD9CC) 58%, var(--signal-nav-canvas, #F7F0EA) 100%) !important;
-    box-shadow: 0 7px 22px rgba(35,51,68,.12) !important;
-    overflow: hidden !important;
-}
-div[data-testid="stExpander"] details { background: transparent !important; }
-div[data-testid="stExpander"] summary {
-    color: var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-    background: linear-gradient(90deg, var(--signal-nav-soft, #EAD9CC) 0%, var(--signal-nav-canvas, #F7F0EA) 72%, #FFFFFF 100%) !important;
-    font-weight: 900 !important;
-    letter-spacing: .45px !important;
-}
-div[data-testid="stExpander"] summary:hover {
-    color: var(--signal-nav-text, #3B2118) !important;
-    background: linear-gradient(90deg, var(--signal-nav-canvas, #F7F0EA) 0%, var(--signal-nav-soft, #EAD9CC) 100%) !important;
-}
-div[data-testid="stExpander"] summary svg {
-    color: var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-    fill: var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-}
-div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-    border-top: 1px solid var(--signal-nav-accent, var(--brand-flower-color, #8A5638)) !important;
-    background: linear-gradient(180deg, var(--signal-nav-canvas, #F7F0EA) 0%, #FFFFFF 100%) !important;
-}
-</style>
-""", unsafe_allow_html=True)
