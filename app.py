@@ -5091,21 +5091,10 @@ _master_excel_ice_blue_theme = {
     "border": "#A9D7EA",
     "soft_text": "#557084",
 }
-_vardaan_teal_theme = {
-    "deep": "#075B59",
-    "primary": "#0B6663",
-    "accent": "#27B7A8",
-    "ink": "#123F40",
-    "accent_text": "#137F77",
-    "tint": "#D2F3EE",
-    "canvas": "#E9FFFB",
-    "border": "#58BDB1",
-    "soft_text": "#164D4B",
-}
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
     if _bottom_nav_page == "Master Excel"
-    else _vardaan_teal_theme
+    else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
 # Match the Master Excel bottom selector to the exact Ice Blue sidebar button
 # treatment (light selected state, blue outline and left accent), not a dark fill.
@@ -5131,35 +5120,36 @@ st.markdown(
         display:flex !important;flex-direction:row !important;
         align-items:stretch !important;gap:8px !important;
         width:100% !important;padding:7px !important;
-        border:1px solid {_bottom_nav_theme["border"]}88 !important;
-        border-radius:14px !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["tint"]} 100%) !important;
-        box-shadow:0 3px 10px {_bottom_nav_theme["ink"]}12 !important;
+        border:1px solid {_bottom_nav_theme["ink"]}55 !important;
+        border-radius:12px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
+        box-shadow:0 2px 8px {_bottom_nav_theme["ink"]}12 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
         flex:1 1 0 !important;min-width:0 !important;
         min-height:44px !important;margin:0 !important;padding:9px 8px !important;
         display:flex !important;align-items:center !important;justify-content:center !important;
-        border:1px solid {_bottom_nav_theme["border"]}88 !important;
-        border-radius:11px !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["tint"]} 100%) !important;
+        border:1px solid {_bottom_nav_theme["ink"]}55 !important;
+        border-radius:12px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
         box-shadow:0 2px 8px {_bottom_nav_theme["ink"]}12 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:hover {{
-        border-color:{_bottom_nav_theme["accent"]} !important;
+        border-color:{_bottom_nav_theme["ink"]} !important;
         background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+        transform:translateX(2px) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-        border:1.5px solid {_bottom_nav_theme["accent"]} !important;
-        background:linear-gradient(120deg,{_bottom_nav_theme["deep"]} 0%,{_bottom_nav_theme["primary"]} 100%) !important;
-        box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 5px 14px {_bottom_nav_theme["accent"]}35 !important;
+        border:1.5px solid {_bottom_nav_theme["ink"]} !important;
+        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
+        box-shadow:inset 4px 0 0 {_bottom_nav_theme["ink"]},0 3px 10px {_bottom_nav_theme["ink"]}20 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
-        color:{_bottom_nav_theme["ink"]} !important;font-weight:800 !important;
+        color:{_bottom_nav_theme["accent_text"]} !important;font-weight:650 !important;
         font-size:.9rem !important;text-align:center !important;margin:0 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
-        color:#FFFFFF !important;
+        color:{_bottom_nav_theme["accent_text"]} !important;
     }}
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{
