@@ -2190,7 +2190,13 @@ def render_index_toppers_dashboard():
 
         if top_choice:
             entry = top_choice["Price"]
-            target = entry * 1.0035
+            entry_based_target = entry * 1.0035
+            open_based_cap = (
+                top_choice["Open"] * 1.01
+                if top_choice.get("Open") is not None and top_choice["Open"] > 0
+                else entry_based_target
+            )
+            target = min(entry_based_target, open_based_cap)
             st.markdown(f"""
             <div class="index-topper-card">
               <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
@@ -2268,7 +2274,7 @@ def render_index_toppers_dashboard():
         st.caption(
             "O2L% = (Today's Low − Today's Open) ÷ Today's Open × 100. "
             "O2H% = (Today's High − Today's Open) ÷ Today's Open × 100. "
-            "Target Price uses the existing +0.35% entry-based target. "
+            "Target Price uses the existing +0.35% entry-based target, capped at +1.00% from today's open. "
             "Quotes are supplied by Yahoo Finance and may be delayed."
         )
         fetched_at = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p")
