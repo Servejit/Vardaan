@@ -1088,7 +1088,21 @@ def render_stock_of_the_day():
         <style>
         [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
         .block-container { padding-top: 3.5rem !important; }
-        h1 { position: relative; }
+        h1 { position: relative; padding-bottom: 13px; }
+        h1::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: min(100%, 620px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(110deg, transparent 0%, var(--brand-flower-color, #27B7A8) 27%, rgba(255,255,255,.92) 50%, var(--brand-flower-color, #27B7A8) 73%, transparent 100%);
+            background-size: 300% 300%;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 10px rgba(30,60,80,.14);
+        }
         h1::before {
             content: ""; position: absolute; left: 50%; top: 0;
             width: 76px; height: 52px;
@@ -2163,7 +2177,21 @@ def render_index_toppers_dashboard():
 
     [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
     .block-container { padding-top: 3.5rem !important; }
-    h1 { position: relative; }
+    h1 { position: relative; padding-bottom: 13px; }
+        h1::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: min(100%, 620px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(110deg, transparent 0%, var(--brand-flower-color, #27B7A8) 27%, rgba(255,255,255,.92) 50%, var(--brand-flower-color, #27B7A8) 73%, transparent 100%);
+            background-size: 300% 300%;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 10px rgba(30,60,80,.14);
+        }
     h1::before {
         content: ""; position: absolute; left: 50%; top: 0;
         width: 76px; height: 52px;
@@ -2426,7 +2454,21 @@ def render_autogreen_dashboard():
         <style>
         [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
         .block-container { padding-top: 3.5rem !important; }
-        h1 { position: relative; }
+        h1 { position: relative; padding-bottom: 13px; }
+        h1::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: min(100%, 620px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(110deg, transparent 0%, var(--brand-flower-color, #27B7A8) 27%, rgba(255,255,255,.92) 50%, var(--brand-flower-color, #27B7A8) 73%, transparent 100%);
+            background-size: 300% 300%;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 10px rgba(30,60,80,.14);
+        }
         h1::before {
             content: ""; position: absolute; left: 50%; top: 0;
             width: 76px; height: 52px;
@@ -2441,19 +2483,7 @@ def render_autogreen_dashboard():
     )
     st.title("6thSense-Vardaan")
 
-    st.markdown(
-        """
-        <div aria-hidden="true" style="
-            width:100%;max-width:620px;height:3px;margin:0 auto 18px;
-            border-radius:999px;
-            background:linear-gradient(110deg,transparent 0%,var(--brand-flower-color,#27B7A8) 27%,rgba(255,255,255,.92) 50%,var(--brand-flower-color,#27B7A8) 73%,transparent 100%);
-            background-size:300% 300%;
-            animation:dependentSignalShimmer 4.2s linear infinite;
-            box-shadow:0 0 10px rgba(30,60,80,.14);
-        "></div>
-        """,
-        unsafe_allow_html=True,
-    )
+
 
 
     try:
