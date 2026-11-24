@@ -1111,24 +1111,23 @@ def render_stock_of_the_day():
             transform: translate(-50%, -50%);
             background:
                 linear-gradient(transparent, transparent) padding-box,
-                conic-gradient(
-                    from 0deg,
-                    var(--brand-flower-color, #27B7A8) 0deg,
-                    transparent 48deg 125deg,
-                    var(--brand-flower-color, #27B7A8) 165deg,
-                    rgba(255,255,255,.98) 180deg,
-                    var(--brand-flower-color, #27B7A8) 195deg,
-                    transparent 235deg 300deg,
-                    var(--brand-flower-color, #27B7A8) 340deg,
-                    var(--brand-flower-color, #27B7A8) 360deg
+                linear-gradient(
+                    110deg,
+                    var(--brand-flower-color, #27B7A8) 0%,
+                    var(--brand-flower-color, #27B7A8) 24%,
+                    rgba(255,255,255,.98) 36%,
+                    var(--brand-flower-color, #27B7A8) 48%,
+                    var(--brand-flower-color, #27B7A8) 72%,
+                    rgba(255,255,255,.55) 84%,
+                    var(--brand-flower-color, #27B7A8) 100%
                 ) border-box;
-            animation: flowerHaloSpin 3.2s linear infinite;
-            filter: drop-shadow(0 0 5px var(--brand-flower-color, #27B7A8));
+            background-size: 100% 100%, 300% 300%;
+            background-origin: padding-box, border-box;
+            background-clip: padding-box, border-box;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
-        }
-        @keyframes flowerHaloSpin {
-            to { rotate: 360deg; }
         }
 
         </style>
@@ -2220,24 +2219,23 @@ def render_index_toppers_dashboard():
             transform: translate(-50%, -50%);
             background:
                 linear-gradient(transparent, transparent) padding-box,
-                conic-gradient(
-                    from 0deg,
-                    var(--brand-flower-color, #27B7A8) 0deg,
-                    transparent 48deg 125deg,
-                    var(--brand-flower-color, #27B7A8) 165deg,
-                    rgba(255,255,255,.98) 180deg,
-                    var(--brand-flower-color, #27B7A8) 195deg,
-                    transparent 235deg 300deg,
-                    var(--brand-flower-color, #27B7A8) 340deg,
-                    var(--brand-flower-color, #27B7A8) 360deg
+                linear-gradient(
+                    110deg,
+                    var(--brand-flower-color, #27B7A8) 0%,
+                    var(--brand-flower-color, #27B7A8) 24%,
+                    rgba(255,255,255,.98) 36%,
+                    var(--brand-flower-color, #27B7A8) 48%,
+                    var(--brand-flower-color, #27B7A8) 72%,
+                    rgba(255,255,255,.55) 84%,
+                    var(--brand-flower-color, #27B7A8) 100%
                 ) border-box;
-            animation: flowerHaloSpin 3.2s linear infinite;
-            filter: drop-shadow(0 0 5px var(--brand-flower-color, #27B7A8));
+            background-size: 100% 100%, 300% 300%;
+            background-origin: padding-box, border-box;
+            background-clip: padding-box, border-box;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
-        }
-        @keyframes flowerHaloSpin {
-            to { rotate: 360deg; }
         }
 
 
@@ -2517,24 +2515,23 @@ def render_autogreen_dashboard():
             transform: translate(-50%, -50%);
             background:
                 linear-gradient(transparent, transparent) padding-box,
-                conic-gradient(
-                    from 0deg,
-                    var(--brand-flower-color, #27B7A8) 0deg,
-                    transparent 48deg 125deg,
-                    var(--brand-flower-color, #27B7A8) 165deg,
-                    rgba(255,255,255,.98) 180deg,
-                    var(--brand-flower-color, #27B7A8) 195deg,
-                    transparent 235deg 300deg,
-                    var(--brand-flower-color, #27B7A8) 340deg,
-                    var(--brand-flower-color, #27B7A8) 360deg
+                linear-gradient(
+                    110deg,
+                    var(--brand-flower-color, #27B7A8) 0%,
+                    var(--brand-flower-color, #27B7A8) 24%,
+                    rgba(255,255,255,.98) 36%,
+                    var(--brand-flower-color, #27B7A8) 48%,
+                    var(--brand-flower-color, #27B7A8) 72%,
+                    rgba(255,255,255,.55) 84%,
+                    var(--brand-flower-color, #27B7A8) 100%
                 ) border-box;
-            animation: flowerHaloSpin 3.2s linear infinite;
-            filter: drop-shadow(0 0 5px var(--brand-flower-color, #27B7A8));
+            background-size: 100% 100%, 300% 300%;
+            background-origin: padding-box, border-box;
+            background-clip: padding-box, border-box;
+            animation: dependentSignalShimmer 4.2s linear infinite;
+            box-shadow: 0 0 8px var(--brand-flower-color, #27B7A8);
             z-index: 1;
             pointer-events: none;
-        }
-        @keyframes flowerHaloSpin {
-            to { rotate: 360deg; }
         }
 
         </style>
