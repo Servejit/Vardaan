@@ -2049,55 +2049,56 @@ def render_index_toppers_dashboard():
         background:rgba(247,240,234,.97) !important;
         border-bottom:1px solid #A97858 !important;
     }
+    /* Light AutoGreen-style sidebar: bright, clean and easy to read. */
     [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#6B422E 0%,#4A2B20 52%,#3B2118 100%) !important;
-        border-right:1.5px solid #A97858 !important;
-        box-shadow:inset -8px 0 24px rgba(45,24,16,.20) !important;
+        background:linear-gradient(180deg,#FFFDFB 0%,#F7F0EA 58%,#F1DFD0 100%) !important;
+        border-right:1.5px solid #D6B49A !important;
+        box-shadow:inset -6px 0 18px rgba(138,86,56,.07) !important;
     }
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
     [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-        color:#FFF4EB !important;
+        color:#4A2B20 !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
-        border:1px solid #A97858 !important;
+        border:1px solid #D6B49A !important;
         border-radius:10px !important;
-        background:linear-gradient(135deg,#754A34 0%,#593522 100%) !important;
-        box-shadow:0 2px 8px rgba(35,18,12,.16) !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#F7F0EA 100%) !important;
+        box-shadow:0 2px 7px rgba(74,43,32,.07) !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
-        border-color:#D6B49A !important;
-        background:linear-gradient(110deg,#8A5638 0%,#6B422E 100%) !important;
+        border-color:#A97858 !important;
+        background:linear-gradient(110deg,#F7F0EA 0%,#EAD9CC 100%) !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-        border:1.5px solid #E7CBB7 !important;
-        background:linear-gradient(110deg,#8A5638 0%,#6B422E 100%) !important;
-        box-shadow:inset 4px 0 0 #E7CBB7,0 3px 12px rgba(35,18,12,.22) !important;
+        border:1.5px solid #A97858 !important;
+        background:linear-gradient(110deg,#EAD9CC 0%,#F7F0EA 100%) !important;
+        box-shadow:inset 4px 0 0 #8A5638,0 3px 10px rgba(74,43,32,.10) !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
-        color:#FFF4EB !important;
+        color:#3B2118 !important;
         font-weight:750 !important;
     }
     [data-testid="stSidebar"] .stButton > button,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
-        border:1px solid #A97858 !important;
-        color:#FFF4EB !important;
-        background:linear-gradient(135deg,#754A34 0%,#4A2B20 100%) !important;
-        box-shadow:0 3px 10px rgba(35,18,12,.18) !important;
+        border:1px solid #C99D7B !important;
+        color:#4A2B20 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#EAD9CC 100%) !important;
+        box-shadow:0 3px 9px rgba(74,43,32,.08) !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
-        border-color:#E7CBB7 !important;
-        background:linear-gradient(110deg,#8A5638 0%,#593522 100%) !important;
-        color:#FFFFFF !important;
+        border-color:#8A5638 !important;
+        background:linear-gradient(110deg,#EAD9CC 0%,#D9B89C 100%) !important;
+        color:#3B2118 !important;
     }
     [data-testid="stSidebar"] input,
     [data-testid="stSidebar"] textarea,
     [data-testid="stSidebar"] [data-baseweb="select"] > div {
-        border-color:#A97858 !important;
-        background:#F7F0EA !important;
+        border-color:#D6B49A !important;
+        background:#FFFFFF !important;
         color:#3B2118 !important;
     }
     h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#3B2118;}
