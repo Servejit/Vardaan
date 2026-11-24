@@ -2517,9 +2517,9 @@ def render_index_toppers_dashboard():
                     table_df.style
                     .set_table_styles([
                         {
-                            "selector": "thead th",
+                            "selector": "th",
                             "props": [
-                                ("background", "linear-gradient(110deg, #D9B89C 0%, #EAD9CC 100%)"),
+                                ("background-color", "#D9B89C"),
                                 ("color", "#4A2B20"),
                                 ("font-weight", "900"),
                                 ("border-bottom", "2px solid #8A5638"),
