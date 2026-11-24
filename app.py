@@ -2096,11 +2096,18 @@ def get_index_toppers_master_values(symbols):
                 if value is None or str(value).strip() == "":
                     values[heading] = "—"
                     continue
+                raw_value = str(value).strip()
+                # Master cells may contain descriptive text followed by the
+                # required numeric value in parentheses, e.g. "xxxx(1.23)".
+                if "(" in raw_value and ")" in raw_value:
+                    raw_value = raw_value.rsplit("(", 1)[-1].split(")", 1)[0].strip()
                 try:
-                    rendered = f"{float(str(value).replace(',', '').replace('%', '').strip()):g}"
+                    numeric_value = float(
+                        raw_value.replace(",", "").replace("%", "").strip()
+                    )
+                    values[heading] = f"({numeric_value:.2f})"
                 except (TypeError, ValueError):
-                    rendered = str(value).strip()
-                values[heading] = f"({rendered})"
+                    values[heading] = "—"
             details[symbol] = values
         return details
     except Exception:
