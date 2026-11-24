@@ -5140,15 +5140,15 @@ st.markdown(
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
         border:1.5px solid {_bottom_nav_theme["accent"]} !important;
-        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
-        box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px {_bottom_nav_theme["ink"]}12 !important;
+        background:linear-gradient(120deg,{_bottom_nav_theme["deep"]} 0%,{_bottom_nav_theme["primary"]} 100%) !important;
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 5px 14px {_bottom_nav_theme["accent"]}35 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
         color:{_bottom_nav_theme["ink"]} !important;font-weight:800 !important;
         font-size:.9rem !important;text-align:center !important;margin:0 !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) p {{
-        color:{_bottom_nav_theme["ink"]} !important;
+        color:#FFFFFF !important;
     }}
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{
