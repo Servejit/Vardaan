@@ -5156,7 +5156,7 @@ _stock_day_selected_text_css = (
     '[data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav '
     '[data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) * '
     '{ color:#000000 !important; }'
-    if _bottom_nav_page == "Stock of the Day" else ""
+    if _bottom_nav_page in ("AutoGreen", "Stock of the Day") else ""
 )
 st.markdown(
     f"""
