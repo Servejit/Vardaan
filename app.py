@@ -5089,11 +5089,27 @@ _master_excel_ice_blue_theme = {
     "border": "#B9DDED",
     "soft_text": "#557084",
 }
+_index_toppers_sidebar_theme = {
+    # Exact Chocolate Brown palette used by Index Toppers sidebar navigation.
+    "deep": "#3B2118",
+    "primary": "#8A5638",
+    "accent": "#A97858",
+    "ink": "#3B2118",
+    "accent_text": "#3B2118",
+    "tint": "#EAD9CC",
+    "canvas": "#F7F0EA",
+    "border": "#D6B49A",
+    "soft_text": "#4A2B20",
+    "left_accent": "#8A5638",
+}
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
     if _bottom_nav_page == "Master Excel"
+    else _index_toppers_sidebar_theme
+    if _bottom_nav_page == "Index Toppers"
     else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
+_bottom_nav_left_accent = _bottom_nav_theme.get("left_accent", _bottom_nav_theme["accent"])
 st.markdown(
     f"""
     <style>
@@ -5127,7 +5143,7 @@ st.markdown(
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
         border:1.5px solid {_bottom_nav_theme["accent"]} !important;
         background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
-        box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px rgba(23,101,139,.12) !important;
+        box-shadow:inset 4px 0 0 {_bottom_nav_left_accent},0 3px 10px rgba(23,101,139,.12) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
         color:{_bottom_nav_theme["accent_text"]} !important;
