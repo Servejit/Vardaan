@@ -5190,6 +5190,10 @@ st.markdown(
         font-weight:750 !important;font-size:.94rem !important;
         text-align:center !important;margin:0 !important;
     }}
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label * {{
+        color:{_bottom_nav_theme["accent_text"]} !important;
+    }}
 
     @media(max-width:640px) {{
         [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] {{ gap:.35rem !important; }}
