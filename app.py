@@ -2039,72 +2039,125 @@ def render_index_toppers_dashboard():
 
     st.markdown("""
     <style>
+    /* Complete Chocolate Brown theme for the Index Toppers dashboard. */
     .stApp {
-        background:radial-gradient(ellipse at 8% 0%,#EEE6F4 0%,transparent 42%),
-                   linear-gradient(135deg,#E6E9ED 0%,#DDE2E7 52%,#E9ECEF 100%) !important;
-        color:#263342 !important;
+        background:radial-gradient(ellipse at 8% 0%,#E8D5C7 0%,transparent 44%),
+                   linear-gradient(135deg,#F7F0EA 0%,#EAD9CC 52%,#FCF8F4 100%) !important;
+        color:#3B2118 !important;
     }
-    [data-testid="stHeader"] {background:rgba(231,234,238,.96) !important;}
+    [data-testid="stHeader"] {
+        background:rgba(247,240,234,.97) !important;
+        border-bottom:1px solid #A97858 !important;
+    }
     [data-testid="stSidebar"] {
-        background:linear-gradient(180deg,#9B79B5 0%,#80609D 52%,#70518D 100%) !important;
-        border-right:1px solid #A98BC0 !important;
+        background:linear-gradient(180deg,#6B422E 0%,#4A2B20 52%,#3B2118 100%) !important;
+        border-right:1.5px solid #A97858 !important;
+        box-shadow:inset -8px 0 24px rgba(45,24,16,.20) !important;
     }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
     [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {color:#FFFFFF !important;}
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+        color:#FFF4EB !important;
+    }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
-        border:1px solid #B99BCF !important;border-radius:10px !important;
-        background:linear-gradient(135deg,#80609D 0%,#70518D 100%) !important;
+        border:1px solid #A97858 !important;
+        border-radius:10px !important;
+        background:linear-gradient(135deg,#754A34 0%,#593522 100%) !important;
+        box-shadow:0 2px 8px rgba(35,18,12,.16) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+        border-color:#D6B49A !important;
+        background:linear-gradient(110deg,#8A5638 0%,#6B422E 100%) !important;
     }
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
-        border:1.5px solid #F2DFFF !important;
-        background:linear-gradient(110deg,#B18BCB 0%,#8966A6 100%) !important;
-        box-shadow:inset 4px 0 0 #F2DFFF,0 3px 12px rgba(128,80,162,.20) !important;
+        border:1.5px solid #E7CBB7 !important;
+        background:linear-gradient(110deg,#8A5638 0%,#6B422E 100%) !important;
+        box-shadow:inset 4px 0 0 #E7CBB7,0 3px 12px rgba(35,18,12,.22) !important;
     }
-    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {color:#FFFFFF !important;}
-    [data-testid="stSidebar"] .stButton > button {
-        border-color:#B99BCF !important;color:#FFFFFF !important;
-        background:linear-gradient(135deg,#80609D 0%,#70518D 100%) !important;
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
+        color:#FFF4EB !important;
+        font-weight:750 !important;
     }
-    h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#263342;}
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+        border:1px solid #A97858 !important;
+        color:#FFF4EB !important;
+        background:linear-gradient(135deg,#754A34 0%,#4A2B20 100%) !important;
+        box-shadow:0 3px 10px rgba(35,18,12,.18) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
+        border-color:#E7CBB7 !important;
+        background:linear-gradient(110deg,#8A5638 0%,#593522 100%) !important;
+        color:#FFFFFF !important;
+    }
+    [data-testid="stSidebar"] input,
+    [data-testid="stSidebar"] textarea,
+    [data-testid="stSidebar"] [data-baseweb="select"] > div {
+        border-color:#A97858 !important;
+        background:#F7F0EA !important;
+        color:#3B2118 !important;
+    }
+    h1,h2,h3,p,[data-testid="stMarkdownContainer"] {color:#3B2118;}
     [data-testid="stDataFrame"],[data-testid="stTable"] {
-        border:1px solid #8050A2 !important;border-radius:12px !important;
+        border:1px solid #A97858 !important;
+        border-radius:12px !important;
+    }
+    [data-testid="stMainBlockContainer"] .stButton > button,
+    [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
+        border:1px solid #8A5638 !important;
+        color:#FFF4EB !important;
+        background:linear-gradient(110deg,#4A2B20 0%,#754A34 55%,#8A5638 100%) !important;
+        box-shadow:0 5px 14px rgba(74,43,32,.18) !important;
+        border-radius:10px !important;
+    }
+    [data-testid="stMainBlockContainer"] .stButton > button:hover,
+    [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
+        border-color:#C99D7B !important;
+        filter:brightness(1.08) !important;
     }
     .index-topper-hero {
         padding:23px 25px;margin:5px 0 18px;border-radius:19px;
-        color:#FFFFFF;border:1px solid #8050A266;
-        background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.30),transparent 27%),
-                   linear-gradient(115deg,#29113f 0%,#713a91 48%,#35134f 100%);
-        box-shadow:0 14px 34px rgba(128,80,162,.20),inset 0 1px 0 rgba(255,255,255,.22);
+        color:#FFF8F2;border:1px solid #A97858;
+        background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.24),transparent 27%),
+                   linear-gradient(115deg,#3B2118 0%,#754A34 48%,#4A2B20 100%);
+        box-shadow:0 14px 34px rgba(59,33,24,.22),inset 0 1px 0 rgba(255,255,255,.18);
     }
-    .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#E0B5FF;}
+    .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#E7CBB7;}
     .index-topper-title {font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FFFFFF;}
-    .index-topper-sub {font-size:13px;line-height:1.55;color:#F2DFFF;}
+    .index-topper-sub {font-size:13px;line-height:1.55;color:#F1DFD0;}
     .index-topper-card {
         position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
-        color:#F7F4FA;border:2px solid transparent;
-        background:linear-gradient(130deg,#29113f 0%,#713a91 48%,#35134f 100%) padding-box,
-                   linear-gradient(115deg,#8050A2 0%,#E0B5FF 35%,#FFFFFF 52%,#B995D0 75%,#684083 100%) border-box;
-        box-shadow:0 12px 32px rgba(41,17,63,.22),0 0 25px rgba(128,80,162,.20);
+        color:#FFF8F2;border:2px solid transparent;
+        background:linear-gradient(130deg,#3B2118 0%,#754A34 48%,#4A2B20 100%) padding-box,
+                   linear-gradient(115deg,#8A5638 0%,#E7CBB7 35%,#FFFFFF 52%,#C99D7B 75%,#4A2B20 100%) border-box;
+        box-shadow:0 12px 32px rgba(59,33,24,.22),0 0 25px rgba(138,86,56,.16);
     }
-    .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#E0B5FF;text-align:center;}
+    .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#E7CBB7;text-align:center;}
     .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#FFFFFF;letter-spacing:.7px;}
-    .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#29113f;
-        background:linear-gradient(110deg,#F2DFFF,#E0B5FF);padding:8px 13px;border-radius:999px;}
-    .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#E4D9EE;}
+    .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#3B2118;
+        background:linear-gradient(110deg,#F1DFD0,#D6B49A);padding:8px 13px;border-radius:999px;}
+    .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#E7CBB7;}
     .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#FFFFFF;margin-top:5px;}
-    .index-topper-target {color:#E0B5FF !important;}
-    .index-topper-table-wrap {overflow-x:auto;border:1px solid #8050A2;border-radius:12px;background:#FFFFFF;}
-    .index-topper-table {width:100%;min-width:900px;border-collapse:collapse;color:#263342;}
-    .index-topper-table th {padding:11px 12px;text-align:left;white-space:nowrap;background:linear-gradient(110deg,#EEE6F4,#E4D9EE);
-        color:#684083;font-size:12px;font-weight:900;border-bottom:2px solid #8050A2;}
-    .index-topper-table td {padding:10px 12px;white-space:nowrap;font-size:12px;font-weight:650;border-bottom:1px solid #E4D9EE;}
-    .index-topper-table tr:nth-child(even) {background:#F7F3FA;}
-    .index-topper-table tr.top-three {background:#EEE6F4;font-weight:850;}
-    .index-topper-table tr.top-choice {background:#DCC9EA;font-weight:950;}
-    .index-topper-section {color:#8050A2;font-size:14px;font-weight:900;letter-spacing:1px;margin:18px 0 9px;}
-    [data-testid="stMainBlockContainer"] {--signal-nav-border:#8050A2;--signal-nav-accent:#8050A2;
-        --signal-nav-soft:#EEE6F4;--signal-nav-canvas:#E4D9EE;--signal-nav-text:#684083;}
+    .index-topper-target {color:#E7CBB7 !important;}
+    .index-topper-table-wrap {overflow-x:auto;border:1px solid #A97858;border-radius:12px;background:#F7F0EA;}
+    .index-topper-table {width:100%;min-width:900px;border-collapse:collapse;color:#3B2118;}
+    .index-topper-table th {padding:11px 12px;text-align:left;white-space:nowrap;background:linear-gradient(110deg,#D9B89C,#EAD9CC);
+        color:#4A2B20;font-size:12px;font-weight:900;border-bottom:2px solid #8A5638;}
+    .index-topper-table td {padding:10px 12px;white-space:nowrap;font-size:12px;font-weight:650;border-bottom:1px solid #E1CDBD;}
+    .index-topper-table tr:nth-child(even) {background:#FAF3ED;}
+    .index-topper-table tr.top-three {background:#EAD9CC;font-weight:850;}
+    .index-topper-table tr.top-choice {background:#C99D7B;font-weight:950;}
+    .index-topper-section {color:#754A34;font-size:14px;font-weight:900;letter-spacing:1px;margin:18px 0 9px;}
+    [data-testid="stMainBlockContainer"] {
+        --signal-nav-border:#A97858;
+        --signal-nav-accent:#754A34;
+        --signal-nav-soft:#EAD9CC;
+        --signal-nav-canvas:#F1DFD0;
+        --signal-nav-text:#3B2118;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -2249,15 +2302,33 @@ def render_index_toppers_dashboard():
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
-                        style = "background-color: #DCC9EA; color: #35134F; font-weight: 900;"
+                        style = "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
                     elif any(stock_name == item["Stock Name"] for item in lowest_three):
-                        style = "background-color: #EEE6F4; color: #35134F; font-weight: 800;"
+                        style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
                     else:
                         style = ""
                     return [style] * len(row)
 
                 styled_table = (
                     table_df.style
+                    .set_table_styles([
+                        {
+                            "selector": "th",
+                            "props": [
+                                ("background-color", "#D9B89C"),
+                                ("color", "#4A2B20"),
+                                ("font-weight", "900"),
+                                ("border-bottom", "2px solid #8A5638"),
+                            ],
+                        },
+                        {
+                            "selector": "td",
+                            "props": [
+                                ("color", "#3B2118"),
+                                ("border-bottom", "1px solid #E1CDBD"),
+                            ],
+                        },
+                    ])
                     .apply(highlight_index_topper_row, axis=1)
                     .format({
                         "% Chg": "{:+.2f}%",
