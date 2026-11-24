@@ -2218,9 +2218,9 @@ def render_index_toppers_dashboard():
         else:
             st.markdown("""
             <div class="index-topper-card" style="text-align:center;">
-              <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
-              <div style="font-size:30px;font-weight:950;margin:14px 0;color:#F4E8C5;">NO TOP CHOICE</div>
-              <div style="font-size:13px;color:#D4D5D9;">No stock among the lowest three O2L% candidates currently has its live price above today's open.</div>
+              <div class="index-topper-card-label">6THSENSE-VARDAAN</div>
+              <div style="font-size:30px;font-weight:950;margin:14px 0;color:#F4E8C5;">TOP CHOICE STOCK AWAITED</div>
+              <div style="font-size:13px;color:#D4D5D9;">No Stock for Top Choice is available.</div>
             </div>
             """, unsafe_allow_html=True)
 
