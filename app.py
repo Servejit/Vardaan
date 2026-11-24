@@ -2386,7 +2386,7 @@ def render_index_toppers_dashboard():
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
               <div style="font-size:11px;color:#D4D5D9;margin-top:8px;letter-spacing:.8px;">
-                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}% · Avg.O2L.4 {html.escape(top_choice_avg_o2l)} · Avg.O2H.4 {html.escape(top_choice_avg_o2h)}
+                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}% · Avg.O2L.4 — {html.escape(top_choice_avg_o2l)} · Avg.O2H.4 — {html.escape(top_choice_avg_o2h)}
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,#D8B65A,#D9DCE1,transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
