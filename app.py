@@ -4671,7 +4671,7 @@ elif page == "Master Excel":
     .masterx-hero {
         position:relative; overflow:hidden; padding:25px 26px; margin:4px 0 18px;
         border-radius:20px; color:#173B50;
-        background:linear-gradient(112deg,#FFFFFF 0%,#F4FAFF 42%,#EAF7FF 72%,#DDF2FC 100%);
+        background:linear-gradient(105deg,#EAF7FF 0%,#DDF2FC 52%,#EFF9FF 100%);
         box-shadow:0 10px 26px rgba(56,130,165,.10);
         border:1px solid #B9DDED;
     }
