@@ -13,7 +13,7 @@ from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 
 # Temporary Wine preview; set to False to restore the Chocolate Index Toppers theme.
-TEMPORARY_WINE_THEME = True
+TEMPORARY_PISTACHIO_THEME = True
 from supabase import create_client, ClientOptions
 
 # ============================================================
@@ -2467,110 +2467,110 @@ def render_index_toppers_dashboard():
         if TEMPORARY_WINE_THEME:
             st.markdown("""
             <style>
-            .stApp { --brand-flower-color:#B85C72 !important; }
-            [data-testid="stSidebar"] { --brand-flower-color:#B85C72 !important; }
+            .stApp { --brand-flower-color:#91A96B !important; }
+            [data-testid="stSidebar"] { --brand-flower-color:#91A96B !important; }
             [data-testid="stSidebar"] {
-                background:linear-gradient(180deg,#F9E9ED 0%,#F1D5DE 48%,#FDF5F7 100%) !important;
-                border-right:1.5px solid #C9788D !important;
-                box-shadow:inset -8px 0 24px rgba(234,88,12,.14) !important;
+                background:linear-gradient(180deg,#EDF3E3 0%,#E3EBD4 48%,#F7F9F1 100%) !important;
+                border-right:1.5px solid #A8BD82 !important;
+                box-shadow:inset -8px 0 24px rgba(113,138,80,.14) !important;
             }
             [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
             [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
             [data-testid="stSidebar"] label,
             [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
             [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-                color:#542334 !important;
+                color:#34412F !important;
             }
             [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
             [data-testid="stSidebar"] [data-baseweb="select"] > div,
             [data-testid="stSidebar"] input,
             [data-testid="stSidebar"] textarea {
-                background:linear-gradient(135deg,#FDF5F7 0%,#F1D5DE 100%) !important;
-                border-color:#D9A4B2 !important;
-                color:#542334 !important;
+                background:linear-gradient(135deg,#F7F9F1 0%,#E3EBD4 100%) !important;
+                border-color:#C4D5A8 !important;
+                color:#34412F !important;
             }
             [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover,
             [data-testid="stSidebar"] [data-baseweb="select"] > div:hover {
-                border-color:#9E4059 !important;
-                box-shadow:0 3px 12px rgba(234,88,12,.18) !important;
+                border-color:#718A50 !important;
+                box-shadow:0 3px 12px rgba(113,138,80,.18) !important;
             }
             [data-testid="stSidebar"] .stButton > button,
             [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
-                border:1px solid #9E4059 !important;
-                color:#FDF5F7 !important;
-                background:linear-gradient(110deg,#5C1E35 0%,#9E4059 55%,#C9788D 100%) !important;
-                box-shadow:0 4px 12px rgba(194,65,12,.18) !important;
+                border:1px solid #718A50 !important;
+                color:#F7F9F1 !important;
+                background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
+                box-shadow:0 4px 12px rgba(81,107,60,.18) !important;
             }
             [data-testid="stSidebar"] .stButton > button:hover,
             [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#D9A4B2 !important;
+                border-color:#C4D5A8 !important;
                 filter:brightness(1.08) !important;
             }
-            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#542334 !important; }
+            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#34412F !important; }
             .stApp {
-                background:radial-gradient(ellipse at 8% 0%,#EBC7D1 0%,transparent 44%),
-                           linear-gradient(135deg,#FDF5F7 0%,#F1D5DE 52%,#FFF9FA 100%) !important;
-                color:#542334 !important;
+                background:radial-gradient(ellipse at 8% 0%,#D7E3C3 0%,transparent 44%),
+                           linear-gradient(135deg,#F7F9F1 0%,#E3EBD4 52%,#FBFCF7 100%) !important;
+                color:#34412F !important;
             }
             [data-testid="stHeader"] {
                 background:rgba(255,247,237,.97) !important;
-                border-bottom:1px solid #B85C72 !important;
+                border-bottom:1px solid #91A96B !important;
             }
             [data-testid="stMainBlockContainer"] {
-                --signal-nav-border:#D9A4B2;
-                --signal-nav-accent:#9E4059;
-                --signal-nav-soft:#F1D5DE;
-                --signal-nav-canvas:#FDF5F7;
-                --signal-nav-text:#542334;
+                --signal-nav-border:#C4D5A8;
+                --signal-nav-accent:#718A50;
+                --signal-nav-soft:#E3EBD4;
+                --signal-nav-canvas:#F7F9F1;
+                --signal-nav-text:#34412F;
             }
             .index-topper-hero {
-                border-color:#C9788D !important;
+                border-color:#A8BD82 !important;
                 background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.28),transparent 27%),
-                           linear-gradient(115deg,#5C1E35 0%,#9E4059 48%,#87334D 100%) !important;
-                box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
+                           linear-gradient(115deg,#34452A 0%,#718A50 48%,#536B3C 100%) !important;
+                box-shadow:0 14px 34px rgba(81,107,60,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
             }
-            .index-topper-kicker,.index-topper-metric-label { color:#E7BCC8 !important; }
-            .index-topper-sub { color:#F1D5DE !important; }
+            .index-topper-kicker,.index-topper-metric-label { color:#D5E1C2 !important; }
+            .index-topper-sub { color:#E3EBD4 !important; }
             .index-topper-card {
-                background:linear-gradient(130deg,#5C1E35 0%,#9E4059 48%,#87334D 100%) padding-box,
-                           linear-gradient(115deg,#C9788D 0%,#D9A4B2 35%,#FFFFFF 52%,#B85C72 75%,#5C1E35 100%) border-box !important;
-                box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
+                background:linear-gradient(130deg,#34452A 0%,#718A50 48%,#536B3C 100%) padding-box,
+                           linear-gradient(115deg,#A8BD82 0%,#C4D5A8 35%,#FFFFFF 52%,#91A96B 75%,#34452A 100%) border-box !important;
+                box-shadow:0 12px 32px rgba(81,107,60,.24),0 0 25px rgba(145,169,107,.2) !important;
             }
-            .index-topper-card-label { color:#E7BCC8 !important; }
+            .index-topper-card-label { color:#D5E1C2 !important; }
             .index-topper-pill {
-                color:#542334 !important;
-                background:linear-gradient(110deg,#F1D5DE,#D9A4B2) !important;
+                color:#34412F !important;
+                background:linear-gradient(110deg,#E3EBD4,#C4D5A8) !important;
             }
-            .index-topper-target { color:#E7BCC8 !important; }
-            .index-topper-table-wrap { border-color:#C9788D !important; background:#FDF5F7 !important; }
-            .index-topper-table { color:#542334 !important; }
+            .index-topper-target { color:#D5E1C2 !important; }
+            .index-topper-table-wrap { border-color:#A8BD82 !important; background:#F7F9F1 !important; }
+            .index-topper-table { color:#34412F !important; }
             .index-topper-table th {
-                background:linear-gradient(110deg,#D9A4B2,#F1D5DE) !important;
-                color:#542334 !important;border-bottom-color:#9E4059 !important;
+                background:linear-gradient(110deg,#C4D5A8,#E3EBD4) !important;
+                color:#34412F !important;border-bottom-color:#718A50 !important;
             }
-            .index-topper-table td { border-bottom-color:#E7BCC8 !important; }
-            .index-topper-table tr:nth-child(even) { background:#FDF5F7 !important; }
-            .index-topper-table tr.top-three { background:#F1D5DE !important; }
-            .index-topper-table tr.top-choice { background:#D9A4B2 !important; }
-            .index-topper-section { color:#87334D !important; }
-            div[data-testid="stExpander"] { border-color:#D9A4B2 !important; }
+            .index-topper-table td { border-bottom-color:#D5E1C2 !important; }
+            .index-topper-table tr:nth-child(even) { background:#F7F9F1 !important; }
+            .index-topper-table tr.top-three { background:#E3EBD4 !important; }
+            .index-topper-table tr.top-choice { background:#C4D5A8 !important; }
+            .index-topper-section { color:#536B3C !important; }
+            div[data-testid="stExpander"] { border-color:#C4D5A8 !important; }
             div[data-testid="stExpander"] summary {
-                background:#FDF5F7 !important;color:#5C1E35 !important;
+                background:#F7F9F1 !important;color:#34452A !important;
             }
-            div[data-testid="stExpander"] summary:hover { background:#F1D5DE !important; }
+            div[data-testid="stExpander"] summary:hover { background:#E3EBD4 !important; }
             div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background:#FFFFFF !important;color:#542334 !important;
-                border-top-color:#E7BCC8 !important;
+                background:#FFFFFF !important;color:#34412F !important;
+                border-top-color:#D5E1C2 !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
-                border-color:#9E4059 !important;color:#FDF5F7 !important;
-                background:linear-gradient(110deg,#5C1E35 0%,#9E4059 55%,#C9788D 100%) !important;
-                box-shadow:0 5px 14px rgba(194,65,12,.2) !important;
+                border-color:#718A50 !important;color:#F7F9F1 !important;
+                background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
+                box-shadow:0 5px 14px rgba(81,107,60,.2) !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button:hover,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#D9A4B2 !important;filter:brightness(1.08) !important;
+                border-color:#C4D5A8 !important;filter:brightness(1.08) !important;
             }
             </style>
             """, unsafe_allow_html=True)
