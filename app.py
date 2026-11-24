@@ -2388,6 +2388,19 @@ def render_index_toppers_dashboard():
             top_choice_master_row = top_choice_master_values.get(normalize_stock_symbol(top_choice["Stock Name"]), {})
             top_choice_avg_o2l = top_choice_master_row.get("16< D-B / Avg.4", "—")
             top_choice_avg_o2h = top_choice_master_row.get("16> C-B / Avg.4", "—")
+            top_choice_master_parts = []
+            if top_choice_avg_o2l != "—":
+                top_choice_master_parts.append(
+                    f"Avg.O2L.4 — ({html.escape(top_choice_avg_o2l)})"
+                )
+            if top_choice_avg_o2h != "—":
+                top_choice_master_parts.append(
+                    f"Avg.O2H.4 — ({html.escape(top_choice_avg_o2h)})"
+                )
+            top_choice_master_line = (
+                " · " + " · ".join(top_choice_master_parts)
+                if top_choice_master_parts else ""
+            )
             entry = top_choice["Price"]
             entry_based_target = entry * 1.0035
             open_based_cap = (
@@ -2404,7 +2417,7 @@ def render_index_toppers_dashboard():
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
               <div style="font-size:11px;color:#D4D5D9;margin-top:8px;letter-spacing:.8px;">
-                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%
+                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,#D8B65A,#D9DCE1,transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
