@@ -4953,22 +4953,22 @@ elif page == "Master Excel":
         background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
         color:#123B5D !important;
     }
-    /* Keep sidebar actions in the active Pistachio dashboard palette, including on Master Excel. */
+    /* Keep sidebar actions restored to the original Chocolate palette. */
     [data-testid="stSidebar"] .stButton > button,
     [data-testid="stSidebar"] [data-testid="stDownloadButton"] button,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
-        border:1px solid #718A50 !important;
-        color:#F7F9F1 !important;
-        background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
-        box-shadow:0 5px 14px rgba(81,107,60,.20) !important;
+        border:1px solid #C99D7B !important;
+        color:#4A2B20 !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#EAD9CC 100%) !important;
+        box-shadow:0 5px 14px rgba(74,43,32,.12) !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover,
     [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
-        border-color:#C4D5A8 !important;
-        color:#F7F9F1 !important;
-        background:linear-gradient(110deg,#34452A 0%,#718A50 55%,#A8BD82 100%) !important;
-        filter:brightness(1.08) !important;
+        border-color:#8A5638 !important;
+        color:#3B2118 !important;
+        background:linear-gradient(110deg,#EAD9CC 0%,#D9B89C 100%) !important;
+        filter:brightness(1.03) !important;
     }
     [data-testid="stSidebar"] input,
     [data-testid="stSidebar"] textarea {
