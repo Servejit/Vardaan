@@ -2394,12 +2394,16 @@ def render_index_toppers_dashboard():
         )
         lowest_three = o2l_ranked[:3]
 
-        # Final selection: lowest O2H% among the three, only while price is above open.
+        # Final selection: lowest O2H% among the three, while price is
+        # above open but still below the Open +1% target cap. This prevents
+        # showing a Top Choice whose capped target is already at/below entry.
         eligible = [
             row for row in lowest_three
             if row.get("Price") is not None
             and row.get("Open") is not None
+            and row["Open"] > 0
             and row["Price"] > row["Open"]
+            and row["Price"] < row["Open"] * 1.01
             and row.get("O2H%") is not None
         ]
         eligible.sort(key=lambda row: (round(row["O2H%"], 8), row["% Chg"]))
