@@ -11,6 +11,9 @@ import pandas as pd
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
+
+# Temporary Orange preview; set to False to restore the Chocolate Index Toppers theme.
+TEMPORARY_ORANGE_THEME = True
 from supabase import create_client, ClientOptions
 
 # ============================================================
@@ -2461,7 +2464,7 @@ def render_index_toppers_dashboard():
         top_choice = eligible[0] if eligible else None
         highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
-        if fallback_mode:
+        if TEMPORARY_ORANGE_THEME:
             st.markdown("""
             <style>
             .stApp { --brand-flower-color:#F28C28 !important; }
@@ -2503,6 +2506,7 @@ def render_index_toppers_dashboard():
                 border-color:#FDBA74 !important;
                 filter:brightness(1.08) !important;
             }
+            h1,h2,h3,h4,p,[data-testid="stMarkdownContainer"] { color:#7C2D12 !important; }
             .stApp {
                 background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
                            linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
@@ -5587,17 +5591,17 @@ _master_excel_ice_blue_theme = {
     "soft_text": "#557084",
 }
 _index_toppers_sidebar_theme = {
-    # Exact Chocolate Brown palette used by Index Toppers sidebar navigation.
-    "deep": "#3B2118",
-    "primary": "#8A5638",
-    "accent": "#A97858",
-    "ink": "#3B2118",
-    "accent_text": "#3B2118",
-    "tint": "#EAD9CC",
-    "canvas": "#F7F0EA",
-    "border": "#D6B49A",
-    "soft_text": "#4A2B20",
-    "left_accent": "#8A5638",
+    # Temporary Orange palette used by Index Toppers bottom navigation.
+    "deep": "#9A3412",
+    "primary": "#EA580C",
+    "accent": "#F97316",
+    "ink": "#7C2D12",
+    "accent_text": "#7C2D12",
+    "tint": "#FFEDD5",
+    "canvas": "#FFF7ED",
+    "border": "#FDBA74",
+    "soft_text": "#7C2D12",
+    "left_accent": "#EA580C",
 }
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
