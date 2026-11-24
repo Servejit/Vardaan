@@ -2412,11 +2412,11 @@ def render_index_toppers_dashboard():
                         "Open": row.get("Open"),
                         "High": row.get("High"),
                         "Low": row.get("Low"),
-                        "16< D-B": master_values.get(row["Stock Name"], {}).get("16< D-B / Avg.4", "—"),
-                        "16> C-B": master_values.get(row["Stock Name"], {}).get("16> C-B / Avg.4", "—"),
+                        "Avg.O2L.4": master_values.get(row["Stock Name"], {}).get("16< D-B / Avg.4", "—"),
+                        "Avg.O2H.4": master_values.get(row["Stock Name"], {}).get("16> C-B / Avg.4", "—"),
                     })
 
-                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "16< D-B", "16> C-B"]
+                columns = ["Stock Name", "Index", "% Chg", "Price", "O2L%", "O2H%", "Open", "High", "Low", "Avg.O2L.4", "Avg.O2H.4"]
                 # Native Streamlit dataframe enables sorting by clicking every column heading.
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows)
