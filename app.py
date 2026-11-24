@@ -2495,19 +2495,36 @@ def render_index_toppers_dashboard():
                     table_df.style
                     .set_table_styles([
                         {
-                            "selector": "th",
+                            "selector": "thead th",
                             "props": [
-                                ("background-color", "#D9B89C"),
+                                ("background", "linear-gradient(110deg, #D9B89C 0%, #EAD9CC 100%)"),
                                 ("color", "#4A2B20"),
                                 ("font-weight", "900"),
                                 ("border-bottom", "2px solid #8A5638"),
                             ],
                         },
                         {
-                            "selector": "td",
+                            "selector": "tbody tr:nth-child(odd) td",
                             "props": [
+                                ("background-color", "#F7F0EA"),
                                 ("color", "#3B2118"),
                                 ("border-bottom", "1px solid #E1CDBD"),
+                            ],
+                        },
+                        {
+                            "selector": "tbody tr:nth-child(even) td",
+                            "props": [
+                                ("background-color", "#FAF3ED"),
+                                ("color", "#3B2118"),
+                                ("border-bottom", "1px solid #E1CDBD"),
+                            ],
+                        },
+                        {
+                            "selector": "table",
+                            "props": [
+                                ("background-color", "#F7F0EA"),
+                                ("border", "1px solid #A97858"),
+                                ("border-collapse", "collapse"),
                             ],
                         },
                     ])
