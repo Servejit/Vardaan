@@ -5033,18 +5033,51 @@ elif page == "Master Excel":
         .userx-stat-label {font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:800;color:#557084;}
         .userx-stat-value {font-size:25px;font-weight:900;color:#155E91;line-height:1.2;margin-top:4px;}
         .userx-section {
-            padding:10px 13px;margin:10px 0 12px;border-radius:12px;
-            background:linear-gradient(100deg,#E7F6FF,#DCEFFD 55%,#F0FAFF);
-            border:1px solid #C6E2F1;color:#173B50;font-weight:850;
+            display:flex;align-items:center;gap:11px;padding:12px 15px;margin:10px 0 12px;
+            border-radius:13px;background:linear-gradient(100deg,#E7F6FF,#DCEFFD 48%,#F0FAFF);
+            border:1px solid #C6E2F1;color:#173B50;font-weight:850;font-size:14px;
+        }
+        .userx-stat {
+            border:1px solid #C6E2F1 !important;border-radius:14px !important;
+            background:linear-gradient(135deg,#FFFFFF 0%,#EAF7FF 100%) !important;
+            box-shadow:0 5px 15px rgba(23,101,139,.07) !important;
+        }
+        div[data-testid="stTabs"] [role="tablist"] {
+            gap:8px !important;border-bottom:1px solid #B9DDED !important;
+        }
+        div[data-testid="stTabs"] button[role="tab"] {
+            color:#155E91 !important;font-weight:800 !important;
+            border-radius:10px 10px 0 0 !important;
+        }
+        div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+            background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%) !important;
+            border:1px solid #B9DDED !important;border-bottom:2px solid #168FC0 !important;
         }
         div[data-testid="stExpander"] {
             border:1px solid #C6E2F1 !important;border-radius:13px !important;
             background:linear-gradient(135deg,#FFFFFF 0%,#F4FBFF 100%) !important;
+            box-shadow:0 4px 13px rgba(23,101,139,.06) !important;
         }
-        div[data-testid="stExpander"] summary {color:#173B50 !important;font-weight:750 !important;}
+        div[data-testid="stExpander"] summary {
+            color:#173B50 !important;font-weight:800 !important;
+        }
+        div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
+            background:#F7FCFF !important;border-top:1px solid #C6E2F1 !important;
+        }
         div[data-testid="stForm"] {
             border:1px solid #C6E2F1 !important;border-radius:14px !important;
             padding:14px !important;background:#F7FCFF !important;
+        }
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stSelectbox"] > div,
+        div[data-testid="stCheckbox"] label,
+        div[data-testid="stFileUploader"] section {
+            border-color:#A9D7EA !important;
+            color:#173B50 !important;
+        }
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stSelectbox"] > div {
+            background:#FFFFFF !important;
         }
         div[data-testid="stButton"] button,
         div[data-testid="stFormSubmitButton"] button {
@@ -5056,6 +5089,7 @@ elif page == "Master Excel":
         div[data-testid="stButton"] button:hover,
         div[data-testid="stFormSubmitButton"] button:hover {
             border-color:#168FC0 !important;background:linear-gradient(110deg,#DDF2FC,#FFFFFF) !important;
+            color:#123B5D !important;
         }
         </style>
         """, unsafe_allow_html=True)
