@@ -2056,11 +2056,11 @@ def get_index_toppers_master_values(symbols):
         )
         if matches:
             try:
-                return "{:.2f}".format(float(matches[-1]))
+                return "{:+.2f}".format(float(matches[-1]))
             except (TypeError, ValueError):
                 pass
         try:
-            return "{:.2f}".format(float(raw_value.replace("%", "").strip()))
+            return "{:+.2f}".format(float(raw_value.replace("%", "").strip()))
         except (TypeError, ValueError):
             return "—"
 
@@ -2428,11 +2428,11 @@ def render_index_toppers_dashboard():
             top_choice_master_parts = []
             if top_choice_avg_o2l != "—":
                 top_choice_master_parts.append(
-                    f"Avg.O2L.4 ({html.escape(top_choice_avg_o2l)})"
+                    f"Avg.O2L.4 {html.escape(top_choice_avg_o2l)}"
                 )
             if top_choice_avg_o2h != "—":
                 top_choice_master_parts.append(
-                    f"Avg.O2H.4 ({html.escape(top_choice_avg_o2h)})"
+                    f"Avg.O2H.4 {html.escape(top_choice_avg_o2h)}"
                 )
             top_choice_master_line = (
                 " · " + " · ".join(top_choice_master_parts)
