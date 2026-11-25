@@ -171,8 +171,8 @@ def _price(value):
 def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     if app_name.upper() == "VARDAAN":
         st.session_state["_vardaan_active_theme"] = {
-            "deep": "#7C2D12", "primary": "#EA580C", "accent": "#F97316",
-            "ink": "#54240D", "accent_text": "#9A3412", "tint": "#FFE2C2",
+            "deep": "#7C2D12", "primary": "#EA580C", "accent": "#EA580C",
+            "ink": "#54240D", "accent_text": "#7C2D12", "tint": "#FFE2C2",
             "canvas": "#FFF4E8", "border": "#FDBA74", "soft_text": "#7C2D12",
             "left_accent": "#EA580C",
         }
