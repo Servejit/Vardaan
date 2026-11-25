@@ -319,12 +319,14 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{color:#174F85!important}
         [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,[data-testid="stSidebar"] [data-baseweb="select"]>div,[data-testid="stSidebar"] input{background:#FAFCFF!important;border-color:#B8D9FF!important;color:#123B70!important}
         h1,h1 *{color:#2789CC!important;-webkit-text-fill-color:#2789CC!important}h2,h3,p,[data-testid="stMarkdownContainer"]{color:#123B70}
-        h1::before{background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important}
+        h1::before{background-image:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important;background-size:300% 300%!important;background-position:0% 50%!important;animation:ahlFlowerShimmer 4.2s linear infinite!important;filter:drop-shadow(0 0 5px rgba(101,164,236,.35))}
         [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
         [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{border:1px solid #B8D9FF!important;border-radius:10px!important;color:#174F85!important;background:linear-gradient(180deg,#EAF4FF 0%,#F2F8FF 55%,#FAFCFF 100%)!important;box-shadow:0 3px 10px rgba(28,91,157,.10)!important}
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+        [data-testid="stSidebar"] button{border:1px solid #B8D9FF!important;border-radius:10px!important;color:#174F85!important;-webkit-text-fill-color:#174F85!important;background-color:#F2F8FF!important;background-image:linear-gradient(180deg,#EAF4FF 0%,#F2F8FF 55%,#FAFCFF 100%)!important;box-shadow:0 3px 10px rgba(28,91,157,.10)!important}
         [data-testid="stSidebar"] .stButton > button:hover,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{border-color:#65A4EC!important;background:linear-gradient(180deg,#DCEEFF 0%,#EAF4FF 100%)!important;color:#174F85!important}
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+        [data-testid="stSidebar"] button:hover{border-color:#65A4EC!important;background-color:#EAF4FF!important;background-image:linear-gradient(180deg,#DCEEFF 0%,#EAF4FF 100%)!important;color:#174F85!important;-webkit-text-fill-color:#174F85!important}
         
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
