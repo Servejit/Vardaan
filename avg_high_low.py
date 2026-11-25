@@ -389,32 +389,34 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower: extra-strong bright white shimmer and halo. */
+        /* SELL flower: metallic silver sweep with a visible cool-silver halo. */
         @keyframes stockDayFlowerShimmer{
-          0%{background-position:-220% 0%;filter:brightness(1.25) drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(255,255,255,.95)) drop-shadow(0 0 14px rgba(255,255,255,.72))}
-          42%{filter:brightness(1.75) drop-shadow(0 0 5px #fff) drop-shadow(0 0 13px #fff) drop-shadow(0 0 22px rgba(255,255,255,.95))}
-          58%{filter:brightness(1.75) drop-shadow(0 0 5px #fff) drop-shadow(0 0 13px #fff) drop-shadow(0 0 22px rgba(255,255,255,.95))}
-          100%{background-position:220% 0%;filter:brightness(1.25) drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(255,255,255,.95)) drop-shadow(0 0 14px rgba(255,255,255,.72))}
+          0%{background-position:-240% 0%;filter:brightness(1.18) drop-shadow(0 0 4px rgba(190,205,225,.95)) drop-shadow(0 0 10px rgba(210,222,240,.9)) drop-shadow(0 0 18px rgba(170,190,220,.78))}
+          38%{filter:brightness(1.65) drop-shadow(0 0 5px #E9EEF6) drop-shadow(0 0 13px rgba(215,225,240,1)) drop-shadow(0 0 25px rgba(180,198,225,.98))}
+          58%{filter:brightness(1.65) drop-shadow(0 0 5px #E9EEF6) drop-shadow(0 0 13px rgba(215,225,240,1)) drop-shadow(0 0 25px rgba(180,198,225,.98))}
+          100%{background-position:240% 0%;filter:brightness(1.18) drop-shadow(0 0 4px rgba(190,205,225,.95)) drop-shadow(0 0 10px rgba(210,222,240,.9)) drop-shadow(0 0 18px rgba(170,190,220,.78))}
         }
         @-webkit-keyframes stockDayFlowerShimmer{
-          0%{background-position:-220% 0%;-webkit-filter:brightness(1.25) drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(255,255,255,.95)) drop-shadow(0 0 14px rgba(255,255,255,.72))}
-          42%{-webkit-filter:brightness(1.75) drop-shadow(0 0 5px #fff) drop-shadow(0 0 13px #fff) drop-shadow(0 0 22px rgba(255,255,255,.95))}
-          58%{-webkit-filter:brightness(1.75) drop-shadow(0 0 5px #fff) drop-shadow(0 0 13px #fff) drop-shadow(0 0 22px rgba(255,255,255,.95))}
-          100%{background-position:220% 0%;-webkit-filter:brightness(1.25) drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(255,255,255,.95)) drop-shadow(0 0 14px rgba(255,255,255,.72))}
+          0%{background-position:-240% 0%;-webkit-filter:brightness(1.18) drop-shadow(0 0 4px rgba(190,205,225,.95)) drop-shadow(0 0 10px rgba(210,222,240,.9)) drop-shadow(0 0 18px rgba(170,190,220,.78))}
+          38%{-webkit-filter:brightness(1.65) drop-shadow(0 0 5px #E9EEF6) drop-shadow(0 0 13px rgba(215,225,240,1)) drop-shadow(0 0 25px rgba(180,198,225,.98))}
+          58%{-webkit-filter:brightness(1.65) drop-shadow(0 0 5px #E9EEF6) drop-shadow(0 0 13px rgba(215,225,240,1)) drop-shadow(0 0 25px rgba(180,198,225,.98))}
+          100%{background-position:240% 0%;-webkit-filter:brightness(1.18) drop-shadow(0 0 4px rgba(190,205,225,.95)) drop-shadow(0 0 10px rgba(210,222,240,.9)) drop-shadow(0 0 18px rgba(170,190,220,.78))}
         }
         h1::before{
           background:linear-gradient(115deg,
             var(--brand-flower-color,#65A4EC) 0%,
-            var(--brand-flower-color,#65A4EC) 24%,
-            rgba(255,255,255,.42) 34%,
-            #FFFFFF 43%,
-            #FFFFFF 55%,
-            rgba(255,255,255,.58) 64%,
-            var(--brand-flower-color,#65A4EC) 76%,
+            #7F8C9D 20%,
+            #C4CCD8 29%,
+            #F4F7FC 38%,
+            #FFFFFF 47%,
+            #DCE3ED 55%,
+            #AAB6C7 64%,
+            #E8EDF5 72%,
+            var(--brand-flower-color,#65A4EC) 83%,
             var(--brand-flower-color,#65A4EC) 100%)!important;
-          background-size:500% 100%!important;
-          animation:stockDayFlowerShimmer 2.6s linear infinite!important;
-          -webkit-animation:stockDayFlowerShimmer 2.6s linear infinite!important;
+          background-size:560% 100%!important;
+          animation:stockDayFlowerShimmer 2.45s linear infinite!important;
+          -webkit-animation:stockDayFlowerShimmer 2.45s linear infinite!important;
           animation-play-state:running!important;
           -webkit-animation-play-state:running!important;
         }
