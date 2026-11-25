@@ -291,10 +291,16 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
         for event in _events(symbol, data):
-            # Keep the Master Excel Avg.O2L.4 / Avg.O2H.4 values with each
-            # signal so cards can be ranked by the requested priority.
-            event["master_o2l4"] = master.get("o2l4")
-            event["master_o2h4"] = master.get("o2h4")
+            # Today's O2L% / O2H% are measured against the 20-day
+            # average Low / High used by this dashboard.
+            event["today_o2l_pct"] = (
+                (day_low - avg_low) / avg_low * 100
+                if day_low is not None and avg_low else None
+            )
+            event["today_o2h_pct"] = (
+                (day_high - avg_high) / avg_high * 100
+                if day_high is not None and avg_high else None
+            )
             entry, open_price = event["entry"], data.get("open")
             if event["side"] == "BUY":
                 cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
@@ -432,21 +438,20 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # BUY: lowest Master Avg.O2L.4 first.
-        # SELL: highest Master Avg.O2H.4 first.
-        # Missing values are kept at the bottom; recent signal breaks ties.
+        # Rank cards using today's live O2L% / O2H%, not Master Excel values.
+        # BUY: lowest today's O2L% first. SELL: highest today's O2H% first.
+        # Missing values stay at the bottom; most recent signal breaks ties.
+        events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
             events.sort(key=lambda item: (
-                item.get("master_o2l4") is None,
-                item.get("master_o2l4") if item.get("master_o2l4") is not None else 0,
-                item["time"],
+                item.get("today_o2l_pct") is None,
+                item.get("today_o2l_pct") if item.get("today_o2l_pct") is not None else 0,
             ))
         else:
             events.sort(key=lambda item: (
-                item.get("master_o2h4") is None,
-                -(item.get("master_o2h4") if item.get("master_o2h4") is not None else 0),
-                item["time"],
-            ), reverse=False)
+                item.get("today_o2h_pct") is None,
+                -(item.get("today_o2h_pct") if item.get("today_o2h_pct") is not None else 0),
+            ))
         if not events:
             st.info(f"No {side} crossing signal yet.")
             return
