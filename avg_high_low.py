@@ -242,12 +242,12 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-hero{padding:20px 22px;margin:4px 0 18px;border-radius:18px;color:#FFF8FD;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.22),transparent 28%),linear-gradient(115deg,#5B1748 0%,#B43B91 48%,#EC64D5 100%);border:1px solid #E7A5D6;box-shadow:0 12px 28px rgba(91,23,72,.18)}
     .ahl-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#F5C7E9}.ahl-title{font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FFF}.ahl-sub{font-size:12px;line-height:1.55;color:#F8E3F3}
     .ahl-card{box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;width:100%;min-height:240px;margin:12px 0 18px;padding:23px 23px 22px;border-radius:21px;color:#FFF8FD;border:3px solid transparent;background:linear-gradient(125deg,#32102B 0%,#8A246D 52%,#5B1748 100%) padding-box,linear-gradient(110deg,#E7A5D6 0%,#FFF8FD 34%,#EC64D5 55%,#E7A5D6 100%) border-box;box-shadow:0 14px 30px rgba(91,23,72,.24)}
-    .ahl-card-sell{color:#174F85;background:linear-gradient(125deg,#EAF4FF 0%,#F2F8FF 52%,#FAFCFF 100%) padding-box,linear-gradient(110deg,#B8D9FF 0%,#FFFFFF 34%,#65A4EC 55%,#B8D9FF 100%) border-box;box-shadow:0 14px 30px rgba(28,91,157,.12)}
-    .ahl-card-sell .ahl-brand{color:#2789CC;text-shadow:0 0 10px rgba(101,164,236,.22)}
-    .ahl-card-sell .ahl-side{background:#DCEEFF;color:#174F85;border-color:#B8D9FF}
-    .ahl-card-sell .ahl-label{color:#174F85!important;text-shadow:none}
-    .ahl-card-sell .ahl-value,.ahl-card-sell .ahl-target{color:#123B70!important;font-size:1.25rem;font-weight:950;text-shadow:none}
-    .ahl-card-sell .ahl-divider{background:linear-gradient(90deg,transparent,#65A4EC,rgba(39,137,204,.65),#65A4EC,transparent)}
+    .ahl-card-sell{color:#F7FBFF;background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%) padding-box,linear-gradient(110deg,#B8D9FF 0%,#FFFFFF 34%,#65A4EC 55%,#B8D9FF 100%) border-box;box-shadow:0 14px 30px rgba(28,91,157,.28)}
+    .ahl-card-sell .ahl-brand{color:#D9EBFF;text-shadow:0 0 12px rgba(101,164,236,.65)}
+    .ahl-card-sell .ahl-side{background:#EAF4FF;color:#174F85;border-color:#B8D9FF}
+    .ahl-card-sell .ahl-label{color:#EAF4FF!important;text-shadow:0 1px 1px rgba(0,20,45,.45)}
+    .ahl-card-sell .ahl-value,.ahl-card-sell .ahl-target{color:#EAF4FF!important;font-size:1.25rem;font-weight:950;text-shadow:0 1px 2px rgba(0,20,45,.55)}
+    .ahl-card-sell .ahl-divider{background:linear-gradient(90deg,transparent,#65A4EC,rgba(234,244,255,.98),#65A4EC,transparent)}
     .ahl-brand{position:relative;z-index:1;text-align:center;font-size:11px;font-weight:900;letter-spacing:3px;color:#F5C7E9;margin:0 0 15px;text-shadow:0 0 12px rgba(236,100,213,.55)}.ahl-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:36px}.ahl-symbol{font-size:1.78rem;line-height:1.15;font-weight:950;color:#FFF}.ahl-side{font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;border-radius:99px;background:#FFF8FD;color:#8A246D;border:1px solid #E7A5D6}
     .ahl-divider{height:1px;width:100%;background:linear-gradient(90deg,transparent,#E7A5D6,rgba(255,247,237,.95),#E7A5D6,transparent);margin:19px 0 17px;flex:0 0 auto}
     .ahl-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:0}.ahl-label{font-size:.66rem;font-weight:900;letter-spacing:1.1px;color:#F5C7E9}.ahl-value{font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFF;margin-top:7px;white-space:nowrap}.ahl-target{color:#FDE68A}.ahl-section{font-size:13px;font-weight:950;letter-spacing:1.2px;color:#8A246D;margin:18px 0 9px}
