@@ -2461,75 +2461,88 @@ def render_index_toppers_dashboard():
         top_choice = eligible[0] if eligible else None
         highlighted_candidates = lowest_three + (next_two if fallback_mode else [])
 
+        st.session_state['_index_toppers_pistachio_mode'] = bool(fallback_mode)
+
         if fallback_mode:
             st.markdown("""
             <style>
-            :root { --brand-flower-color:#F28C28 !important; }
+            :root { --brand-flower-color:#8FAF72 !important; }
             .stApp {
-                background:radial-gradient(ellipse at 8% 0%,#FFE4C7 0%,transparent 44%),
-                           linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 52%,#FFFAF4 100%) !important;
-                color:#7C2D12 !important;
+                background:radial-gradient(ellipse at 8% 0%,#E7F0D9 0%,transparent 44%),
+                           linear-gradient(135deg,#F4F8EF 0%,#DDEBCF 52%,#FBFDF7 100%) !important;
+                color:#365B3B !important;
             }
             [data-testid="stHeader"] {
                 background:rgba(255,247,237,.97) !important;
-                border-bottom:1px solid #F28C28 !important;
+                border-bottom:1px solid #8FAF72 !important;
             }
             [data-testid="stMainBlockContainer"] {
-                --signal-nav-border:#FDBA74;
-                --signal-nav-accent:#EA580C;
-                --signal-nav-soft:#FFEDD5;
-                --signal-nav-canvas:#FFF7ED;
-                --signal-nav-text:#7C2D12;
+                --signal-nav-border:#B7D7A8;
+                --signal-nav-accent:#658B4E;
+                --signal-nav-soft:#DDEBCF;
+                --signal-nav-canvas:#F4F8EF;
+                --signal-nav-text:#365B3B;
             }
             .index-topper-hero {
-                border-color:#F97316 !important;
+                border-color:#8FAF72 !important;
                 background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.28),transparent 27%),
-                           linear-gradient(115deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) !important;
+                           linear-gradient(115deg,#365B3B 0%,#658B4E 48%,#4D7440 100%) !important;
                 box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
             }
-            .index-topper-kicker,.index-topper-metric-label { color:#FED7AA !important; }
-            .index-topper-sub { color:#FFEDD5 !important; }
+            .index-topper-kicker,.index-topper-metric-label { color:#C8DDB5 !important; }
+            .index-topper-sub { color:#DDEBCF !important; }
             .index-topper-card {
-                background:linear-gradient(130deg,#9A3412 0%,#EA580C 48%,#C2410C 100%) padding-box,
-                           linear-gradient(115deg,#F97316 0%,#FDBA74 35%,#FFFFFF 52%,#FB923C 75%,#9A3412 100%) border-box !important;
+                background:linear-gradient(130deg,#365B3B 0%,#658B4E 48%,#4D7440 100%) padding-box,
+                           linear-gradient(115deg,#8FAF72 0%,#B7D7A8 35%,#FFFFFF 52%,#A9C78E 75%,#365B3B 100%) border-box !important;
                 box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
             }
-            .index-topper-card-label { color:#FED7AA !important; }
+            .index-topper-card-label { color:#C8DDB5 !important; }
             .index-topper-pill {
-                color:#7C2D12 !important;
-                background:linear-gradient(110deg,#FFEDD5,#FDBA74) !important;
+                color:#365B3B !important;
+                background:linear-gradient(110deg,#DDEBCF,#B7D7A8) !important;
             }
-            .index-topper-target { color:#FED7AA !important; }
-            .index-topper-table-wrap { border-color:#F97316 !important; background:#FFF7ED !important; }
-            .index-topper-table { color:#7C2D12 !important; }
+            .index-topper-target { color:#C8DDB5 !important; }
+            .index-topper-table-wrap { border-color:#8FAF72 !important; background:#F4F8EF !important; }
+            .index-topper-table { color:#365B3B !important; }
             .index-topper-table th {
-                background:linear-gradient(110deg,#FDBA74,#FFEDD5) !important;
-                color:#7C2D12 !important;border-bottom-color:#EA580C !important;
+                background:linear-gradient(110deg,#B7D7A8,#DDEBCF) !important;
+                color:#365B3B !important;border-bottom-color:#658B4E !important;
             }
-            .index-topper-table td { border-bottom-color:#FED7AA !important; }
-            .index-topper-table tr:nth-child(even) { background:#FFF7ED !important; }
-            .index-topper-table tr.top-three { background:#FFEDD5 !important; }
-            .index-topper-table tr.top-choice { background:#FDBA74 !important; }
-            .index-topper-section { color:#C2410C !important; }
-            div[data-testid="stExpander"] { border-color:#FDBA74 !important; }
+            .index-topper-table td { border-bottom-color:#C8DDB5 !important; }
+            .index-topper-table tr:nth-child(even) { background:#F4F8EF !important; }
+            .index-topper-table tr.top-three { background:#DDEBCF !important; }
+            .index-topper-table tr.top-choice { background:#B7D7A8 !important; }
+            .index-topper-section { color:#4D7440 !important; }
+            div[data-testid="stExpander"] { border-color:#B7D7A8 !important; }
             div[data-testid="stExpander"] summary {
-                background:#FFF7ED !important;color:#9A3412 !important;
+                background:#F4F8EF !important;color:#365B3B !important;
             }
-            div[data-testid="stExpander"] summary:hover { background:#FFEDD5 !important; }
+            div[data-testid="stExpander"] summary:hover { background:#DDEBCF !important; }
             div[data-testid="stExpander"] [data-testid="stExpanderDetails"] {
-                background:#FFFFFF !important;color:#7C2D12 !important;
-                border-top-color:#FED7AA !important;
+                background:#FFFFFF !important;color:#365B3B !important;
+                border-top-color:#C8DDB5 !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button {
-                border-color:#EA580C !important;color:#FFF7ED !important;
-                background:linear-gradient(110deg,#9A3412 0%,#EA580C 55%,#F97316 100%) !important;
+                border-color:#658B4E !important;color:#F4F8EF !important;
+                background:linear-gradient(110deg,#365B3B 0%,#658B4E 55%,#8FAF72 100%) !important;
                 box-shadow:0 5px 14px rgba(194,65,12,.2) !important;
             }
             [data-testid="stMainBlockContainer"] .stButton > button:hover,
             [data-testid="stMainBlockContainer"] [data-testid="stDownloadButton"] button:hover {
-                border-color:#FDBA74 !important;filter:brightness(1.08) !important;
+                border-color:#B7D7A8 !important;filter:brightness(1.08) !important;
             }
+
+            /* Pistachio applies to the #4/#5 fallback stock dashboard surfaces. */
+            [data-testid="stSidebar"] {background:linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 58%,#E7F0D9 100%) !important;border-right:1.5px solid #C8DDB5 !important;}
+            [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {color:#365B3B !important;}
+            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {border-color:#C8DDB5 !important;background:linear-gradient(135deg,#FFFFFF,#F4F8EF) !important;}
+            [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {border-color:#8FAF72 !important;background:#DDEBCF !important;box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.12) !important;}
+            [data-testid="stSidebar"] .stButton > button,[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {border-color:#8FAF72 !important;color:#365B3B !important;background:linear-gradient(135deg,#FFFFFF,#DDEBCF) !important;}
+            [data-testid="stSidebar"] .stButton > button:hover,[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {background:linear-gradient(110deg,#DDEBCF,#B7D7A8) !important;}
+            [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {border-color:#C8DDB5 !important;background:linear-gradient(135deg,#FFFFFF,#F4F8EF) !important;}
+            [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {border-color:#8FAF72 !important;background:#DDEBCF !important;box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.12) !important;}
+            [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,[data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label * {color:#365B3B !important;-webkit-text-fill-color:#365B3B !important;}
             </style>
             """, unsafe_allow_html=True)
 
@@ -5538,7 +5551,7 @@ _index_toppers_sidebar_theme = {
 _bottom_nav_theme = (
     _master_excel_ice_blue_theme
     if _bottom_nav_page == "Master Excel"
-    else _index_toppers_sidebar_theme
+    else ({**_index_toppers_sidebar_theme, "deep":"#365B3B", "primary":"#658B4E", "accent":"#8FAF72", "ink":"#365B3B", "accent_text":"#365B3B", "tint":"#DDEBCF", "canvas":"#F4F8EF", "border":"#C8DDB5", "soft_text":"#4F7045", "left_accent":"#658B4E"} if st.session_state.get("_index_toppers_pistachio_mode") else _index_toppers_sidebar_theme)
     if _bottom_nav_page == "Index Toppers"
     else st.session_state.get("_vardaan_active_theme") or _master_excel_ice_blue_theme
 )
