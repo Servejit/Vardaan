@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
+from avg_high_low import render_avg_high_low_dashboard
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -4788,11 +4789,12 @@ with st.sidebar:
 
     st.radio(
         "Sidebar dashboard navigation",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
+            "Avg.High Low": "📈  Avg.High Low",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="sidebar_dashboard_nav_v1",
@@ -4847,6 +4849,13 @@ elif page == "Stock of the Day":
 
 elif page == "Index Toppers":
     render_index_toppers_dashboard()
+
+elif page == "Avg.High Low":
+    try:
+        _avg_high_low_master = get_autogreen_master_bytes()
+    except Exception:
+        _avg_high_low_master = None
+    render_avg_high_low_dashboard(_avg_high_low_master, app_name="VARDAAN")
 
 elif page == "Master Excel":
 
@@ -5684,11 +5693,12 @@ with st.container(key="vardaan-bottom-nav"):
     )
     st.radio(
         "Dashboard shortcuts",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
+            "Avg.High Low": "📈  Avg.High Low",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="bottom_dashboard_nav_v1",
