@@ -447,8 +447,13 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     render_cards(sell_events, "SELL")
 
     with st.expander("TODAY'S MARKET DATA", expanded=False):
-        if rows:
-            frame = pd.DataFrame(rows)
+        # Show only stocks that currently have a BUY or SELL signal card.
+        # The full 210-stock universe is still scanned; signal logic is unchanged.
+        signal_symbols = {event["symbol"] for event in buy_events}
+        signal_symbols.update(event["symbol"] for event in sell_events)
+        signal_rows = [row for row in rows if row["Stock"] in signal_symbols]
+        if signal_rows:
+            frame = pd.DataFrame(signal_rows)
             for col in ("Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High"):
                 frame[col] = frame[col].map(_price)
             for col in ("% Down Avg", "% Above Avg"):
@@ -459,4 +464,4 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
             st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
         else:
-            st.warning("No stocks have complete 20-session history and intraday data yet.")
+            st.info("No stocks are currently selected for a BUY or SELL signal card.")
