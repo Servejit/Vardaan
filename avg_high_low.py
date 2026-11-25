@@ -291,6 +291,10 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
         for event in _events(symbol, data):
+            # Keep the Master Excel Avg.O2L.4 / Avg.O2H.4 values with each
+            # signal so cards can be ranked by the requested priority.
+            event["master_o2l4"] = master.get("o2l4")
+            event["master_o2h4"] = master.get("o2h4")
             entry, open_price = event["entry"], data.get("open")
             if event["side"] == "BUY":
                 cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
@@ -428,7 +432,21 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        events.sort(key=lambda item: item["time"], reverse=True)
+        # BUY: lowest Master Avg.O2L.4 first.
+        # SELL: highest Master Avg.O2H.4 first.
+        # Missing values are kept at the bottom; recent signal breaks ties.
+        if side == "BUY":
+            events.sort(key=lambda item: (
+                item.get("master_o2l4") is None,
+                item.get("master_o2l4") if item.get("master_o2l4") is not None else 0,
+                item["time"],
+            ))
+        else:
+            events.sort(key=lambda item: (
+                item.get("master_o2h4") is None,
+                -(item.get("master_o2h4") if item.get("master_o2h4") is not None else 0),
+                item["time"],
+            ), reverse=False)
         if not events:
             st.info(f"No {side} crossing signal yet.")
             return
