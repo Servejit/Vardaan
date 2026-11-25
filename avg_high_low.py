@@ -389,12 +389,20 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* Explicit Arctic shimmer on the flower when SELL is the active top card. */
+        /* Strong, continuous Arctic 825 shimmer on the flower for the active SELL theme. */
+        @keyframes arcticFlowerShimmer{
+          0%{background-position:0% 50%;filter:brightness(1) drop-shadow(0 0 3px rgba(101,164,236,.45))}
+          50%{background-position:100% 50%;filter:brightness(1.75) drop-shadow(0 0 11px rgba(255,255,255,.98))}
+          100%{background-position:0% 50%;filter:brightness(1) drop-shadow(0 0 3px rgba(101,164,236,.45))}
+        }
         h1::before{
-          background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#2789CC 66%,#65A4EC 100%)!important;
-          background-size:300% 300%!important;
-          animation:dependentSignalShimmer 2.8s linear infinite!important;
-          filter:drop-shadow(0 0 5px rgba(101,164,236,.72))!important;
+          background-image:linear-gradient(110deg,#65A4EC 0%,#2789CC 22%,#65A4EC 36%,rgba(255,255,255,1) 49%,#FFFFFF 53%,#2789CC 68%,#65A4EC 84%,#DCEEFF 100%)!important;
+          background-size:400% 100%!important;
+          background-position:0% 50%;
+          animation:arcticFlowerShimmer 2s ease-in-out infinite!important;
+          -webkit-animation:arcticFlowerShimmer 2s ease-in-out infinite!important;
+          will-change:background-position,filter;
+          opacity:1!important;
         }
                 [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
