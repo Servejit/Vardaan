@@ -389,22 +389,14 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* Strong, continuous Arctic 825 shimmer on the flower for the active SELL theme. */
-        @keyframes arcticFlowerShimmer{
-          0%{background-position:0% 50%;filter:brightness(1) drop-shadow(0 0 3px rgba(101,164,236,.45))}
-          50%{background-position:100% 50%;filter:brightness(1.75) drop-shadow(0 0 11px rgba(255,255,255,.98))}
-          100%{background-position:0% 50%;filter:brightness(1) drop-shadow(0 0 3px rgba(101,164,236,.45))}
-        }
+        /* Match the flower shimmer used by the other dashboards. */
         h1::before{
-          background-image:linear-gradient(110deg,#65A4EC 0%,#2789CC 22%,#65A4EC 36%,rgba(255,255,255,1) 49%,#FFFFFF 53%,#2789CC 68%,#65A4EC 84%,#DCEEFF 100%)!important;
-          background-size:400% 100%!important;
-          background-position:0% 50%;
-          animation:arcticFlowerShimmer 2s ease-in-out infinite!important;
-          -webkit-animation:arcticFlowerShimmer 2s ease-in-out infinite!important;
-          will-change:background-position,filter;
-          opacity:1!important;
+          background:linear-gradient(110deg,var(--brand-flower-color,#65A4EC) 0%,var(--brand-flower-color,#65A4EC) 30%,rgba(255,255,255,.96) 48%,var(--brand-flower-color,#65A4EC) 66%,var(--brand-flower-color,#65A4EC) 100%)!important;
+          background-size:300% 300%!important;
+          animation:dependentSignalShimmer 4.2s linear infinite!important;
+          -webkit-animation:dependentSignalShimmer 4.2s linear infinite!important;
         }
-                [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
+        [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
         [data-testid="stExpander"] details>summary:hover{background:linear-gradient(110deg,#123B70 0%,#2789CC 58%,#65A4EC 100%)!important}
         [data-testid="stExpander"] [data-testid="stExpanderDetails"]{background:#F2F8FF!important}
