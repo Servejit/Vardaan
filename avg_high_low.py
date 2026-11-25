@@ -240,7 +240,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     @media(max-width:560px){.ahl-card{min-height:240px;padding:23px 20px 22px;border-radius:21px}.ahl-value{font-size:1.15rem}.ahl-symbol{font-size:1.55rem}}
     </style>""", unsafe_allow_html=True)
     st.title("6THSENSE-VARDAAN")
-    st.caption("20 completed trading sessions · Five lowest Lows and five highest Highs per stock · Live recovery crossings")
+
 
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
     is_open = now.weekday() < 5 and 555 <= now.hour * 60 + now.minute <= 930
