@@ -179,6 +179,12 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     st.markdown("""
     <style>
 
+
+    [data-testid="stExpander"]{border:1.5px solid #EA580C!important;border-radius:12px!important;overflow:hidden!important;background:#FFF4E8!important;box-shadow:0 4px 14px rgba(154,52,18,.10)!important;margin:8px 0 18px!important}
+    [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#9A3412 0%,#C2410C 58%,#EA580C 100%)!important;color:#FFF7ED!important;padding:12px 16px!important;font-weight:900!important;letter-spacing:.5px!important}
+    [data-testid="stExpander"] details>summary *{color:#FFF7ED!important;-webkit-text-fill-color:#FFF7ED!important}
+    [data-testid="stExpander"] details>summary:hover{background:linear-gradient(110deg,#7C2D12 0%,#C2410C 58%,#F97316 100%)!important}
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"]{background:#FFF4E8!important;padding:10px!important}
     .ahl-table-wrap{width:100%;overflow-x:auto;border:1px solid #EA580C;border-radius:12px;background:#FFF4E8;box-shadow:0 4px 14px rgba(154,52,18,.10);margin:8px 0 18px}
     .ahl-table-wrap table.ahl-data-table{width:100%;min-width:850px;border-collapse:separate!important;border-spacing:0!important;background:#FFF4E8!important;color:#54240D!important;font-size:13px!important}
     .ahl-table-wrap table.ahl-data-table thead th{position:sticky;top:0;background:#C2410C!important;color:#FFF7ED!important;-webkit-text-fill-color:#FFF7ED!important;font-weight:800!important;text-align:left!important;padding:11px 12px!important;border:0!important;border-right:1px solid #F5A36C!important;border-bottom:2px solid #9A3412!important;white-space:nowrap!important}
