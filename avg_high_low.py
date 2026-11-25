@@ -234,7 +234,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-hero{padding:20px 22px;margin:4px 0 18px;border-radius:18px;color:#FFF7ED;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.22),transparent 28%),linear-gradient(115deg,#7C2D12 0%,#C2410C 48%,#EA580C 100%);border:1px solid #FDBA74;box-shadow:0 12px 28px rgba(124,45,18,.18)}
     .ahl-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#FED7AA}.ahl-title{font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FFF}.ahl-sub{font-size:12px;line-height:1.55;color:#FFEDD5}
     .ahl-card{box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;width:100%;min-height:240px;margin:12px 0 18px;padding:23px 23px 22px;border-radius:21px;color:#FFF7ED;border:3px solid transparent;background:linear-gradient(125deg,#431407 0%,#9A3412 52%,#7C2D12 100%) padding-box,linear-gradient(110deg,#FDBA74 0%,#FFF7ED 34%,#F97316 55%,#FDBA74 100%) border-box;box-shadow:0 14px 30px rgba(124,45,18,.24)}
-    .ahl-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:36px}.ahl-symbol{font-size:1.78rem;line-height:1.15;font-weight:950;color:#FFF}.ahl-side{font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;border-radius:99px;background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74}
+    .ahl-brand{font-size:10px;font-weight:850;letter-spacing:1.5px;color:#FED7AA;text-align:left;margin:0 0 8px}.ahl-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:36px}.ahl-symbol{font-size:1.78rem;line-height:1.15;font-weight:950;color:#FFF}.ahl-side{font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;border-radius:99px;background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74}
     .ahl-divider{height:1px;width:100%;background:linear-gradient(90deg,transparent,#FDBA74,rgba(255,247,237,.95),#FDBA74,transparent);margin:19px 0 17px;flex:0 0 auto}
     .ahl-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:0}.ahl-label{font-size:.66rem;font-weight:900;letter-spacing:1.1px;color:#FED7AA}.ahl-value{font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFF;margin-top:7px;white-space:nowrap}.ahl-target{color:#FDE68A}.ahl-section{font-size:13px;font-weight:950;letter-spacing:1.2px;color:#9A3412;margin:18px 0 9px}
     @media(max-width:560px){.ahl-card{min-height:240px;padding:23px 20px 22px;border-radius:21px}.ahl-value{font-size:1.15rem}.ahl-symbol{font-size:1.55rem}}
@@ -294,7 +294,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             return
         for event in events:
             st.markdown(
-                f'<div class="ahl-card"><div class="ahl-card-head"><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-side">{side} SIGNAL</div></div>'
+                f'<div class="ahl-card"><div class="ahl-brand">6THSENSE-VARDAAN</div><div class="ahl-card-head"><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-side">{side} SIGNAL</div></div>'
                 f'<div class="ahl-divider"></div>'
                 f'<div class="ahl-prices"><div><div class="ahl-label">ENTRY PRICE</div><div class="ahl-value">{_price(event["entry"])}</div></div>'
                 f'<div><div class="ahl-label">TARGET PRICE</div><div class="ahl-value ahl-target">{_price(event["target"])}</div></div></div></div>',
