@@ -389,17 +389,25 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower now uses the exact Stock of the Day shimmer. */
-        @keyframes dependentSignalShimmer{
+        /* SELL flower: use the same visible, continuous Stock-of-the-Day sweep.
+           A dedicated animation name prevents other dashboard CSS from overriding it. */
+        @keyframes stockDayFlowerShimmer{
           0%{background-position:0% 50%;filter:brightness(1)}
           50%{background-position:100% 50%;filter:brightness(1.12)}
           100%{background-position:0% 50%;filter:brightness(1)}
         }
+        @-webkit-keyframes stockDayFlowerShimmer{
+          0%{background-position:0% 50%;-webkit-filter:brightness(1)}
+          50%{background-position:100% 50%;-webkit-filter:brightness(1.12)}
+          100%{background-position:0% 50%;-webkit-filter:brightness(1)}
+        }
         h1::before{
           background:linear-gradient(110deg,var(--brand-flower-color,#65A4EC) 0%,var(--brand-flower-color,#65A4EC) 30%,rgba(255,255,255,.96) 48%,var(--brand-flower-color,#65A4EC) 66%,var(--brand-flower-color,#65A4EC) 100%)!important;
           background-size:300% 300%!important;
-          animation:dependentSignalShimmer 4.2s linear infinite!important;
-          -webkit-animation:dependentSignalShimmer 4.2s linear infinite!important;
+          animation:stockDayFlowerShimmer 4.2s linear infinite!important;
+          -webkit-animation:stockDayFlowerShimmer 4.2s linear infinite!important;
+          animation-play-state:running!important;
+          -webkit-animation-play-state:running!important;
         }
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
