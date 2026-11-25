@@ -2658,17 +2658,42 @@ def render_index_toppers_dashboard():
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows, columns=columns)
 
+                # Pistachio is used only for the #4/#5 fallback dashboard.
+                # The normal dashboard keeps its existing chocolate table palette.
+                pistachio_table = bool(fallback_mode)
+                top_choice_row_style = (
+                    "background-color: #B7D7A8; color: #365B3B; font-weight: 900;"
+                    if pistachio_table else
+                    "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
+                )
+                highlighted_row_style = (
+                    "background-color: #DDEBCF; color: #365B3B; font-weight: 800;"
+                    if pistachio_table else
+                    "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
+                )
+                base_row_style = (
+                    "background-color: #F4F8EF; color: #365B3B;"
+                    if pistachio_table else
+                    "background-color: #FFFFFF; color: #3B2118;"
+                )
+
                 def highlight_index_topper_row(row):
                     stock_name = row.get("Stock Name")
                     if top_choice and stock_name == top_choice["Stock Name"]:
-                        style = "background-color: #C99D7B; color: #3B2118; font-weight: 900;"
+                        style = top_choice_row_style
                     elif any(stock_name == item["Stock Name"] for item in highlighted_candidates):
-                        style = "background-color: #EAD9CC; color: #4A2B20; font-weight: 800;"
+                        style = highlighted_row_style
                     else:
-                        # Explicit white base row prevents Vardaan's dark table theme
-                        # from showing through; highlighted rows remain chocolate/beige.
-                        style = "background-color: #FFFFFF; color: #3B2118;"
+                        style = base_row_style
                     return [style] * len(row)
+
+                table_header_background = "#B7D7A8" if pistachio_table else "#D9B89C"
+                table_header_text = "#365B3B" if pistachio_table else "#4A2B20"
+                table_header_border = "#658B4E" if pistachio_table else "#8A5638"
+                table_cell_border = "#C8DDB5" if pistachio_table else "#E1CDBD"
+                table_background = "#F4F8EF" if pistachio_table else "#F7F0EA"
+                table_border = "#8FAF72" if pistachio_table else "#A97858"
+                table_cell_text = "#365B3B" if pistachio_table else "#3B2118"
 
                 styled_table = (
                     table_df.style
@@ -2676,33 +2701,33 @@ def render_index_toppers_dashboard():
                         {
                             "selector": "th",
                             "props": [
-                                ("background-color", "#D9B89C"),
-                                ("color", "#4A2B20"),
+                                ("background-color", table_header_background),
+                                ("color", table_header_text),
                                 ("font-weight", "900"),
-                                ("border-bottom", "2px solid #8A5638"),
+                                ("border-bottom", f"2px solid {table_header_border}"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(odd) td",
                             "props": [
-                                ("background-color", "#FFFFFF"),
-                                ("color", "#3B2118"),
-                                ("border-bottom", "1px solid #E1CDBD"),
+                                ("background-color", "#F4F8EF" if pistachio_table else "#FFFFFF"),
+                                ("color", table_cell_text),
+                                ("border-bottom", f"1px solid {table_cell_border}"),
                             ],
                         },
                         {
                             "selector": "tbody tr:nth-child(even) td",
                             "props": [
                                 ("background-color", "#FFFFFF"),
-                                ("color", "#3B2118"),
-                                ("border-bottom", "1px solid #E1CDBD"),
+                                ("color", table_cell_text),
+                                ("border-bottom", f"1px solid {table_cell_border}"),
                             ],
                         },
                         {
                             "selector": "table",
                             "props": [
-                                ("background-color", "#F7F0EA"),
-                                ("border", "1px solid #A97858"),
+                                ("background-color", table_background),
+                                ("border", f"1px solid {table_border}"),
                                 ("border-collapse", "collapse"),
                             ],
                         },
