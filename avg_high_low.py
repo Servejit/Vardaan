@@ -482,16 +482,38 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             # Streamlit's native dataframe provides ascending/descending header sorting.
             order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
                      "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
-            display_frame = frame[order].style.format({
-                "Open": _price,
-                "High": _price,
-                "Low": _price,
-                "Live Price": _price,
-                "Avg.Low": _price,
-                "Avg.High": _price,
-                "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
-                "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
-            })
+            # Match the existing dashboard table palette while keeping values numeric
+            # for native heading-based sorting.
+            display_frame = (
+                frame[order]
+                .style
+                .format({
+                    "Open": _price,
+                    "High": _price,
+                    "Low": _price,
+                    "Live Price": _price,
+                    "Avg.Low": _price,
+                    "Avg.High": _price,
+                    "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+                    "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+                })
+                .set_table_styles([
+                    {"selector": "th", "props": [
+                        ("background-color", "#B43B91"), ("color", "#FFF8FD"),
+                        ("font-weight", "800"), ("border-bottom", "2px solid #8A246D"),
+                        ("padding", "11px 12px"), ("white-space", "nowrap")
+                    ]},
+                    {"selector": "td", "props": [
+                        ("background-color", "#FFF5FC"), ("color", "#3F1738"),
+                        ("border-bottom", "1px solid #EBD0E4"),
+                        ("padding", "10px 12px"), ("white-space", "nowrap")
+                    ]},
+                    {"selector": "tbody tr:nth-child(even) td", "props": [
+                        ("background-color", "#FCE8F7")
+                    ]},
+                ])
+                .set_properties(subset=["Stock"], **{"font-weight": "800", "color": "#8A246D"})
+            )
             st.dataframe(
                 display_frame,
                 hide_index=True,
