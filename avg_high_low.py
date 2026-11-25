@@ -389,23 +389,30 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower: use the same visible, continuous Stock-of-the-Day sweep.
-           A dedicated animation name prevents other dashboard CSS from overriding it. */
+        /* SELL flower: make the Stock-of-the-Day white highlight a clearly visible glowing diagonal sweep. */
         @keyframes stockDayFlowerShimmer{
-          0%{background-position:0% 50%;filter:brightness(1)}
-          50%{background-position:100% 50%;filter:brightness(1.12)}
-          100%{background-position:0% 50%;filter:brightness(1)}
+          0%{background-position:-180% 0%;filter:brightness(1.08) drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 5px rgba(255,255,255,.55))}
+          50%{filter:brightness(1.28) drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px rgba(255,255,255,.82))}
+          100%{background-position:180% 0%;filter:brightness(1.08) drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 5px rgba(255,255,255,.55))}
         }
         @-webkit-keyframes stockDayFlowerShimmer{
-          0%{background-position:0% 50%;-webkit-filter:brightness(1)}
-          50%{background-position:100% 50%;-webkit-filter:brightness(1.12)}
-          100%{background-position:0% 50%;-webkit-filter:brightness(1)}
+          0%{background-position:-180% 0%;-webkit-filter:brightness(1.08) drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 5px rgba(255,255,255,.55))}
+          50%{-webkit-filter:brightness(1.28) drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px rgba(255,255,255,.82))}
+          100%{background-position:180% 0%;-webkit-filter:brightness(1.08) drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 5px rgba(255,255,255,.55))}
         }
         h1::before{
-          background:linear-gradient(110deg,var(--brand-flower-color,#65A4EC) 0%,var(--brand-flower-color,#65A4EC) 30%,rgba(255,255,255,.96) 48%,var(--brand-flower-color,#65A4EC) 66%,var(--brand-flower-color,#65A4EC) 100%)!important;
-          background-size:300% 300%!important;
-          animation:stockDayFlowerShimmer 4.2s linear infinite!important;
-          -webkit-animation:stockDayFlowerShimmer 4.2s linear infinite!important;
+          background:linear-gradient(115deg,
+            var(--brand-flower-color,#65A4EC) 0%,
+            var(--brand-flower-color,#65A4EC) 28%,
+            rgba(255,255,255,.20) 39%,
+            #FFFFFF 47%,
+            #FFFFFF 51%,
+            rgba(255,255,255,.28) 59%,
+            var(--brand-flower-color,#65A4EC) 72%,
+            var(--brand-flower-color,#65A4EC) 100%)!important;
+          background-size:420% 100%!important;
+          animation:stockDayFlowerShimmer 3.4s linear infinite!important;
+          -webkit-animation:stockDayFlowerShimmer 3.4s linear infinite!important;
           animation-play-state:running!important;
           -webkit-animation-play-state:running!important;
         }
