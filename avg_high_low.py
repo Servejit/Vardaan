@@ -322,9 +322,9 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         h1::before{background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important}
         [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
         [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{border:1px solid #65A4EC!important;border-radius:10px!important;color:#FFFFFF!important;background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%)!important;box-shadow:0 3px 10px rgba(28,91,157,.16)!important}
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{border:1px solid #B8D9FF!important;border-radius:10px!important;color:#174F85!important;background:linear-gradient(180deg,#EAF4FF 0%,#F2F8FF 55%,#FAFCFF 100%)!important;box-shadow:0 3px 10px rgba(28,91,157,.10)!important}
         [data-testid="stSidebar"] .stButton > button:hover,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{border-color:#65A4EC!important;background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%)!important;color:#FFFFFF!important}
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{border-color:#65A4EC!important;background:linear-gradient(180deg,#DCEEFF 0%,#EAF4FF 100%)!important;color:#174F85!important}
         
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
