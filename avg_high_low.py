@@ -230,19 +230,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     h1::before{content:"";position:absolute;left:50%;top:-28px;width:76px;height:52px;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:linear-gradient(110deg,#EC64D5 0%,#EC64D5 30%,rgba(255,255,255,.98) 48%,#EC64D5 66%,#EC64D5 100%);background-size:300% 300%;animation:ahlFlowerShimmer 4.2s linear infinite;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat}
     @keyframes ahlFlowerShimmer{0%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.18)}100%{background-position:0% 50%;filter:brightness(1)}}
     [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #EC64D5!important;color:#FFF8FD!important;background:linear-gradient(110deg,#8A246D 0%,#EC64D5 58%,#EC64D5 100%)!important;border-radius:10px!important;font-weight:800!important}
-    /* Log out follows the active dashboard palette, just like other sidebar buttons. */
-    [data-testid="stSidebar"] .st-key-sidebar_logout_button button{
-      min-height:2.75rem!important;border:1px solid var(--signal-nav-accent)!important;
-      border-radius:10px!important;color:#FFFFFF!important;
-      background:linear-gradient(110deg,var(--signal-nav-text) 0%,var(--signal-nav-accent) 58%,var(--signal-nav-accent) 100%)!important;
-      box-shadow:0 3px 10px rgba(0,0,0,.10)!important;
-      font-weight:800!important;letter-spacing:.01em!important;
-    }
-    [data-testid="stSidebar"] .st-key-sidebar_logout_button button:hover{
-      border-color:var(--signal-nav-accent)!important;
-      filter:brightness(1.08)!important;
-      color:#FFFFFF!important;
-    }
+    
     [data-testid="stDataFrame"],[data-testid="stTable"]{border:1px solid #E7A5D6!important;border-radius:12px!important}
     .ahl-hero{padding:20px 22px;margin:4px 0 18px;border-radius:18px;color:#FFF8FD;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.22),transparent 28%),linear-gradient(115deg,#5B1748 0%,#B43B91 48%,#EC64D5 100%);border:1px solid #E7A5D6;box-shadow:0 12px 28px rgba(91,23,72,.18)}
     .ahl-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#F5C7E9}.ahl-title{font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FFF}.ahl-sub{font-size:12px;line-height:1.55;color:#F8E3F3}
@@ -326,19 +314,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         h1,h1 *{color:#2789CC!important;-webkit-text-fill-color:#2789CC!important}h2,h3,p,[data-testid="stMarkdownContainer"]{color:#123B70}
         h1::before{background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important}
         [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
-        /* Log out follows the active dashboard palette, just like other sidebar buttons. */
-    [data-testid="stSidebar"] .st-key-sidebar_logout_button button{
-      min-height:2.75rem!important;border:1px solid var(--signal-nav-accent)!important;
-      border-radius:10px!important;color:#FFFFFF!important;
-      background:linear-gradient(110deg,var(--signal-nav-text) 0%,var(--signal-nav-accent) 58%,var(--signal-nav-accent) 100%)!important;
-      box-shadow:0 3px 10px rgba(0,0,0,.10)!important;
-      font-weight:800!important;letter-spacing:.01em!important;
-    }
-    [data-testid="stSidebar"] .st-key-sidebar_logout_button button:hover{
-      border-color:var(--signal-nav-accent)!important;
-      filter:brightness(1.08)!important;
-      color:#FFFFFF!important;
-    }
+        [data-testid="stSidebar"] [data-testid="stButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
+        
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
         [data-testid="stExpander"] details>summary:hover{background:linear-gradient(110deg,#123B70 0%,#2789CC 58%,#65A4EC 100%)!important}
