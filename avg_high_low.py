@@ -364,29 +364,30 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         html body .stApp [data-testid="stSidebar"] [data-baseweb="select"] *{
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
         }
+        /* Unlock Master Control and Log out use the same light Arctic sidebar styling as selectors. */
         html body .stApp [data-testid="stSidebar"] .stButton > button,
         html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
         html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
         html body .stApp [data-testid="stSidebar"] button[kind]{
-          border:1.5px solid #65A4EC!important;border-radius:10px!important;
-          color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
-          background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%)!important;
-          box-shadow:0 3px 10px rgba(18,59,112,.22)!important;
+          border:1.5px solid #B8D9FF!important;border-radius:10px!important;
+          color:#174F85!important;-webkit-text-fill-color:#174F85!important;
+          background:linear-gradient(135deg,#DCEEFF 0%,#EAF4FF 55%,#F2F8FF 100%)!important;
+          box-shadow:0 2px 7px rgba(18,59,112,.08)!important;
           font-weight:850!important;
         }
         html body .stApp [data-testid="stSidebar"] .stButton > button *,
         html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button *,
         html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"] *{
-          color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
+          color:#174F85!important;-webkit-text-fill-color:#174F85!important;
         }
         html body .stApp [data-testid="stSidebar"] .stButton > button:hover,
         html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
         html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"]:hover,
         html body .stApp [data-testid="stSidebar"] button[kind]:hover{
-          border-color:#B8D9FF!important;
-          background:linear-gradient(125deg,#174F85 0%,#2789CC 52%,#65A4EC 100%)!important;
-          color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
-          box-shadow:0 4px 14px rgba(18,59,112,.30)!important;
+          border-color:#65A4EC!important;
+          background:linear-gradient(135deg,#D6EAFF 0%,#E5F2FF 55%,#F2F8FF 100%)!important;
+          color:#174F85!important;-webkit-text-fill-color:#174F85!important;
+          box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
         /* Explicit Arctic shimmer on the flower when SELL is the active top card. */
         h1::before{
