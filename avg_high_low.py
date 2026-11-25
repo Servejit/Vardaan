@@ -293,6 +293,42 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 event["target"] = max(entry * .9965, cap) if cap is not None else entry * .9965
                 sell_events.append(event)
 
+    # When there are no BUY signals, the first active signal card is SELL.
+    # Match the whole dashboard theme to that topmost Arctic 825 card.
+    if not buy_events and sell_events:
+        if app_name.upper() == "VARDAAN":
+            st.session_state["_vardaan_active_theme"] = {
+                "deep": "#123B70", "primary": "#65A4EC", "accent": "#65A4EC",
+                "ink": "#123B70", "accent_text": "#174F85", "tint": "#DCEEFF",
+                "canvas": "#F2F8FF", "border": "#B8D9FF", "soft_text": "#174F85",
+                "left_accent": "#65A4EC",
+            }
+        st.markdown("""
+        <style>
+        .stApp{background:radial-gradient(ellipse at 8% 0%,#DCEEFF 0%,transparent 43%),linear-gradient(135deg,#F2F8FF 0%,#E5F2FF 52%,#FAFCFF 100%)!important;color:#123B70!important;--brand-flower-color:#65A4EC!important;--signal-nav-border:#B8D9FF;--signal-nav-accent:#65A4EC;--signal-nav-soft:#DCEEFF;--signal-nav-canvas:#F2F8FF;--signal-nav-text:#174F85}
+        [data-testid="stHeader"]{background:rgba(242,248,255,.96)!important;border-bottom:1px solid #B8D9FF!important}
+        [data-testid="stSidebar"]{background:linear-gradient(180deg,#EAF4FF 0%,#F2F8FF 55%,#FAFCFF 100%)!important;border-right:1.5px solid #B8D9FF!important}
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{color:#174F85!important}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,[data-testid="stSidebar"] [data-baseweb="select"]>div,[data-testid="stSidebar"] input{background:#FAFCFF!important;border-color:#B8D9FF!important;color:#123B70!important}
+        h1,h1 *{color:#2789CC!important;-webkit-text-fill-color:#2789CC!important}h2,h3,p,[data-testid="stMarkdownContainer"]{color:#123B70}
+        h1::before{background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important}
+        [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
+        [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
+        [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
+        [data-testid="stExpander"] details>summary:hover{background:linear-gradient(110deg,#123B70 0%,#2789CC 58%,#65A4EC 100%)!important}
+        [data-testid="stExpander"] [data-testid="stExpanderDetails"]{background:#F2F8FF!important}
+        .ahl-table-wrap{border-color:#65A4EC;background:#F2F8FF}
+        .ahl-table-wrap table.ahl-data-table{background:#F2F8FF!important;color:#123B70!important}
+        .ahl-table-wrap table.ahl-data-table thead th{background:#287BC4!important;color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;border-right-color:#B8D9FF!important;border-bottom-color:#174F85!important}
+        .ahl-table-wrap table.ahl-data-table tbody td{background:#F2F8FF!important;color:#123B70!important;-webkit-text-fill-color:#123B70!important;border-right-color:#D5E8FA!important;border-bottom-color:#D5E8FA!important}
+        .ahl-table-wrap table.ahl-data-table tbody tr:nth-child(even) td{background:#EAF4FF!important}
+        .ahl-table-wrap table.ahl-data-table tbody tr:hover td{background:#D6EAFF!important;color:#123B70!important;-webkit-text-fill-color:#123B70!important}
+        .ahl-table-wrap table.ahl-data-table tbody td:first-child{color:#174F85!important;-webkit-text-fill-color:#174F85!important}
+        [data-testid="stDataFrame"],[data-testid="stTable"]{border-color:#B8D9FF!important}
+        .ahl-section{color:#174F85!important}
+        </style>
+        """, unsafe_allow_html=True)
+
     def render_cards(events, side):
         events.sort(key=lambda item: item["time"], reverse=True)
         if not events:
