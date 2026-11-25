@@ -285,10 +285,10 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         open_price = data.get("open")
         rows.append({
             "Stock": symbol, "Live Price": data["bars"][-1]["close"],
-            "Open": data.get("open"), "Today's High": day_high,
-            "Today's Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
-            "Today's O2L%": ((day_low - data.get("open")) / data.get("open") * 100) if day_low is not None and data.get("open") else None,
-            "Today's O2H%": ((day_high - data.get("open")) / data.get("open") * 100) if day_high is not None and data.get("open") else None,
+            "Open": data.get("open"), "High": day_high,
+            "Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
+            "O2L%": ((day_low - data.get("open")) / data.get("open") * 100) if day_low is not None and data.get("open") else None,
+            "O2H%": ((day_high - data.get("open")) / data.get("open") * 100) if day_high is not None and data.get("open") else None,
             "5 Lowest Lows": " · ".join(f"{v:.2f}" for v in data["lows5"]),
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
@@ -478,13 +478,13 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         signal_rows = [row for row in rows if row["Stock"] in signal_symbols]
         if signal_rows:
             frame = pd.DataFrame(signal_rows)
-            for col in ("Live Price", "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High"):
+            for col in ("Live Price", "Open", "High", "Low", "Avg.Low", "Avg.High"):
                 frame[col] = frame[col].map(_price)
-            for col in ("Today's O2L%", "Today's O2H%"):
+            for col in ("O2L%", "O2H%"):
                 frame[col] = frame[col].map(lambda value: "—" if pd.isna(value) else f"{value:+.2f}%")
             # Show live traded price and today's O2H/O2L percentages prominently.
-            order = ["Stock", "Live Price", "Today's O2L%", "Today's O2H%",
-                     "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High",
+            order = ["Stock", "Live Price", "O2L%", "O2H%",
+                     "Open", "High", "Low", "Avg.Low", "Avg.High",
                      "5 Lowest Lows", "5 Highest Highs"]
             table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
             st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
