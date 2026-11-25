@@ -215,14 +215,14 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     }
     [data-testid="stSidebar"] .stButton > button,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{
-      border:1px solid #EC64D5!important;border-radius:10px!important;
-      color:#FFF8FD!important;background:linear-gradient(110deg,#8A246D 0%,#EC64D5 58%,#EC64D5 100%)!important;
-      box-shadow:0 3px 10px rgba(91,23,72,.12)!important;
+      border:1px solid #E7A5D6!important;border-radius:10px!important;
+      color:#5B1748!important;background:linear-gradient(180deg,#FBEAF7 0%,#FFF5FC 55%,#FFF8FD 100%)!important;
+      box-shadow:0 3px 10px rgba(91,23,72,.08)!important;
     }
     [data-testid="stSidebar"] .stButton > button:hover,
     [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{
-      border-color:#EC64D5!important;background:linear-gradient(110deg,#5B1748 0%,#8A246D 58%,#EC64D5 100%)!important;
-      color:#FFFFFF!important;
+      border-color:#EC64D5!important;background:linear-gradient(180deg,#F8DDF2 0%,#FCE8F7 100%)!important;
+      color:#5B1748!important;
     }
     [data-testid="stDataFrame"],[data-testid="stTable"]{
       background:#FFF5FC!important;border:1px solid #EC64D5!important;
