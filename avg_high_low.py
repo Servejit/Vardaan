@@ -389,20 +389,22 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower: continuous one-way diagonal white sweep. BUY animation remains unchanged. */
+        /* SELL flower: soft flowing diagonal white shimmer with a gentle glow. */
         @keyframes dependentSignalSellSweep{
-          0%{background-position:0% 100%;filter:brightness(1)}
-          100%{background-position:100% 0%;filter:brightness(1.12)}
+          0%{background-position:0% 100%;filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0))}
+          50%{filter:brightness(1.06) drop-shadow(0 0 3px rgba(255,255,255,.28))}
+          100%{background-position:100% 0%;filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0))}
         }
         @-webkit-keyframes dependentSignalSellSweep{
-          0%{background-position:0% 100%;-webkit-filter:brightness(1)}
-          100%{background-position:100% 0%;-webkit-filter:brightness(1.12)}
+          0%{background-position:0% 100%;-webkit-filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0))}
+          50%{-webkit-filter:brightness(1.06) drop-shadow(0 0 3px rgba(255,255,255,.28))}
+          100%{background-position:100% 0%;-webkit-filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0))}
         }
         h1::before{
-          background:linear-gradient(110deg,var(--brand-flower-color,#65A4EC) 0%,var(--brand-flower-color,#65A4EC) 30%,rgba(255,255,255,.98) 48%,var(--brand-flower-color,#65A4EC) 66%,var(--brand-flower-color,#65A4EC) 100%)!important;
-          background-size:300% 300%!important;
-          animation:dependentSignalSellSweep 3.6s linear infinite!important;
-          -webkit-animation:dependentSignalSellSweep 3.6s linear infinite!important;
+          background:linear-gradient(110deg,var(--brand-flower-color,#65A4EC) 0%,var(--brand-flower-color,#65A4EC) 36%,rgba(255,255,255,.28) 45%,rgba(255,255,255,.88) 52%,rgba(255,255,255,.28) 59%,var(--brand-flower-color,#65A4EC) 68%,var(--brand-flower-color,#65A4EC) 100%)!important;
+          background-size:350% 350%!important;
+          animation:dependentSignalSellSweep 5.2s ease-in-out infinite!important;
+          -webkit-animation:dependentSignalSellSweep 5.2s ease-in-out infinite!important;
         }
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
