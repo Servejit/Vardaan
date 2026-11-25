@@ -321,29 +321,39 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         h1,h1 *{color:#2789CC!important;-webkit-text-fill-color:#2789CC!important}h2,h3,p,[data-testid="stMarkdownContainer"]{color:#123B70}
 
         [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
-        /* Arctic 825: force the complete sidebar button surface, including Streamlit's BaseButton variants. */
-        [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
-        [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
-        [data-testid="stSidebar"] button[kind],
-        section[data-testid="stSidebar"] button{
+        /* Topmost SELL card selects the Arctic 825 palette for the entire sidebar, as in the other dashboards. */
+        html body .stApp [data-testid="stSidebar"],
+        html body .stApp section[data-testid="stSidebar"]{
+          background:linear-gradient(180deg,#DCEEFF 0%,#EAF4FF 42%,#F2F8FF 100%)!important;
+          border-right:1.5px solid #65A4EC!important;
+          --sidebar-theme-deep:#123B70;--sidebar-theme-mid:#287BC4;--sidebar-theme-main:#65A4EC;
+          --sidebar-theme-border:#65A4EC;--sidebar-theme-text:#174F85;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+        html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+        html body .stApp [data-testid="stSidebar"] label,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stWidgetLabel"]{
+          color:#174F85!important;-webkit-text-fill-color:#174F85!important;
+        }
+        html body .stApp [data-testid="stSidebar"] .stButton > button,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+        html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
+        html body .stApp [data-testid="stSidebar"] button[kind]{
           border:1.5px solid #65A4EC!important;border-radius:10px!important;
           color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
           background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%)!important;
           box-shadow:0 3px 10px rgba(18,59,112,.22)!important;
-          font-weight:850!important;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease!important;
+          font-weight:850!important;
         }
-        [data-testid="stSidebar"] .stButton > button *,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button *,
-        [data-testid="stSidebar"] [data-testid^="stBaseButton-"] *,
-        section[data-testid="stSidebar"] button *{
+        html body .stApp [data-testid="stSidebar"] .stButton > button *,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button *,
+        html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"] *{
           color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
         }
-        [data-testid="stSidebar"] .stButton > button:hover,
-        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
-        [data-testid="stSidebar"] [data-testid^="stBaseButton-"]:hover,
-        [data-testid="stSidebar"] button[kind]:hover,
-        section[data-testid="stSidebar"] button:hover{
+        html body .stApp [data-testid="stSidebar"] .stButton > button:hover,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+        html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"]:hover,
+        html body .stApp [data-testid="stSidebar"] button[kind]:hover{
           border-color:#B8D9FF!important;
           background:linear-gradient(125deg,#174F85 0%,#2789CC 52%,#65A4EC 100%)!important;
           color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
