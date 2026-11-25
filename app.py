@@ -953,9 +953,13 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
         summary_header_row = None
         summary_symbol_col = 0
         db_col = None
+        sum_o2l_10_col = None
+        sum_i_col = None
         o2l_columns = []
         o2l_headings = []
         db_key = header_key("16< D-B / Avg.4")
+        sum_o2l_10_key = header_key("Sum O2L.10")
+        sum_i_key = header_key("Sum I")
         for row_number, row in enumerate(
             summary_sheet.iter_rows(
                 min_row=1,
@@ -974,9 +978,16 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
                 for index, value in enumerate(row)
                 if value is not None and re.search(r"\bO2L\b", str(value), re.IGNORECASE)
             ]
-            if db_key in found and len(dated_o2l) >= 2:
+            if (
+                db_key in found
+                and sum_o2l_10_key in found
+                and sum_i_key in found
+                and len(dated_o2l) >= 2
+            ):
                 summary_header_row = row_number
                 db_col = found[db_key]
+                sum_o2l_10_col = found[sum_o2l_10_key]
+                sum_i_col = found[sum_i_key]
                 summary_symbol_col = next(
                     (found[header_key(label)]
                      for label in ("Symbol", "NSE Symbol", "Ticker")
@@ -989,7 +1000,7 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
 
         if summary_header_row is None:
             raise ValueError(
-                "Could not locate 16< D-B / Avg.4 and at least two dated O2L columns on AutoGreen."
+                "Could not locate 16< D-B / Avg.4, Sum O2L.10, Sum I, and at least two O2L columns on AutoGreen."
             )
 
         summary_by_symbol = {}
@@ -1003,18 +1014,28 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
             if not symbol:
                 continue
             db_value = _autogreen_db_parenthetical_number(row[db_col]) if db_col < len(row) else None
+            sum_o2l_10_value = (
+                _autogreen_number(row[sum_o2l_10_col])
+                if sum_o2l_10_col < len(row) else None
+            )
+            sum_i_value = (
+                _autogreen_number(row[sum_i_col])
+                if sum_i_col < len(row) else None
+            )
             o2l_values = [
                 _autogreen_number(row[index]) if index < len(row) else None
                 for index in o2l_columns
             ]
-            summary_by_symbol[symbol] = (db_value, o2l_values)
+            summary_by_symbol[symbol] = (
+                db_value, o2l_values, sum_o2l_10_value, sum_i_value
+            )
 
         matches = []
         for item in base_rows:
             symbol = item["Symbol"]
             o2h_values = o2h_by_symbol.get(symbol, [None, None])
-            db_value, o2l_values = summary_by_symbol.get(
-                symbol, (None, [None] * len(o2l_columns))
+            db_value, o2l_values, sum_o2l_10_value, sum_i_value = summary_by_symbol.get(
+                symbol, (None, [None] * len(o2l_columns), None, None)
             )
             change1 = item.get("%Chg.1")
             change2 = item.get("%Chg.2")
@@ -1026,6 +1047,8 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
                 len(o2h_values) < 2
                 or any(value is None or value >= 0.50 for value in o2h_values[:2])
                 or db_value is None or db_value > db_threshold
+                or sum_o2l_10_value is None or sum_o2l_10_value >= -20.00
+                or sum_i_value is None or sum_i_value >= 0
                 or len(o2l_values) < 2
                 or any(value is None or value >= -1.50 for value in o2l_values[:2])
                 or change1 is None or change1 >= 0
@@ -1050,6 +1073,8 @@ def load_stock_of_the_day_rows(db_threshold=-2.0):
                 "O2H 1": round(o2h_values[0], 2),
                 "O2H 2": round(o2h_values[1], 2),
                 "16< D-B / Avg.4": round(db_value, 2),
+                "Sum O2L.10": round(sum_o2l_10_value, 2),
+                "Sum I": round(sum_i_value, 2),
             }
             dated_o2l_position = 0
             for position, value in enumerate(o2l_values, start=1):
