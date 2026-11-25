@@ -335,6 +335,34 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         html body .stApp [data-testid="stSidebar"] [data-testid="stWidgetLabel"]{
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
         }
+        /* Arctic 825 selector/radio choices: override the default Mulberry checked state. */
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label *{
+          color:#174F85!important;-webkit-text-fill-color:#174F85!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label{
+          background:linear-gradient(135deg,#F7FBFF 0%,#EAF4FF 100%)!important;
+          border:1.5px solid #B8D9FF!important;border-radius:10px!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked),
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has([aria-checked="true"]){
+          background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%)!important;
+          border:1.5px solid #65A4EC!important;
+          box-shadow:inset 4px 0 0 #B8D9FF,0 3px 10px rgba(18,59,112,.18)!important;
+          color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) *,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has([aria-checked="true"]) *{
+          color:#FFFFFF!important;-webkit-text-fill-color:#FFFFFF!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-baseweb="select"]>div,
+        html body .stApp [data-testid="stSidebar"] [data-baseweb="select"] [role="combobox"]{
+          background:#F7FBFF!important;border:1.5px solid #65A4EC!important;
+          color:#123B70!important;-webkit-text-fill-color:#123B70!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-baseweb="select"] *{
+          color:#123B70!important;-webkit-text-fill-color:#123B70!important;
+        }
         html body .stApp [data-testid="stSidebar"] .stButton > button,
         html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
         html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
