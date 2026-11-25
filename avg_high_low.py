@@ -282,6 +282,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         sell_cap_pct = 1.50 if master.get("o2h4") is not None and master["o2h4"] > 3.00 else 1.00
         day_low, day_high = data.get("low"), data.get("high")
         avg_low, avg_high = data["avg_low"], data["avg_high"]
+        open_price = data.get("open")
         rows.append({
             "Stock": symbol, "Live Price": data["bars"][-1]["close"],
             "Open": data.get("open"), "Today's High": day_high,
