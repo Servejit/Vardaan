@@ -478,14 +478,25 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         signal_rows = [row for row in rows if row["Stock"] in signal_symbols]
         if signal_rows:
             frame = pd.DataFrame(signal_rows)
-            for col in ("Live Price", "Open", "High", "Low", "Avg.Low", "Avg.High"):
-                frame[col] = frame[col].map(_price)
-            for col in ("O2L%", "O2H%"):
-                frame[col] = frame[col].map(lambda value: "—" if pd.isna(value) else f"{value:+.2f}%")
-            # Show live traded price and today's O2H/O2L percentages prominently.
+            # Keep numeric values numeric so clicking a column heading sorts correctly.
+            # Streamlit's native dataframe provides ascending/descending header sorting.
             order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
                      "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
-            table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
-            st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
+            display_frame = frame[order].style.format({
+                "Open": _price,
+                "High": _price,
+                "Low": _price,
+                "Live Price": _price,
+                "Avg.Low": _price,
+                "Avg.High": _price,
+                "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+                "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+            })
+            st.dataframe(
+                display_frame,
+                hide_index=True,
+                use_container_width=True,
+                height=min(600, 38 + 35 * len(frame)),
+            )
         else:
             st.info("No stocks are currently selected for a BUY or SELL signal card.")
