@@ -117,33 +117,51 @@ def _market_data(symbols):
 
 
 def _events(symbol, data):
-    bars, found = data["bars"], []
-    low_avg, high_avg, prev_close = data["avg_low"], data["avg_high"], data["previous_close"]
-    if prev_close > low_avg:
-        setup, prior = False, None
-        for i, bar in enumerate(bars):
-            low, close = bar["low"], bar["close"]
-            if low is not None and low <= low_avg * .99:
-                setup = True
-            if setup and close > low_avg and (
-                (prior is not None and prior <= low_avg) or
-                (low is not None and low <= low_avg * .99)
-            ):
-                found.append({"symbol": symbol, "side": "BUY", "time": bar["time"], "entry": close})
-            prior = close
-    if prev_close < high_avg:
-        setup, prior = False, None
-        for i, bar in enumerate(bars):
-            high, close = bar["high"], bar["close"]
-            if high is not None and high >= high_avg * 1.01:
-                setup = True
-            if setup and close < high_avg and (
-                (prior is not None and prior >= high_avg) or
-                (high is not None and high >= high_avg * 1.01)
-            ):
-                found.append({"symbol": symbol, "side": "SELL", "time": bar["time"], "entry": close})
-            prior = close
-    return found
+    """Return at most one currently-active signal per stock and side."""
+    bars = data["bars"]
+    if not bars:
+        return []
+
+    low_avg = data["avg_low"]
+    high_avg = data["avg_high"]
+    previous_close = data["previous_close"]
+    current_price = bars[-1]["close"]
+    last_time = bars[-1]["time"]
+    day_low = data.get("low")
+    day_high = data.get("high")
+    active = []
+
+    # BUY remains active only while the latest traded price is back above
+    # Avg.Low, after today's Low has reached at least 1% below Avg.Low.
+    if (
+        previous_close > low_avg
+        and day_low is not None
+        and day_low <= low_avg * 0.99
+        and current_price > low_avg
+    ):
+        active.append({
+            "symbol": symbol,
+            "side": "BUY",
+            "time": last_time,
+            "entry": current_price,
+        })
+
+    # SELL remains active only while the latest traded price is back below
+    # Avg.High, after today's High has reached at least 1% above Avg.High.
+    if (
+        previous_close < high_avg
+        and day_high is not None
+        and day_high >= high_avg * 1.01
+        and current_price < high_avg
+    ):
+        active.append({
+            "symbol": symbol,
+            "side": "SELL",
+            "time": last_time,
+            "entry": current_price,
+        })
+
+    return active
 
 
 def _price(value):
