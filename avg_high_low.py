@@ -194,7 +194,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-table-wrap table.ahl-data-table tbody tr:last-child td{border-bottom:0!important}
     .ahl-table-wrap table.ahl-data-table th:last-child,.ahl-table-wrap table.ahl-data-table td:last-child{border-right:0!important}
     .ahl-table-wrap table.ahl-data-table tbody td:first-child{font-weight:800!important;color:#9A3412!important;-webkit-text-fill-color:#9A3412!important}
-\n    .stApp{background:radial-gradient(ellipse at 8% 0%,#FFE0BE 0%,transparent 43%),linear-gradient(135deg,#FFF4E8 0%,#FFE8D1 52%,#FFFAF5 100%)!important;color:#54240D!important;--brand-flower-color:#F97316!important;--signal-nav-border:#FDBA74;--signal-nav-accent:#EA580C;--signal-nav-soft:#FFE2C2;--signal-nav-canvas:#FFF4E8;--signal-nav-text:#7C2D12}
+
+    .stApp{background:radial-gradient(ellipse at 8% 0%,#FFE0BE 0%,transparent 43%),linear-gradient(135deg,#FFF4E8 0%,#FFE8D1 52%,#FFFAF5 100%)!important;color:#54240D!important;--brand-flower-color:#F97316!important;--signal-nav-border:#FDBA74;--signal-nav-accent:#EA580C;--signal-nav-soft:#FFE2C2;--signal-nav-canvas:#FFF4E8;--signal-nav-text:#7C2D12}
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label{
       background:linear-gradient(135deg,#FFF9F2 0%,#FFE8D1 100%)!important;
       border:1px solid #FDBA74!important;border-radius:10px!important;
@@ -231,7 +232,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#FED7AA}.ahl-title{font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FFF}.ahl-sub{font-size:12px;line-height:1.55;color:#FFEDD5}
     .ahl-card{box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;width:100%;min-height:240px;margin:12px 0 18px;padding:23px 23px 22px;border-radius:21px;color:#FFF7ED;border:3px solid transparent;background:linear-gradient(125deg,#431407 0%,#9A3412 52%,#7C2D12 100%) padding-box,linear-gradient(110deg,#FDBA74 0%,#FFF7ED 34%,#F97316 55%,#FDBA74 100%) border-box;box-shadow:0 14px 30px rgba(124,45,18,.24)}
     .ahl-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:36px}.ahl-symbol{font-size:1.78rem;line-height:1.15;font-weight:950;color:#FFF}.ahl-side{font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;border-radius:99px;background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74}
-    .ahl-divider{height:1px;width:100%;background:linear-gradient(90deg,transparent,#FDBA74,rgba(255,247,237,.95),#FDBA74,transparent);margin:19px 0 17px;flex:0 0 auto}\n    .ahl-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:0}.ahl-label{font-size:.66rem;font-weight:900;letter-spacing:1.1px;color:#FED7AA}.ahl-value{font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFF;margin-top:7px;white-space:nowrap}.ahl-target{color:#FDE68A}.ahl-section{font-size:13px;font-weight:950;letter-spacing:1.2px;color:#9A3412;margin:18px 0 9px}
+    .ahl-divider{height:1px;width:100%;background:linear-gradient(90deg,transparent,#FDBA74,rgba(255,247,237,.95),#FDBA74,transparent);margin:19px 0 17px;flex:0 0 auto}
+    .ahl-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:0}.ahl-label{font-size:.66rem;font-weight:900;letter-spacing:1.1px;color:#FED7AA}.ahl-value{font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFF;margin-top:7px;white-space:nowrap}.ahl-target{color:#FDE68A}.ahl-section{font-size:13px;font-weight:950;letter-spacing:1.2px;color:#9A3412;margin:18px 0 9px}
     @media(max-width:560px){.ahl-card{min-height:240px;padding:23px 20px 22px;border-radius:21px}.ahl-value{font-size:1.15rem}.ahl-symbol{font-size:1.55rem}}
     </style>""", unsafe_allow_html=True)
     st.title("Avg.High Low")
@@ -289,7 +291,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             return
         for event in events:
             st.markdown(
-                f'<div class="ahl-card"><div class="ahl-card-head"><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-side">{side} SIGNAL</div></div>'\n                f'<div class="ahl-divider"></div>'
+                f'<div class="ahl-card"><div class="ahl-card-head"><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-side">{side} SIGNAL</div></div>'
+                f'<div class="ahl-divider"></div>'
                 f'<div class="ahl-prices"><div><div class="ahl-label">ENTRY PRICE</div><div class="ahl-value">{_price(event["entry"])}</div></div>'
                 f'<div><div class="ahl-label">TARGET PRICE</div><div class="ahl-value ahl-target">{_price(event["target"])}</div></div></div></div>',
                 unsafe_allow_html=True,
