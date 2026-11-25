@@ -2463,7 +2463,12 @@ def render_index_toppers_dashboard():
                 )
                 row["_open_cap_multiplier"] = cap_multiplier
 
-                if open_price < live_price < open_price * cap_multiplier:
+                # New Index Toppers filter: live % change must be strictly below +2.00%.
+                if (
+                    open_price < live_price < open_price * cap_multiplier
+                    and row.get("% Chg") is not None
+                    and row["% Chg"] < 2.00
+                ):
                     eligible_rows.append(row)
 
             eligible_rows.sort(
