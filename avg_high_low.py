@@ -237,7 +237,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-card-sell{color:#F7FBFF;background:linear-gradient(125deg,#123B70 0%,#287BC4 52%,#65A4EC 100%) padding-box,linear-gradient(110deg,#B8D9FF 0%,#FFFFFF 34%,#65A4EC 55%,#B8D9FF 100%) border-box;box-shadow:0 14px 30px rgba(28,91,157,.28)}
     .ahl-card-sell .ahl-brand{color:#D9EBFF;text-shadow:0 0 12px rgba(101,164,236,.65)}
     .ahl-card-sell .ahl-side{background:#EAF4FF;color:#174F85;border-color:#B8D9FF}
-    .ahl-card-sell .ahl-label,.ahl-card-sell .ahl-value,.ahl-card-sell .ahl-target{color:#65A4EC}
+    .ahl-card-sell .ahl-label{color:#FFFFFF!important;text-shadow:0 1px 3px rgba(0,20,45,.95)}
+    .ahl-card-sell .ahl-value,.ahl-card-sell .ahl-target{color:#FFFFFF!important;font-weight:1000;text-shadow:0 2px 5px rgba(0,20,45,.98),0 0 2px #082B4A;-webkit-text-stroke:.25px #082B4A}
     .ahl-card-sell .ahl-divider{background:linear-gradient(90deg,transparent,#65A4EC,rgba(234,244,255,.98),#65A4EC,transparent)}
     .ahl-brand{position:relative;z-index:1;text-align:center;font-size:11px;font-weight:900;letter-spacing:3px;color:#F5C7E9;margin:0 0 15px;text-shadow:0 0 12px rgba(236,100,213,.55)}.ahl-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:36px}.ahl-symbol{font-size:1.78rem;line-height:1.15;font-weight:950;color:#FFF}.ahl-side{font-size:.72rem;font-weight:950;letter-spacing:1.15px;padding:8px 12px;border-radius:99px;background:#FFF8FD;color:#8A246D;border:1px solid #E7A5D6}
     .ahl-divider{height:1px;width:100%;background:linear-gradient(90deg,transparent,#E7A5D6,rgba(255,247,237,.95),#E7A5D6,transparent);margin:19px 0 17px;flex:0 0 auto}
