@@ -178,7 +178,17 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         }
     st.markdown("""
     <style>
-    .stApp{background:radial-gradient(ellipse at 8% 0%,#FFE0BE 0%,transparent 43%),linear-gradient(135deg,#FFF4E8 0%,#FFE8D1 52%,#FFFAF5 100%)!important;color:#54240D!important;--brand-flower-color:#F97316!important;--signal-nav-border:#FDBA74;--signal-nav-accent:#EA580C;--signal-nav-soft:#FFE2C2;--signal-nav-canvas:#FFF4E8;--signal-nav-text:#7C2D12}
+
+    .ahl-table-wrap{width:100%;overflow-x:auto;border:1px solid #EA580C;border-radius:12px;background:#FFF4E8;box-shadow:0 4px 14px rgba(154,52,18,.10);margin:8px 0 18px}
+    .ahl-table-wrap table.ahl-data-table{width:100%;min-width:850px;border-collapse:separate!important;border-spacing:0!important;background:#FFF4E8!important;color:#54240D!important;font-size:13px!important}
+    .ahl-table-wrap table.ahl-data-table thead th{position:sticky;top:0;background:#C2410C!important;color:#FFF7ED!important;-webkit-text-fill-color:#FFF7ED!important;font-weight:800!important;text-align:left!important;padding:11px 12px!important;border:0!important;border-right:1px solid #F5A36C!important;border-bottom:2px solid #9A3412!important;white-space:nowrap!important}
+    .ahl-table-wrap table.ahl-data-table tbody td{background:#FFF4E8!important;color:#54240D!important;-webkit-text-fill-color:#54240D!important;padding:10px 12px!important;border:0!important;border-right:1px solid #F4C49F!important;border-bottom:1px solid #F4C49F!important;white-space:nowrap!important}
+    .ahl-table-wrap table.ahl-data-table tbody tr:nth-child(even) td{background:#FFE8D1!important}
+    .ahl-table-wrap table.ahl-data-table tbody tr:hover td{background:#FFD0A3!important;color:#7C2D12!important;-webkit-text-fill-color:#7C2D12!important}
+    .ahl-table-wrap table.ahl-data-table tbody tr:last-child td{border-bottom:0!important}
+    .ahl-table-wrap table.ahl-data-table th:last-child,.ahl-table-wrap table.ahl-data-table td:last-child{border-right:0!important}
+    .ahl-table-wrap table.ahl-data-table tbody td:first-child{font-weight:800!important;color:#9A3412!important;-webkit-text-fill-color:#9A3412!important}
+\n    .stApp{background:radial-gradient(ellipse at 8% 0%,#FFE0BE 0%,transparent 43%),linear-gradient(135deg,#FFF4E8 0%,#FFE8D1 52%,#FFFAF5 100%)!important;color:#54240D!important;--brand-flower-color:#F97316!important;--signal-nav-border:#FDBA74;--signal-nav-accent:#EA580C;--signal-nav-soft:#FFE2C2;--signal-nav-canvas:#FFF4E8;--signal-nav-text:#7C2D12}
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label{
       background:linear-gradient(135deg,#FFF9F2 0%,#FFE8D1 100%)!important;
       border:1px solid #FDBA74!important;border-radius:10px!important;
@@ -294,21 +304,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         # Keep the five lowest Lows and five highest Highs as the final columns.
         order = ["Stock", "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High",
                  "% Down Avg", "% Above Avg", "5 Lowest Lows", "5 Highest Highs"]
-        styled_frame = frame[order].style
-        styled_frame = styled_frame.set_table_styles([
-            {"selector": "thead th", "props": [
-                ("background-color", "#C2410C"), ("color", "#FFF7ED"),
-                ("font-weight", "800"), ("border", "1px solid #FDBA74"),
-                ("padding", "9px 10px"),
-            ]},
-            {"selector": "tbody td", "props": [
-                ("background-color", "#FFF4E8"), ("color", "#54240D"),
-                ("border", "1px solid #FDBA74"), ("padding", "8px 10px"),
-            ]},
-            {"selector": "tbody tr:nth-child(even) td", "props": [
-                ("background-color", "#FFE8D1"),
-            ]},
-        ])
-        st.dataframe(styled_frame, hide_index=True, use_container_width=True)
+        table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
+        st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
     else:
         st.warning("No stocks have complete 20-session history and intraday data yet.")
