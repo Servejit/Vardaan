@@ -482,14 +482,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             # Streamlit's native dataframe provides ascending/descending header sorting.
             order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
                      "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
-            # Restore the original card-matched table palette while retaining sortable headings.
-            is_sell_theme = not bool(buy_events) and bool(sell_events)
-            table_bg = "#F2F8FF" if is_sell_theme else "#FFF5FC"
-            table_alt = "#EAF4FF" if is_sell_theme else "#FCE8F7"
-            table_header = "#287BC4" if is_sell_theme else "#B43B91"
-            table_ink = "#123B70" if is_sell_theme else "#3F1738"
-            table_border = "#B8D9FF" if is_sell_theme else "#E9B7DE"
-            table_accent = "#174F85" if is_sell_theme else "#8A246D"
+            # Use the live dashboard theme variables so the table always matches
+            # whichever card/theme is currently controlling the dashboard.
             display_frame = (
                 frame[order].style.format({
                     "Open": _price, "High": _price, "Low": _price,
@@ -498,21 +492,26 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
                 }).set_table_styles([
                     {"selector": "th", "props": [
-                        ("background-color", table_header), ("color", "#FFFFFF"),
-                        ("font-weight", "800"), ("border-bottom", f"2px solid {table_accent}"),
-                        ("border-right", f"1px solid {table_border}"),
+                        ("background", "var(--signal-nav-accent)"),
+                        ("color", "#FFFFFF"), ("font-weight", "800"),
+                        ("border-bottom", "2px solid var(--signal-nav-text)"),
+                        ("border-right", "1px solid var(--signal-nav-border)"),
                         ("padding", "11px 12px"), ("white-space", "nowrap")
                     ]},
                     {"selector": "td", "props": [
-                        ("background-color", table_bg), ("color", table_ink),
-                        ("border-bottom", f"1px solid {table_border}"),
-                        ("border-right", f"1px solid {table_border}"),
+                        ("background", "var(--signal-nav-canvas)"),
+                        ("color", "var(--signal-nav-text)"),
+                        ("border-bottom", "1px solid var(--signal-nav-border)"),
+                        ("border-right", "1px solid var(--signal-nav-border)"),
                         ("padding", "10px 12px"), ("white-space", "nowrap")
                     ]},
                     {"selector": "tbody tr:nth-child(even) td", "props": [
-                        ("background-color", table_alt)
+                        ("background", "var(--signal-nav-soft)")
                     ]},
-                ]).set_properties(subset=["Stock"], **{"font-weight": "800", "color": table_accent})
+                ]).set_properties(
+                    subset=["Stock"],
+                    **{"font-weight": "800", "color": "var(--signal-nav-text)"}
+                )
             )
             st.dataframe(
                 display_frame,
