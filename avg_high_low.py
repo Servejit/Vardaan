@@ -179,6 +179,31 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     st.markdown("""
     <style>
     .stApp{background:radial-gradient(ellipse at 8% 0%,#FFE0BE 0%,transparent 43%),linear-gradient(135deg,#FFF4E8 0%,#FFE8D1 52%,#FFFAF5 100%)!important;color:#54240D!important;--brand-flower-color:#F97316!important;--signal-nav-border:#FDBA74;--signal-nav-accent:#EA580C;--signal-nav-soft:#FFE2C2;--signal-nav-canvas:#FFF4E8;--signal-nav-text:#7C2D12}
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label{
+      background:linear-gradient(135deg,#FFF9F2 0%,#FFE8D1 100%)!important;
+      border:1px solid #FDBA74!important;border-radius:10px!important;
+      color:#7C2D12!important;margin:3px 0!important;padding:8px 10px!important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover{
+      background:linear-gradient(110deg,#FFE2C2 0%,#FFF4E8 100%)!important;
+      border-color:#EA580C!important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked){
+      background:linear-gradient(110deg,#FFD0A3 0%,#FFE8D1 100%)!important;
+      border:1.5px solid #EA580C!important;box-shadow:inset 4px 0 0 #EA580C!important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label *{
+      color:#7C2D12!important;-webkit-text-fill-color:#7C2D12!important;
+    }
+    [data-testid="stSidebar"] [data-testid="stButton"] button{
+      background:linear-gradient(110deg,#9A3412 0%,#EA580C 58%,#F97316 100%)!important;
+      border:1px solid #EA580C!important;color:#FFF7ED!important;
+    }
+    [data-testid="stDataFrame"],[data-testid="stTable"]{
+      background:#FFF4E8!important;border:1px solid #EA580C!important;
+      border-radius:12px!important;overflow:hidden!important;
+    }
     [data-testid="stHeader"]{background:rgba(255,244,232,.96)!important;border-bottom:1px solid #FDBA74!important}
     [data-testid="stSidebar"]{background:linear-gradient(180deg,#FFEDD9 0%,#FFF4E8 55%,#FFF9F2 100%)!important;border-right:1.5px solid #FDBA74!important}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{color:#7C2D12!important}
@@ -269,6 +294,21 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         # Keep the five lowest Lows and five highest Highs as the final columns.
         order = ["Stock", "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High",
                  "% Down Avg", "% Above Avg", "5 Lowest Lows", "5 Highest Highs"]
-        st.dataframe(frame[order], hide_index=True, use_container_width=True)
+        styled_frame = frame[order].style
+        styled_frame = styled_frame.set_table_styles([
+            {"selector": "thead th", "props": [
+                ("background-color", "#C2410C"), ("color", "#FFF7ED"),
+                ("font-weight", "800"), ("border", "1px solid #FDBA74"),
+                ("padding", "9px 10px"),
+            ]},
+            {"selector": "tbody td", "props": [
+                ("background-color", "#FFF4E8"), ("color", "#54240D"),
+                ("border", "1px solid #FDBA74"), ("padding", "8px 10px"),
+            ]},
+            {"selector": "tbody tr:nth-child(even) td", "props": [
+                ("background-color", "#FFE8D1"),
+            ]},
+        ])
+        st.dataframe(styled_frame, hide_index=True, use_container_width=True)
     else:
         st.warning("No stocks have complete 20-session history and intraday data yet.")
