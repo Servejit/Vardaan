@@ -213,9 +213,16 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label *{
       color:#5B1748!important;-webkit-text-fill-color:#5B1748!important;
     }
-    [data-testid="stSidebar"] [data-testid="stButton"] button{
-      background:linear-gradient(110deg,#8A246D 0%,#EC64D5 58%,#EC64D5 100%)!important;
-      border:1px solid #EC64D5!important;color:#FFF8FD!important;
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{
+      border:1px solid #A9D7EA!important;border-radius:10px!important;
+      color:#155E91!important;background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%)!important;
+      box-shadow:0 3px 10px rgba(23,101,139,.08)!important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{
+      border-color:#168FC0!important;background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%)!important;
+      color:#123B5D!important;
     }
     [data-testid="stDataFrame"],[data-testid="stTable"]{
       background:#FFF5FC!important;border:1px solid #EC64D5!important;
@@ -314,7 +321,10 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         h1,h1 *{color:#2789CC!important;-webkit-text-fill-color:#2789CC!important}h2,h3,p,[data-testid="stMarkdownContainer"]{color:#123B70}
         h1::before{background:linear-gradient(110deg,#65A4EC 0%,#2789CC 30%,rgba(255,255,255,.98) 48%,#65A4EC 66%,#2789CC 100%)!important}
         [data-testid="stButton"] button,[data-testid="stDownloadButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
-        [data-testid="stSidebar"] [data-testid="stButton"] button{border:1px solid #65A4EC!important;color:#FFFFFF!important;background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important}
+        [data-testid="stSidebar"] .stButton > button,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button{border:1px solid #A9D7EA!important;border-radius:10px!important;color:#155E91!important;background:linear-gradient(135deg,#FFFFFF 0%,#DDF2FC 100%)!important;box-shadow:0 3px 10px rgba(23,101,139,.08)!important}
+        [data-testid="stSidebar"] .stButton > button:hover,
+        [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover{border-color:#168FC0!important;background:linear-gradient(110deg,#DDF2FC 0%,#FFFFFF 100%)!important;color:#123B5D!important}
         
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
