@@ -221,7 +221,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
       background:#FFF5FC!important;border:1px solid #EC64D5!important;
       border-radius:12px!important;overflow:hidden!important;
     }
-    [data-testid="stHeader"]{background:rgba(255,244,232,.96)!important;border-bottom:1px solid #E7A5D6!important}
+    [data-testid="stHeader"]{background:rgba(255,245,252,.96)!important;border-bottom:1px solid #E7A5D6!important}
     [data-testid="stSidebar"]{background:linear-gradient(180deg,#FBEAF7 0%,#FFF5FC 55%,#FFF8FD 100%)!important;border-right:1.5px solid #E7A5D6!important}
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"]{color:#5B1748!important}
     [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,[data-testid="stSidebar"] [data-baseweb="select"]>div,[data-testid="stSidebar"] input{background:#FFF8FD!important;border-color:#E7A5D6!important;color:#3F1738!important}
