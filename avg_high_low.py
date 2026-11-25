@@ -389,34 +389,17 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower: diagonal metallic-silver streak sweeps left-to-right with a silver halo. */
-        @keyframes stockDayFlowerShimmer{
-          0%{background-position:-260% 0%;filter:brightness(1.12) drop-shadow(0 0 4px rgba(205,215,230,.9)) drop-shadow(0 0 11px rgba(195,210,230,.9)) drop-shadow(0 0 20px rgba(175,195,220,.8))}
-          45%,60%{filter:brightness(1.7) drop-shadow(0 0 5px #F1F4FA) drop-shadow(0 0 14px rgba(220,230,245,1)) drop-shadow(0 0 26px rgba(185,205,230,1))}
-          100%{background-position:260% 0%;filter:brightness(1.12) drop-shadow(0 0 4px rgba(205,215,230,.9)) drop-shadow(0 0 11px rgba(195,210,230,.9)) drop-shadow(0 0 20px rgba(175,195,220,.8))}
-        }
-        @-webkit-keyframes stockDayFlowerShimmer{
-          0%{background-position:-260% 0%;-webkit-filter:brightness(1.12) drop-shadow(0 0 4px rgba(205,215,230,.9)) drop-shadow(0 0 11px rgba(195,210,230,.9)) drop-shadow(0 0 20px rgba(175,195,220,.8))}
-          45%,60%{-webkit-filter:brightness(1.7) drop-shadow(0 0 5px #F1F4FA) drop-shadow(0 0 14px rgba(220,230,245,1)) drop-shadow(0 0 26px rgba(185,205,230,1))}
-          100%{background-position:260% 0%;-webkit-filter:brightness(1.12) drop-shadow(0 0 4px rgba(205,215,230,.9)) drop-shadow(0 0 11px rgba(195,210,230,.9)) drop-shadow(0 0 20px rgba(175,195,220,.8))}
-        }
+        /* SELL flower uses the exact same shimmer style and timing as the BUY flower. */
         h1::before{
-          background:linear-gradient(135deg,
+          background:linear-gradient(110deg,
             var(--brand-flower-color,#65A4EC) 0%,
-            var(--brand-flower-color,#65A4EC) 28%,
-            #8996A8 35%,
-            #C8D0DC 40%,
-            #F4F7FC 45%,
-            #FFFFFF 49%,
-            #E5EAF2 54%,
-            #AEBACB 60%,
-            var(--brand-flower-color,#65A4EC) 68%,
+            var(--brand-flower-color,#65A4EC) 30%,
+            rgba(255,255,255,.96) 48%,
+            var(--brand-flower-color,#65A4EC) 66%,
             var(--brand-flower-color,#65A4EC) 100%)!important;
-          background-size:650% 100%!important;
-          animation:stockDayFlowerShimmer 2.35s linear infinite!important;
-          -webkit-animation:stockDayFlowerShimmer 2.35s linear infinite!important;
-          animation-play-state:running!important;
-          -webkit-animation-play-state:running!important;
+          background-size:300% 300%!important;
+          animation:dependentSignalShimmer 4.2s linear infinite!important;
+          -webkit-animation:dependentSignalShimmer 4.2s linear infinite!important;
         }
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
