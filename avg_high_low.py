@@ -483,9 +483,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             for col in ("O2L%", "O2H%"):
                 frame[col] = frame[col].map(lambda value: "—" if pd.isna(value) else f"{value:+.2f}%")
             # Show live traded price and today's O2H/O2L percentages prominently.
-            order = ["Stock", "Live Price", "O2L%", "O2H%",
-                     "Open", "High", "Low", "Avg.Low", "Avg.High",
-                     "5 Lowest Lows", "5 Highest Highs"]
+            order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
+                     "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
             table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
             st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
         else:
