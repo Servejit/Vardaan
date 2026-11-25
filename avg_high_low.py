@@ -294,17 +294,17 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     st.markdown('<div class="ahl-section">SELL SIGNALS</div>', unsafe_allow_html=True)
     render_cards(sell_events, "SELL")
 
-    st.markdown('<div class="ahl-section">TODAY\'S MARKET DATA</div>', unsafe_allow_html=True)
-    if rows:
-        frame = pd.DataFrame(rows)
-        for col in ("Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High"):
-            frame[col] = frame[col].map(_price)
-        for col in ("% Down Avg", "% Above Avg"):
-            frame[col] = frame[col].map(lambda value: "—" if pd.isna(value) else f"{value:+.2f}%")
-        # Keep the five lowest Lows and five highest Highs as the final columns.
-        order = ["Stock", "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High",
-                 "% Down Avg", "% Above Avg", "5 Lowest Lows", "5 Highest Highs"]
-        table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
-        st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
-    else:
-        st.warning("No stocks have complete 20-session history and intraday data yet.")
+    with st.expander("TODAY'S MARKET DATA", expanded=False):
+        if rows:
+            frame = pd.DataFrame(rows)
+            for col in ("Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High"):
+                frame[col] = frame[col].map(_price)
+            for col in ("% Down Avg", "% Above Avg"):
+                frame[col] = frame[col].map(lambda value: "—" if pd.isna(value) else f"{value:+.2f}%")
+            # Keep the five lowest Lows and five highest Highs as the final columns.
+            order = ["Stock", "Open", "Today's High", "Today's Low", "Avg.Low", "Avg.High",
+                     "% Down Avg", "% Above Avg", "5 Lowest Lows", "5 Highest Highs"]
+            table_html = frame[order].to_html(index=False, escape=True, classes="ahl-data-table", border=0)
+            st.markdown(f'<div class="ahl-table-wrap">{table_html}</div>', unsafe_allow_html=True)
+        else:
+            st.warning("No stocks have complete 20-session history and intraday data yet.")
