@@ -389,7 +389,15 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
           color:#174F85!important;-webkit-text-fill-color:#174F85!important;
           box-shadow:inset 4px 0 0 #65A4EC,0 3px 9px rgba(18,59,112,.12)!important;
         }
-        /* SELL flower uses the exact same shimmer style and timing as the BUY flower. */
+        /* SELL flower: continuous sweep left-to-right, then right-to-left. */
+        @keyframes sellFlowerSweep{
+          from{background-position:0% 50%;filter:brightness(1)}
+          to{background-position:100% 50%;filter:brightness(1.12)}
+        }
+        @-webkit-keyframes sellFlowerSweep{
+          from{background-position:0% 50%;-webkit-filter:brightness(1)}
+          to{background-position:100% 50%;-webkit-filter:brightness(1.12)}
+        }
         h1::before{
           background:linear-gradient(110deg,
             var(--brand-flower-color,#65A4EC) 0%,
@@ -398,8 +406,10 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             var(--brand-flower-color,#65A4EC) 66%,
             var(--brand-flower-color,#65A4EC) 100%)!important;
           background-size:300% 300%!important;
-          animation:dependentSignalShimmer 4.2s linear infinite!important;
-          -webkit-animation:dependentSignalShimmer 4.2s linear infinite!important;
+          animation:sellFlowerSweep 2.6s linear infinite alternate!important;
+          -webkit-animation:sellFlowerSweep 2.6s linear infinite alternate!important;
+          animation-play-state:running!important;
+          -webkit-animation-play-state:running!important;
         }
         [data-testid="stExpander"]{border:1.5px solid #65A4EC!important;background:#F2F8FF!important}
         [data-testid="stExpander"] details>summary{background:linear-gradient(110deg,#174F85 0%,#2789CC 58%,#65A4EC 100%)!important;color:#FFFFFF!important}
