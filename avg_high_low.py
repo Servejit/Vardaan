@@ -286,21 +286,20 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "Stock": symbol, "Live Price": data["bars"][-1]["close"],
             "Open": data.get("open"), "Today's High": day_high,
             "Today's Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
-            "Today's O2L%": ((day_low - avg_low) / avg_low * 100) if day_low is not None and avg_low else None,
-            "Today's O2H%": ((day_high - avg_high) / avg_high * 100) if day_high is not None and avg_high else None,
+            "Today's O2L%": ((day_low - data.get("open")) / data.get("open") * 100) if day_low is not None and data.get("open") else None,
+            "Today's O2H%": ((day_high - data.get("open")) / data.get("open") * 100) if day_high is not None and data.get("open") else None,
             "5 Lowest Lows": " · ".join(f"{v:.2f}" for v in data["lows5"]),
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
         for event in _events(symbol, data):
-            # Today's O2L% / O2H% are measured against the 20-day
-            # average Low / High used by this dashboard.
+            # Today's O2L% / O2H% are measured from today's Open price.
             event["today_o2l_pct"] = (
-                (day_low - avg_low) / avg_low * 100
-                if day_low is not None and avg_low else None
+                (day_low - open_price) / open_price * 100
+                if day_low is not None and open_price else None
             )
             event["today_o2h_pct"] = (
-                (day_high - avg_high) / avg_high * 100
-                if day_high is not None and avg_high else None
+                (day_high - open_price) / open_price * 100
+                if day_high is not None and open_price else None
             )
             entry, open_price = event["entry"], data.get("open")
             if event["side"] == "BUY":
