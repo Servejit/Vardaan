@@ -434,7 +434,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             return
         for event in events:
             st.markdown(
-                f'<div class="ahl-card{" ahl-card-sell" if side == "SELL" else ""}"><div class="ahl-brand">6THSENSE · VARDAAN</div><div class="ahl-card-head"><div><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-label" style="margin-top:5px;text-align:left;font-size:1.25rem;font-weight:950;letter-spacing:0;">Rank {event["rank"]}</div></div><div class="ahl-side">{side} SIGNAL</div></div>'
+                f'<div class="ahl-card{" ahl-card-sell" if side == "SELL" else ""}"><div class="ahl-brand">6THSENSE · VARDAAN</div><div class="ahl-card-head"><div><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-label" style="margin-top:5px;text-align:left;font-size:14px;font-weight:900;letter-spacing:.3px;">Rank {event["rank"]}</div></div><div class="ahl-side">{side} SIGNAL</div></div>'
                 f'<div class="ahl-divider"></div>'
                 f'<div class="ahl-prices"><div><div class="ahl-label">ENTRY PRICE</div><div class="ahl-value">{_price(event["entry"])}</div></div>'
                 f'<div><div class="ahl-label">TARGET PRICE</div><div class="ahl-value ahl-target">{_price(event["target"])}</div></div></div></div>',
