@@ -432,13 +432,13 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # BUY: lowest O2H% first.
-        # SELL: lowest O2L% first. Most recent signal breaks ties.
+        # Restore % Chg Rank ordering; rank is calculated across the full scanned universe.
+        # BUY: best (lowest) rank first. SELL: weakest (highest) rank first.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
-            events.sort(key=lambda item: item["o2h_pct"] if item["o2h_pct"] is not None else float("inf"))
+            events.sort(key=lambda item: item["rank"] if item["rank"] is not None else float("inf"))
         else:
-            events.sort(key=lambda item: item["o2l_pct"] if item["o2l_pct"] is not None else float("inf"))
+            events.sort(key=lambda item: item["rank"] if item["rank"] is not None else float("-inf"), reverse=True)
         if not events:
             st.info(f"No {side} crossing signal yet.")
             return
