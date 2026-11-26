@@ -415,8 +415,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             row["% Chg Rank"] = int(rank) if pd.notna(rank) else None
 
     # NEW BUY/SELL SELECTION:
-    # BUY: % Chg Rank below 20; sort most-negative % Down Avg.Low first.
-    # SELL: % Chg Rank above 190; sort highest % Up Avg.High first.
+    # BUY: % Chg Rank < 20, plus the existing Avg.Low crossing rule.
+    # SELL: % Chg Rank > 190, plus the existing Avg.High crossing rule.
     row_by_symbol = {row["Stock"]: row for row in rows}
     for symbol, data in data_map.items():
         row = row_by_symbol.get(symbol)
@@ -440,7 +440,9 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         # BUY only when the session opens below Avg.Low and live price
         # has crossed back above Avg.Low.
         if (
-            open_price is not None
+            rank is not None
+            and rank < 20
+            and open_price is not None
             and avg_low is not None
             and open_price < avg_low
             and current_price > avg_low
@@ -458,7 +460,9 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         # Final strict SELL gate: all three prices must be valid and
         # the displayed Open/Live Price must satisfy the Avg.High rule.
         if (
-            open_price is not None
+            rank is not None
+            and rank > 190
+            and open_price is not None
             and current_price is not None
             and avg_high is not None
             and open_price > avg_high
@@ -613,7 +617,9 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 if side == "BUY":
                     card_average = _num(row.get("Avg.Low"))
                     eligible = (
-                        card_open is not None
+                        event.get("rank") is not None
+                        and event["rank"] < 20
+                        and card_open is not None
                         and card_live is not None
                         and card_average is not None
                         and card_open < card_average
@@ -622,7 +628,9 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 else:
                     card_average = _num(row.get("Avg.High"))
                     eligible = (
-                        card_open is not None
+                        event.get("rank") is not None
+                        and event["rank"] > 190
+                        and card_open is not None
                         and card_live is not None
                         and card_average is not None
                         and card_open > card_average
@@ -632,7 +640,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     verified_events.append(event)
             events = verified_events
 
-        # Rank is retained for display and tie-breaking; it is not an eligibility rule.
+        # Rank thresholds are enforced here again before any card is displayed.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
             events.sort(key=lambda item: item["rank"])
