@@ -118,54 +118,6 @@ def _market_data(symbols):
     return results
 
 
-def _events(symbol, data):
-    """Return at most one currently-active signal per stock and side."""
-    bars = data["bars"]
-    if not bars:
-        return []
-
-    low_avg = data["avg_low"]
-    high_avg = data["avg_high"]
-    previous_close = data["previous_close"]
-    current_price = bars[-1]["close"]
-    last_time = bars[-1]["time"]
-    day_low = data.get("low")
-    day_high = data.get("high")
-    active = []
-
-    # BUY remains active only while the latest traded price is back above
-    # Avg.Low, after today's Low has reached at least 1% below Avg.Low.
-    if (
-        previous_close > low_avg
-        and day_low is not None
-        and day_low <= low_avg * 0.99
-        and current_price > low_avg
-    ):
-        active.append({
-            "symbol": symbol,
-            "side": "BUY",
-            "time": last_time,
-            "entry": current_price,
-        })
-
-    # SELL remains active only while the latest traded price is back below
-    # Avg.High, after today's High has reached at least 1% above Avg.High.
-    if (
-        previous_close < high_avg
-        and day_high is not None
-        and day_high >= high_avg * 1.01
-        and current_price < high_avg
-    ):
-        active.append({
-            "symbol": symbol,
-            "side": "SELL",
-            "time": last_time,
-            "entry": current_price,
-        })
-
-    return active
-
-
 def _price(value):
     return "—" if value is None else f"₹{value:,.2f}"
 
@@ -297,25 +249,51 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "5 Lowest Lows": " · ".join(f"{v:.2f}" for v in data["lows5"]),
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
-        for event in _events(symbol, data):
-            # Today's O2L% / O2H% are measured from today's Open price.
-            event["today_o2l_pct"] = (
-                (day_low - open_price) / open_price * 100
-                if day_low is not None and open_price else None
-            )
-            event["today_o2h_pct"] = (
-                (day_high - open_price) / open_price * 100
-                if day_high is not None and open_price else None
-            )
-            entry, open_price = event["entry"], data.get("open")
-            if event["side"] == "BUY":
-                cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
-                event["target"] = min(entry * 1.0035, cap) if cap is not None else entry * 1.0035
-                buy_events.append(event)
-            else:
-                cap = open_price * (1 - sell_cap_pct / 100) if open_price else None
-                event["target"] = max(entry * .9965, cap) if cap is not None else entry * .9965
-                sell_events.append(event)
+
+    # Rank the complete scanned universe by today's percentage change.
+    # Highest % Chg is rank 1; tied values share the same minimum rank.
+    if rows:
+        ranked_changes = pd.Series([row["% Chg"] for row in rows], dtype="float64")
+        ranks = ranked_changes.rank(method="min", ascending=False)
+        for row, rank in zip(rows, ranks):
+            row["% Chg Rank"] = int(rank) if pd.notna(rank) else None
+
+    # NEW BUY/SELL SELECTION:
+    # BUY: % Chg Rank below 20; sort most-negative % Down Avg.Low first.
+    # SELL: % Chg Rank above 190; sort highest % Up Avg.High first.
+    row_by_symbol = {row["Stock"]: row for row in rows}
+    for symbol, data in data_map.items():
+        row = row_by_symbol.get(symbol)
+        if row is None or not data.get("bars"):
+            continue
+        rank = row.get("% Chg Rank")
+        current_price = data["bars"][-1]["close"]
+        last_time = data["bars"][-1]["time"]
+        open_price = data.get("open")
+        master = caps.get(symbol, {})
+        buy_cap_pct = 1.50 if master.get("o2l4") is not None and master["o2l4"] < -3.00 else 1.00
+        sell_cap_pct = 1.50 if master.get("o2h4") is not None and master["o2h4"] > 3.00 else 1.00
+
+        down_avg_pct = row.get("% Down Avg.Low")
+        up_avg_pct = row.get("% Up Avg.High")
+
+        if rank is not None and rank < 20 and down_avg_pct is not None:
+            cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
+            target = min(current_price * 1.0035, cap) if cap is not None else current_price * 1.0035
+            buy_events.append({
+                "symbol": symbol, "side": "BUY", "time": last_time,
+                "entry": current_price, "target": target,
+                "down_avg_pct": down_avg_pct,
+            })
+
+        if rank is not None and rank > 190 and up_avg_pct is not None:
+            cap = open_price * (1 - sell_cap_pct / 100) if open_price else None
+            target = max(current_price * .9965, cap) if cap is not None else current_price * .9965
+            sell_events.append({
+                "symbol": symbol, "side": "SELL", "time": last_time,
+                "entry": current_price, "target": target,
+                "up_avg_pct": up_avg_pct,
+            })
 
     # When there are no BUY signals, the first active signal card is SELL.
     # Match the whole dashboard theme to that topmost Arctic 825 card.
@@ -444,20 +422,13 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # Rank cards using today's live O2L% / O2H%, not Master Excel values.
-        # BUY: lowest today's O2L% first. SELL: highest today's O2H% first.
-        # Missing values stay at the bottom; most recent signal breaks ties.
+        # BUY: most-negative % Down Avg.Low first.
+        # SELL: highest % Up Avg.High first. Most recent signal breaks ties.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
-            events.sort(key=lambda item: (
-                item.get("today_o2l_pct") is None,
-                item.get("today_o2l_pct") if item.get("today_o2l_pct") is not None else 0,
-            ))
+            events.sort(key=lambda item: item["down_avg_pct"])
         else:
-            events.sort(key=lambda item: (
-                item.get("today_o2h_pct") is None,
-                -(item.get("today_o2h_pct") if item.get("today_o2h_pct") is not None else 0),
-            ))
+            events.sort(key=lambda item: -item["up_avg_pct"])
         if not events:
             st.info(f"No {side} crossing signal yet.")
             return
@@ -474,13 +445,6 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     render_cards(buy_events, "BUY")
     st.markdown('<div class="ahl-section">SELL SIGNALS</div>', unsafe_allow_html=True)
     render_cards(sell_events, "SELL")
-
-    # Rank all scanned stocks by today's percentage change; highest gain is rank 1.
-    if rows:
-        ranked_changes = pd.Series([row["% Chg"] for row in rows], dtype="float64")
-        ranks = ranked_changes.rank(method="min", ascending=False)
-        for row, rank in zip(rows, ranks):
-            row["% Chg Rank"] = int(rank) if pd.notna(rank) else None
 
     with st.expander("TODAY'S MARKET DATA", expanded=False):
         # Full scanned universe with stock name and all market metrics.
