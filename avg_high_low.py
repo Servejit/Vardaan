@@ -471,53 +471,29 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     render_cards(sell_events, "SELL")
 
     with st.expander("TODAY'S MARKET DATA", expanded=False):
-        # Show only stocks that currently have a BUY or SELL signal card.
-        # The full 210-stock universe is still scanned; signal logic is unchanged.
-        signal_symbols = {event["symbol"] for event in buy_events}
-        signal_symbols.update(event["symbol"] for event in sell_events)
-        signal_rows = [row for row in rows if row["Stock"] in signal_symbols]
-        if signal_rows:
-            frame = pd.DataFrame(signal_rows)
-            # Keep numeric values numeric so clicking a column heading sorts correctly.
-            # Streamlit's native dataframe provides ascending/descending header sorting.
+        # Full scanned universe with stock name and all market metrics.
+        # BUY cards are displayed first; their palette therefore takes priority.
+        if rows:
+            frame = pd.DataFrame(rows)
             order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
                      "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
-            # Use the live dashboard theme variables so the table always matches
-            # whichever card/theme is currently controlling the dashboard.
-            display_frame = (
-                frame[order].style.format({
-                    "Open": _price, "High": _price, "Low": _price,
-                    "Live Price": _price, "Avg.Low": _price, "Avg.High": _price,
-                    "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
-                    "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
-                }).set_table_styles([
-                    {"selector": "th", "props": [
-                        ("background", "var(--signal-nav-accent)"),
-                        ("color", "#FFFFFF"), ("font-weight", "800"),
-                        ("border-bottom", "2px solid var(--signal-nav-text)"),
-                        ("border-right", "1px solid var(--signal-nav-border)"),
-                        ("padding", "11px 12px"), ("white-space", "nowrap")
-                    ]},
-                    {"selector": "td", "props": [
-                        ("background", "var(--signal-nav-canvas)"),
-                        ("color", "var(--signal-nav-text)"),
-                        ("border-bottom", "1px solid var(--signal-nav-border)"),
-                        ("border-right", "1px solid var(--signal-nav-border)"),
-                        ("padding", "10px 12px"), ("white-space", "nowrap")
-                    ]},
-                    {"selector": "tbody tr:nth-child(even) td", "props": [
-                        ("background", "var(--signal-nav-soft)")
-                    ]},
-                ]).set_properties(
-                    subset=["Stock"],
-                    **{"font-weight": "800", "color": "var(--signal-nav-text)"}
-                )
-            )
-            st.dataframe(
-                display_frame,
-                hide_index=True,
-                use_container_width=True,
-                height=min(600, 38 + 35 * len(frame)),
-            )
+            frame = frame[order].rename(columns={"Stock": "Stock Name"})
+            if buy_events:
+                theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
+            elif sell_events:
+                theme = {"head":"#287BC4","head_text":"#FFFFFF","canvas":"#F2F8FF","stripe":"#EAF4FF","text":"#123B70","border":"#B8D9FF"}
+            else:
+                theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
+            display_frame = frame.style.format({
+                "Open": _price, "High": _price, "Low": _price, "Live Price": _price,
+                "Avg.Low": _price, "Avg.High": _price,
+                "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+                "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+            }).set_table_styles([
+                {"selector":"th","props":[("background-color",theme["head"]),("color",theme["head_text"]),("font-weight","800"),("border-bottom","2px solid "+theme["text"]),("border-right","1px solid "+theme["border"]),("padding","11px 12px"),("white-space","nowrap")]},
+                {"selector":"td","props":[("background-color",theme["canvas"]),("color",theme["text"]),("border-bottom","1px solid "+theme["border"]),("border-right","1px solid "+theme["border"]),("padding","10px 12px"),("white-space","nowrap")]},
+                {"selector":"tbody tr:nth-child(even) td","props":[("background-color",theme["stripe"])]},
+            ]).set_properties(subset=["Stock Name"], **{"font-weight":"800","color":theme["text"]})
+            st.dataframe(display_frame, hide_index=True, use_container_width=True, height=min(700, 38 + 35 * len(frame)))
         else:
-            st.info("No stocks are currently selected for a BUY or SELL signal card.")
+            st.info("No market data is available for the scanned stocks.")
