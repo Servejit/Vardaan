@@ -120,11 +120,8 @@ def _market_data(symbols):
             if not bars:
                 return symbol, None
             live_price = bars[-1]["close"]
-            return symbol, {
-                "session_date": session_date.isoformat(),
-            # Prefer Yahoo Finance's quote-level Previous Close (the same value
-            # shown on the Yahoo quote page); use the last completed daily candle
-            # only if Yahoo's quote metadata is unavailable.
+            # Prefer Yahoo Finance quote-level Previous Close; fall back to
+            # the last completed daily candle if quote metadata is unavailable.
             previous_close = None
             try:
                 previous_close = _num(ticker.fast_info.get("previous_close"))
@@ -133,6 +130,8 @@ def _market_data(symbols):
             if previous_close is None or previous_close <= 0:
                 previous_close = float(completed["Close"].iloc[-1])
 
+            return symbol, {
+                "session_date": session_date.isoformat(),
                 "previous_close": previous_close,
                 "open": _num(day_candle.get("Open")),
                 "high": _num(day_candle.get("High")),
