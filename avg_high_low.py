@@ -529,15 +529,6 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 ]
 
             display_frame = display_frame.apply(theme_row, axis=1)
-            st.markdown(
-                f'<div style="margin:0 0 -1px;padding:10px 13px;border:1px solid {palette["border"]};'
-                f'border-bottom:3px solid {palette["heading"]};border-radius:11px 11px 0 0;'
-                f'background:linear-gradient(110deg,{palette["heading"]},{palette["stock"]});'
-                f'color:{palette["heading_text"]};font-weight:900;letter-spacing:.5px">'
-                f'FULL MARKET DETAILS · {len(frame)} STOCKS · {("BUY" if buy_events else "SELL" if sell_events else "DASHBOARD")} THEME'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
             st.dataframe(display_frame, hide_index=True, use_container_width=True, height=min(700, 38 + 35 * len(frame)))
         else:
             st.info("No market data is available for the scanned stocks.")
