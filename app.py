@@ -689,11 +689,53 @@ SIGNAL_GITHUB_TOKEN = str(
 ).strip()
 
 
+@st.cache_data(ttl=300, max_entries=1, show_spinner=False)
 def get_autogreen_master_bytes():
-    """Read the shared Master Excel directly from Vardaan Supabase Storage."""
-    workbook_bytes = get_master()
+    """Read the same shared Master Excel used by Signal from Servejit/Signal."""
+    if not SIGNAL_GITHUB_TOKEN:
+        raise RuntimeError(
+            "SIGNAL_GITHUB_TOKEN is missing from Streamlit Secrets. "
+            "Add a GitHub token with Contents: Read access to Servejit/Signal."
+        )
+
+    headers = {
+        "Authorization": f"Bearer {SIGNAL_GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    response = requests.get(
+        f"{SIGNAL_GITHUB_API}/contents/{SIGNAL_MASTER_PATH}",
+        params={"ref": SIGNAL_GITHUB_BRANCH},
+        headers=headers,
+        timeout=30,
+    )
+    if response.status_code == 404:
+        raise RuntimeError(
+            "GitHub could not access Servejit/Signal/master.xlsx. "
+            "Check that SIGNAL_GITHUB_TOKEN has Contents: Read permission."
+        )
+    response.raise_for_status()
+    payload = response.json()
+    encoded = payload.get("content", "")
+    if encoded:
+        workbook_bytes = base64.b64decode(encoded)
+    else:
+        blob_sha = payload.get("sha")
+        if not blob_sha:
+            raise ValueError("GitHub did not return master.xlsx content or blob SHA.")
+        blob_response = requests.get(
+            f"{SIGNAL_GITHUB_API}/git/blobs/{blob_sha}",
+            headers={
+                **headers,
+                "Accept": "application/vnd.github.raw",
+            },
+            timeout=60,
+        )
+        blob_response.raise_for_status()
+        workbook_bytes = blob_response.content
+
     if not workbook_bytes:
-        raise RuntimeError()
+        raise ValueError("Servejit/Signal master.xlsx is empty.")
     return workbook_bytes
 
 
