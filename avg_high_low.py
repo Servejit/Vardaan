@@ -293,7 +293,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             buy_events.append({
                 "symbol": symbol, "side": "BUY", "time": last_time,
                 "entry": current_price, "target": target,
-                "rank": int(rank), "down_avg_pct": down_avg_pct,
+                "rank": int(rank), "down_avg_pct": down_avg_pct, "o2h_pct": row.get("O2H%"),
             })
 
         if rank is not None and rank > 190 and up_avg_pct is not None:
@@ -302,7 +302,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             sell_events.append({
                 "symbol": symbol, "side": "SELL", "time": last_time,
                 "entry": current_price, "target": target,
-                "rank": int(rank), "up_avg_pct": up_avg_pct,
+                "rank": int(rank), "up_avg_pct": up_avg_pct, "o2l_pct": row.get("O2L%"),
             })
 
     # When there are no BUY signals, the first active signal card is SELL.
@@ -432,13 +432,13 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # BUY: most-negative % Down Avg.Low first.
-        # SELL: highest % Up Avg.High first. Most recent signal breaks ties.
+        # BUY: lowest O2H% first.
+        # SELL: lowest O2L% first. Most recent signal breaks ties.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
-            events.sort(key=lambda item: item["down_avg_pct"])
+            events.sort(key=lambda item: item["o2h_pct"] if item["o2h_pct"] is not None else float("inf"))
         else:
-            events.sort(key=lambda item: -item["up_avg_pct"])
+            events.sort(key=lambda item: item["o2l_pct"] if item["o2l_pct"] is not None else float("inf"))
         if not events:
             st.info(f"No {side} crossing signal yet.")
             return
