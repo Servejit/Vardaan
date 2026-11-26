@@ -1,4 +1,5 @@
 import io
+from html import escape as html_escape
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
@@ -6,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from openpyxl import load_workbook
 from streamlit_autorefresh import st_autorefresh
 
@@ -528,27 +530,100 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     for column in row.index
                 ]
 
-            # Keep row styling and apply the active BUY/SELL theme to
-            # the sortable dataframe's column headings using supported Styler CSS.
-            display_frame = display_frame.apply(theme_row, axis=1).set_table_styles([
-                {
-                    "selector": "th.col_heading",
-                    "props": [
-                        ("background-color", palette["heading"]),
-                        ("color", palette["heading_text"]),
-                        ("font-weight", "800"),
-                        ("border", f"1px solid {palette['border']}"),
-                        ("text-align", "center"),
-                    ],
-                },
-                {
-                    "selector": "th.blank",
-                    "props": [
-                        ("background-color", palette["heading"]),
-                        ("border", f"1px solid {palette['border']}"),
-                    ],
-                },
-            ])
-            st.dataframe(display_frame, hide_index=True, use_container_width=True, height=min(700, 38 + 35 * len(frame)))
+            # Use a real HTML table because Streamlit's interactive grid does
+            # not expose reliable styling for its column-heading row. Every
+            # heading remains clickable and sorts the complete table.
+            price_columns = {"Open", "High", "Low", "Live Price", "Avg.Low", "Avg.High"}
+            percent_columns = {"O2L%", "O2H%"}
+            numeric_columns = price_columns | percent_columns
+            header_html = "".join(
+                f'<th><button type="button" onclick="sortTable({index})">{html_escape(str(column))}<span class="sort-mark"> ↕</span></button></th>'
+                for index, column in enumerate(frame.columns)
+            )
+            body_rows = []
+            for record in frame.to_dict(orient="records"):
+                cells = []
+                for column in frame.columns:
+                    value = record.get(column)
+                    if column in price_columns:
+                        shown = _price(value)
+                    elif column in percent_columns:
+                        shown = "—" if value is None or pd.isna(value) else f"{value:+.2f}%"
+                    else:
+                        shown = "—" if value is None or pd.isna(value) else str(value)
+                    if column in numeric_columns:
+                        numeric_value = "" if value is None or pd.isna(value) else str(float(value))
+                        sort_type = "number"
+                    else:
+                        numeric_value = html_escape(str(shown))
+                        sort_type = "text"
+                    cells.append(
+                        f'<td data-sort="{html_escape(numeric_value)}" data-type="{sort_type}">'
+                        f'{html_escape(str(shown))}</td>'
+                    )
+                body_rows.append("<tr>" + "".join(cells) + "</tr>")
+            table_html = """
+            <div class="ahl-sort-wrap">
+              <table class="ahl-sort-table">
+                <thead><tr>__HEADERS__</tr></thead>
+                <tbody>__ROWS__</tbody>
+              </table>
+            </div>
+            <style>
+              *{box-sizing:border-box}
+              .ahl-sort-wrap{width:100%;height:100%;overflow:auto;border:1px solid __BORDER__;border-radius:12px;background:__BACKGROUND__}
+              .ahl-sort-table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;color:__TEXT__;font:13px/1.4 Arial,sans-serif}
+              .ahl-sort-table thead th{position:sticky;top:0;z-index:2;padding:0;background:__HEADING__;border-right:1px solid __BORDER__;border-bottom:2px solid __BORDER__;white-space:nowrap}
+              .ahl-sort-table thead th button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:43px;padding:11px 12px;border:0;background:__HEADING__;color:__HEADING_TEXT__;font:800 13px Arial,sans-serif;text-align:left;cursor:pointer}
+              .ahl-sort-table thead th button:hover{filter:brightness(1.12)}
+              .ahl-sort-table .sort-mark{opacity:.8}
+              .ahl-sort-table tbody td{padding:10px 12px;border-right:1px solid __BORDER__;border-bottom:1px solid __BORDER__;white-space:nowrap;background:__BACKGROUND__;color:__TEXT__}
+              .ahl-sort-table tbody tr:nth-child(even) td{background:__ALTERNATE__}
+              .ahl-sort-table tbody tr:hover td{filter:brightness(.96)}
+              .ahl-sort-table tbody td:first-child{font-weight:800;color:__STOCK__}
+              .ahl-sort-table th:last-child,.ahl-sort-table td:last-child{border-right:0}
+            </style>
+            <script>
+              function sortTable(columnIndex){
+                const table=document.querySelector('.ahl-sort-table');
+                const tbody=table.querySelector('tbody');
+                const rows=Array.from(tbody.querySelectorAll('tr'));
+                const button=table.querySelectorAll('thead button')[columnIndex];
+                const ascending=button.dataset.direction!=='asc';
+                table.querySelectorAll('thead button').forEach(b=>{b.dataset.direction='';});
+                button.dataset.direction=ascending?'asc':'desc';
+                rows.sort((a,b)=>{
+                  const x=a.children[columnIndex].dataset.sort||'';
+                  const y=b.children[columnIndex].dataset.sort||'';
+                  const type=a.children[columnIndex].dataset.type;
+                  if(x===''&&y!=='') return 1;
+                  if(y===''&&x!=='') return -1;
+                  let result=type==='number'?(Number(x)-Number(y)):x.localeCompare(y,undefined,{numeric:true,sensitivity:'base'});
+                  return ascending?result:-result;
+                });
+                rows.forEach(row=>tbody.appendChild(row));
+                table.querySelectorAll('.sort-mark').forEach(mark=>mark.textContent=' ↕');
+                button.querySelector('.sort-mark').textContent=ascending?' ↑':' ↓';
+              }
+            </script>
+            """
+            replacements = {
+                "__HEADERS__": header_html,
+                "__ROWS__": "".join(body_rows),
+                "__BORDER__": palette["border"],
+                "__BACKGROUND__": palette["background"],
+                "__ALTERNATE__": palette["alternate"],
+                "__TEXT__": palette["text"],
+                "__STOCK__": palette["stock"],
+                "__HEADING__": palette["heading"],
+                "__HEADING_TEXT__": palette["heading_text"],
+            }
+            for token, value in replacements.items():
+                table_html = table_html.replace(token, value)
+            components.html(
+                table_html,
+                height=min(700, 48 + 35 * len(frame)),
+                scrolling=True,
+            )
         else:
             st.info("No market data is available for the scanned stocks.")
