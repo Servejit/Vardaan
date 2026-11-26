@@ -277,7 +277,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "Stock": symbol, "Live Price": data.get("live_price", data["bars"][-1]["close"]),
             "% Chg": ((data.get("live_price", data["bars"][-1]["close"]) - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
             "Open": data.get("open"), "High": day_high,
-            "Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
+            "Low": day_low, "Prev. Close": data.get("previous_close"), "Avg.Low": avg_low, "Avg.High": avg_high,
             "% Down Avg.Low": ((day_low - avg_low) / avg_low * 100) if day_low is not None and avg_low else None,
             "% Up Avg.High": ((day_high - avg_high) / avg_high * 100) if day_high is not None and avg_high else None,
             "O2L%": ((day_low - data.get("open")) / data.get("open") * 100) if day_low is not None and data.get("open") else None,
@@ -490,7 +490,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         # BUY cards are displayed first; their palette therefore takes priority.
         if rows:
             frame = pd.DataFrame(rows)
-            order = ["Stock", "Open", "High", "Low", "Live Price", "% Chg", "% Chg Rank", "O2L%", "O2H%",
+            order = ["Stock", "Open", "High", "Low", "Prev. Close", "Live Price", "% Chg", "% Chg Rank", "O2L%", "O2H%",
                      "Avg.Low", "Avg.High", "% Down Avg.Low", "% Up Avg.High",
                      "5 Lowest Lows", "5 Highest Highs"]
             frame = frame[order].rename(columns={"Stock": "Stock Name"})
@@ -501,7 +501,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             else:
                 theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
             display_frame = frame.style.format({
-                "Open": _price, "High": _price, "Low": _price, "Live Price": _price,
+                "Open": _price, "High": _price, "Low": _price, "Prev. Close": _price, "Live Price": _price,
                 "% Chg": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
                 "Avg.Low": _price, "Avg.High": _price,
                 "% Down Avg.Low": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
@@ -550,7 +550,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             # Use a real HTML table because Streamlit's interactive grid does
             # not expose reliable styling for its column-heading row. Every
             # heading remains clickable and sorts the complete table.
-            price_columns = {"Open", "High", "Low", "Live Price", "Avg.Low", "Avg.High"}
+            price_columns = {"Open", "High", "Low", "Prev. Close", "Live Price", "Avg.Low", "Avg.High"}
             percent_columns = {"% Chg", "O2L%", "O2H%", "% Down Avg.Low", "% Up Avg.High"}
             numeric_columns = price_columns | percent_columns | {"% Chg Rank"}
             header_html = "".join(
