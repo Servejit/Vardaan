@@ -283,7 +283,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             buy_events.append({
                 "symbol": symbol, "side": "BUY", "time": last_time,
                 "entry": current_price, "target": target,
-                "down_avg_pct": down_avg_pct,
+                "rank": int(rank), "down_avg_pct": down_avg_pct,
             })
 
         if rank is not None and rank > 190 and up_avg_pct is not None:
@@ -292,7 +292,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             sell_events.append({
                 "symbol": symbol, "side": "SELL", "time": last_time,
                 "entry": current_price, "target": target,
-                "up_avg_pct": up_avg_pct,
+                "rank": int(rank), "up_avg_pct": up_avg_pct,
             })
 
     # When there are no BUY signals, the first active signal card is SELL.
@@ -435,6 +435,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         for event in events:
             st.markdown(
                 f'<div class="ahl-card{" ahl-card-sell" if side == "SELL" else ""}"><div class="ahl-brand">6THSENSE · VARDAAN</div><div class="ahl-card-head"><div class="ahl-symbol">{event["symbol"]}</div><div class="ahl-side">{side} SIGNAL</div></div>'
+                f'<div class="ahl-label" style="margin-top:8px;text-align:right;">Rank {event["rank"]}</div>'
                 f'<div class="ahl-divider"></div>'
                 f'<div class="ahl-prices"><div><div class="ahl-label">ENTRY PRICE</div><div class="ahl-value">{_price(event["entry"])}</div></div>'
                 f'<div><div class="ahl-label">TARGET PRICE</div><div class="ahl-value ahl-target">{_price(event["target"])}</div></div></div></div>',
