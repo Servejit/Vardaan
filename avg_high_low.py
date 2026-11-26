@@ -249,7 +249,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         open_price = data.get("open")
         rows.append({
             "Stock": symbol, "Live Price": data.get("live_price", data["bars"][-1]["close"]),
-            "% Chg": ((data["bars"][-1]["close"] - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
+            "% Chg": ((data.get("live_price", data["bars"][-1]["close"]) - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
             "Open": data.get("open"), "High": day_high,
             "Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
             "% Down Avg.Low": ((day_low - avg_low) / avg_low * 100) if day_low is not None and avg_low else None,
