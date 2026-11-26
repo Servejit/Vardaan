@@ -470,6 +470,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 "symbol": symbol, "side": "SELL", "time": last_time,
                 "entry": current_price, "target": target,
                 "rank": int(rank), "up_avg_pct": up_avg_pct, "o2l_pct": row.get("O2L%"),
+                "open_price": open_price, "avg_high": avg_high, "live_price": current_price,
             })
 
     # When there are no BUY signals, the first active signal card is SELL.
@@ -599,9 +600,28 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # BUY: consider only rank < 20, then bring the lowest % Down Avg.Low to the top.
-        # SELL: consider only rank > 190, then bring the highest % Up Avg.High to the top.
-        # Rank is the secondary sort when the average percentage ties.
+        # Re-check SELL eligibility immediately before rendering each card.
+        # This prevents any stale or malformed event from bypassing the exact rule.
+        if side == "SELL":
+            verified_events = []
+            for event in events:
+                row = row_by_symbol.get(event.get("symbol"))
+                if row is None:
+                    continue
+                card_open = _num(row.get("Open"))
+                card_live = _num(row.get("Live Price"))
+                card_avg_high = _num(row.get("Avg.High"))
+                if (
+                    card_open is not None
+                    and card_live is not None
+                    and card_avg_high is not None
+                    and card_open > card_avg_high
+                    and card_live < card_avg_high
+                ):
+                    verified_events.append(event)
+            events = verified_events
+
+        # Rank is retained for display and tie-breaking; it is not an eligibility rule.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
             events.sort(key=lambda item: item["rank"])
