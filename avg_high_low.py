@@ -279,7 +279,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
 
         if rank is not None and rank < 20 and down_avg_pct is not None:
             cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
-            target = min(current_price * 1.0035, cap) if cap is not None else current_price * 1.0035
+            target = min(current_price * 1.0035, cap) if cap is not None and cap > current_price else current_price * 1.0035
             buy_events.append({
                 "symbol": symbol, "side": "BUY", "time": last_time,
                 "entry": current_price, "target": target,
