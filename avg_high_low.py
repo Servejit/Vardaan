@@ -287,7 +287,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         down_avg_pct = row.get("% Down Avg.Low")
         up_avg_pct = row.get("% Up Avg.High")
 
-        if rank is not None and rank > 20 and down_avg_pct is not None:
+        if rank is not None and rank < 20 and down_avg_pct is not None:
             cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
             target = min(current_price * 1.0035, cap) if cap is not None and cap > current_price else current_price * 1.0035
             buy_events.append({
@@ -432,16 +432,15 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # Primary sort: average-low/high distance. Secondary: % Chg Rank.
-        # BUY eligibility is rank > 20; most negative % Down Avg.Low comes first.
-        # SELL eligibility is rank > 190; highest % Up Avg.High comes first.
-        # Stable sorts preserve rank, then recency, when the primary metric ties.
+        # BUY: consider only rank < 20, then bring the lowest % Down Avg.Low to the top.
+        # SELL: consider only rank > 190, then bring the highest % Up Avg.High to the top.
+        # Rank is the secondary sort when the average percentage ties.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
-            events.sort(key=lambda item: item["rank"], reverse=True)
+            events.sort(key=lambda item: item["rank"])
             events.sort(key=lambda item: item["down_avg_pct"] if item["down_avg_pct"] is not None else float("inf"))
         else:
-            events.sort(key=lambda item: item["rank"])
+            events.sort(key=lambda item: item["rank"], reverse=True)
             events.sort(key=lambda item: item["up_avg_pct"] if item["up_avg_pct"] is not None else float("-inf"), reverse=True)
         if not events:
             st.info(f"No {side} crossing signal yet.")
