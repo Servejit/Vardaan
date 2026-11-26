@@ -528,7 +528,25 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     for column in row.index
                 ]
 
-            display_frame = display_frame.apply(theme_row, axis=1)
+            display_frame = display_frame.apply(theme_row, axis=1).set_table_styles([
+                {
+                    "selector": "th.col_heading",
+                    "props": [
+                        ("background-color", palette["heading"]),
+                        ("color", palette["heading_text"]),
+                        ("font-weight", "800"),
+                        ("border", f"1px solid {palette['border']}"),
+                        ("text-align", "center"),
+                    ],
+                },
+                {
+                    "selector": "th.blank",
+                    "props": [
+                        ("background-color", palette["heading"]),
+                        ("border", f"1px solid {palette['border']}"),
+                    ],
+                },
+            ])
             st.dataframe(display_frame, hide_index=True, use_container_width=True, height=min(700, 38 + 35 * len(frame)))
         else:
             st.info("No market data is available for the scanned stocks.")
