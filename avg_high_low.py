@@ -205,18 +205,21 @@ def _market_data(symbols):
                 if len(lows) != 5 or len(highs) != 5:
                     continue
 
-                today_daily = daily[
-                    [idx.date() == session_date for idx in daily.index]
-                ].dropna(subset=["Open", "High", "Low", "Close"])
-                if not today_daily.empty:
-                    day_candle = today_daily.iloc[-1]
-                else:
-                    day_candle = {
-                        "Open": _num(session.iloc[0].get("Open")),
-                        "High": _num(session["High"].max()),
-                        "Low": _num(session["Low"].min()),
-                        "Close": _num(session["Close"].iloc[-1]),
-                    }
+                # Use today's actual intraday session candles for Open/High/Low.
+                # The daily Yahoo candle can be delayed or inconsistent intraday;
+                # using it for Open can create a false SELL crossing.
+                session_open = next(
+                    (_num(value) for value in session["Open"].tolist() if _num(value) is not None),
+                    None,
+                )
+                session_high = _num(session["High"].max()) if "High" in session.columns else None
+                session_low = _num(session["Low"].min()) if "Low" in session.columns else None
+                day_candle = {
+                    "Open": session_open,
+                    "High": session_high,
+                    "Low": session_low,
+                    "Close": _num(session["Close"].iloc[-1]),
+                }
 
                 bars = []
                 for stamp, row in session.iterrows():
@@ -422,7 +425,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         rank = row.get("% Chg Rank")
         current_price = data.get("live_price", data["bars"][-1]["close"])
         last_time = data["bars"][-1]["time"]
-        open_price = data.get("open")
+        open_price = _num(row.get("Open"))
+        current_price = _num(row.get("Live Price"))
         master = caps.get(symbol, {})
         buy_cap_pct = 1.50 if master.get("o2l4") is not None and master["o2l4"] < -3.00 else 1.00
         sell_cap_pct = 1.50 if master.get("o2h4") is not None and master["o2h4"] > 3.00 else 1.00
@@ -430,8 +434,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         down_avg_pct = row.get("% Down Avg.Low")
         up_avg_pct = row.get("% Up Avg.High")
 
-        avg_low = row.get("Avg.Low")
-        avg_high = row.get("Avg.High")
+        avg_low = _num(row.get("Avg.Low"))
+        avg_high = _num(row.get("Avg.High"))
 
         # BUY only when the session opens below Avg.Low and live price
         # has crossed back above Avg.Low.
@@ -451,8 +455,11 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
 
         # SELL only when the session opens above Avg.High and
         # live price has crossed back below Avg.High.
+        # Final strict SELL gate: all three prices must be valid and
+        # the displayed Open/Live Price must satisfy the Avg.High rule.
         if (
             open_price is not None
+            and current_price is not None
             and avg_high is not None
             and open_price > avg_high
             and current_price < avg_high
