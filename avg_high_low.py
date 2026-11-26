@@ -602,7 +602,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     def render_cards(events, side):
         # Re-check SELL eligibility immediately before rendering each card.
         # This prevents any stale or malformed event from bypassing the exact rule.
-        if side == "SELL":
+        if side in ("BUY", "SELL"):
             verified_events = []
             for event in events:
                 row = row_by_symbol.get(event.get("symbol"))
@@ -610,14 +610,25 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     continue
                 card_open = _num(row.get("Open"))
                 card_live = _num(row.get("Live Price"))
-                card_avg_high = _num(row.get("Avg.High"))
-                if (
-                    card_open is not None
-                    and card_live is not None
-                    and card_avg_high is not None
-                    and card_open > card_avg_high
-                    and card_live < card_avg_high
-                ):
+                if side == "BUY":
+                    card_average = _num(row.get("Avg.Low"))
+                    eligible = (
+                        card_open is not None
+                        and card_live is not None
+                        and card_average is not None
+                        and card_open < card_average
+                        and card_live > card_average
+                    )
+                else:
+                    card_average = _num(row.get("Avg.High"))
+                    eligible = (
+                        card_open is not None
+                        and card_live is not None
+                        and card_average is not None
+                        and card_open > card_average
+                        and card_live < card_average
+                    )
+                if eligible:
                     verified_events.append(event)
             events = verified_events
 
