@@ -73,131 +73,184 @@ def _read_master(master_bytes):
 def _market_data(symbols):
     import yfinance as yf
 
-    def fetch(symbol):
-        try:
-            ticker = yf.Ticker(f"{symbol}.NS")
-            # Yahoo Finance is the sole source for every price field.
-            daily = ticker.history(period="2mo", interval="1d", auto_adjust=False, actions=False, prepost=False, timeout=18)
-            # Request several recent sessions so a stale one-day response cannot silently
-            # become today's live price. We later keep only candles matching Yahoo's
-            # latest daily session.
-            intra = ticker.history(period="5d", interval="1m", auto_adjust=False, actions=False, prepost=False, timeout=18)
-            if intra is None or intra.empty:
-                intra = ticker.history(period="5d", interval="5m", auto_adjust=False, actions=False, prepost=False, timeout=18)
-            if daily is None or daily.empty or intra is None or intra.empty:
-                return symbol, None
-            daily = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
-            intra = intra.dropna(subset=["Close"]).sort_index()
-            if daily.empty or intra.empty:
-                return symbol, None
-
-            # During market hours, anchor to today's intraday session. Yahoo's
-            # daily candle can lag by one session; using it as the anchor would
-            # incorrectly select the close from two sessions ago as Previous Close.
-            now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
-            market_is_open = now_ist.weekday() < 5 and (now_ist.hour, now_ist.minute) >= (9, 15) and (now_ist.hour, now_ist.minute) <= (15, 30)
-            today = now_ist.date()
-            intraday_dates = {idx.date() for idx in intra.index}
-            if market_is_open:
-                if today not in intraday_dates:
-                    # Never show a previous session as today's live market data.
-                    return symbol, None
-                session_date = today
-            else:
-                session_date = daily.index[-1].date()
-
-            session = intra[[idx.date() == session_date for idx in intra.index]]
-            if session.empty:
-                # Never pair an old intraday price with a newer/older daily close.
-                return symbol, None
-            # Identify the immediately preceding exchange session from Yahoo intraday
-            # data, then fetch that exact daily candle. This avoids silently using an
-            # older close when Yahoo's broad daily-history response is missing a session.
-            prior_intraday_dates = sorted({idx.date() for idx in intra.index if idx.date() < session_date})
-            if not prior_intraday_dates:
-                return symbol, None
-            previous_session_date = prior_intraday_dates[-1]
-            exact_previous = ticker.history(
-                start=previous_session_date.isoformat(),
-                end=(previous_session_date + pd.Timedelta(days=1)).isoformat(),
-                interval="1d", auto_adjust=False, actions=False, prepost=False,
-                repair=True, timeout=18,
-            )
-            if exact_previous is None or exact_previous.empty:
-                return symbol, None
-            exact_previous = exact_previous.dropna(subset=["Close"]).sort_index()
-            exact_previous = exact_previous[[idx.date() == previous_session_date for idx in exact_previous.index]]
-            if exact_previous.empty:
-                return symbol, None
-
-            # Replace/add the exact prior-session candle in the daily history so
-            # both Previous Close and the 20-session averages use a complete series.
-            exact_row = exact_previous.iloc[-1]
-            matching_daily = [idx for idx in daily.index if idx.date() == previous_session_date]
-            if matching_daily:
-                daily.loc[matching_daily[-1], ["Open", "High", "Low", "Close"]] = exact_row[["Open", "High", "Low", "Close"]].values
-            else:
-                exact_row.name = pd.Timestamp(previous_session_date)
-                daily = pd.concat([daily, exact_row.to_frame().T]).sort_index()
-
-            completed = daily[[idx.date() <= previous_session_date for idx in daily.index]].tail(20)
-            if len(completed) < 20:
-                return symbol, None
-            lows = sorted(float(v) for v in completed["Low"].dropna())[:5]
-            highs = sorted((float(v) for v in completed["High"].dropna()), reverse=True)[:5]
-            if len(lows) != 5 or len(highs) != 5:
-                return symbol, None
-            # Prefer Yahoo's current daily candle for session OHLC. If that
-            # candle has not been published yet, aggregate today's intraday bars.
-            today_daily = daily[[idx.date() == session_date for idx in daily.index]]
-            today_daily = today_daily.dropna(subset=["Open", "High", "Low", "Close"])
-            if not today_daily.empty:
-                day_candle = today_daily.iloc[-1]
-            else:
-                day_candle = {
-                    "Open": _num(session.iloc[0].get("Open")),
-                    "High": _num(session["High"].max()) if "High" in session else None,
-                    "Low": _num(session["Low"].min()) if "Low" in session else None,
-                    "Close": _num(session["Close"].iloc[-1]),
-                }
-
-            bars = []
-            for stamp, row in session.iterrows():
-                close = _num(row.get("Close"))
-                if close is not None:
-                    bars.append({"time": stamp.isoformat(), "open": _num(row.get("Open")),
-                                 "high": _num(row.get("High")), "low": _num(row.get("Low")), "close": close})
-            if not bars:
-                return symbol, None
-            live_price = bars[-1]["close"]
-            # Previous Close for the current session is the Close from the
-            # immediately preceding completed Yahoo Finance daily candle.
-            # This is used for every stock row and for the % Chg calculation.
-            previous_close = float(completed["Close"].iloc[-1])
-
-            return symbol, {
-                "session_date": session_date.isoformat(),
-                "previous_close": previous_close,
-                "open": _num(day_candle.get("Open")),
-                "high": _num(day_candle.get("High")),
-                "low": _num(day_candle.get("Low")),
-                "lows5": lows, "highs5": highs, "avg_low": sum(lows) / 5,
-                "avg_high": sum(highs) / 5, "bars": bars,
-                "live_price": live_price,
-            }
-        except Exception:
-            return symbol, None
-
-    results = {}
     symbols = list(dict.fromkeys(symbols))
-    with ThreadPoolExecutor(max_workers=min(8, max(1, len(symbols)))) as pool:
-        futures = [pool.submit(fetch, symbol) for symbol in symbols]
-        for future in as_completed(futures):
-            symbol, data = future.result()
-            if data:
-                results[symbol] = data
-    return results
+    results = {}
+    now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_is_open = (
+        now_ist.weekday() < 5
+        and (now_ist.hour, now_ist.minute) >= (9, 15)
+        and (now_ist.hour, now_ist.minute) <= (15, 30)
+    )
+    today = now_ist.date()
 
+    def ticker_frame(downloaded, ticker_symbol):
+        if downloaded is None or downloaded.empty:
+            return pd.DataFrame()
+        if isinstance(downloaded.columns, pd.MultiIndex):
+            for level in range(downloaded.columns.nlevels):
+                if ticker_symbol in downloaded.columns.get_level_values(level):
+                    try:
+                        frame = downloaded.xs(
+                            ticker_symbol, axis=1, level=level, drop_level=True
+                        )
+                        if isinstance(frame.columns, pd.MultiIndex):
+                            frame.columns = frame.columns.get_level_values(-1)
+                        return frame
+                    except (KeyError, ValueError):
+                        continue
+            return pd.DataFrame()
+        return downloaded
+
+    # Fetch symbols in small batches. This avoids hundreds of separate
+    # Ticker.history calls and reduces the chance of Yahoo throttling the app.
+    batch_size = 20
+    for start in range(0, len(symbols), batch_size):
+        batch = symbols[start:start + batch_size]
+        yahoo_tickers = [f"{symbol}.NS" for symbol in batch]
+        try:
+            daily_batch = yf.download(
+                tickers=yahoo_tickers,
+                period="2mo",
+                interval="1d",
+                auto_adjust=False,
+                actions=False,
+                group_by="ticker",
+                threads=True,
+                progress=False,
+                timeout=25,
+            )
+            intra_batch = yf.download(
+                tickers=yahoo_tickers,
+                period="5d",
+                interval="1m",
+                auto_adjust=False,
+                actions=False,
+                group_by="ticker",
+                threads=True,
+                progress=False,
+                timeout=25,
+            )
+            if intra_batch is None or intra_batch.empty:
+                intra_batch = yf.download(
+                    tickers=yahoo_tickers,
+                    period="5d",
+                    interval="5m",
+                    auto_adjust=False,
+                    actions=False,
+                    group_by="ticker",
+                    threads=True,
+                    progress=False,
+                    timeout=25,
+                )
+        except Exception:
+            # A failed batch remains visible in the dashboard and is retried
+            # when the short Streamlit data-cache period expires.
+            continue
+
+        for symbol in batch:
+            yahoo_symbol = f"{symbol}.NS"
+            try:
+                daily = ticker_frame(daily_batch, yahoo_symbol)
+                intra = ticker_frame(intra_batch, yahoo_symbol)
+                required = {"Open", "High", "Low", "Close"}
+                if daily.empty or intra.empty or not required.issubset(daily.columns):
+                    continue
+                if "Close" not in intra.columns:
+                    continue
+
+                daily = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
+                intra = intra.dropna(subset=["Close"]).sort_index()
+                if daily.empty or intra.empty:
+                    continue
+
+                intraday_dates = {idx.date() for idx in intra.index}
+                if market_is_open:
+                    # Never display a previous session as today's live data.
+                    if today not in intraday_dates:
+                        continue
+                    session_date = today
+                else:
+                    session_date = daily.index[-1].date()
+
+                session = intra[[idx.date() == session_date for idx in intra.index]]
+                if session.empty:
+                    continue
+
+                # Use the exact prior exchange-session candle from the daily
+                # Yahoo batch. Do not substitute an older close.
+                prior_dates = sorted(
+                    {idx.date() for idx in daily.index if idx.date() < session_date}
+                )
+                if not prior_dates:
+                    continue
+                previous_session_date = prior_dates[-1]
+                previous_rows = daily[
+                    [idx.date() == previous_session_date for idx in daily.index]
+                ].dropna(subset=["Close"])
+                if previous_rows.empty:
+                    continue
+                previous_close = _num(previous_rows.iloc[-1]["Close"])
+                if previous_close is None or previous_close <= 0:
+                    continue
+
+                completed = daily[
+                    [idx.date() <= previous_session_date for idx in daily.index]
+                ].tail(20)
+                if len(completed) < 20:
+                    continue
+                lows = sorted(float(v) for v in completed["Low"].dropna())[:5]
+                highs = sorted(
+                    (float(v) for v in completed["High"].dropna()), reverse=True
+                )[:5]
+                if len(lows) != 5 or len(highs) != 5:
+                    continue
+
+                today_daily = daily[
+                    [idx.date() == session_date for idx in daily.index]
+                ].dropna(subset=["Open", "High", "Low", "Close"])
+                if not today_daily.empty:
+                    day_candle = today_daily.iloc[-1]
+                else:
+                    day_candle = {
+                        "Open": _num(session.iloc[0].get("Open")),
+                        "High": _num(session["High"].max()),
+                        "Low": _num(session["Low"].min()),
+                        "Close": _num(session["Close"].iloc[-1]),
+                    }
+
+                bars = []
+                for stamp, row in session.iterrows():
+                    close = _num(row.get("Close"))
+                    if close is not None:
+                        bars.append({
+                            "time": stamp.isoformat(),
+                            "open": _num(row.get("Open")),
+                            "high": _num(row.get("High")),
+                            "low": _num(row.get("Low")),
+                            "close": close,
+                        })
+                if not bars:
+                    continue
+
+                results[symbol] = {
+                    "session_date": session_date.isoformat(),
+                    "previous_close": previous_close,
+                    "open": _num(day_candle.get("Open")),
+                    "high": _num(day_candle.get("High")),
+                    "low": _num(day_candle.get("Low")),
+                    "lows5": lows,
+                    "highs5": highs,
+                    "avg_low": sum(lows) / 5,
+                    "avg_high": sum(highs) / 5,
+                    "bars": bars,
+                    "live_price": bars[-1]["close"],
+                }
+            except Exception:
+                # Keep this symbol's row; the UI will show blank fields and
+                # retry on the next refresh rather than dropping the stock.
+                continue
+
+    return results
 
 def _price(value):
     try:
