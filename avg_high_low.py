@@ -102,7 +102,37 @@ def _market_data(symbols):
             if session.empty:
                 # Never pair an old intraday price with a newer/older daily close.
                 return symbol, None
-            completed = daily[[idx.date() < session_date for idx in daily.index]].tail(20)
+            # Identify the immediately preceding exchange session from Yahoo intraday
+            # data, then fetch that exact daily candle. This avoids silently using an
+            # older close when Yahoo's broad daily-history response is missing a session.
+            prior_intraday_dates = sorted({idx.date() for idx in intra.index if idx.date() < session_date})
+            if not prior_intraday_dates:
+                return symbol, None
+            previous_session_date = prior_intraday_dates[-1]
+            exact_previous = ticker.history(
+                start=previous_session_date.isoformat(),
+                end=(previous_session_date + pd.Timedelta(days=1)).date().isoformat(),
+                interval="1d", auto_adjust=False, actions=False, prepost=False,
+                repair=True, timeout=18,
+            )
+            if exact_previous is None or exact_previous.empty:
+                return symbol, None
+            exact_previous = exact_previous.dropna(subset=["Close"]).sort_index()
+            exact_previous = exact_previous[[idx.date() == previous_session_date for idx in exact_previous.index]]
+            if exact_previous.empty:
+                return symbol, None
+
+            # Replace/add the exact prior-session candle in the daily history so
+            # both Previous Close and the 20-session averages use a complete series.
+            exact_row = exact_previous.iloc[-1]
+            matching_daily = [idx for idx in daily.index if idx.date() == previous_session_date]
+            if matching_daily:
+                daily.loc[matching_daily[-1], ["Open", "High", "Low", "Close"]] = exact_row[["Open", "High", "Low", "Close"]].values
+            else:
+                exact_row.name = pd.Timestamp(previous_session_date)
+                daily = pd.concat([daily, exact_row.to_frame().T]).sort_index()
+
+            completed = daily[[idx.date() <= previous_session_date for idx in daily.index]].tail(20)
             if len(completed) < 20:
                 return symbol, None
             lows = sorted(float(v) for v in completed["Low"].dropna())[:5]
