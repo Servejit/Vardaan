@@ -55,7 +55,13 @@ def _read_master(master_bytes):
                                 "o2h4": _num(row[cols[clean(required[1])]] if cols[clean(required[1])] < len(row) else None),
                             }
                     if symbols:
-                        return list(dict.fromkeys(symbols)), caps, ws.title
+                        # Keep these required stocks in the dashboard even if the
+                        # uploaded Master workbook accidentally omits them.
+                        required_stocks = ("HCLTECH", "BHARATFORG", "FEDERALBNK")
+                        symbols = list(dict.fromkeys([*symbols, *required_stocks]))
+                        for required_symbol in required_stocks:
+                            caps.setdefault(required_symbol, {"o2l4": None, "o2h4": None})
+                        return symbols, caps, ws.title
         raise ValueError("Could not find both Master headings: 16< D-B / Avg.4 and 16> C-B / Avg.4.")
     finally:
         wb.close()
