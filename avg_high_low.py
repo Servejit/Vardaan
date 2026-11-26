@@ -295,14 +295,22 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
 
     with st.spinner(f"Downloading 20-day history and intraday prices for {len(symbols)} stocks..."):
         data_map = _market_data(tuple(symbols))
-    if not data_map:
-        st.warning("Yahoo Finance did not return usable data. The dashboard will retry automatically.")
-        return
-
+    # Keep every symbol from the Master workbook visible, even when Yahoo
+    # temporarily fails to provide its prices. Missing values stay blank; the
+    # stock is never silently removed from the market-data table.
     rows, buy_events, sell_events = [], [], []
+    missing_symbols = []
     for symbol in symbols:
         data = data_map.get(symbol)
         if not data:
+            missing_symbols.append(symbol)
+            rows.append({
+                "Stock": symbol, "Live Price": None, "% Chg": None,
+                "Open": None, "High": None, "Low": None, "Prev. Close": None,
+                "Avg.Low": None, "Avg.High": None, "% Down Avg.Low": None,
+                "% Up Avg.High": None, "O2L%": None, "O2H%": None,
+                "5 Lowest Lows": "—", "5 Highest Highs": "—",
+            })
             continue
         master = caps.get(symbol, {})
         buy_cap_pct = 1.50 if master.get("o2l4") is not None and master["o2l4"] < -3.00 else 1.00
@@ -310,9 +318,10 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         day_low, day_high = data.get("low"), data.get("high")
         avg_low, avg_high = data["avg_low"], data["avg_high"]
         open_price = data.get("open")
+        live_price = data.get("live_price", data["bars"][-1]["close"])
         rows.append({
-            "Stock": symbol, "Live Price": data.get("live_price", data["bars"][-1]["close"]),
-            "% Chg": ((data.get("live_price", data["bars"][-1]["close"]) - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
+            "Stock": symbol, "Live Price": live_price,
+            "% Chg": ((live_price - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
             "Open": data.get("open"), "High": day_high,
             "Low": day_low, "Prev. Close": data.get("previous_close"), "Avg.Low": avg_low, "Avg.High": avg_high,
             "% Down Avg.Low": ((day_low - avg_low) / avg_low * 100) if day_low is not None and avg_low else None,
@@ -322,6 +331,11 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "5 Lowest Lows": " · ".join(f"{v:.2f}" for v in data["lows5"]),
             "5 Highest Highs": " · ".join(f"{v:.2f}" for v in data["highs5"]),
         })
+    if missing_symbols:
+        st.warning(
+            f"{len(missing_symbols)} of {len(symbols)} stocks are waiting for Yahoo Finance data. "
+            "They remain listed in TODAY'S MARKET DATA with blank price fields and will be retried automatically."
+        )
 
     # Rank the complete scanned universe by today's percentage change.
     # Highest % Chg is rank 1; tied values share the same minimum rank.
