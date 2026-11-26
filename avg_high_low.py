@@ -432,13 +432,16 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         """, unsafe_allow_html=True)
 
     def render_cards(events, side):
-        # Sort by average-low/high distance first; use recency only to break ties.
-        # BUY: most negative % Down Avg.Low first.
-        # SELL: highest % Up Avg.High first.
+        # Primary sort: average-low/high distance. Secondary: % Chg Rank.
+        # BUY eligibility is rank > 20; most negative % Down Avg.Low comes first.
+        # SELL eligibility is rank > 190; highest % Up Avg.High comes first.
+        # Stable sorts preserve rank, then recency, when the primary metric ties.
         events.sort(key=lambda item: item["time"], reverse=True)
         if side == "BUY":
+            events.sort(key=lambda item: item["rank"], reverse=True)
             events.sort(key=lambda item: item["down_avg_pct"] if item["down_avg_pct"] is not None else float("inf"))
         else:
+            events.sort(key=lambda item: item["rank"])
             events.sort(key=lambda item: item["up_avg_pct"] if item["up_avg_pct"] is not None else float("-inf"), reverse=True)
         if not events:
             st.info(f"No {side} crossing signal yet.")
