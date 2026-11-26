@@ -289,6 +289,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             "Stock": symbol, "Live Price": data["bars"][-1]["close"],
             "Open": data.get("open"), "High": day_high,
             "Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
+            "% Down Avg.Low": ((avg_low - day_low) / avg_low * 100) if day_low is not None and avg_low else None,
+            "% Up Avg.High": ((day_high - avg_high) / avg_high * 100) if day_high is not None and avg_high else None,
             "O2L%": ((day_low - data.get("open")) / data.get("open") * 100) if day_low is not None and data.get("open") else None,
             "O2H%": ((day_high - data.get("open")) / data.get("open") * 100) if day_high is not None and data.get("open") else None,
             "5 Lowest Lows": " · ".join(f"{v:.2f}" for v in data["lows5"]),
@@ -478,7 +480,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         if rows:
             frame = pd.DataFrame(rows)
             order = ["Stock", "Open", "High", "Low", "Live Price", "O2L%", "O2H%",
-                     "Avg.Low", "Avg.High", "5 Lowest Lows", "5 Highest Highs"]
+                     "Avg.Low", "Avg.High", "% Down Avg.Low", "% Up Avg.High",
+                     "5 Lowest Lows", "5 Highest Highs"]
             frame = frame[order].rename(columns={"Stock": "Stock Name"})
             if buy_events:
                 theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
@@ -489,6 +492,8 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             display_frame = frame.style.format({
                 "Open": _price, "High": _price, "Low": _price, "Live Price": _price,
                 "Avg.Low": _price, "Avg.High": _price,
+                "% Down Avg.Low": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
+                "% Up Avg.High": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
                 "O2L%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
                 "O2H%": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
             })
@@ -534,7 +539,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             # not expose reliable styling for its column-heading row. Every
             # heading remains clickable and sorts the complete table.
             price_columns = {"Open", "High", "Low", "Live Price", "Avg.Low", "Avg.High"}
-            percent_columns = {"O2L%", "O2H%"}
+            percent_columns = {"O2L%", "O2H%", "% Down Avg.Low", "% Up Avg.High"}
             numeric_columns = price_columns | percent_columns
             header_html = "".join(
                 f'<th><button type="button" onclick="sortTable({index})">{html_escape(str(column))}<span class="sort-mark"> ↕</span></button></th>'
