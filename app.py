@@ -2931,9 +2931,19 @@ def render_autogreen_dashboard():
     # must not exclude a target stock from the BUY competition.
     base_by_symbol = {item["Symbol"]: item for item in base_rows}
     signal_by_symbol = {item["Symbol"]: item for item in ranked_candidates}
+    target_detail_by_symbol = {
+        normalize_stock_symbol(detail.get("Stock")): detail
+        for detail in qualified_detail_rows
+        if normalize_stock_symbol(detail.get("Stock"))
+    }
     target_records = []
     for position, (_, symbol) in enumerate(lowest_db_targets, start=1):
         quote = target_quotes.get(symbol, {})
+        target_detail = target_detail_by_symbol.get(symbol, {})
+        # The value in parentheses (C) from 16< D-B / Avg.4 must be below -2.00.
+        db_c_value = _autogreen_db_parenthetical_number(
+            target_detail.get("16< D-B / Avg.4")
+        )
         rank = sum_o2l_ranks.get(symbol)
         open_price = quote.get("open")
         day_high = quote.get("high")
@@ -3007,6 +3017,7 @@ def render_autogreen_dashboard():
             "Day Low": quote.get("low"),
             "High Gap %": gap_pct,
             "O2H Target %": target_o2h_pct,
+            "D-B C Value": db_c_value,
             "Sum O2L.10 Rank": rank,
             "_Target Position": position,
         })
@@ -3025,6 +3036,8 @@ def render_autogreen_dashboard():
         and ((item["Day High"] - item["Day Open"]) / item["Day Open"]) * 100
             < item.get("O2H Target %", 1.0)
         and item["Live Price"] > item["Day Open"]
+        and item.get("D-B C Value") is not None
+        and item["D-B C Value"] < -2.00
     ]
     confirmation_candidates.sort(key=lambda item: (
         -item["Live % Chg"],
