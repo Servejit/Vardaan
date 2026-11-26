@@ -528,7 +528,18 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                     for column in row.index
                 ]
 
-            display_frame = display_frame.apply(theme_row, axis=1).set_table_styles([
+            # Style each column heading cell directly so the heading row
+            # uses the same active BUY/SELL card theme as the dashboard.
+            display_frame = display_frame.apply(theme_row, axis=1).applymap_index(
+                lambda _: (
+                    f"background-color: {palette['heading']}; "
+                    f"color: {palette['heading_text']}; "
+                    "font-weight: 800; "
+                    f"border: 1px solid {palette['border']}; "
+                    "text-align: center;"
+                ),
+                axis="columns",
+            ).set_table_styles([
                 {
                     "selector": "th.col_heading",
                     "props": [
