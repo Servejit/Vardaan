@@ -430,8 +430,18 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         down_avg_pct = row.get("% Down Avg.Low")
         up_avg_pct = row.get("% Up Avg.High")
 
-        if rank is not None and rank < 20 and down_avg_pct is not None:
-            cap = open_price * (1 + buy_cap_pct / 100) if open_price else None
+        avg_low = row.get("Avg.Low")
+        avg_high = row.get("Avg.High")
+
+        # BUY only when the session opens below Avg.Low and live price
+        # has crossed back above Avg.Low.
+        if (
+            open_price is not None
+            and avg_low is not None
+            and open_price < avg_low
+            and current_price > avg_low
+        ):
+            cap = open_price * (1 + buy_cap_pct / 100)
             target = min(current_price * 1.0035, cap) if cap is not None and cap > current_price else current_price * 1.0035
             buy_events.append({
                 "symbol": symbol, "side": "BUY", "time": last_time,
@@ -439,8 +449,15 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                 "rank": int(rank), "down_avg_pct": down_avg_pct, "o2h_pct": row.get("O2H%"),
             })
 
-        if rank is not None and rank > 190 and up_avg_pct is not None:
-            cap = open_price * (1 - sell_cap_pct / 100) if open_price else None
+        # SELL only when the session opens above Avg.High and
+        # live price has crossed back below Avg.High.
+        if (
+            open_price is not None
+            and avg_high is not None
+            and open_price > avg_high
+            and current_price < avg_high
+        ):
+            cap = open_price * (1 - sell_cap_pct / 100)
             target = min(current_price * .9965, cap) if cap is not None else current_price * .9965
             sell_events.append({
                 "symbol": symbol, "side": "SELL", "time": last_time,
