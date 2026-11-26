@@ -83,14 +83,20 @@ def _market_data(symbols):
             if daily.empty or intra.empty:
                 return symbol, None
 
-            # Anchor the session to Yahoo's latest daily candle, not the last
-            # timestamp returned by the intraday endpoint (which can be stale).
-            session_date = daily.index[-1].date()
+            # During market hours, anchor to today's intraday session. Yahoo's
+            # daily candle can lag by one session; using it as the anchor would
+            # incorrectly select the close from two sessions ago as Previous Close.
             now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
             market_is_open = now_ist.weekday() < 5 and (now_ist.hour, now_ist.minute) >= (9, 15) and (now_ist.hour, now_ist.minute) <= (15, 30)
-            if market_is_open and session_date != now_ist.date():
-                # Do not display yesterday's quote as today's live market data.
-                return symbol, None
+            today = now_ist.date()
+            intraday_dates = {idx.date() for idx in intra.index}
+            if market_is_open:
+                if today not in intraday_dates:
+                    # Never show a previous session as today's live market data.
+                    return symbol, None
+                session_date = today
+            else:
+                session_date = daily.index[-1].date()
 
             session = intra[[idx.date() == session_date for idx in intra.index]]
             if session.empty:
@@ -103,13 +109,19 @@ def _market_data(symbols):
             highs = sorted((float(v) for v in completed["High"].dropna()), reverse=True)[:5]
             if len(lows) != 5 or len(highs) != 5:
                 return symbol, None
-            # Use Yahoo Finance's current daily candle for the official session OHLC.
-            # The first 1-minute candle's Open can differ from the actual day Open.
+            # Prefer Yahoo's current daily candle for session OHLC. If that
+            # candle has not been published yet, aggregate today's intraday bars.
             today_daily = daily[[idx.date() == session_date for idx in daily.index]]
             today_daily = today_daily.dropna(subset=["Open", "High", "Low", "Close"])
-            if today_daily.empty:
-                return symbol, None
-            day_candle = today_daily.iloc[-1]
+            if not today_daily.empty:
+                day_candle = today_daily.iloc[-1]
+            else:
+                day_candle = {
+                    "Open": _num(session.iloc[0].get("Open")),
+                    "High": _num(session["High"].max()) if "High" in session else None,
+                    "Low": _num(session["Low"].min()) if "Low" in session else None,
+                    "Close": _num(session["Close"].iloc[-1]),
+                }
 
             bars = []
             for stamp, row in session.iterrows():
