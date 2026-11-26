@@ -68,17 +68,34 @@ def _market_data(symbols):
     def fetch(symbol):
         try:
             ticker = yf.Ticker(f"{symbol}.NS")
+            # Yahoo Finance is the sole source for every price field.
             daily = ticker.history(period="2mo", interval="1d", auto_adjust=False, actions=False, prepost=False, timeout=18)
-            intra = ticker.history(period="1d", interval="1m", auto_adjust=False, actions=False, prepost=False, timeout=18)
+            # Request several recent sessions so a stale one-day response cannot silently
+            # become today's live price. We later keep only candles matching Yahoo's
+            # latest daily session.
+            intra = ticker.history(period="5d", interval="1m", auto_adjust=False, actions=False, prepost=False, timeout=18)
             if intra is None or intra.empty:
                 intra = ticker.history(period="5d", interval="5m", auto_adjust=False, actions=False, prepost=False, timeout=18)
             if daily is None or daily.empty or intra is None or intra.empty:
                 return symbol, None
-            daily = daily.dropna(subset=["Low", "High", "Close"])
+            daily = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
             intra = intra.dropna(subset=["Close"]).sort_index()
             if daily.empty or intra.empty:
                 return symbol, None
-            session_date = intra.index[-1].date()
+
+            # Anchor the session to Yahoo's latest daily candle, not the last
+            # timestamp returned by the intraday endpoint (which can be stale).
+            session_date = daily.index[-1].date()
+            now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+            market_is_open = now_ist.weekday() < 5 and (now_ist.hour, now_ist.minute) >= (9, 15) and (now_ist.hour, now_ist.minute) <= (15, 30)
+            if market_is_open and session_date != now_ist.date():
+                # Do not display yesterday's quote as today's live market data.
+                return symbol, None
+
+            session = intra[[idx.date() == session_date for idx in intra.index]]
+            if session.empty:
+                # Never pair an old intraday price with a newer/older daily close.
+                return symbol, None
             completed = daily[[idx.date() < session_date for idx in daily.index]].tail(20)
             if len(completed) < 20:
                 return symbol, None
@@ -94,7 +111,6 @@ def _market_data(symbols):
                 return symbol, None
             day_candle = today_daily.iloc[-1]
 
-            session = intra[[idx.date() == session_date for idx in intra.index]]
             bars = []
             for stamp, row in session.iterrows():
                 close = _num(row.get("Close"))
