@@ -86,6 +86,14 @@ def _market_data(symbols):
             highs = sorted((float(v) for v in completed["High"].dropna()), reverse=True)[:5]
             if len(lows) != 5 or len(highs) != 5:
                 return symbol, None
+            # Use Yahoo Finance's current daily candle for the official session OHLC.
+            # The first 1-minute candle's Open can differ from the actual day Open.
+            today_daily = daily[[idx.date() == session_date for idx in daily.index]]
+            today_daily = today_daily.dropna(subset=["Open", "High", "Low", "Close"])
+            if today_daily.empty:
+                return symbol, None
+            day_candle = today_daily.iloc[-1]
+
             session = intra[[idx.date() == session_date for idx in intra.index]]
             bars = []
             for stamp, row in session.iterrows():
@@ -95,14 +103,16 @@ def _market_data(symbols):
                                  "high": _num(row.get("High")), "low": _num(row.get("Low")), "close": close})
             if not bars:
                 return symbol, None
+            live_price = bars[-1]["close"]
             return symbol, {
                 "session_date": session_date.isoformat(),
                 "previous_close": float(completed["Close"].iloc[-1]),
-                "open": bars[0]["open"],
-                "high": max((b["high"] for b in bars if b["high"] is not None), default=None),
-                "low": min((b["low"] for b in bars if b["low"] is not None), default=None),
+                "open": _num(day_candle.get("Open")),
+                "high": _num(day_candle.get("High")),
+                "low": _num(day_candle.get("Low")),
                 "lows5": lows, "highs5": highs, "avg_low": sum(lows) / 5,
                 "avg_high": sum(highs) / 5, "bars": bars,
+                "live_price": live_price,
             }
         except Exception:
             return symbol, None
@@ -238,7 +248,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         avg_low, avg_high = data["avg_low"], data["avg_high"]
         open_price = data.get("open")
         rows.append({
-            "Stock": symbol, "Live Price": data["bars"][-1]["close"],
+            "Stock": symbol, "Live Price": data.get("live_price", data["bars"][-1]["close"]),
             "% Chg": ((data["bars"][-1]["close"] - data["previous_close"]) / data["previous_close"] * 100) if data.get("previous_close") else None,
             "Open": data.get("open"), "High": day_high,
             "Low": day_low, "Avg.Low": avg_low, "Avg.High": avg_high,
@@ -267,7 +277,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         if row is None or not data.get("bars"):
             continue
         rank = row.get("% Chg Rank")
-        current_price = data["bars"][-1]["close"]
+        current_price = data.get("live_price", data["bars"][-1]["close"])
         last_time = data["bars"][-1]["time"]
         open_price = data.get("open")
         master = caps.get(symbol, {})
