@@ -120,10 +120,31 @@ def _market_data(symbols):
             if not bars:
                 return symbol, None
             live_price = bars[-1]["close"]
-            # Previous Close is the close of the last completed daily
-            # candle immediately before this session. Do not use fast_info:
-            # its quote metadata can be inconsistent with the selected session.
-            previous_close = float(completed["Close"].iloc[-1])
+            # Previous Close must come from NSE's official equity quote.
+            # Warm up an NSE session first because the quote endpoint uses cookies.
+            import requests
+            nse = requests.Session()
+            nse.headers.update({
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": f"https://www.nseindia.com/get-quotes/equity?symbol={symbol}",
+                "X-Requested-With": "XMLHttpRequest",
+            })
+            warmup = nse.get("https://www.nseindia.com/", timeout=12)
+            warmup.raise_for_status()
+            quote_response = nse.get(
+                "https://www.nseindia.com/api/quote-equity",
+                params={"symbol": symbol},
+                timeout=12,
+            )
+            quote_response.raise_for_status()
+            quote_data = quote_response.json()
+            previous_close = _num((quote_data.get("priceInfo") or {}).get("previousClose"))
+            if previous_close is None or previous_close <= 0:
+                # Do not silently substitute Yahoo data when NSE does not provide
+                # a valid previous close; leave this symbol unavailable instead.
+                return symbol, None
 
             return symbol, {
                 "session_date": session_date.isoformat(),
