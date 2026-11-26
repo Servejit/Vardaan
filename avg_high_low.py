@@ -111,7 +111,7 @@ def _market_data(symbols):
             previous_session_date = prior_intraday_dates[-1]
             exact_previous = ticker.history(
                 start=previous_session_date.isoformat(),
-                end=(previous_session_date + pd.Timedelta(days=1)).date().isoformat(),
+                end=(previous_session_date + pd.Timedelta(days=1)).isoformat(),
                 interval="1d", auto_adjust=False, actions=False, prepost=False,
                 repair=True, timeout=18,
             )
