@@ -1,4 +1,5 @@
 import io
+import math
 from html import escape as html_escape
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -21,7 +22,8 @@ def _num(value):
     if value is None or isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        return float(value)
+        number = float(value)
+        return number if math.isfinite(number) else None
     raw = str(value).strip().replace(",", "").replace("−", "-").replace("%", "")
     for part in reversed(re.findall(r"\(([^()]*)\)", raw)):
         match = re.search(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)", part)
@@ -198,7 +200,12 @@ def _market_data(symbols):
 
 
 def _price(value):
-    return "—" if value is None else f"₹{value:,.2f}"
+    try:
+        if value is None or pd.isna(value) or not math.isfinite(float(value)):
+            return "—"
+        return f"₹{float(value):,.2f}"
+    except (TypeError, ValueError):
+        return "—"
 
 
 def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
