@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -2338,110 +2337,33 @@ def render_trstar_dashboard():
         unsafe_allow_html=True,
     )
     styled_table = styled_table.hide(axis="index")
-    # Render the existing styled table in a small HTML component so its
-    # column headings can sort rows on tap without changing the table design.
-    table_html = styled_table.to_html()
-    sortable_table_html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        html, body { margin: 0; padding: 0; background: transparent; }
-        .trstar-table-wrap { width: 100%; overflow-x: auto; border-radius: 8px; }
-        .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    st.markdown(
+        """
+        <style>
+        .trstar-table-wrap {width: 100%; overflow-x: auto; border-radius: 8px;}
+        .trstar-table-wrap table {width: 100%; border-collapse: collapse; font-size: 14px;}
         .trstar-table-wrap thead th {
-          background-color: #F4C7AB !important;
-          color: #5B4035 !important;
-          font-weight: 700 !important;
-          padding: 10px 8px !important;
-          border-bottom: 2px solid #E9C3AE !important;
-          text-align: left !important;
-          white-space: nowrap;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-          user-select: none;
+            background-color: #F4C7AB !important;
+            color: #5B4035 !important;
+            font-weight: 700 !important;
+            padding: 10px 8px !important;
+            border-bottom: 2px solid #E9C3AE !important;
+            text-align: left !important;
         }
-        .trstar-table-wrap thead th:active { opacity: 0.78; }
         .trstar-table-wrap tbody td {
-          color: #5B4035 !important;
-          padding: 8px !important;
-          border-bottom: 1px solid #F0DED3 !important;
-          white-space: nowrap;
+            color: #5B4035 !important;
+            padding: 8px !important;
+            border-bottom: 1px solid #F0DED3 !important;
+            white-space: nowrap;
         }
-        .trstar-table-wrap thead th[data-sort-direction="asc"]::after {
-          content: " ▲"; font-size: 10px;
-        }
-        .trstar-table-wrap thead th[data-sort-direction="desc"]::after {
-          content: " ▼"; font-size: 10px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="trstar-table-wrap">__TRSTAR_TABLE__</div>
-      <script>
-        (() => {
-          const table = document.querySelector(".trstar-table-wrap table");
-          if (!table || !table.tHead || !table.tBodies.length) return;
-          const headers = Array.from(table.tHead.rows[0].cells);
-          const tbody = table.tBodies[0];
-
-          function numericValue(value) {
-            const cleaned = value.trim().replace(/[₹,%+\\s,]/g, "").replace(/[−]/g, "-");
-            if (!cleaned || cleaned === "—" || cleaned === "-") return null;
-            const number = Number(cleaned);
-            return Number.isFinite(number) ? number : null;
-          }
-
-          headers.forEach((header, columnIndex) => {
-            header.setAttribute("title", "Tap to sort");
-            header.setAttribute("aria-label", header.innerText.trim() + ", tap to sort");
-            header.addEventListener("click", () => {
-              const current = header.dataset.sortDirection;
-              const direction = current === "asc" ? "desc" : "asc";
-              const rows = Array.from(tbody.rows);
-              const values = rows.map(row => row.cells[columnIndex].innerText.trim());
-              const parsed = values.map(numericValue);
-              const isNumeric = parsed.every(value => value !== null) ||
-                values.every(value => !value || value === "—" || value === "-");
-
-              rows.sort((rowA, rowB) => {
-                const aText = rowA.cells[columnIndex].innerText.trim();
-                const bText = rowB.cells[columnIndex].innerText.trim();
-                const aNumber = numericValue(aText);
-                const bNumber = numericValue(bText);
-                const aMissing = aNumber === null && (!aText || aText === "—" || aText === "-");
-                const bMissing = bNumber === null && (!bText || bText === "—" || bText === "-");
-                if (isNumeric) {
-                  if (aMissing && bMissing) return 0;
-                  if (aMissing) return 1;
-                  if (bMissing) return -1;
-                  return (aNumber - bNumber) * (direction === "asc" ? 1 : -1);
-                }
-                return aText.localeCompare(bText, undefined, {numeric: true, sensitivity: "base"}) *
-                  (direction === "asc" ? 1 : -1);
-              });
-
-              headers.forEach(item => {
-                delete item.dataset.sortDirection;
-                item.removeAttribute("aria-sort");
-              });
-              header.dataset.sortDirection = direction;
-              header.setAttribute("aria-sort", direction === "asc" ? "ascending" : "descending");
-              rows.forEach(row => tbody.appendChild(row));
-            });
-          });
-        })();
-      </script>
-    </body>
-    </html>
-    """.replace("__TRSTAR_TABLE__", table_html)
-    components.html(
-        sortable_table_html,
-        height=min(max(150, len(table) * 38 + 65), 650),
-        scrolling=True,
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
-
+    st.markdown(
+        f'<div class="trstar-table-wrap">{styled_table.to_html()}</div>',
+        unsafe_allow_html=True,
+    )
 
 def get_index_toppers_master_values(symbols):
     """Read the two Index Toppers metrics from the same Master sheet and symbol column used by the Master dashboard."""
