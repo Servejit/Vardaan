@@ -3076,7 +3076,7 @@ def render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=
 
 def render_qualified_stock_table(rows, accent, ink, tint):
     """Render qualified stocks in the same light adaptive palette as the top signal card."""
-    render_accent_table(rows, accent, ink, tint, min_width=720)
+    render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=True)
 
 
 def render_autogreen_dashboard():
