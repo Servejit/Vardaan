@@ -5018,7 +5018,6 @@ elif page == "Index File":
     </style>
         """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
-        st.caption("Upload an NSE index CSV or Excel file. The dashboard calculates H2L% and L2H% for every index.")
 
         index_upload = st.file_uploader(
             "Choose an Index file",
