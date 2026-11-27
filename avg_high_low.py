@@ -889,7 +889,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         </style>
         """, unsafe_allow_html=True)
 
-        /* Explicitly include every heading and every button in the Avg High Low dashboard. */
+        # Explicitly include every heading and every button in the Avg High Low dashboard.
         st.markdown("""
         <style>
         html body .stApp h1,html body .stApp h2,html body .stApp h3,
