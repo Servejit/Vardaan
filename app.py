@@ -2154,46 +2154,10 @@ def render_trstar_dashboard():
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        """
-        <style>
-        /* TR.Star peach theme: sidebar, action buttons and bottom dashboard navigation */
-        [data-testid="stSidebar"] > div:first-child {
-            background: #FBE2D5 !important;
-        }
-        [data-testid="stSidebar"] [data-testid="stRadio"] label,
-        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-            color: #5B4035 !important;
-        }
-        [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
-            background: #F4C7AB !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stSidebar"] button,
-        [data-testid="stMain"] button,
-        [data-testid="stBottom"] button,
-        [data-testid="stFormSubmitButton"] button {
-            background: #F4C7AB !important;
-            color: #5B4035 !important;
-            border: 1px solid #E9B99D !important;
-        }
-        [data-testid="stSidebar"] button:hover,
-        [data-testid="stMain"] button:hover {
-            background: #EFAF91 !important;
-            color: #4A3026 !important;
-        }
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label:has(input:checked) {
-            background: #F4C7AB !important;
-            border-radius: 8px !important;
-        }
-        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label,
-        [data-testid="stSidebar"] [data-testid="stRadio"] label {
-            border-color: #E9B99D !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    # TR.Star uses the same shared sidebar as AutoGreen; keep its peach styling
+    # limited to the dashboard content and do not override the shared sidebar.
+
+
 
     st.title("6thSense-Vardaan")
 
