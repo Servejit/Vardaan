@@ -5045,8 +5045,43 @@ elif page == "Index File":
                             lambda value: f"{value:.2f}%" if pd.notna(value) else "—"
                         )
 
+                    peach_table = formatted_table.style.set_table_styles([
+                        {
+                            "selector": "th",
+                            "props": [
+                                ("background-color", "#F1CDBB"),
+                                ("color", "#54382F"),
+                                ("font-weight", "700"),
+                                ("border", "1px solid #DDA58D"),
+                                ("padding", "10px 12px"),
+                            ],
+                        },
+                        {
+                            "selector": "td",
+                            "props": [
+                                ("background-color", "#FFF8F4"),
+                                ("color", "#54382F"),
+                                ("border-bottom", "1px solid #EBD0C2"),
+                                ("padding", "9px 12px"),
+                            ],
+                        },
+                        {
+                            "selector": "tbody tr:nth-child(even) td",
+                            "props": [("background-color", "#FCE9DF")],
+                        },
+                        {
+                            "selector": "table",
+                            "props": [
+                                ("border-collapse", "separate"),
+                                ("border-spacing", "0"),
+                                ("border", "1px solid #E1B29D"),
+                                ("border-radius", "10px"),
+                                ("overflow", "hidden"),
+                            ],
+                        },
+                    ])
                     st.dataframe(
-                        formatted_table,
+                        peach_table,
                         use_container_width=True,
                         hide_index=True
                     )
