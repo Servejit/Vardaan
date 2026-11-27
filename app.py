@@ -2535,15 +2535,14 @@ def render_index_toppers_dashboard():
         filter:brightness(1.08) !important;
     }
     .index-topper-hero {
-        padding:23px 25px;margin:5px 0 18px;border-radius:19px;
-        color:#365B3B;border:1px solid #C8DDB5;
-        background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.24),transparent 27%),
-                   linear-gradient(115deg,#365B3B 0%,#658B4E 48%,#365B3B 100%);
-        box-shadow:0 14px 34px rgba(59,33,24,.22),inset 0 1px 0 rgba(255,255,255,.18);
+        padding:23px 25px;margin:5px 0 18px;border-radius:20px;
+        color:#365B3B;border:1px solid #8FAF72;
+        background:linear-gradient(130deg,#FBFDF7 0%,#F4F8EF 52%,#DDEBCF 100%);
+        box-shadow:0 12px 30px rgba(54,91,59,.12),inset 0 1px 0 rgba(255,255,255,.85);
     }
-    .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#658B4E;}
-    .index-topper-title {font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FBFDF7;}
-    .index-topper-sub {font-size:13px;line-height:1.55;color:#E7F0D9;}
+    .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#365B3B;}
+    .index-topper-title {font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#365B3B;}
+    .index-topper-sub {font-size:13px;line-height:1.55;color:#365B3B;}
     /* BUY / TOP CHOICE card: consistent light Pistachio dashboard theme */
     .index-topper-card {
         position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
