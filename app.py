@@ -4995,9 +4995,7 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    # Default every signed-in account (including admins) to AutoGreen once
-    # per browser session. Versioned marker also corrects sessions created by
-    # the earlier default logic, and both visible selectors start in sync.
+    # Default every signed-in account to Index Toppers once per browser session.
     dashboard_default_initialized_key = f"_dashboard_default_initialized_v3_{user.id}"
     if not st.session_state.get(dashboard_default_initialized_key):
         st.session_state["main_dashboard_default_index_v2"] = "Index Toppers"
@@ -5784,7 +5782,7 @@ elif page == "Master Excel":
 else:
     # Never show Master Excel for an unknown/stale navigation value.
     st.session_state["main_dashboard_default_index_v2"] = "Index Toppers"
-    render_autogreen_dashboard()
+    render_index_toppers_dashboard()
 
 
 # Matching dashboard shortcuts: same dimensions and states as sidebar navigation.
