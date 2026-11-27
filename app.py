@@ -2544,19 +2544,19 @@ def render_index_toppers_dashboard():
     .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#658B4E;}
     .index-topper-title {font-size:clamp(27px,4vw,36px);font-weight:950;line-height:1.12;margin:7px 0;color:#FBFDF7;}
     .index-topper-sub {font-size:13px;line-height:1.55;color:#E7F0D9;}
+    /* BUY / TOP CHOICE card: consistent light Pistachio dashboard theme */
     .index-topper-card {
         position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
-        color:#365B3B;border:2px solid transparent;
-        background:linear-gradient(130deg,#365B3B 0%,#658B4E 48%,#365B3B 100%) padding-box,
-                   linear-gradient(115deg,#658B4E 0%,#658B4E 35%,#FBFDF7 52%,#8FAF72 75%,#365B3B 100%) border-box;
-        box-shadow:0 12px 32px rgba(59,33,24,.22),0 0 25px rgba(138,86,56,.16);
+        color:#365B3B;border:2px solid #8FAF72;
+        background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 42%,#DDEBCF 100%);
+        box-shadow:0 10px 28px rgba(101,139,78,.18),0 0 18px rgba(183,215,168,.24);
     }
-    .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#658B4E;text-align:center;}
-    .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#FBFDF7;letter-spacing:.7px;}
+    .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#365B3B;text-align:center;}
+    .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#365B3B;letter-spacing:.7px;}
     .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#365B3B;
-        background:linear-gradient(110deg,#E7F0D9,#C8DDB5);padding:8px 13px;border-radius:999px;}
+        background:linear-gradient(110deg,#B7D7A8,#DDEBCF);border:1px solid #8FAF72;padding:8px 13px;border-radius:999px;}
     .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#658B4E;}
-    .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#FBFDF7;margin-top:5px;}
+    .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#365B3B;margin-top:5px;}
     .index-topper-target {color:#658B4E !important;}
     .index-topper-table-wrap {overflow-x:auto;border:1px solid #C8DDB5;border-radius:12px;background:#F4F8EF;}
     .index-topper-table {width:100%;min-width:900px;border-collapse:collapse;color:#365B3B;}
@@ -2891,7 +2891,7 @@ def render_index_toppers_dashboard():
               <div style="font-size:11px;color:#D4D5D9;margin-top:8px;letter-spacing:.8px;">
                 {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,#D8B65A,#D9DCE1,transparent);margin:20px 0 17px;"></div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
                 <div><div class="index-topper-metric-label">ENTRY PRICE</div>
                   <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
