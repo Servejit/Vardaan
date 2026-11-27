@@ -5040,11 +5040,6 @@ elif page == "Index File":
                         ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]
                     ]
 
-                    metrics = st.columns(3)
-                    metrics[0].metric("Total Indices", f"{len(index_table):,}")
-                    metrics[1].metric("Source", "CSV" if index_upload.name.lower().endswith(".csv") else "Excel")
-                    metrics[2].metric("Calculated Columns", "H2L% + L2H%")
-
                     search_text = st.text_input(
                         "Search index",
                         placeholder="Enter index name",
