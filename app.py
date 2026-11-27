@@ -21,42 +21,75 @@ from supabase import create_client, ClientOptions
 
 
 @st.cache_data(ttl=60, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def fetch_nse_index_constituent_movers(index_name):
-    """Return live NSE constituent quotes for one index, cached for 60 seconds."""
+    """Fetch current NSE constituent prices and percentage changes for one index."""
+    import time as _time
+    index_label = " ".join(str(index_name).replace("\\n", " ").split()).strip()
     try:
         session = requests.Session()
+        user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/134.0.0.0 Safari/537.36")
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36",
+            "User-Agent": user_agent,
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "en-US,en;q=0.9",
-            "Referer": "https://www.nseindia.com/",
+            "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
+            "Host": "www.nseindia.com",
+            "X-Requested-With": "XMLHttpRequest",
+            "DNT": "1",
         }
-        session.get("https://www.nseindia.com/", headers=headers, timeout=12)
-        response = session.get(
-            "https://www.nseindia.com/api/equity-stockIndices",
-            params={"index": str(index_name).strip().upper()},
-            headers=headers,
-            timeout=18,
-        )
-        response.raise_for_status()
-        payload = response.json()
-        rows = payload.get("data", []) if isinstance(payload, dict) else []
-        movers = []
-        for item in rows:
-            symbol = str(item.get("symbol", "")).strip()
-            if not symbol or symbol.upper() == str(index_name).strip().upper():
-                continue
+        session.get("https://www.nseindia.com/", headers=headers, timeout=15)
+        _time.sleep(0.4)
+        page_url = "https://www.nseindia.com/market-data/live-equity-market"
+        page_headers = dict(headers)
+        page_headers["Referer"] = "https://www.nseindia.com/"
+        session.get(page_url, headers=page_headers, timeout=15)
+        api_headers = dict(headers)
+        api_headers["Referer"] = page_url
+        api_url = "https://www.nseindia.com/api/equity-stockIndices"
+        last_error = ""
+        for attempt in range(2):
             try:
-                last_price = float(str(item.get("lastPrice", "")).replace(",", "").strip())
-                pct_change = float(str(item.get("pChange", "")).replace(",", "").replace("%", "").strip())
-            except (TypeError, ValueError):
-                continue
-            movers.append({"STOCK": symbol, "CURRENT": last_price, "%CHANGE": pct_change})
-        movers.sort(key=lambda row: row["%CHANGE"], reverse=True)
-        return movers, ""
+                response = session.get(
+                    api_url, params={"index": index_label.upper()},
+                    headers=api_headers, timeout=20
+                )
+                if response.status_code in (401, 403, 429) and attempt == 0:
+                    session.get("https://www.nseindia.com/", headers=headers, timeout=15)
+                    _time.sleep(1.0)
+                    continue
+                response.raise_for_status()
+                payload = response.json()
+                rows = payload.get("data", []) if isinstance(payload, dict) else []
+                if not isinstance(rows, list) or not rows:
+                    return [], f"NSE returned no constituent rows for index '{index_label}'."
+                movers = []
+                for item in rows:
+                    symbol = str(item.get("symbol", "")).strip()
+                    if not symbol or symbol.upper() == index_label.upper():
+                        continue
+                    try:
+                        last_price = float(str(item.get("lastPrice", "")).replace(",", "").strip())
+                        pct_change = float(str(item.get("pChange", "")).replace(",", "").replace("%", "").strip())
+                    except (TypeError, ValueError):
+                        continue
+                    if last_price > 0:
+                        movers.append({"STOCK": symbol, "CURRENT": last_price, "%CHANGE": pct_change})
+                movers.sort(key=lambda row: row["%CHANGE"], reverse=True)
+                if not movers:
+                    return [], f"NSE returned no usable live stock quotes for '{index_label}'."
+                return movers, ""
+            except Exception as exc:
+                last_error = str(exc)
+                if attempt == 0:
+                    _time.sleep(0.8)
+        return [], f"NSE request failed for '{index_label}': {last_error}"
     except Exception as exc:
-        return [], str(exc)
+        return [], f"NSE connection failed for '{index_label}': {exc}"
+
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -5147,7 +5180,14 @@ elif page == "Index File":
                             key="index_file_top_movers_grid",
                         )
                     elif len(eligible_indices):
-                        st.info("Live constituent movers are not available from NSE right now. The index table below is still available.")
+                        st.warning(
+                            "NSE did not return live constituent quotes for the selected indices. "
+                            "Check the details below; the main index table remains available."
+                        )
+                        for error_message in mover_errors:
+                            st.caption(error_message)
+                        if not mover_errors:
+                            st.caption("NSE returned no stock rows for the selected index names.")
                     else:
                         st.info("No indices meet the CURRENT > 10,000 condition.")
 
