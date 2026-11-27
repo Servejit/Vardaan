@@ -214,6 +214,9 @@ def fetch_nse_index_constituent_movers(index_name, sort_descending=True):
                 return {
                     "STOCK": symbol,
                     "CURRENT": price,
+                    "OPEN": meta.get("regularMarketOpen"),
+                    "HIGH": meta.get("regularMarketDayHigh"),
+                    "LOW": meta.get("regularMarketDayLow"),
                     "%CHANGE": ((price - previous) / previous) * 100,
                 }
             except Exception:
@@ -232,6 +235,9 @@ def fetch_nse_index_constituent_movers(index_name, sort_descending=True):
                         return {
                             "STOCK": symbol,
                             "CURRENT": price,
+                            "OPEN": fast.get("open"),
+                            "HIGH": fast.get("day_high"),
+                            "LOW": fast.get("day_low"),
                             "%CHANGE": ((price - previous) / previous) * 100,
                         }
             except Exception:
@@ -246,10 +252,14 @@ def fetch_nse_index_constituent_movers(index_name, sort_descending=True):
                 if len(closes) >= 2:
                     price = float(closes.iloc[-1])
                     previous = float(closes.iloc[-2])
+                    latest_row = history.loc[closes.index[-1]]
                     if price > 0 and previous > 0:
                         return {
                             "STOCK": symbol,
                             "CURRENT": price,
+                            "OPEN": latest_row.get("Open"),
+                            "HIGH": latest_row.get("High"),
+                            "LOW": latest_row.get("Low"),
                             "%CHANGE": ((price - previous) / previous) * 100,
                         }
             except Exception:
@@ -289,23 +299,28 @@ def fetch_nse_index_constituent_movers(index_name, sort_descending=True):
                     try:
                         if isinstance(batch.columns, pd.MultiIndex):
                             if (ticker, "Close") in batch.columns:
-                                closes = pd.to_numeric(batch[(ticker, "Close")], errors="coerce").dropna()
+                                stock_data = batch[ticker]
                             elif ("Close", ticker) in batch.columns:
-                                closes = pd.to_numeric(batch[("Close", ticker)], errors="coerce").dropna()
+                                stock_data = batch.xs(ticker, axis=1, level=1)
                             else:
                                 continue
                         elif len(missing_symbols) == 1 and "Close" in batch.columns:
-                            closes = pd.to_numeric(batch["Close"], errors="coerce").dropna()
+                            stock_data = batch
                         else:
                             continue
+                        closes = pd.to_numeric(stock_data["Close"], errors="coerce").dropna()
                         if len(closes) < 2:
                             continue
                         price = float(closes.iloc[-1])
                         previous = float(closes.iloc[-2])
+                        latest_row = stock_data.loc[closes.index[-1]]
                         if price > 0 and previous > 0:
                             quotes.append({
                                 "STOCK": symbol,
                                 "CURRENT": price,
+                                "OPEN": latest_row.get("Open"),
+                                "HIGH": latest_row.get("High"),
+                                "LOW": latest_row.get("Low"),
                                 "%CHANGE": ((price - previous) / previous) * 100,
                             })
                     except Exception:
@@ -5318,6 +5333,9 @@ elif page == "Index File":
                         "INDEX": selected_index_name,
                         "STOCK": mover["STOCK"],
                         "CURRENT": mover["CURRENT"],
+                        "OPEN": mover.get("OPEN"),
+                        "HIGH": mover.get("HIGH"),
+                        "LOW": mover.get("LOW"),
                         "%CHANGE": mover["%CHANGE"],
                     })
 
@@ -5328,6 +5346,9 @@ elif page == "Index File":
                 top_movers_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
                 top_movers_builder.configure_column("STOCK", width=125, minWidth=105)
                 top_movers_builder.configure_column("CURRENT", width=125, minWidth=105)
+                top_movers_builder.configure_column("OPEN", width=115, minWidth=100)
+                top_movers_builder.configure_column("HIGH", width=115, minWidth=100)
+                top_movers_builder.configure_column("LOW", width=115, minWidth=100)
                 top_movers_builder.configure_column("%CHANGE", width=120, minWidth=105)
                 top_movers_builder.configure_grid_options(
                     headerHeight=42, rowHeight=36, animateRows=False, suppressCellFocus=True,
@@ -5341,6 +5362,11 @@ elif page == "Index File":
                     "CURRENT",
                     valueFormatter=JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"),
                 )
+                for price_column in ["OPEN", "HIGH", "LOW"]:
+                    top_movers_builder.configure_column(
+                        price_column,
+                        valueFormatter=JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"),
+                    )
                 top_movers_builder.configure_column(
                     "%CHANGE",
                     valueFormatter=JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"),
@@ -5387,6 +5413,9 @@ elif page == "Index File":
                         "INDEX": selected_index_name,
                         "STOCK": mover["STOCK"],
                         "CURRENT": mover["CURRENT"],
+                        "OPEN": mover.get("OPEN"),
+                        "HIGH": mover.get("HIGH"),
+                        "LOW": mover.get("LOW"),
                         "%CHANGE": mover["%CHANGE"],
                     })
 
@@ -5399,6 +5428,9 @@ elif page == "Index File":
                 bottom_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
                 bottom_builder.configure_column("STOCK", width=125, minWidth=105)
                 bottom_builder.configure_column("CURRENT", width=125, minWidth=105)
+                bottom_builder.configure_column("OPEN", width=115, minWidth=100)
+                bottom_builder.configure_column("HIGH", width=115, minWidth=100)
+                bottom_builder.configure_column("LOW", width=115, minWidth=100)
                 bottom_builder.configure_column("%CHANGE", width=120, minWidth=105)
                 bottom_builder.configure_grid_options(
                     headerHeight=42,
@@ -5417,6 +5449,13 @@ elif page == "Index File":
                         "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
                     ),
                 )
+                for price_column in ["OPEN", "HIGH", "LOW"]:
+                    bottom_builder.configure_column(
+                        price_column,
+                        valueFormatter=JsCode(
+                            "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
+                        ),
+                    )
                 bottom_builder.configure_column(
                     "%CHANGE",
                     valueFormatter=JsCode(
