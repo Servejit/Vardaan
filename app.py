@@ -4909,6 +4909,54 @@ elif page == "Index File":
     [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) .stButton > button:hover {
         border-color:#C87959 !important; background:#EFC2AC !important;
     }
+    /* Index File-only peach styling for navigation areas */
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] {
+        background:linear-gradient(160deg,#FFF5EF 0%,#F7DFD2 100%) !important;
+        border-right:1px solid #E7BBA7 !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] [data-testid="stMarkdown"],
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] label,
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] p {
+        color:#654538 !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+        background:linear-gradient(135deg,#FFFCFA,#F5D4C3) !important;
+        border:1px solid #E2B39D !important;
+        border-radius:10px !important;
+        color:#57382C !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        background:#EFC2AC !important;
+        border-color:#C87959 !important;
+        box-shadow:inset 4px 0 0 #C87959 !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] .stButton > button,
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+        background:linear-gradient(135deg,#FFFCFA,#F2CDBA) !important;
+        border:1px solid #DDA58D !important;
+        color:#57382C !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stSidebar"] .stButton > button:hover {
+        background:#EFC2AC !important;
+        border-color:#C87959 !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav {
+        background:linear-gradient(135deg,#FFF8F4,#FCE9DF) !important;
+        border:1px solid #E9BFAE !important;
+        border-radius:14px !important;
+        padding:0.65rem !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {
+        background:linear-gradient(135deg,#FFFCFA,#F5D4C3) !important;
+        border:1px solid #E2B39D !important;
+        color:#57382C !important;
+        border-radius:10px !important;
+    }
+    body:has(.st-key-index-file-theme) [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        background:#EFC2AC !important;
+        border-color:#C87959 !important;
+        box-shadow:inset 0 3px 0 #C87959 !important;
+    }
     </style>
         """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
