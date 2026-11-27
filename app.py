@@ -2185,7 +2185,7 @@ def render_trstar_dashboard():
         <style>
         [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
         .block-container { padding-top: 3.5rem !important; }
-        h1 { position: relative; color: #F4C7AB !important; }
+        h1 { position: relative; color: #B7D7A8 !important; }
         h1::before {
             content: ""; position: absolute; left: 50%; top: 0;
             width: 76px; height: 52px;
@@ -2212,22 +2212,22 @@ def render_trstar_dashboard():
         <style>
         /* TR.Star peach theme: sidebar, action buttons and bottom dashboard navigation */
         [data-testid="stSidebar"] > div:first-child {
-            background: #FBE2D5 !important;
+            background: #DDEBCF !important;
         }
         [data-testid="stSidebar"] [data-testid="stRadio"] label,
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-            color: #5B4035 !important;
+            color: #365B3B !important;
         }
         [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
-            background: #F4C7AB !important;
+            background: #B7D7A8 !important;
             border-radius: 8px !important;
         }
         [data-testid="stSidebar"] button,
         [data-testid="stMain"] button,
         [data-testid="stBottom"] button,
         [data-testid="stFormSubmitButton"] button {
-            background: #F4C7AB !important;
-            color: #5B4035 !important;
+            background: #B7D7A8 !important;
+            color: #365B3B !important;
             border: 1px solid #E9B99D !important;
         }
         [data-testid="stSidebar"] button:hover,
@@ -2236,7 +2236,7 @@ def render_trstar_dashboard():
             color: #4A3026 !important;
         }
         [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label:has(input:checked) {
-            background: #F4C7AB !important;
+            background: #B7D7A8 !important;
             border-radius: 8px !important;
         }
         [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label,
@@ -2313,19 +2313,19 @@ def render_trstar_dashboard():
         table.style
         .set_table_styles([
             {"selector": "th", "props": [
-                ("background-color", "#F4C7AB"),
-                ("color", "#5B4035"),
+                ("background-color", "#B7D7A8"),
+                ("color", "#365B3B"),
                 ("font-weight", "700"),
-                ("border-bottom", "1px solid #E9C3AE"),
+                ("border-bottom", "1px solid #8FAF72"),
             ]},
             {"selector": "td", "props": [
-                ("color", "#5B4035"),
-                ("border-bottom", "1px solid #F0DED3"),
+                ("color", "#365B3B"),
+                ("border-bottom", "1px solid #C8DDB5"),
             ]},
         ])
         .apply(
             lambda row: [
-                "background-color: #FBE2D5" if row.name % 2 == 0
+                "background-color: #DDEBCF" if row.name % 2 == 0
                 else "background-color: #FFFFFF"
                 for _ in row
             ],
@@ -2334,7 +2334,7 @@ def render_trstar_dashboard():
     )
     st.markdown(
         "<style>[data-testid='stAppViewContainer'] .main .block-container {"
-        "background-color: #FBE2D5; border-radius: 12px;}</style>",
+        "background-color: #DDEBCF; border-radius: 12px;}</style>",
         unsafe_allow_html=True,
     )
     styled_table = styled_table.hide(axis="index")
@@ -2351,20 +2351,20 @@ def render_trstar_dashboard():
         .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .trstar-table-wrap thead th {
           position: relative;
-          background-color: #F4C7AB !important;
-          color: #5B4035 !important;
+          background-color: #B7D7A8 !important;
+          color: #365B3B !important;
           font-weight: 700 !important;
           padding: 10px 8px !important;
-          border-bottom: 2px solid #E9C3AE !important;
+          border-bottom: 2px solid #8FAF72 !important;
           text-align: left !important;
           white-space: nowrap;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
         .trstar-table-wrap tbody td {
-          color: #5B4035 !important;
+          color: #365B3B !important;
           padding: 8px !important;
-          border-bottom: 1px solid #F0DED3 !important;
+          border-bottom: 1px solid #C8DDB5 !important;
           white-space: nowrap;
         }
         .trstar-sort-menu {
@@ -2373,9 +2373,9 @@ def render_trstar_dashboard():
           display: none;
           min-width: 172px;
           padding: 5px;
-          border: 1px solid #E9C3AE;
+          border: 1px solid #8FAF72;
           border-radius: 8px;
-          background: #FFF8F3;
+          background: #F4F8EF;
           box-shadow: 0 4px 14px rgba(91,64,53,.18);
         }
         .trstar-sort-menu button {
@@ -2385,13 +2385,13 @@ def render_trstar_dashboard():
           border: 0;
           border-radius: 5px;
           background: transparent;
-          color: #5B4035;
+          color: #365B3B;
           text-align: left;
           font-size: 14px;
           cursor: pointer;
         }
         .trstar-sort-menu button:active,
-        .trstar-sort-menu button:hover { background: #F4C7AB; }
+        .trstar-sort-menu button:hover { background: #B7D7A8; }
       </style>
     </head>
     <body>
