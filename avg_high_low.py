@@ -349,7 +349,6 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     .ahl-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:0}.ahl-label{font-size:.66rem;font-weight:900;letter-spacing:1.1px;color:#F5C7E9}.ahl-value{font-size:1.25rem;line-height:1.25;font-weight:950;color:#FFF;margin-top:7px;white-space:nowrap}.ahl-target{color:#FDE68A}.ahl-section{font-size:13px;font-weight:950;letter-spacing:1.2px;color:#8A246D;margin:18px 0 9px}
     @media(max-width:560px){.ahl-card{min-height:240px;padding:23px 20px 22px;border-radius:21px}.ahl-value{font-size:1.15rem}.ahl-symbol{font-size:1.55rem}}
     </style>""", unsafe_allow_html=True)
-    st.title("6thSense-Vardaan")
 
 
     now = datetime.now(ZoneInfo("Asia/Kolkata"))
