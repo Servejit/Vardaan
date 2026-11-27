@@ -4960,33 +4960,113 @@ elif page == "Index File":
     </style>
         """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
-        st.caption("Upload and inspect an index constituents or market-index spreadsheet. The uploaded file is kept in this browser session.")
-        index_upload = st.file_uploader("Choose an Index file", type=["xlsx", "csv"], key="index_file_dashboard_upload")
+        st.caption("Upload an NSE index CSV or Excel file. The dashboard calculates H2L% and L2H% for every index.")
+
+        index_upload = st.file_uploader(
+            "Choose an Index file",
+            type=["xlsx", "csv"],
+            key="index_file_dashboard_upload"
+        )
+
         if index_upload is not None:
             try:
                 if index_upload.name.lower().endswith(".csv"):
-                    index_frame = pd.read_csv(io.BytesIO(index_upload.getvalue()))
+                    source_frame = pd.read_csv(io.BytesIO(index_upload.getvalue()))
                 else:
-                    index_frame = pd.read_excel(io.BytesIO(index_upload.getvalue()))
+                    source_frame = pd.read_excel(io.BytesIO(index_upload.getvalue()))
+
                 st.session_state["index_file_bytes"] = index_upload.getvalue()
                 st.session_state["index_file_name"] = index_upload.name
-                st.success(f"Loaded: {index_upload.name}")
-                metrics = st.columns(3)
-                metrics[0].metric("Rows", f"{len(index_frame):,}")
-                metrics[1].metric("Columns", f"{len(index_frame.columns):,}")
-                metrics[2].metric("Format", "CSV" if index_upload.name.lower().endswith(".csv") else "Excel")
-                search_text = st.text_input("Search rows", placeholder="Enter index or stock name", key="index_file_search")
-                if search_text.strip():
-                    matches = index_frame.astype(str).apply(lambda col: col.str.contains(search_text.strip(), case=False, na=False))
-                    index_frame = index_frame[matches.any(axis=1)]
-                st.dataframe(index_frame, use_container_width=True, hide_index=True)
-                st.download_button("Download displayed rows as CSV", data=index_frame.to_csv(index=False).encode("utf-8"), file_name="index_file_view.csv", mime="text/csv", use_container_width=True, key="index_file_download_csv")
+
+                # Normalize NSE headings such as "CURRENT \\n" and "HIGH \\n".
+                source_frame.columns = [
+                    " ".join(str(column).replace("\\n", " ").split()).strip().upper()
+                    for column in source_frame.columns
+                ]
+
+                required_columns = ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]
+                missing_columns = [column for column in required_columns if column not in source_frame.columns]
+
+                if missing_columns:
+                    st.warning(
+                        "H2L% / L2H% table needs these source columns: "
+                        + ", ".join(missing_columns)
+                    )
+                    st.dataframe(source_frame, use_container_width=True, hide_index=True)
+                else:
+                    index_table = source_frame[required_columns].copy()
+
+                    # Convert comma-separated NSE prices into numeric values safely.
+                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
+                        index_table[column] = pd.to_numeric(
+                            index_table[column].astype(str)
+                            .str.replace(",", "", regex=False)
+                            .str.replace("%", "", regex=False)
+                            .str.strip(),
+                            errors="coerce"
+                        )
+
+                    high_values = index_table["HIGH"].where(index_table["HIGH"] != 0)
+                    low_values = index_table["LOW"].where(index_table["LOW"] != 0)
+
+                    index_table["H2L%"] = (
+                        (index_table["CURRENT"] - index_table["HIGH"]) / high_values
+                    ) * 100
+                    index_table["L2H%"] = (
+                        (index_table["CURRENT"] - index_table["LOW"]) / low_values
+                    ) * 100
+
+                    # Keep the agreed column order and show two decimal places.
+                    index_table = index_table[
+                        ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]
+                    ]
+
+                    metrics = st.columns(3)
+                    metrics[0].metric("Total Indices", f"{len(index_table):,}")
+                    metrics[1].metric("Source", "CSV" if index_upload.name.lower().endswith(".csv") else "Excel")
+                    metrics[2].metric("Calculated Columns", "H2L% + L2H%")
+
+                    search_text = st.text_input(
+                        "Search index",
+                        placeholder="Enter index name",
+                        key="index_file_search"
+                    )
+                    displayed_table = index_table
+                    if search_text.strip():
+                        displayed_table = index_table[
+                            index_table["INDEX"].astype(str).str.contains(
+                                search_text.strip(), case=False, na=False
+                            )
+                        ]
+
+                    formatted_table = displayed_table.copy()
+                    for column in ["H2L%", "L2H%"]:
+                        formatted_table[column] = formatted_table[column].map(
+                            lambda value: f"{value:.2f}%" if pd.notna(value) else "—"
+                        )
+
+                    st.dataframe(
+                        formatted_table,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                    st.download_button(
+                        "Download H2L% / L2H% table as CSV",
+                        data=displayed_table.to_csv(index=False, float_format="%.2f").encode("utf-8"),
+                        file_name="index_h2l_l2h_table.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                        key="index_file_download_csv"
+                    )
             except Exception as index_error:
                 st.error(f"Could not read this Index file: {index_error}")
         elif st.session_state.get("index_file_bytes") and st.session_state.get("index_file_name"):
-            st.info(f"Index file uploaded in this session: {st.session_state['index_file_name']}. Select it again above to display.")
+            st.info(
+                f"Index file uploaded in this session: {st.session_state['index_file_name']}. "
+                "Select it again above to display the calculated table."
+            )
         else:
-            st.info("Upload an .xlsx or .csv file to view index names, constituents, and data columns.")
+            st.info("Upload an .xlsx or .csv file containing INDEX, CURRENT, %CHANGE, OPEN, HIGH and LOW columns to build the H2L% / L2H% table.")
 
 elif page == "Master Excel":
 
