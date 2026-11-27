@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -2337,32 +2338,160 @@ def render_trstar_dashboard():
         unsafe_allow_html=True,
     )
     styled_table = styled_table.hide(axis="index")
-    st.markdown(
-        """
-        <style>
-        .trstar-table-wrap {width: 100%; overflow-x: auto; border-radius: 8px;}
-        .trstar-table-wrap table {width: 100%; border-collapse: collapse; font-size: 14px;}
+    # Keep the original peach table appearance and provide explicit
+    # ascending/descending choices from each column heading.
+    sortable_table_html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <style>
+        html, body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
+        .trstar-table-wrap { width: 100%; overflow-x: auto; border-radius: 8px; }
+        .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .trstar-table-wrap thead th {
-            background-color: #F4C7AB !important;
-            color: #5B4035 !important;
-            font-weight: 700 !important;
-            padding: 10px 8px !important;
-            border-bottom: 2px solid #E9C3AE !important;
-            text-align: left !important;
+          position: relative;
+          background-color: #F4C7AB !important;
+          color: #5B4035 !important;
+          font-weight: 700 !important;
+          padding: 10px 8px !important;
+          border-bottom: 2px solid #E9C3AE !important;
+          text-align: left !important;
+          white-space: nowrap;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
         }
         .trstar-table-wrap tbody td {
-            color: #5B4035 !important;
-            padding: 8px !important;
-            border-bottom: 1px solid #F0DED3 !important;
-            white-space: nowrap;
+          color: #5B4035 !important;
+          padding: 8px !important;
+          border-bottom: 1px solid #F0DED3 !important;
+          white-space: nowrap;
         }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="trstar-table-wrap">{styled_table.to_html()}</div>',
-        unsafe_allow_html=True,
+        .trstar-sort-menu {
+          position: fixed;
+          z-index: 99999;
+          display: none;
+          min-width: 172px;
+          padding: 5px;
+          border: 1px solid #E9C3AE;
+          border-radius: 8px;
+          background: #FFF8F3;
+          box-shadow: 0 4px 14px rgba(91,64,53,.18);
+        }
+        .trstar-sort-menu button {
+          display: block;
+          width: 100%;
+          padding: 10px 12px;
+          border: 0;
+          border-radius: 5px;
+          background: transparent;
+          color: #5B4035;
+          text-align: left;
+          font-size: 14px;
+          cursor: pointer;
+        }
+        .trstar-sort-menu button:active,
+        .trstar-sort-menu button:hover { background: #F4C7AB; }
+      </style>
+    </head>
+    <body>
+      <div class="trstar-table-wrap">__TRSTAR_TABLE__</div>
+      <div class="trstar-sort-menu" id="trstar-sort-menu">
+        <button type="button" data-direction="asc" id="trstar-ascending">A to Z</button>
+        <button type="button" data-direction="desc" id="trstar-descending">Z to A</button>
+      </div>
+      <script>
+        (() => {
+          const table = document.querySelector(".trstar-table-wrap table");
+          const menu = document.getElementById("trstar-sort-menu");
+          if (!table || !table.tHead || !table.tBodies.length || !menu) return;
+          const headers = Array.from(table.tHead.rows[0].cells);
+          const tbody = table.tBodies[0];
+          let activeColumn = -1;
+          let activeHeader = null;
+
+          function isStockColumn(index) {
+            return headers[index].innerText.trim().toLowerCase() === "stock";
+          }
+          function numericValue(value) {
+            const cleaned = value.trim().replace(/[₹,%+\\s,]/g, "").replace(/[−]/g, "-");
+            if (!cleaned || cleaned === "—" || cleaned === "-") return null;
+            const number = Number(cleaned);
+            return Number.isFinite(number) ? number : null;
+          }
+          function closeMenu() {
+            menu.style.display = "none";
+            activeColumn = -1;
+            activeHeader = null;
+          }
+          function openMenu(header, columnIndex) {
+            activeHeader = header;
+            activeColumn = columnIndex;
+            const rect = header.getBoundingClientRect();
+            menu.style.display = "block";
+            const menuWidth = 180;
+            const left = Math.max(6, Math.min(rect.left, window.innerWidth - menuWidth - 6));
+            menu.style.left = left + "px";
+            menu.style.top = Math.min(rect.bottom + 4, window.innerHeight - 92) + "px";
+            const ascending = document.getElementById("trstar-ascending");
+            const descending = document.getElementById("trstar-descending");
+            if (isStockColumn(columnIndex)) {
+              ascending.innerText = "A to Z";
+              descending.innerText = "Z to A";
+            } else {
+              ascending.innerText = "Low to High";
+              descending.innerText = "High to Low";
+            }
+          }
+          function sortRows(columnIndex, direction) {
+            const rows = Array.from(tbody.rows);
+            rows.sort((rowA, rowB) => {
+              const aText = rowA.cells[columnIndex].innerText.trim();
+              const bText = rowB.cells[columnIndex].innerText.trim();
+              if (isStockColumn(columnIndex)) {
+                return aText.localeCompare(bText, undefined, {numeric: true, sensitivity: "base"}) *
+                  (direction === "asc" ? 1 : -1);
+              }
+              const aNumber = numericValue(aText);
+              const bNumber = numericValue(bText);
+              const aMissing = aNumber === null;
+              const bMissing = bNumber === null;
+              if (aMissing && bMissing) return 0;
+              if (aMissing) return 1;
+              if (bMissing) return -1;
+              return (aNumber - bNumber) * (direction === "asc" ? 1 : -1);
+            });
+            rows.forEach(row => tbody.appendChild(row));
+          }
+
+          headers.forEach((header, index) => {
+            header.setAttribute("title", "Tap to choose sorting");
+            header.addEventListener("click", event => {
+              event.stopPropagation();
+              openMenu(header, index);
+            });
+          });
+          menu.querySelectorAll("button").forEach(button => {
+            button.addEventListener("click", event => {
+              event.stopPropagation();
+              if (activeColumn >= 0) sortRows(activeColumn, button.dataset.direction);
+              closeMenu();
+            });
+          });
+          document.addEventListener("click", event => {
+            if (!menu.contains(event.target)) closeMenu();
+          });
+          window.addEventListener("resize", closeMenu);
+          window.addEventListener("scroll", closeMenu, true);
+        })();
+      </script>
+    </body>
+    </html>
+    """.replace("__TRSTAR_TABLE__", styled_table.hide(axis="index").to_html())
+    components.html(
+        sortable_table_html,
+        height=min(max(150, len(table) * 38 + 65), 650),
+        scrolling=True,
     )
 
 def get_index_toppers_master_values(symbols):
