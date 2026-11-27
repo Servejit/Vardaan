@@ -5074,9 +5074,7 @@ elif page == "Index File":
                         }, na_rep="—")
                         .apply(
                             lambda row: [
-                                "background-color: #FFFFFF; color: #54382F; font-weight: 700;"
-                                if row.name % 2 == 0
-                                else "background-color: #FCE1D4; color: #54382F; font-weight: 700;"
+                                "background-color: #FCE1D4 !important; color: #54382F; font-weight: 700;"
                                 for _ in row
                             ],
                             axis=1
@@ -5122,6 +5120,12 @@ elif page == "Index File":
                             color: #54382F !important;
                             font-weight: 800 !important;
                             border: 1px solid #D79B7E !important;
+                        }
+                        div[data-testid="stDataFrame"] tbody td,
+                        .stDataFrame tbody td {
+                            background-color: #FCE1D4 !important;
+                            color: #54382F !important;
+                            font-weight: 700 !important;
                         }
                         </style>
                         """,
