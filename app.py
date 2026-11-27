@@ -2888,7 +2888,7 @@ def render_index_toppers_dashboard():
                 <div class="index-topper-symbol">{html.escape(top_choice["Stock Name"])}</div>
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
-              <div style="font-size:11px;color:#D4D5D9;margin-top:8px;letter-spacing:.8px;">
+              <div style="font-size:11px;color:#365B3B;margin-top:8px;letter-spacing:.8px;">
                 {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>
