@@ -950,3 +950,88 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         }
         </style>
         """, unsafe_allow_html=True)
+
+    # AutoGreen-style heading flower and sidebar shell, retaining the Pistachio palette.
+    st.markdown("""
+    <style>
+    [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
+    .block-container { padding-top: 3.5rem !important; }
+    html body .stApp h1 {
+      position:relative!important;
+      color:#658B4E!important;
+      text-align:center!important;
+      font-weight:950!important;
+      letter-spacing:.5px!important;
+      margin-top:10px!important;
+      padding-top:20px!important;
+    }
+    html body .stApp h1::before {
+      content:"";position:absolute;left:50%;top:0;width:76px;height:52px;
+      transform:translate(-50%,-50%);z-index:2;pointer-events:none;
+      background:linear-gradient(110deg,#658B4E 0%,#8FAF72 30%,rgba(255,255,255,.96) 48%,#8FAF72 66%,#658B4E 100%);
+      background-size:300% 300%;animation:ahlAutoGreenFlowerShimmer 4.2s linear infinite;
+      -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat;
+      mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
+    @keyframes ahlAutoGreenFlowerShimmer {
+      0%{background-position:0% 50%;filter:brightness(1)}
+      50%{background-position:100% 50%;filter:brightness(1.12)}
+      100%{background-position:0% 50%;filter:brightness(1)}
+    }
+    /* Same layered, soft-gradient sidebar treatment as AutoGreen, in Pistachio. */
+    html body .stApp [data-testid="stSidebar"],
+    html body .stApp section[data-testid="stSidebar"] {
+      background:linear-gradient(180deg,#DDEBCF 0%,#F4F8EF 48%,#FBFDF7 100%)!important;
+      border-right:1.5px solid #8FAF72!important;
+      box-shadow:inset -8px 0 24px rgba(54,91,59,.08)!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    html body .stApp [data-testid="stSidebar"] label,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+    html body .stApp [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+      color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {
+      border-color:#8FAF72!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {
+      border-color:#C8DDB5!important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 100%)!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+      border:1px solid #C8DDB5!important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 100%)!important;
+      box-shadow:0 2px 8px rgba(54,91,59,.08)!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+      border:1.5px solid #658B4E!important;
+      background:linear-gradient(110deg,#DDEBCF 0%,#F4F8EF 100%)!important;
+      box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.12)!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
+      color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-baseweb="select"]>div,
+    html body .stApp [data-testid="stSidebar"] input,
+    html body .stApp [data-testid="stSidebar"] textarea {
+      background:#FBFDF7!important;border-color:#C8DDB5!important;color:#365B3B!important;
+    }
+    html body .stApp [data-testid="stSidebar"] .stButton>button,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+    html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
+    html body .stApp [data-testid="stSidebar"] button[kind] {
+      border:1.5px solid #8FAF72!important;color:#365B3B!important;
+      -webkit-text-fill-color:#365B3B!important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 100%)!important;
+      border-radius:10px!important;font-weight:850!important;
+    }
+    html body .stApp [data-testid="stSidebar"] .stButton>button:hover,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+    html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"]:hover,
+    html body .stApp [data-testid="stSidebar"] button[kind]:hover {
+      border-color:#658B4E!important;background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%)!important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
