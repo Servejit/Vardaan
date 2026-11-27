@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
-from avg_high_low import render_avg_high_low_dashboard
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
 from supabase import create_client, ClientOptions
@@ -4697,9 +4696,9 @@ if st.session_state.user is None:
                 )
                 # Start each fresh login on AutoGreen, with both navigation
                 # controls visibly selecting the same dashboard.
-                st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
-                st.session_state["sidebar_dashboard_nav_v1"] = "AutoGreen"
-                st.session_state["bottom_dashboard_nav_v1"] = "AutoGreen"
+                st.session_state["main_dashboard_default_index_v2"] = "Index Toppers"
+                st.session_state["sidebar_dashboard_nav_v1"] = "Index Toppers"
+                st.session_state["bottom_dashboard_nav_v1"] = "Index Toppers"
                 st.session_state.session_login_started_at = time.time()
                 st.session_state.pop("session_expired_notice", None)
 
@@ -5001,20 +5000,20 @@ with st.sidebar:
     # the earlier default logic, and both visible selectors start in sync.
     dashboard_default_initialized_key = f"_dashboard_default_initialized_v3_{user.id}"
     if not st.session_state.get(dashboard_default_initialized_key):
-        st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
-        st.session_state["sidebar_dashboard_nav_v1"] = "AutoGreen"
-        st.session_state["bottom_dashboard_nav_v1"] = "AutoGreen"
+        st.session_state["main_dashboard_default_index_v2"] = "Index Toppers"
+        st.session_state["sidebar_dashboard_nav_v1"] = "Index Toppers"
+        st.session_state["bottom_dashboard_nav_v1"] = "Index Toppers"
         st.session_state[dashboard_default_initialized_key] = True
 
     # Recover safely if a selector key is missing without changing an existing choice.
     if "sidebar_dashboard_nav_v1" not in st.session_state:
         st.session_state["sidebar_dashboard_nav_v1"] = st.session_state.get(
-            "main_dashboard_default_index_v2", "AutoGreen"
+            "main_dashboard_default_index_v2", "Index Toppers"
         )
 
     if "bottom_dashboard_nav_v1" not in st.session_state:
         st.session_state["bottom_dashboard_nav_v1"] = st.session_state.get(
-            "main_dashboard_default_index_v2", "AutoGreen"
+            "main_dashboard_default_index_v2", "Index Toppers"
         )
 
     def sync_sidebar_dashboard_to_main():
@@ -5029,12 +5028,9 @@ with st.sidebar:
 
     st.radio(
         "Sidebar dashboard navigation",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "TR.Star", "Master Excel"],
+        ["Index Toppers", "TR.Star", "Master Excel"],
         format_func=lambda item: {
-            "AutoGreen": "🌿  AutoGreen",
-            "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
-            "Avg.High Low": "📈  Avg.High Low",
             "TR.Star": "⭐  TR.Star",
             "Master Excel": "📊  Master Excel",
         }[item],
@@ -5052,51 +5048,12 @@ with st.sidebar:
     ):
         logout()
 
-page = st.session_state.get("main_dashboard_default_index_v2", "AutoGreen")
+page = st.session_state.get("main_dashboard_default_index_v2", "Index Toppers")
 
-if page == "AutoGreen":
-    # Refresh the AutoGreen market data automatically during NSE trading hours.
-    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    market_open = (
-        market_now.weekday() < 5
-        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
-        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
-    )
-    if market_open:
-        st_autorefresh(
-            interval=15_000,
-            limit=None,
-            key="autogreen_live_market_refresh",
-        )
-    render_autogreen_dashboard()
-
-elif page == "Stock of the Day":
-    # Refresh live Stock of the Day prices and target status during NSE market hours.
-    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
-    market_open = (
-        market_now.weekday() < 5
-        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
-        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
-    )
-    # Refresh often during market hours and every minute outside market
-    # hours so the 5 PM / 9 AM Stock of the Day mode switch happens automatically.
-    st_autorefresh(
-        interval=15_000 if market_open else 60_000,
-        limit=None,
-        key="stock_of_the_day_live_market_refresh",
-    )
-    render_stock_of_the_day()
-
-
+if page == "Index Toppers":
 elif page == "Index Toppers":
     render_index_toppers_dashboard()
 
-elif page == "Avg.High Low":
-    try:
-        _avg_high_low_master = get_autogreen_master_bytes()
-    except Exception:
-        _avg_high_low_master = None
-    render_avg_high_low_dashboard(_avg_high_low_master, app_name="VARDAAN")
 
 elif page == "TR.Star":
     render_trstar_dashboard()
@@ -5826,12 +5783,12 @@ elif page == "Master Excel":
 
 else:
     # Never show Master Excel for an unknown/stale navigation value.
-    st.session_state["main_dashboard_default_index_v2"] = "AutoGreen"
+    st.session_state["main_dashboard_default_index_v2"] = "Index Toppers"
     render_autogreen_dashboard()
 
 
 # Matching dashboard shortcuts: same dimensions and states as sidebar navigation.
-_bottom_nav_page = st.session_state.get("main_dashboard_default_index_v2", "AutoGreen")
+_bottom_nav_page = st.session_state.get("main_dashboard_default_index_v2", "Index Toppers")
 _master_excel_ice_blue_theme = {
     "deep": "#123B5D",
     "primary": "#17658B",
@@ -5932,36 +5889,6 @@ st.markdown(
 )
 
 
-# AutoGreen keeps its original green navigation palette; TR.Star remains peach.
-if _bottom_nav_page == "AutoGreen":
-    st.markdown(
-        f"""
-        <style>
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
-            background:linear-gradient(110deg,{_bottom_nav_theme["canvas"]} 0%,{_bottom_nav_theme["tint"]} 100%) !important;
-            border:1px solid {_bottom_nav_theme["border"]} !important;
-            box-shadow:0 2px 8px rgba(54,91,59,.12) !important;
-            color:{_bottom_nav_theme["accent_text"]} !important;
-        }}
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:hover {{
-            background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
-            border-color:{_bottom_nav_theme["accent"]} !important;
-        }}
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-            background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
-            border:1.5px solid {_bottom_nav_theme["accent"]} !important;
-            box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px rgba(54,91,59,.16) !important;
-        }}
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,
-        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label * {{
-            color:{_bottom_nav_theme["accent_text"]} !important;
-            -webkit-text-fill-color:{_bottom_nav_theme["accent_text"]} !important;
-        }}
-        .vardaan-bottom-nav-label {{ color:{_bottom_nav_theme["soft_text"]} !important; }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 with st.container(key="vardaan-bottom-nav"):
     st.markdown(
@@ -5970,12 +5897,9 @@ with st.container(key="vardaan-bottom-nav"):
     )
     st.radio(
         "Dashboard shortcuts",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "TR.Star", "Master Excel"],
+        ["Index Toppers", "TR.Star", "Master Excel"],
         format_func=lambda item: {
-            "AutoGreen": "🌿  AutoGreen",
-            "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
-            "Avg.High Low": "📈  Avg.High Low",
             "TR.Star": "⭐  TR.Star",
             "Master Excel": "📊  Master Excel",
         }[item],
