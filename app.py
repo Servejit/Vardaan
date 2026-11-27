@@ -5953,6 +5953,60 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+st.markdown(
+    """
+    <style>
+    /* Match sidebar dashboard shortcuts and action buttons to the peach bottom navigation. */
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+        background:linear-gradient(110deg,#FFF8F3 0%,#FBE2D5 100%) !important;
+        background-color:#FBE2D5 !important;
+        border:1px solid #E9C3AE !important;
+        border-radius:11px !important;
+        color:#5B4035 !important;
+        box-shadow:0 2px 8px rgba(190,120,85,.14) !important;
+        transition:all 150ms ease !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        background:linear-gradient(110deg,#F4C7AB 0%,#EFAF91 100%) !important;
+        background-color:#F4C7AB !important;
+        border:1.5px solid #D99572 !important;
+        box-shadow:inset 4px 0 0 #D99572,0 3px 10px rgba(190,120,85,.20) !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+        background:linear-gradient(110deg,#FBE2D5 0%,#F4C7AB 100%) !important;
+        border-color:#D99572 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label * {
+        color:#5B4035 !important;
+        -webkit-text-fill-color:#5B4035 !important;
+    }
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+    [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
+        background:linear-gradient(110deg,#FFF8F3 0%,#FBE2D5 45%,#F4C7AB 100%) !important;
+        background-color:#FBE2D5 !important;
+        color:#5B4035 !important;
+        -webkit-text-fill-color:#5B4035 !important;
+        border:1px solid #E9C3AE !important;
+        border-radius:11px !important;
+        font-weight:750 !important;
+        box-shadow:0 3px 10px rgba(190,120,85,.16) !important;
+        transition:all 150ms ease !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+    [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
+        background:linear-gradient(110deg,#FBE2D5 0%,#F4C7AB 50%,#EFAF91 100%) !important;
+        border-color:#D99572 !important;
+        color:#4A3026 !important;
+        -webkit-text-fill-color:#4A3026 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 with st.container(key="vardaan-bottom-nav"):
     st.markdown(
         '<div class="vardaan-bottom-nav-label">DASHBOARDS</div>',
