@@ -5077,16 +5077,16 @@ elif page == "Index File":
                             {
                                 "selector": "td",
                                 "props": [
-                                    ("background-color", "#FFF1E9"),
+                                    ("background-color", "#FCE1D4"),
                                     ("color", "#54382F"),
-                                    ("font-weight", "600"),
+                                    ("font-weight", "700"),
                                     ("border-bottom", "1px solid #E7BBA7"),
                                     ("padding", "9px 12px"),
                                 ],
                             },
                             {
                                 "selector": "tbody tr:nth-child(even) td",
-                                "props": [("background-color", "#FCE1D4")],
+                                "props": [("background-color", "#F5D8C9")],
                             },
                             {
                                 "selector": "table",
