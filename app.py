@@ -1949,7 +1949,8 @@ def get_autogreen_live_prices(symbols):
         empty = {
             "price": None, "open": None, "high": None, "low": None,
             "previous_close": None, "change_pct": None,
-            "tr_t": None, "tr_y": None, "tr_py": None
+            "tr_t": None, "tr_y": None, "tr_py": None,
+            "tr7": None, "tr20": None
         }
         try:
             ticker = yf.Ticker(f"{symbol}.NS")
@@ -1989,8 +1990,9 @@ def get_autogreen_live_prices(symbols):
             open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
             low = _autogreen_number(lows.min()) if len(lows) else None
 
+            # Three months of daily candles provide enough sessions for TR20.
             daily = ticker.history(
-                period="5d", interval="1d", auto_adjust=False,
+                period="3mo", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
             # Keep today's OHLC internally consistent: prefer all four values
@@ -2022,8 +2024,23 @@ def get_autogreen_live_prices(symbols):
             tr_t = _tr_percent(high, low)
             tr_y = None
             tr_py = None
+            tr7 = None
+            tr20 = None
             if daily is not None and not daily.empty and {"High", "Low"}.issubset(daily.columns):
-                daily_sessions = daily.dropna(subset=["High", "Low"]).sort_index()
+                daily_sessions = daily.dropna(subset=["High", "Low"]).sort_index().copy()
+
+                # Use the current live session's latest High/Low in the averages.
+                current_rows = [
+                    session_date == latest_session_date
+                    for session_date in daily_sessions.index.date
+                ]
+                if any(current_rows):
+                    current_index = daily_sessions.index[current_rows][-1]
+                    if high is not None and high > 0:
+                        daily_sessions.loc[current_index, "High"] = high
+                    if low is not None and low > 0:
+                        daily_sessions.loc[current_index, "Low"] = low
+
                 prior_sessions = daily_sessions[
                     [session_date < latest_session_date for session_date in daily_sessions.index.date]
                 ]
@@ -2033,6 +2050,17 @@ def get_autogreen_live_prices(symbols):
                 if len(prior_sessions) >= 2:
                     prior_prior = prior_sessions.iloc[-2]
                     tr_py = _tr_percent(prior_prior.get("High"), prior_prior.get("Low"))
+
+                # Average the individual daily TR values across the latest 7/20 sessions.
+                session_tr_values = [
+                    _tr_percent(row.get("High"), row.get("Low"))
+                    for _, row in daily_sessions.iterrows()
+                ]
+                valid_tr_values = [value for value in session_tr_values if value is not None]
+                if len(valid_tr_values) >= 7:
+                    tr7 = sum(valid_tr_values[-7:]) / 7
+                if len(valid_tr_values) >= 20:
+                    tr20 = sum(valid_tr_values[-20:]) / 20
 
             daily_closes = (
                 daily["Close"].dropna()
@@ -2062,7 +2090,8 @@ def get_autogreen_live_prices(symbols):
             return symbol, {
                 "price": price, "open": open_price, "high": high, "low": low,
                 "previous_close": previous_close, "change_pct": change_pct,
-                "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py
+                "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py,
+                "tr7": tr7, "tr20": tr20
             }
         except Exception:
             return symbol, empty
@@ -2274,9 +2303,11 @@ def render_trstar_dashboard():
             "TR.t": display_price(quote.get("tr_t")),
             "TR.y": display_price(quote.get("tr_y")),
             "TR.py": display_price(quote.get("tr_py")),
+            "TR7": display_price(quote.get("tr7")),
+            "TR20": display_price(quote.get("tr20")),
         })
 
-    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py"])
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20"])
     styled_table = (
         table.style
         .set_table_styles([
