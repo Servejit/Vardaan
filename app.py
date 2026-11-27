@@ -3804,20 +3804,6 @@ def render_autogreen_dashboard():
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    with st.expander("MORE DASHBOARD", expanded=False):
-
-        st.subheader("Qualified AutoGreen Stocks")
-        if base_rows:
-            if qualified_detail_error:
-                st.warning(f"Qualified-stock details could not be loaded: {qualified_detail_error}")
-            elif qualified_detail_rows:
-                render_qualified_stock_table(qualified_detail_rows, metric_ink, metric_accent_text, metric_tint)
-            else:
-                st.caption("No qualified-stock details are available.")
-        else:
-            st.caption("No stocks passed both volume-expansion conditions.")
-
-
 def get_qualified_stock_detail_rows(base_rows, master_bytes):
     """Build the lean qualified-stock view from AutoGreen and Master workbook columns."""
     if not base_rows:
