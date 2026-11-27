@@ -2132,7 +2132,7 @@ def render_trstar_dashboard():
         <style>
         [data-testid="stMainBlockContainer"] { padding-top: 3.5rem !important; }
         .block-container { padding-top: 3.5rem !important; }
-        h1 { position: relative; }
+        h1 { position: relative; color: #F4C7AB !important; }
         h1::before {
             content: ""; position: absolute; left: 50%; top: 0;
             width: 76px; height: 52px;
