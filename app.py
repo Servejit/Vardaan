@@ -5073,7 +5073,7 @@ elif page == "Index File":
                         minWidth=95,
                     )
                     # Balanced widths: readable without making the table excessively wide.
-                    grid_builder.configure_column("INDEX", minWidth=140, width=170)
+                    grid_builder.configure_column("INDEX", minWidth=140, width=170, wrapText=True, autoHeight=True, tooltipField="INDEX")
                     for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]:
                         grid_builder.configure_column(column, minWidth=95, width=110)
                     grid_builder.configure_grid_options(
