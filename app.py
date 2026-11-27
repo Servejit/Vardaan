@@ -5014,6 +5014,11 @@ with st.sidebar:
             "main_dashboard_default_index_v2", "Index Toppers"
         )
 
+    allowed_dashboards = {"Index Toppers", "TR.Star", "Master Excel"}
+    for nav_key in ("main_dashboard_default_index_v2", "sidebar_dashboard_nav_v1", "bottom_dashboard_nav_v1"):
+        if st.session_state.get(nav_key) not in allowed_dashboards:
+            st.session_state[nav_key] = "Index Toppers"
+
     def sync_sidebar_dashboard_to_main():
         selected_dashboard = st.session_state["sidebar_dashboard_nav_v1"]
         st.session_state["main_dashboard_default_index_v2"] = selected_dashboard
