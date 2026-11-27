@@ -5049,7 +5049,6 @@ with st.sidebar:
 page = st.session_state.get("main_dashboard_default_index_v2", "Index Toppers")
 
 if page == "Index Toppers":
-elif page == "Index Toppers":
     render_index_toppers_dashboard()
 
 
