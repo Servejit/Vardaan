@@ -1035,3 +1035,89 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
     }
     </style>
     """, unsafe_allow_html=True)
+
+    # Exact AutoGreen sidebar selector/layout treatment, recoloured to the dashboard's Pistachio theme.
+    st.markdown("""
+    <style>
+    html body .stApp [data-testid="stSidebar"],
+    html body .stApp section[data-testid="stSidebar"] {
+      background:linear-gradient(180deg,#DDEBCF 0%,#F4F8EF 48%,#FBFDF7 100%) !important;
+      border-right:1.5px solid #8FAF72 !important;
+      box-shadow:inset -8px 0 24px rgba(54,91,59,.08) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+    html body .stApp [data-testid="stSidebar"] label,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+      color:#365B3B !important;
+      -webkit-text-fill-color:#365B3B !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"] {
+      border-color:#8FAF72 !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"] {
+      border-color:#C8DDB5 !important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 100%) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="font-size:1.35rem"] {
+      color:#658B4E !important;
+      -webkit-text-fill-color:#658B4E !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+      border:1px solid #C8DDB5 !important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 100%) !important;
+      box-shadow:0 2px 8px rgba(54,91,59,.08) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+      border-color:#658B4E !important;
+      background:linear-gradient(110deg,#DDEBCF 0%,#FBFDF7 100%) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+      border:1.5px solid #658B4E !important;
+      background:linear-gradient(110deg,#DDEBCF 0%,#F4F8EF 100%) !important;
+      box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.12) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p {
+      color:#365B3B !important;
+      -webkit-text-fill-color:#365B3B !important;
+      font-weight:750 !important;
+    }
+    html body .stApp [data-testid="stSidebar"] [data-baseweb="select"]>div,
+    html body .stApp [data-testid="stSidebar"] [data-baseweb="select"] [role="combobox"],
+    html body .stApp [data-testid="stSidebar"] input,
+    html body .stApp [data-testid="stSidebar"] textarea {
+      background:#FBFDF7 !important;
+      border:1.5px solid #C8DDB5 !important;
+      color:#365B3B !important;
+      -webkit-text-fill-color:#365B3B !important;
+    }
+    html body .stApp [data-testid="stSidebar"] .stButton > button,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+    html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"],
+    html body .stApp [data-testid="stSidebar"] button[kind] {
+      min-height:2.75rem !important;
+      border:1.5px solid #8FAF72 !important;
+      border-radius:11px !important;
+      font-weight:850 !important;
+      letter-spacing:.01em !important;
+      color:#365B3B !important;
+      -webkit-text-fill-color:#365B3B !important;
+      background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 100%) !important;
+      box-shadow:0 3px 9px rgba(54,91,59,.10) !important;
+    }
+    html body .stApp [data-testid="stSidebar"] .stButton > button *,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button *,
+    html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"] * {
+      color:#365B3B !important;
+      -webkit-text-fill-color:#365B3B !important;
+    }
+    html body .stApp [data-testid="stSidebar"] .stButton > button:hover,
+    html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+    html body .stApp [data-testid="stSidebar"] [data-testid^="stBaseButton-"]:hover,
+    html body .stApp [data-testid="stSidebar"] button[kind]:hover {
+      border-color:#658B4E !important;
+      background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+      box-shadow:0 4px 12px rgba(54,91,59,.14) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
