@@ -133,7 +133,7 @@ def fetch_automatic_index_table():
     frame["L2H%"] = ((frame["CURRENT"] - frame["LOW"]) / frame["LOW"].where(frame["LOW"] != 0)) * 100
     return frame.drop(columns=["_TICKER"], errors="ignore")
 
-def fetch_nse_index_constituent_movers(index_name):
+def fetch_nse_index_constituent_movers(index_name, sort_descending=True):
     """
     Get index members from a separate index-constituent service and rank them
     using Yahoo Finance live/delayed quote metadata. NSE's blocked API is not used.
@@ -313,7 +313,7 @@ def fetch_nse_index_constituent_movers(index_name):
             except Exception:
                 pass
 
-        quotes.sort(key=lambda row: row["%CHANGE"], reverse=True)
+        quotes.sort(key=lambda row: row["%CHANGE"], reverse=bool(sort_descending))
         if not quotes:
             return [], (
                 f"Constituents found ({len(symbols)}), but Yahoo Finance did not return "
@@ -5362,6 +5362,98 @@ elif page == "Index File":
                     st.caption(error_message)
             else:
                 st.info("No fetched index currently meets the CURRENT > 10,000 condition.")
+
+            # Bottom movers: among indices above 10,000, select the 3 highest L2H%.
+            bottom_eligible_indices = index_table[
+                pd.to_numeric(index_table["CURRENT"], errors="coerce") > 10000
+            ].dropna(subset=["L2H%"]).sort_values("L2H%", ascending=False).head(3)
+
+            st.markdown(
+                '<div style="font-size:19px;font-weight:850;color:#654538;margin:18px 0 8px;">'
+                '📉 Bottom Moving Stocks — 3 from Each Highest-L2H Index</div>',
+                unsafe_allow_html=True,
+            )
+            bottom_mover_rows = []
+            bottom_mover_errors = []
+            for _, selected_index in bottom_eligible_indices.iterrows():
+                selected_index_name = str(selected_index["INDEX"]).strip()
+                bottom_movers, bottom_error = fetch_nse_index_constituent_movers(
+                    selected_index_name, sort_descending=False
+                )
+                if bottom_error:
+                    bottom_mover_errors.append(f"{selected_index_name}: {bottom_error}")
+                for mover in bottom_movers[:3]:
+                    bottom_mover_rows.append({
+                        "INDEX": selected_index_name,
+                        "STOCK": mover["STOCK"],
+                        "CURRENT": mover["CURRENT"],
+                        "%CHANGE": mover["%CHANGE"],
+                    })
+
+            if bottom_mover_rows:
+                bottom_movers_table = pd.DataFrame(bottom_mover_rows)
+                bottom_builder = GridOptionsBuilder.from_dataframe(bottom_movers_table)
+                bottom_builder.configure_default_column(
+                    sortable=True, filter=True, resizable=True, minWidth=95
+                )
+                bottom_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
+                bottom_builder.configure_column("STOCK", width=125, minWidth=105)
+                bottom_builder.configure_column("CURRENT", width=125, minWidth=105)
+                bottom_builder.configure_column("%CHANGE", width=120, minWidth=105)
+                bottom_builder.configure_grid_options(
+                    headerHeight=42,
+                    rowHeight=36,
+                    animateRows=False,
+                    suppressCellFocus=True,
+                    getRowStyle=JsCode(
+                        "function(params) { return params.node.rowIndex % 2 === 0 "
+                        "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
+                        ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
+                    ),
+                )
+                bottom_builder.configure_column(
+                    "CURRENT",
+                    valueFormatter=JsCode(
+                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
+                    ),
+                )
+                bottom_builder.configure_column(
+                    "%CHANGE",
+                    valueFormatter=JsCode(
+                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"
+                    ),
+                )
+                bottom_grid_css = {
+                    ".ag-header": {
+                        "background-color": "#EFC2AC !important",
+                        "border-bottom": "1px solid #D79B7E !important",
+                    },
+                    ".ag-header-cell": {
+                        "background-color": "#EFC2AC !important",
+                        "color": "#54382F !important",
+                        "font-weight": "800 !important",
+                    },
+                    ".ag-header-cell-label": {
+                        "color": "#54382F !important",
+                        "font-weight": "800 !important",
+                    },
+                }
+                AgGrid(
+                    bottom_movers_table,
+                    gridOptions=bottom_builder.build(),
+                    custom_css=bottom_grid_css,
+                    theme="streamlit",
+                    fit_columns_on_grid_load=False,
+                    height=min(max(150, 42 + 36 * len(bottom_movers_table)), 380),
+                    allow_unsafe_jscode=True,
+                    key="index_file_bottom_movers_grid",
+                )
+            elif len(bottom_eligible_indices):
+                st.warning("Selected indices are available, but bottom-stock quotes could not be fetched right now.")
+                for error_message in bottom_mover_errors:
+                    st.caption(error_message)
+            else:
+                st.info("No fetched index currently meets CURRENT > 10,000 with a usable L2H% value.")
 
             st.markdown(
                 '<div style="font-size:19px;font-weight:850;color:#654538;margin:18px 0 8px;">'
