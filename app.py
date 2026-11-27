@@ -5065,12 +5065,21 @@ elif page == "Index File":
                         )
                         .set_table_styles([
                             {
-                                "selector": "th",
+                                "selector": "thead th, th.col_heading, th.col_heading.level0",
                                 "props": [
-                                    ("background-color", "#EFC2AC"),
-                                    ("color", "#54382F"),
-                                    ("font-weight", "800"),
-                                    ("border", "1px solid #D79B7E"),
+                                    ("background-color", "#EFC2AC !important"),
+                                    ("color", "#54382F !important"),
+                                    ("font-weight", "800 !important"),
+                                    ("border", "1px solid #D79B7E !important"),
+                                    ("padding", "11px 12px !important"),
+                                ],
+                            },
+                            {
+                                "selector": "tbody th",
+                                "props": [
+                                    ("background-color", "#EFC2AC !important"),
+                                    ("color", "#54382F !important"),
+                                    ("font-weight", "800 !important"),
                                 ],
                             },
                         ])
