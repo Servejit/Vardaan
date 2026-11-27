@@ -2917,9 +2917,8 @@ def render_index_toppers_dashboard():
                 # Preserve the existing highlights for the lowest-three candidates and Top Choice.
                 table_df = pd.DataFrame(table_rows, columns=columns)
 
-                # Pistachio is used only for the #4/#5 fallback dashboard.
-                # The normal dashboard keeps its existing chocolate table palette.
-                pistachio_table = bool(fallback_mode)
+                # Keep the complete Index Toppers table in the shared Pistachio theme.
+                pistachio_table = True
                 top_choice_row_style = (
                     "background-color: #B7D7A8; color: #365B3B; font-weight: 900;"
                     if pistachio_table else
