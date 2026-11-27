@@ -4898,9 +4898,14 @@ elif page == "Index File":
     [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stTable"] {
         border:1px solid #E1B29D !important; border-radius:12px !important;
     }
-    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [role="columnheader"],
-    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) table thead th {
-        background:#F4D1C0 !important; color:#54382F !important;
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDataFrame"] [role="columnheader"],
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDataFrame"] .col_heading,
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDataFrame"] thead th,
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stTable"] thead th {
+        background-color:#EFC2AC !important;
+        color:#54382F !important;
+        font-weight:800 !important;
+        border-color:#D79B7E !important;
     }
     [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) .stButton > button,
     [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDownloadButton"] button {
@@ -5062,6 +5067,13 @@ elif page == "Index File":
                                 for _ in row
                             ],
                             axis=1
+                        )
+                        .apply_index(
+                            lambda headers: [
+                                "background-color: #EFC2AC !important; color: #54382F !important; font-weight: 800 !important; border: 1px solid #D79B7E !important;"
+                                for _ in headers
+                            ],
+                            axis="columns"
                         )
                         .set_table_styles([
                             {
