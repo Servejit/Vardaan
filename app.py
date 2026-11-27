@@ -3028,17 +3028,20 @@ def render_index_toppers_dashboard():
 
 
 
-def render_accent_table(rows, accent, ink, tint, min_width=720):
+def render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=False):
     """Render a light, readable table with an accent inherited from the top signal card."""
     if not rows:
         return
+
+    if force_pistachio:
+        accent, ink, tint = "#658B4E", "#365B3B", "#DDEBCF"
 
     columns = list(rows[0].keys())
     header_html = "".join(
         f'<th style="padding:12px 14px;text-align:left;white-space:nowrap;'
         f'font-size:13px;font-weight:900;letter-spacing:.7px;color:{ink};'
-        f'background:linear-gradient(180deg,{tint} 0%,#FFFFFF 100%);'
-        f'border-bottom:2px solid {accent}66;">'
+        f'background:linear-gradient(180deg,#DDEBCF 0%,#F4F8EF 100%);'
+        f'border-bottom:2px solid #8FAF72;">'
         f'{html.escape(str(column))}</th>'
         for column in columns
     )
@@ -3046,22 +3049,22 @@ def render_accent_table(rows, accent, ink, tint, min_width=720):
     for row_number, record in enumerate(rows):
         cells = "".join(
             f'<td style="padding:11px 14px;white-space:nowrap;'
-            f'font-size:13px;font-weight:650;color:#263342;'
-            f'border-bottom:1px solid #E8ECF1;">'
+            f'font-size:13px;font-weight:650;color:{ink};'
+            f'border-bottom:1px solid #C8DDB5;">'
             f'{html.escape(str(record.get(column, "—")))}</td>'
             for column in columns
         )
-        row_background = "#FFFFFF" if row_number % 2 == 0 else tint
+        row_background = "#FBFDF7" if row_number % 2 == 0 else "#DDEBCF"
         body_rows.append(f'<tr style="background:{row_background};">{cells}</tr>')
 
     table_html = f"""
     <div class="signal-shimmer-surface" style="position:relative;padding:2px;border-radius:13px;overflow:hidden;
-                background:linear-gradient(115deg,{accent}55 0%,#FFFFFF 22%,
-                {accent}88 52%,#FFFFFF 78%,{accent}66 100%);
-                box-shadow:0 5px 18px rgba(31,45,61,.09),0 0 0 1px {accent}22;">
-      <div style="overflow-x:auto;border-radius:11px;background:#FFFFFF;">
+                background:linear-gradient(115deg,#DDEBCF 0%,#FBFDF7 22%,
+                #B7D7A8 52%,#F4F8EF 78%,#DDEBCF 100%);
+                box-shadow:0 5px 18px rgba(54,91,59,.10),0 0 0 1px #C8DDB5;">
+      <div style="overflow-x:auto;border-radius:11px;background:#F4F8EF;">
         <table style="width:100%;min-width:{min_width}px;border-collapse:separate;
-                      border-spacing:0;background:#FFFFFF;">
+                      border-spacing:0;background:#F4F8EF;">
           <thead><tr>{header_html}</tr></thead>
           <tbody>{''.join(body_rows)}</tbody>
         </table>
@@ -3803,7 +3806,7 @@ def render_autogreen_dashboard():
 
     st.subheader("Target Stocks")
     if target_table_rows:
-        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680)
+        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680, force_pistachio=True)
     else:
         st.info("No four qualified target stocks with a readable numeric value are available yet.")
 
