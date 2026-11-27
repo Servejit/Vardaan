@@ -4873,7 +4873,7 @@ elif page == "Avg.High Low":
 
 elif page == "Index File":
     with st.container(key="index-file-theme"):
-    st.markdown("""
+        st.markdown("""
     <style>
     .stApp:has(.st-key-index-file-theme), [data-testid="stAppViewContainer"]:has(.st-key-index-file-theme) {
         background:linear-gradient(145deg,#FFF8F4 0%,#FCE9DF 52%,#FFF4ED 100%) !important;
@@ -4910,7 +4910,7 @@ elif page == "Index File":
         border-color:#C87959 !important; background:#EFC2AC !important;
     }
     </style>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
         st.caption("Upload and inspect an index constituents or market-index spreadsheet. The uploaded file is kept in this browser session.")
         index_upload = st.file_uploader("Choose an Index file", type=["xlsx", "csv"], key="index_file_dashboard_upload")
