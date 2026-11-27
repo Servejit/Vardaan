@@ -4528,46 +4528,16 @@ if st.session_state.user is None:
     login_clock = datetime.now(ZoneInfo("Asia/Kolkata"))
     login_minute = login_clock.hour * 60 + login_clock.minute
 
-    if 9 * 60 <= login_minute <= 11 * 60:
-        login_theme = {
-            "name": "Emerald Sunrise",
-            "page_a": "#ECFDF5", "page_b": "#F7FEE7",
-            "deep": "#064E3B", "primary": "#10B981",
-            "accent": "#A3E635", "highlight": "#FACC15",
-            "heading": "#064E3B", "heading_end": "#FACC15",
-            "card": "#F4FFF8", "border": "#86D6AE",
-            "focus": "#10B981", "shadow": "16, 110, 75",
-        }
-    elif 11 * 60 + 1 <= login_minute <= 13 * 60:
-        login_theme = {
-            "name": "Ocean Spectrum",
-            "page_a": "#E0F2FE", "page_b": "#ECFEFF",
-            "deep": "#082F49", "primary": "#0284C7",
-            "accent": "#22D3EE", "highlight": "#818CF8",
-            "heading": "#082F49", "heading_end": "#818CF8",
-            "card": "#F2FBFF", "border": "#7DD3FC",
-            "focus": "#0284C7", "shadow": "2, 132, 199",
-        }
-    elif 13 * 60 + 1 <= login_minute <= 15 * 60 + 30:
-        login_theme = {
-            "name": "Royal Fusion",
-            "page_a": "#F3E8FF", "page_b": "#FCE7F3",
-            "deep": "#3B0764", "primary": "#9333EA",
-            "accent": "#EC4899", "highlight": "#F59E0B",
-            "heading": "#581C87", "heading_end": "#EC4899",
-            "card": "#FFF7FD", "border": "#D8B4FE",
-            "focus": "#9333EA", "shadow": "147, 51, 234",
-        }
-    else:
-        login_theme = {
-            "name": "Sunset Luxe",
-            "page_a": "#FFF7ED", "page_b": "#FCE7F3",
-            "deep": "#7C2D12", "primary": "#EA580C",
-            "accent": "#DC4568", "highlight": "#D6B36A",
-            "heading": "#7C2D12", "heading_end": "#DC4568",
-            "card": "#FFFAF5", "border": "#FDBA74",
-            "focus": "#EA580C", "shadow": "234, 88, 12",
-        }
+    # One fixed Pistachio palette across the complete application.
+    login_theme = {
+        "name": "Pistachio",
+        "page_a": "#FBFDF7", "page_b": "#F4F8EF",
+        "deep": "#365B3B", "primary": "#658B4E",
+        "accent": "#8FAF72", "highlight": "#B7D7A8",
+        "heading": "#365B3B", "heading_end": "#658B4E",
+        "card": "#FFFFFF", "border": "#C8DDB5",
+        "focus": "#658B4E", "shadow": "101, 139, 78",
+    }
 
     st.markdown(
         f"""
@@ -6010,3 +5980,165 @@ with st.container(key="vardaan-bottom-nav"):
         horizontal=True,
         label_visibility="collapsed",
     )
+
+
+# One application-wide Pistachio theme for every dashboard and shared control.
+st.markdown(
+    """
+    <style>
+    :root {
+        --pistachio-0:#FBFDF7;
+        --pistachio-1:#F4F8EF;
+        --pistachio-2:#DDEBCF;
+        --pistachio-3:#B7D7A8;
+        --pistachio-4:#8FAF72;
+        --pistachio-5:#658B4E;
+        --pistachio-ink:#365B3B;
+        --pistachio-border:#C8DDB5;
+    }
+    .stApp {
+        --brand-flower-color:#658B4E !important;
+        --signal-nav-border:#C8DDB5 !important;
+        --signal-nav-accent:#658B4E !important;
+        --signal-nav-soft:#DDEBCF !important;
+        --signal-nav-canvas:#F4F8EF !important;
+        --signal-nav-text:#365B3B !important;
+        background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 55%,#E7F0D9 100%) !important;
+        color:#365B3B !important;
+    }
+    [data-testid="stHeader"], [data-testid="stToolbar"] {
+        background:rgba(251,253,247,.96) !important;
+    }
+    [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {
+        background:linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 58%,#E7F0D9 100%) !important;
+        border-right:1px solid #C8DDB5 !important;
+        color:#365B3B !important;
+    }
+    [data-testid="stSidebar"] * {
+        color:#365B3B !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stSidebar"] .stButton > button,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button {
+        background:linear-gradient(135deg,#FFFFFF 0%,#DDEBCF 100%) !important;
+        border:1px solid #C8DDB5 !important;
+        border-radius:10px !important;
+        color:#365B3B !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked),
+    [data-testid="stSidebar"] .stButton > button:hover,
+    [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover {
+        background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+        border-color:#658B4E !important;
+    }
+    .stApp button, .stApp [data-testid="stDownloadButton"] button,
+    .stApp [data-testid="stFormSubmitButton"] button {
+        background:linear-gradient(135deg,#FFFFFF 0%,#DDEBCF 100%) !important;
+        border:1px solid #8FAF72 !important;
+        color:#365B3B !important;
+    }
+    .stApp button:hover, .stApp [data-testid="stDownloadButton"] button:hover,
+    .stApp [data-testid="stFormSubmitButton"] button:hover {
+        background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+        border-color:#658B4E !important;
+        color:#365B3B !important;
+    }
+    .stApp input, .stApp textarea, .stApp [data-baseweb="select"] > div {
+        background:#FFFFFF !important;
+        border-color:#C8DDB5 !important;
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stRadio"] [role="radiogroup"] label,
+    .stApp [data-testid="stCheckbox"] label,
+    .stApp [data-testid="stWidgetLabel"],
+    .stApp [data-testid="stMarkdownContainer"],
+    .stApp [data-testid="stCaptionContainer"] {
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stTabs"] [role="tab"] {
+        color:#365B3B !important;
+        border-color:#C8DDB5 !important;
+    }
+    .stApp [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        background:#DDEBCF !important;
+        color:#365B3B !important;
+        border-bottom:3px solid #658B4E !important;
+    }
+    .stApp [data-testid="stExpander"],
+    .stApp [data-testid="stMetric"],
+    .stApp [data-testid="stDataFrame"],
+    .stApp [data-testid="stTable"] {
+        background:linear-gradient(145deg,#FFFFFF 0%,#F4F8EF 68%,#DDEBCF 100%) !important;
+        border:1px solid #C8DDB5 !important;
+        border-radius:12px !important;
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stDataFrame"] [role="columnheader"],
+    .stApp [data-testid="stDataFrame"] [role="gridcell"][aria-colindex] {
+        color:#365B3B !important;
+        border-color:#C8DDB5 !important;
+    }
+    .stApp [data-testid="stDataFrame"] [role="columnheader"] {
+        background:#B7D7A8 !important;
+        font-weight:800 !important;
+    }
+    .stApp [data-testid="stDataFrame"] [role="gridcell"] {
+        background:#F4F8EF !important;
+    }
+    .stApp table {
+        border-collapse:separate !important;
+        border-spacing:0 !important;
+        background:#FFFFFF !important;
+        border:1px solid #C8DDB5 !important;
+    }
+    .stApp table thead th, .stApp table th {
+        background:#B7D7A8 !important;
+        color:#365B3B !important;
+        border-color:#8FAF72 !important;
+        font-weight:800 !important;
+    }
+    .stApp table tbody td {
+        background:#F4F8EF !important;
+        color:#365B3B !important;
+        border-color:#C8DDB5 !important;
+    }
+    .stApp table tbody tr:nth-child(even) td {
+        background:#FFFFFF !important;
+    }
+    /* Recolour dashboard cards and HTML table panels that previously had page-specific palettes. */
+    .stApp [data-testid="stMarkdownContainer"] div[style*="border-radius"][style*="background"],
+    .stApp [data-testid="stMarkdownContainer"] section[style*="border-radius"][style*="background"] {
+        background:linear-gradient(135deg,#FFFFFF 0%,#F4F8EF 55%,#DDEBCF 100%) !important;
+        border-color:#8FAF72 !important;
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stMarkdownContainer"] div[style*="border-radius"][style*="background"] *,
+    .stApp [data-testid="stMarkdownContainer"] section[style*="border-radius"][style*="background"] * {
+        color:#365B3B !important;
+    }
+    .vardaan-bottom-nav-label, .vardaan-bottom-nav-label, .signal-bottom-nav-label {
+        color:#365B3B !important;
+    }
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {
+        background:linear-gradient(110deg,#FFFFFF 0%,#DDEBCF 100%) !important;
+        border:1px solid #C8DDB5 !important;
+        color:#365B3B !important;
+    }
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+        border:1.5px solid #658B4E !important;
+        box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.14) !important;
+    }
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,
+    [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label * {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    .stApp h1,.stApp h2,.stApp h3,.stApp h4 {
+        color:#365B3B !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
