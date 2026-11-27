@@ -5075,7 +5075,12 @@ elif page == "Index File":
                         resizable=True,
                         wrapHeaderText=True,
                         autoHeaderHeight=True,
+                        minWidth=125,
                     )
+                    # Give the index-name column extra room and keep numeric columns readable.
+                    grid_builder.configure_column("INDEX", minWidth=220, width=260)
+                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]:
+                        grid_builder.configure_column(column, minWidth=130, width=140)
                     grid_builder.configure_grid_options(
                         headerHeight=42,
                         rowHeight=36,
@@ -5120,7 +5125,7 @@ elif page == "Index File":
                         gridOptions=grid_builder.build(),
                         custom_css=peach_grid_css,
                         theme="streamlit",
-                        fit_columns_on_grid_load=True,
+                        fit_columns_on_grid_load=False,
                         height=min(max(180, 42 + 36 * len(grid_table)), 650),
                         allow_unsafe_jscode=True,
                         key="index_file_peach_sortable_grid",
