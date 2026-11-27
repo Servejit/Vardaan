@@ -2360,9 +2360,11 @@ def render_trstar_dashboard():
         """,
         unsafe_allow_html=True,
     )
-    st.markdown(
-        f'<div class="trstar-table-wrap">{styled_table.to_html()}</div>',
-        unsafe_allow_html=True,
+    # Streamlit's native dataframe enables sorting by tapping any column heading.
+    st.dataframe(
+        styled_table,
+        use_container_width=True,
+        hide_index=True,
     )
 
 
