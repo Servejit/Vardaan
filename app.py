@@ -5045,41 +5045,62 @@ elif page == "Index File":
                             lambda value: f"{value:.2f}%" if pd.notna(value) else "—"
                         )
 
-                    peach_table = formatted_table.style.set_table_styles([
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("background-color", "#F1CDBB"),
-                                ("color", "#54382F"),
-                                ("font-weight", "700"),
-                                ("border", "1px solid #DDA58D"),
-                                ("padding", "10px 12px"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("background-color", "#FFF8F4"),
-                                ("color", "#54382F"),
-                                ("border-bottom", "1px solid #EBD0C2"),
-                                ("padding", "9px 12px"),
-                            ],
-                        },
-                        {
-                            "selector": "tbody tr:nth-child(even) td",
-                            "props": [("background-color", "#FCE9DF")],
-                        },
-                        {
-                            "selector": "table",
-                            "props": [
-                                ("border-collapse", "separate"),
-                                ("border-spacing", "0"),
-                                ("border", "1px solid #E1B29D"),
-                                ("border-radius", "10px"),
-                                ("overflow", "hidden"),
-                            ],
-                        },
-                    ])
+                    peach_table = (
+                        formatted_table.style
+                        .format({
+                            "CURRENT": "{:.2f}",
+                            "%CHANGE": "{:.2f}",
+                            "OPEN": "{:.2f}",
+                            "HIGH": "{:.2f}",
+                            "LOW": "{:.2f}",
+                        }, na_rep="—")
+                        .set_table_styles([
+                            {
+                                "selector": "thead th",
+                                "props": [
+                                    ("background-color", "#EFC2AC"),
+                                    ("color", "#54382F"),
+                                    ("font-weight", "800"),
+                                    ("border", "1px solid #D79B7E"),
+                                    ("padding", "11px 12px"),
+                                ],
+                            },
+                            {
+                                "selector": "tbody th",
+                                "props": [
+                                    ("background-color", "#F5D8C9"),
+                                    ("color", "#54382F"),
+                                    ("font-weight", "700"),
+                                    ("border", "1px solid #E7BBA7"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("background-color", "#FFF1E9"),
+                                    ("color", "#54382F"),
+                                    ("font-weight", "600"),
+                                    ("border-bottom", "1px solid #E7BBA7"),
+                                    ("padding", "9px 12px"),
+                                ],
+                            },
+                            {
+                                "selector": "tbody tr:nth-child(even) td",
+                                "props": [("background-color", "#FCE1D4")],
+                            },
+                            {
+                                "selector": "table",
+                                "props": [
+                                    ("background-color", "#FFF1E9"),
+                                    ("border-collapse", "separate"),
+                                    ("border-spacing", "0"),
+                                    ("border", "1px solid #DDA58D"),
+                                    ("border-radius", "10px"),
+                                    ("overflow", "hidden"),
+                                ],
+                            },
+                        ])
+                    )
                     st.dataframe(
                         peach_table,
                         use_container_width=True,
