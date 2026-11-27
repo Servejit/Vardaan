@@ -2056,6 +2056,148 @@ def get_autogreen_live_prices(symbols):
     return results
 
 
+
+@st.cache_data(ttl=300, max_entries=2, show_spinner=False)
+def get_trstar_master_symbols(workbook_bytes):
+    """Read the complete stock universe from the Master workbook's summary table."""
+    workbook = load_workbook(io.BytesIO(workbook_bytes), data_only=True, read_only=True)
+    ignored = {
+        "SYMBOL", "STOCK", "STOCKNAME", "STOCK_NAME", "NAME", "SCRIP",
+        "NSE", "TICKER", "COMPANY", "TOTAL", "INDEX", "DATE"
+    }
+
+    def key(value):
+        return " ".join(str(value or "").strip().casefold().split())
+
+    try:
+        ordered_sheets = sorted(
+            workbook.worksheets,
+            key=lambda ws: (ws.title.casefold() != "summary", ws.title.casefold())
+        )
+        for ws in ordered_sheets:
+            header_row = None
+            symbol_col = 0
+            for row_number, row in enumerate(
+                ws.iter_rows(min_row=1, max_row=min(ws.max_row or 1, 30), values_only=True),
+                start=1
+            ):
+                found = {key(value): index for index, value in enumerate(row) if value is not None}
+                symbol_col_found = next(
+                    (found[key(label)] for label in ("Symbol", "NSE Symbol", "Ticker", "Stock", "Stock Name")
+                     if key(label) in found),
+                    None
+                )
+                has_master_metrics = any(
+                    key(value) in {key("Sum O2L.10"), key("16< D-B / Avg.4"), key("16> C-B / Avg.4")}
+                    for value in row if value is not None
+                )
+                if symbol_col_found is not None or has_master_metrics:
+                    header_row = row_number
+                    if symbol_col_found is not None:
+                        symbol_col = symbol_col_found
+                    break
+
+            if header_row is None:
+                if ws.title.casefold() == "summary":
+                    header_row = 0
+                    symbol_col = 0
+                else:
+                    continue
+
+            symbols = []
+            start_row = header_row + 1 if header_row else 1
+            for row in ws.iter_rows(min_row=start_row, values_only=True):
+                if not row or symbol_col >= len(row):
+                    continue
+                symbol = normalize_stock_symbol(row[symbol_col])
+                if not symbol or symbol in ignored or len(symbol) > 30:
+                    continue
+                if not re.fullmatch(r"[A-Z0-9&-]+", symbol):
+                    continue
+                symbols.append(symbol)
+
+            symbols = list(dict.fromkeys(symbols))
+            if symbols:
+                return symbols
+
+        return []
+    finally:
+        workbook.close()
+
+
+def render_trstar_dashboard():
+    """Display every stock in Master with its current NSE OHLC, change and LTP."""
+    st.title("TR.Star")
+    st.caption("Complete Master stock list · Live NSE market prices")
+
+    market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_open = (
+        market_now.weekday() < 5
+        and market_now.hour * 60 + market_now.minute >= 9 * 60 + 15
+        and market_now.hour * 60 + market_now.minute <= 15 * 60 + 30
+    )
+    st_autorefresh(
+        interval=15_000 if market_open else 60_000,
+        limit=None,
+        key="trstar_live_market_refresh",
+    )
+
+    try:
+        master_bytes = get_autogreen_master_bytes()
+        symbols = get_trstar_master_symbols(master_bytes)
+    except Exception:
+        st.error("Could not read the Master file. Please check that master.xlsx is available.")
+        return
+
+    if not symbols:
+        st.warning("No stock symbols were found in the Master file.")
+        return
+
+    with st.spinner(f"Loading market prices for {len(symbols)} stocks..."):
+        quotes = get_autogreen_live_prices(symbols)
+
+    rows = []
+    for symbol in symbols:
+        quote = quotes.get(symbol, {})
+        def display_price(value):
+            try:
+                return f"{float(value):,.2f}" if value is not None else "—"
+            except (TypeError, ValueError):
+                return "—"
+
+        change = quote.get("change_pct")
+        try:
+            change_text = f"{float(change):+.2f}%" if change is not None else "—"
+        except (TypeError, ValueError):
+            change_text = "—"
+
+        rows.append({
+            "Stock": symbol,
+            "Open": display_price(quote.get("open")),
+            "High": display_price(quote.get("high")),
+            "Low": display_price(quote.get("low")),
+            "% Chg": change_text,
+            "Price": display_price(quote.get("price")),
+        })
+
+    st.caption(f"{len(rows)} stocks from Master file")
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price"])
+    st.dataframe(
+        table,
+        use_container_width=True,
+        hide_index=True,
+        height=min(720, 42 + 35 * min(len(table), 19)),
+        column_config={
+            "Stock": st.column_config.TextColumn("Stock", width="medium"),
+            "Open": st.column_config.TextColumn("Open", width="small"),
+            "High": st.column_config.TextColumn("High", width="small"),
+            "Low": st.column_config.TextColumn("Low", width="small"),
+            "% Chg": st.column_config.TextColumn("% Chg", width="small"),
+            "Price": st.column_config.TextColumn("Price", width="small"),
+        },
+    )
+
+
 def get_index_toppers_master_values(symbols):
     """Read the two Index Toppers metrics from the same Master sheet and symbol column used by the Master dashboard."""
     wanted_headers = ("16< D-B / Avg.4", "16> C-B / Avg.4")
@@ -4802,12 +4944,13 @@ with st.sidebar:
 
     st.radio(
         "Sidebar dashboard navigation",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "TR.Star", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
             "Avg.High Low": "📈  Avg.High Low",
+            "TR.Star": "⭐  TR.Star",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="sidebar_dashboard_nav_v1",
@@ -4869,6 +5012,9 @@ elif page == "Avg.High Low":
     except Exception:
         _avg_high_low_master = None
     render_avg_high_low_dashboard(_avg_high_low_master, app_name="VARDAAN")
+
+elif page == "TR.Star":
+    render_trstar_dashboard()
 
 elif page == "Master Excel":
 
@@ -5706,12 +5852,13 @@ with st.container(key="vardaan-bottom-nav"):
     )
     st.radio(
         "Dashboard shortcuts",
-        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "Master Excel"],
+        ["AutoGreen", "Stock of the Day", "Index Toppers", "Avg.High Low", "TR.Star", "Master Excel"],
         format_func=lambda item: {
             "AutoGreen": "🌿  AutoGreen",
             "Stock of the Day": "⭐  Stock of the Day",
             "Index Toppers": "🏆  Index Toppers",
             "Avg.High Low": "📈  Avg.High Low",
+            "TR.Star": "⭐  TR.Star",
             "Master Excel": "📊  Master Excel",
         }[item],
         key="bottom_dashboard_nav_v1",
