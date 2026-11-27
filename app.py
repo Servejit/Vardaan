@@ -5075,12 +5075,12 @@ elif page == "Index File":
                         resizable=True,
                         wrapHeaderText=True,
                         autoHeaderHeight=True,
-                        minWidth=125,
+                        minWidth=95,
                     )
-                    # Give the index-name column extra room and keep numeric columns readable.
-                    grid_builder.configure_column("INDEX", minWidth=220, width=260)
+                    # Balanced widths: readable without making the table excessively wide.
+                    grid_builder.configure_column("INDEX", minWidth=140, width=170)
                     for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]:
-                        grid_builder.configure_column(column, minWidth=130, width=140)
+                        grid_builder.configure_column(column, minWidth=95, width=110)
                     grid_builder.configure_grid_options(
                         headerHeight=42,
                         rowHeight=36,
