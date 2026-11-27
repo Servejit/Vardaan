@@ -2212,7 +2212,7 @@ def render_trstar_dashboard():
         <style>
         /* TR.Star peach theme: sidebar, action buttons and bottom dashboard navigation */
         [data-testid="stSidebar"] > div:first-child {
-            background: #DDEBCF !important;
+            background: #FFFFFF !important;
         }
         [data-testid="stSidebar"] [data-testid="stRadio"] label,
         [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
@@ -2325,8 +2325,8 @@ def render_trstar_dashboard():
         ])
         .apply(
             lambda row: [
-                "background-color: #DDEBCF" if row.name % 2 == 0
-                else "background-color: #DDEBCF"
+                "background-color: #FFFFFF" if row.name % 2 == 0
+                else "background-color: #FFFFFF"
                 for _ in row
             ],
             axis=1,
