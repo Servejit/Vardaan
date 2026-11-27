@@ -5343,8 +5343,8 @@ elif page == "Index File":
                 top_movers_table = pd.DataFrame(top_mover_rows)
                 top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
                 top_movers_builder.configure_default_column(sortable=True, filter=True, resizable=True, minWidth=95)
-                top_movers_builder.configure_column("INDEX", width=130, minWidth=110, wrapText=True)
-                top_movers_builder.configure_column("STOCK", width=85, minWidth=75)
+                top_movers_builder.configure_column("INDEX", headerName="INDEX NAME", width=130, minWidth=110, wrapText=True)
+                top_movers_builder.configure_column("STOCK", headerName="STOCK NAME", width=85, minWidth=75)
                 top_movers_builder.configure_column("CURRENT", width=82, minWidth=75)
                 top_movers_builder.configure_column("OPEN", width=82, minWidth=75)
                 top_movers_builder.configure_column("HIGH", width=82, minWidth=75)
@@ -5425,8 +5425,8 @@ elif page == "Index File":
                 bottom_builder.configure_default_column(
                     sortable=True, filter=True, resizable=True, minWidth=95
                 )
-                bottom_builder.configure_column("INDEX", width=130, minWidth=110, wrapText=True)
-                bottom_builder.configure_column("STOCK", width=85, minWidth=75)
+                bottom_builder.configure_column("INDEX", headerName="INDEX NAME", width=130, minWidth=110, wrapText=True)
+                bottom_builder.configure_column("STOCK", headerName="STOCK NAME", width=85, minWidth=75)
                 bottom_builder.configure_column("CURRENT", width=82, minWidth=75)
                 bottom_builder.configure_column("OPEN", width=82, minWidth=75)
                 bottom_builder.configure_column("HIGH", width=82, minWidth=75)
