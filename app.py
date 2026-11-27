@@ -19,6 +19,45 @@ from supabase import create_client, ClientOptions
 # CONFIG
 # ============================================================
 
+
+@st.cache_data(ttl=60, show_spinner=False)
+def fetch_nse_index_constituent_movers(index_name):
+    """Return live NSE constituent quotes for one index, cached for 60 seconds."""
+    try:
+        session = requests.Session()
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://www.nseindia.com/",
+            "Connection": "keep-alive",
+        }
+        session.get("https://www.nseindia.com/", headers=headers, timeout=12)
+        response = session.get(
+            "https://www.nseindia.com/api/equity-stockIndices",
+            params={"index": str(index_name).strip().upper()},
+            headers=headers,
+            timeout=18,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        rows = payload.get("data", []) if isinstance(payload, dict) else []
+        movers = []
+        for item in rows:
+            symbol = str(item.get("symbol", "")).strip()
+            if not symbol or symbol.upper() == str(index_name).strip().upper():
+                continue
+            try:
+                last_price = float(str(item.get("lastPrice", "")).replace(",", "").strip())
+                pct_change = float(str(item.get("pChange", "")).replace(",", "").replace("%", "").strip())
+            except (TypeError, ValueError):
+                continue
+            movers.append({"STOCK": symbol, "CURRENT": last_price, "%CHANGE": pct_change})
+        movers.sort(key=lambda row: row["%CHANGE"], reverse=True)
+        return movers, ""
+    except Exception as exc:
+        return [], str(exc)
+
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 SERVICE_KEY = st.secrets["SUPABASE_SERVICE_KEY"]
@@ -5034,6 +5073,84 @@ elif page == "Index File":
                     index_table["L2H%"] = (
                         (index_table["CURRENT"] - index_table["LOW"]) / low_values
                     ) * 100
+
+                    # Choose the 3 lowest-H2L indices where CURRENT is above 10,000.
+                    eligible_indices = index_table[
+                        pd.to_numeric(index_table["CURRENT"], errors="coerce") > 10000
+                    ].copy()
+                    eligible_indices = eligible_indices.dropna(subset=["H2L%"]).sort_values(
+                        "H2L%", ascending=True
+                    ).head(3)
+
+                    st.markdown(
+                        '<div style="font-size:19px;font-weight:850;color:#654538;margin:12px 0 8px;">'
+                        '🏆 Top Moving Stocks — 3 from Each Selected Index</div>',
+                        unsafe_allow_html=True,
+                    )
+
+                    top_mover_rows = []
+                    mover_errors = []
+                    for _, selected_index in eligible_indices.iterrows():
+                        selected_index_name = str(selected_index["INDEX"]).strip()
+                        live_movers, mover_error = fetch_nse_index_constituent_movers(selected_index_name)
+                        if mover_error:
+                            mover_errors.append(f"{selected_index_name}: {mover_error}")
+                        for mover in live_movers[:3]:
+                            top_mover_rows.append({
+                                "INDEX": selected_index_name,
+                                "STOCK": mover["STOCK"],
+                                "CURRENT": mover["CURRENT"],
+                                "%CHANGE": mover["%CHANGE"],
+                            })
+
+                    if top_mover_rows:
+                        top_movers_table = pd.DataFrame(top_mover_rows)
+                        top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
+                        top_movers_builder.configure_default_column(
+                            sortable=True, filter=True, resizable=True, minWidth=95
+                        )
+                        top_movers_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
+                        top_movers_builder.configure_column("STOCK", width=125, minWidth=105)
+                        top_movers_builder.configure_column("CURRENT", width=125, minWidth=105)
+                        top_movers_builder.configure_column("%CHANGE", width=120, minWidth=105)
+                        top_movers_builder.configure_grid_options(
+                            headerHeight=42,
+                            rowHeight=36,
+                            animateRows=False,
+                            suppressCellFocus=True,
+                            getRowStyle=JsCode(
+                                "function(params) { return params.node.rowIndex % 2 === 0 "
+                                "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
+                                ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
+                            ),
+                        )
+                        top_number_formatter = JsCode(
+                            "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
+                        )
+                        top_percent_formatter = JsCode(
+                            "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"
+                        )
+                        top_movers_builder.configure_column("CURRENT", valueFormatter=top_number_formatter)
+                        top_movers_builder.configure_column("%CHANGE", valueFormatter=top_percent_formatter)
+                        top_movers_css = {
+                            ".ag-header": {"background-color": "#EFC2AC !important", "border-bottom": "1px solid #D79B7E !important"},
+                            ".ag-header-cell": {"background-color": "#EFC2AC !important", "color": "#54382F !important", "font-weight": "800 !important", "border-right": "1px solid #D79B7E !important"},
+                            ".ag-header-cell-label": {"color": "#54382F !important", "font-weight": "800 !important"},
+                        }
+                        AgGrid(
+                            top_movers_table,
+                            gridOptions=top_movers_builder.build(),
+                            custom_css=top_movers_css,
+                            theme="streamlit",
+                            fit_columns_on_grid_load=False,
+                            height=min(max(150, 42 + 36 * len(top_movers_table)), 380),
+                            allow_unsafe_jscode=True,
+                            key="index_file_top_movers_grid",
+                        )
+                    elif len(eligible_indices):
+                        st.info("Live constituent movers are not available from NSE right now. The index table below is still available.")
+                    else:
+                        st.info("No indices meet the CURRENT > 10,000 condition.")
 
                     # Keep the agreed column order and show two decimal places.
                     index_table = index_table[
