@@ -21,6 +21,118 @@ from supabase import create_client, ClientOptions
 
 
 @st.cache_data(ttl=60, show_spinner=False)
+
+@st.cache_data(ttl=60, show_spinner=False)
+def fetch_automatic_index_table():
+    """Fetch the supported NSE index catalogue and Yahoo Finance index quotes."""
+    import re
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    ticker_map = {
+        "NIFTY50": "^NSEI",
+        "NIFTYNEXT50": "^NIFTYJR",
+        "NIFTY100": "^CNX100",
+        "NIFTY200": "^CNX200",
+        "NIFTY500": "^CNX500",
+        "NIFTYMIDCAP50": "^NIFTYMIDCAP50",
+        "NIFTYMIDCAP100": "^CNXMIDCAP",
+        "NIFTYSMALLCAP100": "^CNXSC",
+        "NIFTYAUTO": "^CNXAUTO",
+        "NIFTYBANK": "^NSEBANK",
+        "NIFTYIT": "^CNXIT",
+        "NIFTYMEDIA": "^CNXMEDIA",
+        "NIFTYMETAL": "^CNXMETAL",
+        "NIFTYREALTY": "^CNXREALTY",
+        "NIFTYENERGY": "^CNXENERGY",
+        "NIFTYINFRASTRUCTURE": "^CNXINFRA",
+        "NIFTYINFRA": "^CNXINFRA",
+        "NIFTYFMCG": "^CNXFMCG",
+        "NIFTYPHARMA": "^CNXPHARMA",
+        "NIFTYPSUBANK": "^CNXPSUBANK",
+        "NIFTYMNC": "^CNXMNC",
+        "NIFTYPSE": "^CNXPSE",
+        "NIFTYSERVICESSECTOR": "^CNXSERVICE",
+        "NIFTYSERVSECTOR": "^CNXSERVICE",
+        "NIFTYCOMMODITIES": "^CNXCMDT",
+        "NIFTYCONSUMPTION": "^CNXCONSUM",
+        "NIFTYFINANCIALSERVICES": "^CNXFINANCE",
+        "NIFTYFINANCIALSERVICES2550": "^CNXFIN",
+        "INDIAVIX": "^INDIAVIX",
+    }
+
+    def normalize(value):
+        return re.sub(r"[^A-Z0-9]", "", str(value).upper())
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/134.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+    response = requests.get("https://api.dharun.dev/v1/indices", headers=headers, timeout=15)
+    response.raise_for_status()
+    catalogue = response.json().get("data", [])
+    if not isinstance(catalogue, list) or not catalogue:
+        raise ValueError("The index catalogue returned no index records.")
+
+    def fetch_quote(item):
+        name = str(item.get("name", "")).strip()
+        ticker = ticker_map.get(normalize(name))
+        row = {
+            "INDEX": name,
+            "CURRENT": None,
+            "%CHANGE": None,
+            "OPEN": None,
+            "HIGH": None,
+            "LOW": None,
+            "_TICKER": ticker,
+        }
+        if not ticker:
+            return row
+        try:
+            quote_response = requests.get(
+                f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}",
+                params={"range": "1d", "interval": "1m"},
+                headers=headers,
+                timeout=12,
+            )
+            quote_response.raise_for_status()
+            chart = quote_response.json().get("chart", {})
+            result = (chart.get("result") or [None])[0]
+            if not result:
+                return row
+            meta = result.get("meta", {})
+            current = meta.get("regularMarketPrice")
+            previous = meta.get("chartPreviousClose") or meta.get("previousClose")
+            opened = meta.get("regularMarketOpen")
+            high = meta.get("regularMarketDayHigh")
+            low = meta.get("regularMarketDayLow")
+            if current is not None:
+                row["CURRENT"] = float(current)
+            if previous not in (None, 0) and current is not None:
+                row["%CHANGE"] = (float(current) - float(previous)) / float(previous) * 100
+            if opened is not None:
+                row["OPEN"] = float(opened)
+            if high is not None:
+                row["HIGH"] = float(high)
+            if low is not None:
+                row["LOW"] = float(low)
+        except Exception:
+            pass
+        return row
+
+    rows = []
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [executor.submit(fetch_quote, item) for item in catalogue]
+        for future in as_completed(futures):
+            rows.append(future.result())
+    order = {str(item.get("name", "")).strip(): i for i, item in enumerate(catalogue)}
+    rows.sort(key=lambda row: order.get(row["INDEX"], 9999))
+    frame = pd.DataFrame(rows)
+    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    frame["H2L%"] = ((frame["CURRENT"] - frame["HIGH"]) / frame["HIGH"].where(frame["HIGH"] != 0)) * 100
+    frame["L2H%"] = ((frame["CURRENT"] - frame["LOW"]) / frame["LOW"].where(frame["LOW"] != 0)) * 100
+    return frame.drop(columns=["_TICKER"], errors="ignore")
+
 def fetch_nse_index_constituent_movers(index_name):
     """
     Get index members from a separate index-constituent service and rank them
@@ -5172,252 +5284,149 @@ elif page == "Index File":
         """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
 
-        index_upload = st.file_uploader(
-            "Choose an Index file",
-            type=["xlsx", "csv"],
-            key="index_file_dashboard_upload"
-        )
+        st.subheader("Automatic NSE Index Data")
+        st.caption("Index catalogue and available index quotes are fetched automatically. No CSV or Excel upload is required.")
 
-        if index_upload is not None:
-            try:
-                if index_upload.name.lower().endswith(".csv"):
-                    source_frame = pd.read_csv(io.BytesIO(index_upload.getvalue()))
-                else:
-                    source_frame = pd.read_excel(io.BytesIO(index_upload.getvalue()))
+        refresh_col, status_col = st.columns([1, 4])
+        with refresh_col:
+            if st.button("↻ Refresh Index Data", key="index_file_auto_refresh"):
+                fetch_automatic_index_table.clear()
+                st.rerun()
 
-                st.session_state["index_file_bytes"] = index_upload.getvalue()
-                st.session_state["index_file_name"] = index_upload.name
+        try:
+            with st.spinner("Fetching NSE index list and market quotes..."):
+                index_table = fetch_automatic_index_table()
 
-                # Normalize NSE headings such as "CURRENT \\n" and "HIGH \\n".
-                source_frame.columns = [
-                    " ".join(str(column).replace("\\n", " ").split()).strip().upper()
-                    for column in source_frame.columns
+            eligible_indices = index_table[
+                pd.to_numeric(index_table["CURRENT"], errors="coerce") > 10000
+            ].dropna(subset=["H2L%"]).sort_values("H2L%", ascending=True).head(3)
+
+            st.markdown(
+                '<div style="font-size:19px;font-weight:850;color:#654538;margin:12px 0 8px;">'
+                '🏆 Top Moving Stocks — 3 from Each Selected Index</div>',
+                unsafe_allow_html=True,
+            )
+            top_mover_rows = []
+            mover_errors = []
+            for _, selected_index in eligible_indices.iterrows():
+                selected_index_name = str(selected_index["INDEX"]).strip()
+                live_movers, mover_error = fetch_nse_index_constituent_movers(selected_index_name)
+                if mover_error:
+                    mover_errors.append(f"{selected_index_name}: {mover_error}")
+                for mover in live_movers[:3]:
+                    top_mover_rows.append({
+                        "INDEX": selected_index_name,
+                        "STOCK": mover["STOCK"],
+                        "CURRENT": mover["CURRENT"],
+                        "%CHANGE": mover["%CHANGE"],
+                    })
+
+            if top_mover_rows:
+                top_movers_table = pd.DataFrame(top_mover_rows)
+                top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
+                top_movers_builder.configure_default_column(sortable=True, filter=True, resizable=True, minWidth=95)
+                top_movers_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
+                top_movers_builder.configure_column("STOCK", width=125, minWidth=105)
+                top_movers_builder.configure_column("CURRENT", width=125, minWidth=105)
+                top_movers_builder.configure_column("%CHANGE", width=120, minWidth=105)
+                top_movers_builder.configure_grid_options(
+                    headerHeight=42, rowHeight=36, animateRows=False, suppressCellFocus=True,
+                    getRowStyle=JsCode(
+                        "function(params) { return params.node.rowIndex % 2 === 0 "
+                        "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
+                        ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
+                    ),
+                )
+                top_movers_builder.configure_column(
+                    "CURRENT",
+                    valueFormatter=JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"),
+                )
+                top_movers_builder.configure_column(
+                    "%CHANGE",
+                    valueFormatter=JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"),
+                )
+                top_movers_css = {
+                    ".ag-header": {"background-color": "#EFC2AC !important", "border-bottom": "1px solid #D79B7E !important"},
+                    ".ag-header-cell": {"background-color": "#EFC2AC !important", "color": "#54382F !important", "font-weight": "800 !important"},
+                    ".ag-header-cell-label": {"color": "#54382F !important", "font-weight": "800 !important"},
+                }
+                AgGrid(
+                    top_movers_table, gridOptions=top_movers_builder.build(), custom_css=top_movers_css,
+                    theme="streamlit", fit_columns_on_grid_load=False,
+                    height=min(max(150, 42 + 36 * len(top_movers_table)), 380),
+                    allow_unsafe_jscode=True, key="index_file_top_movers_grid",
+                )
+            elif len(eligible_indices):
+                st.warning("Index selection is ready, but constituent stock quotes are unavailable right now.")
+                for error_message in mover_errors:
+                    st.caption(error_message)
+            else:
+                st.info("No fetched index currently meets the CURRENT > 10,000 condition.")
+
+            st.markdown(
+                '<div style="font-size:19px;font-weight:850;color:#654538;margin:18px 0 8px;">'
+                '📊 NSE Indices — H2L% and L2H%</div>',
+                unsafe_allow_html=True,
+            )
+            search_text = st.text_input(
+                "Search index", placeholder="Enter index name", key="index_file_search"
+            )
+            displayed_table = index_table.copy()
+            if search_text.strip():
+                displayed_table = displayed_table[
+                    displayed_table["INDEX"].astype(str).str.contains(search_text.strip(), case=False, na=False)
                 ]
 
-                required_columns = ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]
-                missing_columns = [column for column in required_columns if column not in source_frame.columns]
-
-                if missing_columns:
-                    st.warning(
-                        "H2L% / L2H% table needs these source columns: "
-                        + ", ".join(missing_columns)
-                    )
-                    st.dataframe(source_frame, use_container_width=True, hide_index=True)
-                else:
-                    index_table = source_frame[required_columns].copy()
-
-                    # Convert comma-separated NSE prices into numeric values safely.
-                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
-                        index_table[column] = pd.to_numeric(
-                            index_table[column].astype(str)
-                            .str.replace(",", "", regex=False)
-                            .str.replace("%", "", regex=False)
-                            .str.strip(),
-                            errors="coerce"
-                        )
-
-                    high_values = index_table["HIGH"].where(index_table["HIGH"] != 0)
-                    low_values = index_table["LOW"].where(index_table["LOW"] != 0)
-
-                    index_table["H2L%"] = (
-                        (index_table["CURRENT"] - index_table["HIGH"]) / high_values
-                    ) * 100
-                    index_table["L2H%"] = (
-                        (index_table["CURRENT"] - index_table["LOW"]) / low_values
-                    ) * 100
-
-                    # Choose the 3 lowest-H2L indices where CURRENT is above 10,000.
-                    eligible_indices = index_table[
-                        pd.to_numeric(index_table["CURRENT"], errors="coerce") > 10000
-                    ].copy()
-                    eligible_indices = eligible_indices.dropna(subset=["H2L%"]).sort_values(
-                        "H2L%", ascending=True
-                    ).head(3)
-
-                    st.markdown(
-                        '<div style="font-size:19px;font-weight:850;color:#654538;margin:12px 0 8px;">'
-                        '🏆 Top Moving Stocks — 3 from Each Selected Index</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                    top_mover_rows = []
-                    mover_errors = []
-                    for _, selected_index in eligible_indices.iterrows():
-                        selected_index_name = str(selected_index["INDEX"]).strip()
-                        live_movers, mover_error = fetch_nse_index_constituent_movers(selected_index_name)
-                        if mover_error:
-                            mover_errors.append(f"{selected_index_name}: {mover_error}")
-                        for mover in live_movers[:3]:
-                            top_mover_rows.append({
-                                "INDEX": selected_index_name,
-                                "STOCK": mover["STOCK"],
-                                "CURRENT": mover["CURRENT"],
-                                "%CHANGE": mover["%CHANGE"],
-                            })
-
-                    if top_mover_rows:
-                        top_movers_table = pd.DataFrame(top_mover_rows)
-                        top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
-                        top_movers_builder.configure_default_column(
-                            sortable=True, filter=True, resizable=True, minWidth=95
-                        )
-                        top_movers_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
-                        top_movers_builder.configure_column("STOCK", width=125, minWidth=105)
-                        top_movers_builder.configure_column("CURRENT", width=125, minWidth=105)
-                        top_movers_builder.configure_column("%CHANGE", width=120, minWidth=105)
-                        top_movers_builder.configure_grid_options(
-                            headerHeight=42,
-                            rowHeight=36,
-                            animateRows=False,
-                            suppressCellFocus=True,
-                            getRowStyle=JsCode(
-                                "function(params) { return params.node.rowIndex % 2 === 0 "
-                                "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
-                                ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
-                            ),
-                        )
-                        top_number_formatter = JsCode(
-                            "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
-                        )
-                        top_percent_formatter = JsCode(
-                            "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"
-                        )
-                        top_movers_builder.configure_column("CURRENT", valueFormatter=top_number_formatter)
-                        top_movers_builder.configure_column("%CHANGE", valueFormatter=top_percent_formatter)
-                        top_movers_css = {
-                            ".ag-header": {"background-color": "#EFC2AC !important", "border-bottom": "1px solid #D79B7E !important"},
-                            ".ag-header-cell": {"background-color": "#EFC2AC !important", "color": "#54382F !important", "font-weight": "800 !important", "border-right": "1px solid #D79B7E !important"},
-                            ".ag-header-cell-label": {"color": "#54382F !important", "font-weight": "800 !important"},
-                        }
-                        AgGrid(
-                            top_movers_table,
-                            gridOptions=top_movers_builder.build(),
-                            custom_css=top_movers_css,
-                            theme="streamlit",
-                            fit_columns_on_grid_load=False,
-                            height=min(max(150, 42 + 36 * len(top_movers_table)), 380),
-                            allow_unsafe_jscode=True,
-                            key="index_file_top_movers_grid",
-                        )
-                    elif len(eligible_indices):
-                        st.warning(
-                            "NSE did not return live constituent quotes for the selected indices. "
-                            "Check the details below; the main index table remains available."
-                        )
-                        for error_message in mover_errors:
-                            st.caption(error_message)
-                        if not mover_errors:
-                            st.caption("NSE returned no stock rows for the selected index names.")
-                    else:
-                        st.info("No indices meet the CURRENT > 10,000 condition.")
-
-                    # Keep the agreed column order and show two decimal places.
-                    index_table = index_table[
-                        ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]
-                    ]
-
-                    search_text = st.text_input(
-                        "Search index",
-                        placeholder="Enter index name",
-                        key="index_file_search"
-                    )
-                    displayed_table = index_table
-                    if search_text.strip():
-                        displayed_table = index_table[
-                            index_table["INDEX"].astype(str).str.contains(
-                                search_text.strip(), case=False, na=False
-                            )
-                        ]
-
-                    formatted_table = displayed_table.copy()
-                    for column in ["H2L%", "L2H%"]:
-                        formatted_table[column] = formatted_table[column].map(
-                            lambda value: f"{value:.2f}%" if pd.notna(value) else "—"
-                        )
-
-                    # Use AG Grid so the actual sortable column-header row can be
-                    # reliably rendered in peach (Streamlit's native dataframe header
-                    # does not consistently honor pandas header styling).
-                    grid_table = displayed_table.copy()
-                    grid_builder = GridOptionsBuilder.from_dataframe(grid_table)
-                    grid_builder.configure_default_column(
-                        sortable=True,
-                        filter=True,
-                        resizable=True,
-                        wrapHeaderText=True,
-                        autoHeaderHeight=True,
-                        minWidth=95,
-                    )
-                    # Balanced widths: readable without making the table excessively wide.
-                    grid_builder.configure_column("INDEX", minWidth=140, width=170, wrapText=True, autoHeight=True, tooltipField="INDEX")
-                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]:
-                        grid_builder.configure_column(column, minWidth=95, width=110)
-                    grid_builder.configure_grid_options(
-                        headerHeight=42,
-                        rowHeight=36,
-                        animateRows=False,
-                        suppressCellFocus=True,
-                    )
-                    number_formatter = JsCode(
-                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
-                    )
-                    percent_formatter = JsCode(
-                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"
-                    )
-                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
-                        grid_builder.configure_column(column, valueFormatter=number_formatter)
-                    for column in ["H2L%", "L2H%"]:
-                        grid_builder.configure_column(column, valueFormatter=percent_formatter)
-                    grid_builder.configure_grid_options(
-                        getRowStyle=JsCode(
-                            "function(params) { return params.node.rowIndex % 2 === 0 "
-                            "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
-                            ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
-                        )
-                    )
-                    peach_grid_css = {
-                        ".ag-header": {
-                            "background-color": "#EFC2AC !important",
-                            "border-bottom": "1px solid #D79B7E !important",
-                        },
-                        ".ag-header-cell": {
-                            "background-color": "#EFC2AC !important",
-                            "color": "#54382F !important",
-                            "font-weight": "800 !important",
-                            "border-right": "1px solid #D79B7E !important",
-                        },
-                        ".ag-header-cell-label": {
-                            "color": "#54382F !important",
-                            "font-weight": "800 !important",
-                        },
-                    }
-                    AgGrid(
-                        grid_table,
-                        gridOptions=grid_builder.build(),
-                        custom_css=peach_grid_css,
-                        theme="streamlit",
-                        fit_columns_on_grid_load=False,
-                        height=min(max(180, 42 + 36 * len(grid_table)), 650),
-                        allow_unsafe_jscode=True,
-                        key="index_file_peach_sortable_grid",
-                    )
-                    st.download_button(
-                        "Download H2L% / L2H% table as CSV",
-                        data=displayed_table.to_csv(index=False, float_format="%.2f").encode("utf-8"),
-                        file_name="index_h2l_l2h_table.csv",
-                        mime="text/csv",
-                        use_container_width=True,
-                        key="index_file_download_csv"
-                    )
-            except Exception as index_error:
-                st.error(f"Could not read this Index file: {index_error}")
-        elif st.session_state.get("index_file_bytes") and st.session_state.get("index_file_name"):
-            st.info(
-                f"Index file uploaded in this session: {st.session_state['index_file_name']}. "
-                "Select it again above to display the calculated table."
+            grid_table = displayed_table[
+                ["INDEX", "CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]
+            ].copy()
+            grid_builder = GridOptionsBuilder.from_dataframe(grid_table)
+            grid_builder.configure_default_column(
+                sortable=True, filter=True, resizable=True,
+                wrapHeaderText=True, autoHeaderHeight=True, minWidth=95,
             )
-        else:
-            st.info("Upload an .xlsx or .csv file containing INDEX, CURRENT, %CHANGE, OPEN, HIGH and LOW columns to build the H2L% / L2H% table.")
+            grid_builder.configure_column("INDEX", minWidth=140, width=170, wrapText=True, autoHeight=True, tooltipField="INDEX")
+            for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW", "H2L%", "L2H%"]:
+                grid_builder.configure_column(column, minWidth=95, width=110)
+            grid_builder.configure_grid_options(
+                headerHeight=42, rowHeight=36, animateRows=False, suppressCellFocus=True,
+                getRowStyle=JsCode(
+                    "function(params) { return params.node.rowIndex % 2 === 0 "
+                    "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
+                    ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
+                ),
+            )
+            number_formatter = JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }")
+            percent_formatter = JsCode("function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }")
+            for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
+                grid_builder.configure_column(column, valueFormatter=number_formatter)
+            for column in ["H2L%", "L2H%"]:
+                grid_builder.configure_column(column, valueFormatter=percent_formatter)
+            peach_grid_css = {
+                ".ag-header": {"background-color": "#EFC2AC !important", "border-bottom": "1px solid #D79B7E !important"},
+                ".ag-header-cell": {"background-color": "#EFC2AC !important", "color": "#54382F !important", "font-weight": "800 !important", "border-right": "1px solid #D79B7E !important"},
+                ".ag-header-cell-label": {"color": "#54382F !important", "font-weight": "800 !important"},
+            }
+            AgGrid(
+                grid_table, gridOptions=grid_builder.build(), custom_css=peach_grid_css,
+                theme="streamlit", fit_columns_on_grid_load=False,
+                height=min(max(180, 42 + 36 * len(grid_table)), 650),
+                allow_unsafe_jscode=True, key="index_file_peach_sortable_grid",
+            )
+            st.download_button(
+                "Download H2L% / L2H% table as CSV",
+                data=grid_table.to_csv(index=False, float_format="%.2f").encode("utf-8"),
+                file_name="index_h2l_l2h_table.csv",
+                mime="text/csv", use_container_width=True, key="index_file_download_csv",
+            )
+            missing_quote_count = int(index_table["CURRENT"].isna().sum())
+            if missing_quote_count:
+                st.caption(
+                    f"{missing_quote_count} indices are listed by the constituent source but do not have a usable Yahoo Finance index quote. "
+                    "Their price and H2L% / L2H% values are left blank rather than estimated."
+                )
+        except Exception as index_error:
+            st.error(f"Could not automatically fetch NSE index data: {index_error}")
 
 elif page == "Master Excel":
 
