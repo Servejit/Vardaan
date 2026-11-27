@@ -5343,13 +5343,13 @@ elif page == "Index File":
                 top_movers_table = pd.DataFrame(top_mover_rows)
                 top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
                 top_movers_builder.configure_default_column(sortable=True, filter=True, resizable=True, minWidth=95)
-                top_movers_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
-                top_movers_builder.configure_column("STOCK", width=125, minWidth=105)
-                top_movers_builder.configure_column("CURRENT", width=125, minWidth=105)
-                top_movers_builder.configure_column("OPEN", width=115, minWidth=100)
-                top_movers_builder.configure_column("HIGH", width=115, minWidth=100)
-                top_movers_builder.configure_column("LOW", width=115, minWidth=100)
-                top_movers_builder.configure_column("%CHANGE", width=120, minWidth=105)
+                top_movers_builder.configure_column("INDEX", width=130, minWidth=110, wrapText=True)
+                top_movers_builder.configure_column("STOCK", width=85, minWidth=75)
+                top_movers_builder.configure_column("CURRENT", width=82, minWidth=75)
+                top_movers_builder.configure_column("OPEN", width=82, minWidth=75)
+                top_movers_builder.configure_column("HIGH", width=82, minWidth=75)
+                top_movers_builder.configure_column("LOW", width=82, minWidth=75)
+                top_movers_builder.configure_column("%CHANGE", width=88, minWidth=78)
                 top_movers_builder.configure_grid_options(
                     headerHeight=42, rowHeight=36, animateRows=False, suppressCellFocus=True,
                     getRowStyle=JsCode(
@@ -5425,13 +5425,13 @@ elif page == "Index File":
                 bottom_builder.configure_default_column(
                     sortable=True, filter=True, resizable=True, minWidth=95
                 )
-                bottom_builder.configure_column("INDEX", width=180, minWidth=140, wrapText=True)
-                bottom_builder.configure_column("STOCK", width=125, minWidth=105)
-                bottom_builder.configure_column("CURRENT", width=125, minWidth=105)
-                bottom_builder.configure_column("OPEN", width=115, minWidth=100)
-                bottom_builder.configure_column("HIGH", width=115, minWidth=100)
-                bottom_builder.configure_column("LOW", width=115, minWidth=100)
-                bottom_builder.configure_column("%CHANGE", width=120, minWidth=105)
+                bottom_builder.configure_column("INDEX", width=130, minWidth=110, wrapText=True)
+                bottom_builder.configure_column("STOCK", width=85, minWidth=75)
+                bottom_builder.configure_column("CURRENT", width=82, minWidth=75)
+                bottom_builder.configure_column("OPEN", width=82, minWidth=75)
+                bottom_builder.configure_column("HIGH", width=82, minWidth=75)
+                bottom_builder.configure_column("LOW", width=82, minWidth=75)
+                bottom_builder.configure_column("%CHANGE", width=88, minWidth=78)
                 bottom_builder.configure_grid_options(
                     headerHeight=42,
                     rowHeight=36,
