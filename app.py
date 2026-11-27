@@ -2271,9 +2271,9 @@ def render_trstar_dashboard():
             "Low": display_price(quote.get("low")),
             "% Chg": change_text,
             "Price": display_price(quote.get("price")),
-            "TR.t": display_price(quote.get("tr_t")) + ("%" if quote.get("tr_t") is not None else ""),
-            "TR.y": display_price(quote.get("tr_y")) + ("%" if quote.get("tr_y") is not None else ""),
-            "TR.py": display_price(quote.get("tr_py")) + ("%" if quote.get("tr_py") is not None else ""),
+            "TR.t": display_price(quote.get("tr_t")),
+            "TR.y": display_price(quote.get("tr_y")),
+            "TR.py": display_price(quote.get("tr_py")),
         })
 
     table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py"])
