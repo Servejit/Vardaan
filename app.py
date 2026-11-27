@@ -22,7 +22,6 @@ from supabase import create_client, ClientOptions
 
 @st.cache_data(ttl=60, show_spinner=False)
 @st.cache_data(ttl=60, show_spinner=False)
-@st.cache_data(ttl=60, show_spinner=False)
 def fetch_nse_index_constituent_movers(index_name):
     """
     Get index members from a separate index-constituent service and rank them
