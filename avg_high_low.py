@@ -1133,7 +1133,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
       width:100% !important;
       text-align:center !important;
       white-space:nowrap !important;
-      font-size:2.5rem !important;
+      font-size:2.75rem !important;
       line-height:1.15 !important;
       margin-top:48px !important;
       padding-top:0 !important;
@@ -1155,9 +1155,6 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
       animation:dependentSignalShimmer 4.2s linear infinite;
       -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat;
       mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z'/%3E%3Cpath d='M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z'/%3E%3Cpath d='M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z'/%3E%3Cpath d='M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z'/%3E%3Cpath d='M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z'/%3E%3Cpath d='M34 64 Q60 69 86 64'/%3E%3C/svg%3E") center/contain no-repeat;
-    }
-    @media(max-width:560px) {
-      html body .stApp h1 { font-size:clamp(1.45rem,7vw,2.1rem) !important; }
     }
     </style>
     """, unsafe_allow_html=True)
