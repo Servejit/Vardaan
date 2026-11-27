@@ -6191,3 +6191,70 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# Final application-wide button standard: identical Pistachio styling in every dashboard.
+st.markdown(
+    """
+    <style>
+    .stApp button,
+    .stApp [data-testid="stButton"] > button,
+    .stApp [data-testid="stDownloadButton"] > button,
+    .stApp [data-testid="stFormSubmitButton"] > button,
+    .stApp [data-testid="stFileUploader"] button,
+    .stApp [data-testid="stPopover"] button,
+    .stApp [data-testid="stLinkButton"] a {
+        background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 55%,#B7D7A8 100%) !important;
+        background-color:#DDEBCF !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        border:1.5px solid #8FAF72 !important;
+        border-radius:10px !important;
+        box-shadow:0 3px 9px rgba(54,91,59,.12) !important;
+        font-weight:700 !important;
+        transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease !important;
+    }
+    .stApp button:hover,
+    .stApp [data-testid="stButton"] > button:hover,
+    .stApp [data-testid="stDownloadButton"] > button:hover,
+    .stApp [data-testid="stFormSubmitButton"] > button:hover,
+    .stApp [data-testid="stFileUploader"] button:hover,
+    .stApp [data-testid="stPopover"] button:hover,
+    .stApp [data-testid="stLinkButton"] a:hover {
+        background:linear-gradient(135deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+        background-color:#B7D7A8 !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        border-color:#658B4E !important;
+        box-shadow:0 5px 13px rgba(54,91,59,.18) !important;
+    }
+    .stApp button:focus,
+    .stApp button:focus-visible,
+    .stApp [data-testid="stLinkButton"] a:focus-visible {
+        outline:2px solid #658B4E !important;
+        outline-offset:2px !important;
+        box-shadow:0 0 0 3px rgba(183,215,168,.38) !important;
+    }
+    .stApp button:active,
+    .stApp [data-testid="stLinkButton"] a:active {
+        background:#B7D7A8 !important;
+        transform:translateY(1px) !important;
+    }
+    .stApp button:disabled,
+    .stApp button[disabled],
+    .stApp [data-testid="stLinkButton"] a[aria-disabled="true"] {
+        background:#F4F8EF !important;
+        color:#8FAF72 !important;
+        border-color:#C8DDB5 !important;
+        box-shadow:none !important;
+        opacity:.72 !important;
+    }
+    .stApp button *,
+    .stApp [data-testid="stLinkButton"] a * {
+        color:inherit !important;
+        -webkit-text-fill-color:inherit !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
