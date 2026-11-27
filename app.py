@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import pandas as pd
 import streamlit as st
+from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 from avg_high_low import render_avg_high_low_dashboard
 from streamlit_autorefresh import st_autorefresh
 from openpyxl import load_workbook
@@ -5063,74 +5064,66 @@ elif page == "Index File":
                             lambda value: f"{value:.2f}%" if pd.notna(value) else "—"
                         )
 
-                    peach_table = (
-                        formatted_table.style
-                        .format({
-                            "CURRENT": "{:.2f}",
-                            "%CHANGE": "{:.2f}",
-                            "OPEN": "{:.2f}",
-                            "HIGH": "{:.2f}",
-                            "LOW": "{:.2f}",
-                        }, na_rep="—")
-                        .apply(
-                            lambda row: [
-                                "background-color: #FFFFFF; color: #54382F; font-weight: 700;"
-                                if row.name % 2 == 0
-                                else "background-color: #FCE1D4; color: #54382F; font-weight: 700;"
-                                for _ in row
-                            ],
-                            axis=1
-                        )
-                        .apply_index(
-                            lambda headers: [
-                                "background-color: #EFC2AC !important; color: #54382F !important; font-weight: 800 !important; border: 1px solid #D79B7E !important;"
-                                for _ in headers
-                            ],
-                            axis="columns"
-                        )
-                        .set_table_styles([
-                            {
-                                "selector": "thead th, th.col_heading, th.col_heading.level0",
-                                "props": [
-                                    ("background-color", "#EFC2AC !important"),
-                                    ("color", "#54382F !important"),
-                                    ("font-weight", "800 !important"),
-                                    ("border", "1px solid #D79B7E !important"),
-                                    ("padding", "11px 12px !important"),
-                                ],
-                            },
-                            {
-                                "selector": "tbody th",
-                                "props": [
-                                    ("background-color", "#EFC2AC !important"),
-                                    ("color", "#54382F !important"),
-                                    ("font-weight", "800 !important"),
-                                ],
-                            },
-                        ])
+                    # Use AG Grid so the actual sortable column-header row can be
+                    # reliably rendered in peach (Streamlit's native dataframe header
+                    # does not consistently honor pandas header styling).
+                    grid_table = displayed_table.copy()
+                    grid_builder = GridOptionsBuilder.from_dataframe(grid_table)
+                    grid_builder.configure_default_column(
+                        sortable=True,
+                        filter=True,
+                        resizable=True,
+                        wrapHeaderText=True,
+                        autoHeaderHeight=True,
                     )
-                    # Force the visible column-label cells (INDEX, CURRENT, OPEN, etc.)
-                    # to use the peach header colour while keeping dataframe sorting enabled.
-                    st.markdown(
-                        """
-                        <style>
-                        div[data-testid="stDataFrame"] thead tr th,
-                        div[data-testid="stDataFrame"] th,
-                        .stDataFrame thead th,
-                        .stDataFrame th.col_heading {
-                            background-color: #EFC2AC !important;
-                            color: #54382F !important;
-                            font-weight: 800 !important;
-                            border: 1px solid #D79B7E !important;
-                        }
-                        </style>
-                        """,
-                        unsafe_allow_html=True,
+                    grid_builder.configure_grid_options(
+                        headerHeight=42,
+                        rowHeight=36,
+                        animateRows=False,
+                        suppressCellFocus=True,
                     )
-                    st.dataframe(
-                        peach_table,
-                        use_container_width=True,
-                        hide_index=True
+                    number_formatter = JsCode(
+                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2); }"
+                    )
+                    percent_formatter = JsCode(
+                        "function(params) { return params.value == null ? '—' : Number(params.value).toFixed(2) + '%'; }"
+                    )
+                    for column in ["CURRENT", "%CHANGE", "OPEN", "HIGH", "LOW"]:
+                        grid_builder.configure_column(column, valueFormatter=number_formatter)
+                    for column in ["H2L%", "L2H%"]:
+                        grid_builder.configure_column(column, valueFormatter=percent_formatter)
+                    grid_builder.configure_grid_options(
+                        getRowStyle=JsCode(
+                            "function(params) { return params.node.rowIndex % 2 === 0 "
+                            "? {backgroundColor: '#FFFFFF', color: '#54382F', fontWeight: '700'} "
+                            ": {backgroundColor: '#FCE1D4', color: '#54382F', fontWeight: '700'}; }"
+                        )
+                    )
+                    peach_grid_css = {
+                        ".ag-header": {
+                            "background-color": "#EFC2AC !important",
+                            "border-bottom": "1px solid #D79B7E !important",
+                        },
+                        ".ag-header-cell": {
+                            "background-color": "#EFC2AC !important",
+                            "color": "#54382F !important",
+                            "font-weight": "800 !important",
+                            "border-right": "1px solid #D79B7E !important",
+                        },
+                        ".ag-header-cell-label": {
+                            "color": "#54382F !important",
+                            "font-weight": "800 !important",
+                        },
+                    }
+                    AgGrid(
+                        grid_table,
+                        gridOptions=grid_builder.build(),
+                        custom_css=peach_grid_css,
+                        theme="streamlit",
+                        fit_columns_on_grid_load=True,
+                        height=min(max(180, 42 + 36 * len(grid_table)), 650),
+                        allow_unsafe_jscode=True,
+                        key="index_file_peach_sortable_grid",
                     )
                     st.download_button(
                         "Download H2L% / L2H% table as CSV",
