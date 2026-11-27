@@ -2326,7 +2326,7 @@ def render_trstar_dashboard():
         .apply(
             lambda row: [
                 "background-color: #DDEBCF" if row.name % 2 == 0
-                else "background-color: #FFFFFF"
+                else "background-color: #DDEBCF"
                 for _ in row
             ],
             axis=1,
