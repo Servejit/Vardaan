@@ -4962,6 +4962,19 @@ elif page == "Index File":
         border-color:#C87959 !important;
         box-shadow:inset 0 3px 0 #C87959 !important;
     }
+
+    /* Force the complete Index File dataframe heading row to peach */
+    body:has(.st-key-index-file-theme) [data-testid="stDataFrame"] [role="columnheader"],
+    body:has(.st-key-index-file-theme) [data-testid="stDataFrame"] [role="columnheader"] *,
+    body:has(.st-key-index-file-theme) [data-testid="stDataFrame"] .gdg-header,
+    body:has(.st-key-index-file-theme) [data-testid="stDataFrame"] .dvn-header,
+    body:has(.st-key-index-file-theme) [data-testid="stDataFrame"] .col_heading {
+        background: #EFC2AC !important;
+        background-color: #EFC2AC !important;
+        color: #54382F !important;
+        font-weight: 800 !important;
+        border-color: #D79B7E !important;
+    }
     </style>
         """, unsafe_allow_html=True)
         st.title("🗂️ Index File")
