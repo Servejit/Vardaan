@@ -2179,10 +2179,37 @@ def render_trstar_dashboard():
             "Price": display_price(quote.get("price")),
         })
 
-    st.caption(f"{len(rows)} stocks from Master file")
     table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price"])
+    styled_table = (
+        table.style
+        .set_table_styles([
+            {"selector": "th", "props": [
+                ("background-color", "#F4C7AB"),
+                ("color", "#5B4035"),
+                ("font-weight", "700"),
+                ("border-bottom", "1px solid #E9C3AE"),
+            ]},
+            {"selector": "td", "props": [
+                ("color", "#5B4035"),
+                ("border-bottom", "1px solid #F0DED3"),
+            ]},
+        ])
+        .apply(
+            lambda row: [
+                "background-color: #FBE2D5" if row.name % 2 == 0
+                else "background-color: #FFFFFF"
+                for _ in row
+            ],
+            axis=1,
+        )
+    )
+    st.markdown(
+        "<style>[data-testid='stAppViewContainer'] .main .block-container {"
+        "background-color: #FBE2D5; border-radius: 12px;}</style>",
+        unsafe_allow_html=True,
+    )
     st.dataframe(
-        table,
+        styled_table,
         use_container_width=True,
         hide_index=True,
         height=min(720, 42 + 35 * min(len(table), 19)),
