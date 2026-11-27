@@ -1135,7 +1135,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
       white-space:nowrap !important;
       font-size:2.75rem !important;
       line-height:1.15 !important;
-      margin-top:48px !important;
+      margin-top:75px !important;
       padding-top:0 !important;
       color:#658B4E !important;
       -webkit-text-fill-color:#658B4E !important;
