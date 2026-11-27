@@ -5109,6 +5109,24 @@ elif page == "Index File":
                             },
                         ])
                     )
+                    # Force the visible column-label cells (INDEX, CURRENT, OPEN, etc.)
+                    # to use the peach header colour while keeping dataframe sorting enabled.
+                    st.markdown(
+                        """
+                        <style>
+                        div[data-testid="stDataFrame"] thead tr th,
+                        div[data-testid="stDataFrame"] th,
+                        .stDataFrame thead th,
+                        .stDataFrame th.col_heading {
+                            background-color: #EFC2AC !important;
+                            color: #54382F !important;
+                            font-weight: 800 !important;
+                            border: 1px solid #D79B7E !important;
+                        }
+                        </style>
+                        """,
+                        unsafe_allow_html=True,
+                    )
                     st.dataframe(
                         peach_table,
                         use_container_width=True,
