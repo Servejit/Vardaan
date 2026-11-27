@@ -6423,3 +6423,137 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# Shared sidebar copied from the Stock of the Day navigation style.
+# This final rule set keeps the same sidebar appearance on every dashboard.
+st.markdown(
+    """
+    <style>
+    /* Sidebar shell and background */
+    .stApp [data-testid="stSidebar"],
+    .stApp [data-testid="stSidebar"] > div:first-child {
+        background:linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 54%,#E7F0D9 100%) !important;
+        border-right:1.5px solid #C8DDB5 !important;
+        box-shadow:inset -7px 0 20px rgba(54,91,59,.07) !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        background:transparent !important;
+    }
+    /* Brand header, account panel and sidebar copy */
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *,
+    .stApp [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+    .stApp [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+    .stApp [data-testid="stSidebar"] label,
+    .stApp [data-testid="stSidebar"] p,
+    .stApp [data-testid="stSidebar"] span {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+        color:#365B3B !important;
+        border:0 !important;
+        letter-spacing:-.02em !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border-bottom"],
+    .stApp [data-testid="stSidebar"] hr {
+        border-color:#C8DDB5 !important;
+        background-color:#C8DDB5 !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border:1px solid"],
+    .stApp [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div[style*="border: 1px solid"] {
+        background:linear-gradient(135deg,#FFFFFF 0%,#F4F8EF 100%) !important;
+        border-color:#C8DDB5 !important;
+        border-radius:12px !important;
+        color:#365B3B !important;
+    }
+    /* Navigation heading and radio-menu rows */
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] > label {
+        color:#658B4E !important;
+        font-size:.72rem !important;
+        font-weight:800 !important;
+        letter-spacing:.10em !important;
+        text-transform:uppercase !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] {
+        gap:.45rem !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label {
+        display:flex !important;
+        align-items:center !important;
+        min-height:2.85rem !important;
+        padding:.55rem .8rem !important;
+        margin:0 !important;
+        border:1px solid #C8DDB5 !important;
+        border-radius:12px !important;
+        background:linear-gradient(135deg,#FFFFFF 0%,#F4F8EF 100%) !important;
+        box-shadow:0 2px 7px rgba(54,91,59,.06) !important;
+        transition:all 150ms ease !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:hover {
+        border-color:#8FAF72 !important;
+        background:linear-gradient(110deg,#F4F8EF 0%,#DDEBCF 100%) !important;
+        transform:translateX(2px) !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {
+        border:1.5px solid #658B4E !important;
+        background:linear-gradient(110deg,#DDEBCF 0%,#F4F8EF 100%) !important;
+        box-shadow:inset 4px 0 0 #658B4E,0 3px 10px rgba(54,91,59,.12) !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label p,
+    .stApp [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label span {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        font-size:.94rem !important;
+        font-weight:700 !important;
+    }
+    /* Sidebar buttons use the exact common Pistachio button treatment */
+    .stApp [data-testid="stSidebar"] .stButton > button,
+    .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+    .stApp [data-testid="stSidebar"] [data-testid="stDownloadButton"] button {
+        min-height:2.7rem !important;
+        border:1.5px solid #8FAF72 !important;
+        border-radius:10px !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 55%,#B7D7A8 100%) !important;
+        box-shadow:0 3px 9px rgba(54,91,59,.10) !important;
+        font-weight:750 !important;
+    }
+    .stApp [data-testid="stSidebar"] .stButton > button:hover,
+    .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button:hover,
+    .stApp [data-testid="stSidebar"] [data-testid="stDownloadButton"] button:hover {
+        border-color:#658B4E !important;
+        background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%) !important;
+        color:#365B3B !important;
+    }
+    /* Sidebar dropdowns, inputs and text */
+    .stApp [data-testid="stSidebar"] input:not([type="radio"]):not([type="checkbox"]),
+    .stApp [data-testid="stSidebar"] textarea,
+    .stApp [data-testid="stSidebar"] [data-baseweb="select"] > div {
+        background:#F4F8EF !important;
+        border:1px solid #8FAF72 !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    .stApp [data-testid="stSidebar"] input::placeholder,
+    .stApp [data-testid="stSidebar"] textarea::placeholder {
+        color:#658B4E !important;
+        -webkit-text-fill-color:#658B4E !important;
+    }
+    .stApp [data-testid="stSidebar"] [data-baseweb="select"] * {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    /* Keep all sidebar divider and icon details within Pistachio palette */
+    .stApp [data-testid="stSidebar"] svg {
+        color:#658B4E !important;
+        fill:currentColor !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
