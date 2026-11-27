@@ -4872,34 +4872,73 @@ elif page == "Avg.High Low":
     render_avg_high_low_dashboard(_avg_high_low_master, app_name="VARDAAN")
 
 elif page == "Index File":
-    st.title("🗂️ Index File")
-    st.caption("Upload and inspect an index constituents or market-index spreadsheet. The uploaded file is kept in this browser session.")
-    index_upload = st.file_uploader("Choose an Index file", type=["xlsx", "csv"], key="index_file_dashboard_upload")
-    if index_upload is not None:
-        try:
-            if index_upload.name.lower().endswith(".csv"):
-                index_frame = pd.read_csv(io.BytesIO(index_upload.getvalue()))
-            else:
-                index_frame = pd.read_excel(io.BytesIO(index_upload.getvalue()))
-            st.session_state["index_file_bytes"] = index_upload.getvalue()
-            st.session_state["index_file_name"] = index_upload.name
-            st.success(f"Loaded: {index_upload.name}")
-            metrics = st.columns(3)
-            metrics[0].metric("Rows", f"{len(index_frame):,}")
-            metrics[1].metric("Columns", f"{len(index_frame.columns):,}")
-            metrics[2].metric("Format", "CSV" if index_upload.name.lower().endswith(".csv") else "Excel")
-            search_text = st.text_input("Search rows", placeholder="Enter index or stock name", key="index_file_search")
-            if search_text.strip():
-                matches = index_frame.astype(str).apply(lambda col: col.str.contains(search_text.strip(), case=False, na=False))
-                index_frame = index_frame[matches.any(axis=1)]
-            st.dataframe(index_frame, use_container_width=True, hide_index=True)
-            st.download_button("Download displayed rows as CSV", data=index_frame.to_csv(index=False).encode("utf-8"), file_name="index_file_view.csv", mime="text/csv", use_container_width=True, key="index_file_download_csv")
-        except Exception as index_error:
-            st.error(f"Could not read this Index file: {index_error}")
-    elif st.session_state.get("index_file_bytes") and st.session_state.get("index_file_name"):
-        st.info(f"Index file uploaded in this session: {st.session_state['index_file_name']}. Select it again above to display.")
-    else:
-        st.info("Upload an .xlsx or .csv file to view index names, constituents, and data columns.")
+    with st.container(key="index-file-theme"):
+    st.markdown("""
+    <style>
+    .stApp:has(.st-key-index-file-theme), [data-testid="stAppViewContainer"]:has(.st-key-index-file-theme) {
+        background:linear-gradient(145deg,#FFF8F4 0%,#FCE9DF 52%,#FFF4ED 100%) !important;
+        color:#54382F !important;
+    }
+    [data-testid="stMain"] :has(.st-key-index-file-theme) { color:#54382F; }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) {
+        background:rgba(255,248,244,.42) !important;
+        border:1px solid #E9BFAE !important; border-radius:18px !important;
+        padding:1.2rem !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stMetric"],
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stExpander"],
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stFileUploader"] section {
+        border-color:#E7BBA7 !important; border-radius:12px !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) input,
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-baseweb="select"] > div {
+        border-color:#E3B6A2 !important; background:#FFFCFA !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDataFrame"],
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stTable"] {
+        border:1px solid #E1B29D !important; border-radius:12px !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [role="columnheader"],
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) table thead th {
+        background:#F4D1C0 !important; color:#54382F !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) .stButton > button,
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) [data-testid="stDownloadButton"] button {
+        border:1px solid #DDA58D !important; background:linear-gradient(135deg,#FFFCFA,#F5D4C3) !important; color:#57382C !important;
+    }
+    [data-testid="stMainBlockContainer"]:has(.st-key-index-file-theme) .stButton > button:hover {
+        border-color:#C87959 !important; background:#EFC2AC !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+        st.title("🗂️ Index File")
+        st.caption("Upload and inspect an index constituents or market-index spreadsheet. The uploaded file is kept in this browser session.")
+        index_upload = st.file_uploader("Choose an Index file", type=["xlsx", "csv"], key="index_file_dashboard_upload")
+        if index_upload is not None:
+            try:
+                if index_upload.name.lower().endswith(".csv"):
+                    index_frame = pd.read_csv(io.BytesIO(index_upload.getvalue()))
+                else:
+                    index_frame = pd.read_excel(io.BytesIO(index_upload.getvalue()))
+                st.session_state["index_file_bytes"] = index_upload.getvalue()
+                st.session_state["index_file_name"] = index_upload.name
+                st.success(f"Loaded: {index_upload.name}")
+                metrics = st.columns(3)
+                metrics[0].metric("Rows", f"{len(index_frame):,}")
+                metrics[1].metric("Columns", f"{len(index_frame.columns):,}")
+                metrics[2].metric("Format", "CSV" if index_upload.name.lower().endswith(".csv") else "Excel")
+                search_text = st.text_input("Search rows", placeholder="Enter index or stock name", key="index_file_search")
+                if search_text.strip():
+                    matches = index_frame.astype(str).apply(lambda col: col.str.contains(search_text.strip(), case=False, na=False))
+                    index_frame = index_frame[matches.any(axis=1)]
+                st.dataframe(index_frame, use_container_width=True, hide_index=True)
+                st.download_button("Download displayed rows as CSV", data=index_frame.to_csv(index=False).encode("utf-8"), file_name="index_file_view.csv", mime="text/csv", use_container_width=True, key="index_file_download_csv")
+            except Exception as index_error:
+                st.error(f"Could not read this Index file: {index_error}")
+        elif st.session_state.get("index_file_bytes") and st.session_state.get("index_file_name"):
+            st.info(f"Index file uploaded in this session: {st.session_state['index_file_name']}. Select it again above to display.")
+        else:
+            st.info("Upload an .xlsx or .csv file to view index names, constituents, and data columns.")
 
 elif page == "Master Excel":
 
@@ -5751,24 +5790,4 @@ with st.container(key="vardaan-bottom-nav"):
         horizontal=True,
         label_visibility="collapsed",
     )
-# GLOBAL PEACH UI THEME — consistent peach surfaces throughout all dashboard pages.
-st.markdown("""
-<style>
-:root { color-scheme: light; }
-[data-testid="stAppViewContainer"],.stApp { background:linear-gradient(145deg,#FFF8F4 0%,#FCE9DF 52%,#FFF4ED 100%) !important; }
-[data-testid="stHeader"] { background:rgba(255,244,237,.96) !important; border-bottom:1px solid #E9BFAE !important; }
-[data-testid="stSidebar"] { background:linear-gradient(180deg,#FFF9F5 0%,#FCE9DF 58%,#F6D8C9 100%) !important; border-right:1px solid #E8BDAA !important; }
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],[data-testid="stSidebar"] label,[data-testid="stSidebar"] [data-testid="stWidgetLabel"],[data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#654237 !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label { border-color:#E5B9A5 !important; background:linear-gradient(135deg,#FFFDFC,#FBE7DC) !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) { border-color:#D58F73 !important; background:#F5D3C2 !important; box-shadow:inset 4px 0 0 #C87959,0 3px 10px rgba(128,72,49,.12) !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label p { color:#56372B !important; }
-[data-testid="stMetric"],[data-testid="stExpander"],[data-testid="stForm"],[data-testid="stAlert"],[data-testid="stFileUploader"] section { border-color:#E7BBA7 !important; border-radius:12px !important; }
-[data-testid="stSelectbox"] > div,[data-testid="stMultiSelect"] > div,[data-testid="stTextInput"] input,[data-testid="stNumberInput"] input,[data-testid="stDateInput"] input,[data-testid="stTextArea"] textarea { border-color:#E3B6A2 !important; background:#FFFCFA !important; }
-[data-testid="stDataFrame"],[data-testid="stTable"] { border:1px solid #E1B29D !important; border-radius:12px !important; }
-[data-testid="stDataFrame"] [role="columnheader"],table thead th { background:#F4D1C0 !important; color:#54382F !important; }
-.stButton > button,[data-testid="stFormSubmitButton"] button,[data-testid="stDownloadButton"] button { border:1px solid #DDA58D !important; background:linear-gradient(135deg,#FFFCFA,#F5D4C3) !important; color:#57382C !important; }
-.stButton > button:hover,[data-testid="stFormSubmitButton"] button:hover,[data-testid="stDownloadButton"] button:hover { border-color:#C87959 !important; background:#EFC2AC !important; color:#482D23 !important; }
-hr { border-color:#E8BDAA !important; }
-</style>
-""", unsafe_allow_html=True)
 
