@@ -2128,7 +2128,6 @@ def get_trstar_master_symbols(workbook_bytes):
 def render_trstar_dashboard():
     """Display every stock in Master with its current NSE OHLC, change and LTP."""
     st.title("TR.Star")
-    st.caption("Complete Master stock list · Live NSE market prices")
 
     market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
     market_open = (
