@@ -2295,36 +2295,21 @@ def render_trstar_dashboard():
 
         rows.append({
             "Stock": symbol,
-            "Open": quote.get("open"),
-            "High": quote.get("high"),
-            "Low": quote.get("low"),
-            "% Chg": change,
-            "Price": quote.get("price"),
-            "TR.t": quote.get("tr_t"),
-            "TR.y": quote.get("tr_y"),
-            "TR.py": quote.get("tr_py"),
-            "TR7": quote.get("tr7"),
-            "TR20": quote.get("tr20"),
+            "Open": display_price(quote.get("open")),
+            "High": display_price(quote.get("high")),
+            "Low": display_price(quote.get("low")),
+            "% Chg": change_text,
+            "Price": display_price(quote.get("price")),
+            "TR.t": display_price(quote.get("tr_t")),
+            "TR.y": display_price(quote.get("tr_y")),
+            "TR.py": display_price(quote.get("tr_py")),
+            "TR7": display_price(quote.get("tr7")),
+            "TR20": display_price(quote.get("tr20")),
         })
 
     table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20"])
     styled_table = (
         table.style
-        .format(
-            {
-                "Open": "{:,.2f}",
-                "High": "{:,.2f}",
-                "Low": "{:,.2f}",
-                "% Chg": "{:+.2f}%",
-                "Price": "{:,.2f}",
-                "TR.t": "{:,.2f}",
-                "TR.y": "{:,.2f}",
-                "TR.py": "{:,.2f}",
-                "TR7": "{:,.2f}",
-                "TR20": "{:,.2f}",
-            },
-            na_rep="—",
-        )
         .set_table_styles([
             {"selector": "th", "props": [
                 ("background-color", "#F4C7AB"),
@@ -2375,12 +2360,9 @@ def render_trstar_dashboard():
         """,
         unsafe_allow_html=True,
     )
-    # Native Streamlit table supports sorting from column headings.
-    # Keep numeric values underneath so sorting is numeric, not alphabetical.
-    st.dataframe(
-        styled_table,
-        use_container_width=True,
-        hide_index=True,
+    st.markdown(
+        f'<div class="trstar-table-wrap">{styled_table.to_html()}</div>',
+        unsafe_allow_html=True,
     )
 
 
