@@ -5891,7 +5891,7 @@ st.markdown(
     f"""
     <style>
     .vardaan-bottom-nav-label {{
-        color:{_bottom_nav_theme["soft_text"]} !important;
+        color:#5B4035 !important;
         font-size:.72rem;font-weight:800;letter-spacing:.12em;
         text-transform:uppercase;margin:.75rem 0 .55rem 2px;
     }}
@@ -5906,24 +5906,24 @@ st.markdown(
         flex:1 1 0 !important;min-width:0 !important;
         display:flex !important;align-items:center !important;justify-content:center !important;
         min-height:3rem !important;padding:.55rem .8rem !important;margin:0 !important;
-        border:1px solid {_bottom_nav_theme["border"]} !important;
+        border:1px solid #E9C3AE !important;
         border-radius:11px !important;
-        background:linear-gradient(135deg,#FFFFFF 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
-        box-shadow:0 2px 8px rgba(23,101,139,.08) !important;
+        background:linear-gradient(110deg,#FFF8F3 0%,#FBE2D5 100%) !important;
+        box-shadow:0 2px 8px rgba(190,120,85,.14) !important;
         transition:all 150ms ease !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:hover {{
-        border-color:{_bottom_nav_theme["accent"]} !important;
-        background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+        border-color:#D99572 !important;
+        background:linear-gradient(110deg,#FBE2D5 0%,#F4C7AB 100%) !important;
         transform:translateX(2px) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
-        border:1.5px solid {_bottom_nav_theme["accent"]} !important;
+        border:1.5px solid #D99572 !important;
         background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
-        box-shadow:inset 4px 0 0 {_bottom_nav_left_accent},0 3px 10px rgba(23,101,139,.12) !important;
+        box-shadow:inset 4px 0 0 #D99572,0 3px 10px rgba(190,120,85,.20) !important;
     }}
     [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label p {{
-        color:{_bottom_nav_theme["accent_text"]} !important;
+        color:#5B4035 !important;
         font-weight:750 !important;font-size:.94rem !important;
         text-align:center !important;margin:0 !important;
     }}
