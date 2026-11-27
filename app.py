@@ -1948,7 +1948,8 @@ def get_autogreen_live_prices(symbols):
     def fetch_one(symbol):
         empty = {
             "price": None, "open": None, "high": None, "low": None,
-            "previous_close": None, "change_pct": None
+            "previous_close": None, "change_pct": None,
+            "tr_t": None, "tr_y": None, "tr_py": None
         }
         try:
             ticker = yf.Ticker(f"{symbol}.NS")
@@ -2011,6 +2012,28 @@ def get_autogreen_live_prices(symbols):
                     if daily_low is not None and daily_low > 0:
                         low = daily_low
 
+            # True Range percentage for today, yesterday and the prior session.
+            # TR = ((session High - session Low) / session Low) * 100.
+            def _tr_percent(session_high, session_low):
+                h = _autogreen_number(session_high)
+                l = _autogreen_number(session_low)
+                return ((h - l) / l) * 100 if h is not None and l is not None and l > 0 else None
+
+            tr_t = _tr_percent(high, low)
+            tr_y = None
+            tr_py = None
+            if daily is not None and not daily.empty and {"High", "Low"}.issubset(daily.columns):
+                daily_sessions = daily.dropna(subset=["High", "Low"]).sort_index()
+                prior_sessions = daily_sessions[
+                    [session_date < latest_session_date for session_date in daily_sessions.index.date]
+                ]
+                if len(prior_sessions) >= 1:
+                    prior = prior_sessions.iloc[-1]
+                    tr_y = _tr_percent(prior.get("High"), prior.get("Low"))
+                if len(prior_sessions) >= 2:
+                    prior_prior = prior_sessions.iloc[-2]
+                    tr_py = _tr_percent(prior_prior.get("High"), prior_prior.get("Low"))
+
             daily_closes = (
                 daily["Close"].dropna()
                 if daily is not None and not daily.empty and "Close" in daily
@@ -2038,7 +2061,8 @@ def get_autogreen_live_prices(symbols):
             )
             return symbol, {
                 "price": price, "open": open_price, "high": high, "low": low,
-                "previous_close": previous_close, "change_pct": change_pct
+                "previous_close": previous_close, "change_pct": change_pct,
+                "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py
             }
         except Exception:
             return symbol, empty
@@ -2247,9 +2271,12 @@ def render_trstar_dashboard():
             "Low": display_price(quote.get("low")),
             "% Chg": change_text,
             "Price": display_price(quote.get("price")),
+            "TR.t": display_price(quote.get("tr_t")) + ("%" if quote.get("tr_t") is not None else ""),
+            "TR.y": display_price(quote.get("tr_y")) + ("%" if quote.get("tr_y") is not None else ""),
+            "TR.py": display_price(quote.get("tr_py")) + ("%" if quote.get("tr_py") is not None else ""),
         })
 
-    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price"])
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py"])
     styled_table = (
         table.style
         .set_table_styles([
