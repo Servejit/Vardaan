@@ -6375,3 +6375,51 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# MORE DASHBOARD expander: force the same Pistachio background, borders and text.
+st.markdown(
+    """
+    <style>
+    .stApp [data-testid="stExpander"],
+    .stApp [data-testid="stExpander"] > details,
+    .stApp [data-testid="stExpander"] details {
+        background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 58%,#DDEBCF 100%) !important;
+        background-color:#F4F8EF !important;
+        border:1.5px solid #8FAF72 !important;
+        border-left:5px solid #8FAF72 !important;
+        border-radius:14px !important;
+        color:#365B3B !important;
+        box-shadow:0 5px 16px rgba(54,91,59,.10) !important;
+    }
+    .stApp [data-testid="stExpander"] summary,
+    .stApp [data-testid="stExpander"] summary:hover,
+    .stApp [data-testid="stExpander"] summary:focus {
+        background:linear-gradient(110deg,#DDEBCF 0%,#F4F8EF 100%) !important;
+        color:#365B3B !important;
+        border-radius:11px !important;
+    }
+    .stApp [data-testid="stExpander"] summary *,
+    .stApp [data-testid="stExpander"] summary svg,
+    .stApp [data-testid="stExpander"] label,
+    .stApp [data-testid="stExpander"] p,
+    .stApp [data-testid="stExpander"] span,
+    .stApp [data-testid="stExpander"] div {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    .stApp [data-testid="stExpander"] [data-testid="stExpanderDetails"],
+    .stApp [data-testid="stExpander"] [data-testid="stVerticalBlock"],
+    .stApp [data-testid="stExpander"] [data-testid="stHorizontalBlock"] {
+        background:transparent !important;
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stExpander"] button {
+        background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 55%,#B7D7A8 100%) !important;
+        color:#365B3B !important;
+        border-color:#8FAF72 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
