@@ -3807,7 +3807,6 @@ def render_autogreen_dashboard():
             """
             st.markdown(card_html, unsafe_allow_html=True)
 
-    st.subheader("Target Stocks")
     if target_table_rows:
         render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680, force_pistachio=True, sidebar_background=True)
     else:
