@@ -5255,10 +5255,6 @@ elif page == "Index File":
                                 "%CHANGE": mover["%CHANGE"],
                             })
 
-                    st.caption(
-                        f"Showing {len(top_mover_rows)} of 9 stocks. "
-                        "Index members: published NSE constituent lists; price/change: Yahoo Finance."
-                    )
                     if top_mover_rows:
                         top_movers_table = pd.DataFrame(top_mover_rows)
                         top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
