@@ -145,13 +145,61 @@ def fetch_nse_index_constituent_movers(index_name):
             return None
 
         quotes = []
-        # Limit concurrency to avoid overloading the free quote endpoint.
-        with ThreadPoolExecutor(max_workers=8) as executor:
+        # First attempt individual quote endpoints with limited concurrency.
+        with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(get_quote, symbol) for symbol in symbols]
             for future in as_completed(futures):
                 quote = future.result()
                 if quote is not None:
                     quotes.append(quote)
+
+        # Batch fallback: one Yahoo download request for every constituent
+        # that did not return a quote individually. This reduces per-symbol
+        # throttling and fills missing rows when the individual endpoint fails.
+        quoted_symbols = {row["STOCK"] for row in quotes}
+        missing_symbols = [symbol for symbol in symbols if symbol not in quoted_symbols]
+        if missing_symbols:
+            try:
+                import yfinance as yf
+                tickers = [f"{symbol}.NS" for symbol in missing_symbols]
+                batch = yf.download(
+                    tickers=tickers,
+                    period="5d",
+                    interval="1d",
+                    group_by="ticker",
+                    auto_adjust=False,
+                    threads=True,
+                    progress=False,
+                    timeout=35,
+                )
+                for symbol in missing_symbols:
+                    ticker = f"{symbol}.NS"
+                    try:
+                        if isinstance(batch.columns, pd.MultiIndex):
+                            if (ticker, "Close") in batch.columns:
+                                closes = pd.to_numeric(batch[(ticker, "Close")], errors="coerce").dropna()
+                            elif ("Close", ticker) in batch.columns:
+                                closes = pd.to_numeric(batch[("Close", ticker)], errors="coerce").dropna()
+                            else:
+                                continue
+                        elif len(missing_symbols) == 1 and "Close" in batch.columns:
+                            closes = pd.to_numeric(batch["Close"], errors="coerce").dropna()
+                        else:
+                            continue
+                        if len(closes) < 2:
+                            continue
+                        price = float(closes.iloc[-1])
+                        previous = float(closes.iloc[-2])
+                        if price > 0 and previous > 0:
+                            quotes.append({
+                                "STOCK": symbol,
+                                "CURRENT": price,
+                                "%CHANGE": ((price - previous) / previous) * 100,
+                            })
+                    except Exception:
+                        continue
+            except Exception:
+                pass
 
         quotes.sort(key=lambda row: row["%CHANGE"], reverse=True)
         if not quotes:
