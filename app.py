@@ -6142,3 +6142,52 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
+# Final override: signal cards and every custom HTML card use Pistachio only.
+st.markdown(
+    """
+    <style>
+    .stApp .index-signal-card,
+    .stApp [data-testid="stMarkdownContainer"] div[style*="background"],
+    .stApp [data-testid="stMarkdownContainer"] section[style*="background"],
+    .stApp [data-testid="stMarkdownContainer"] article[style*="background"],
+    .stApp .masterx-hero, .stApp .masterx-status, .stApp .masterx-section,
+    .stApp .userx-hero, .stApp .userx-stat-card {
+        background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 48%,#DDEBCF 100%) !important;
+        background-color:#F4F8EF !important;
+        background-image:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 48%,#DDEBCF 100%) !important;
+        border-color:#8FAF72 !important;
+        color:#365B3B !important;
+        box-shadow:0 7px 20px rgba(54,91,59,.10) !important;
+    }
+    .stApp .index-signal-card *,
+    .stApp [data-testid="stMarkdownContainer"] div[style*="background"] *,
+    .stApp [data-testid="stMarkdownContainer"] section[style*="background"] *,
+    .stApp [data-testid="stMarkdownContainer"] article[style*="background"] *,
+    .stApp .masterx-hero *, .stApp .masterx-status *,
+    .stApp .masterx-section *, .stApp .userx-hero *,
+    .stApp .userx-stat-card * {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        text-shadow:none !important;
+    }
+    .stApp .index-signal-card::before,
+    .stApp .index-signal-card::after {
+        background:linear-gradient(135deg,#DDEBCF,#B7D7A8) !important;
+        border-color:#8FAF72 !important;
+        box-shadow:none !important;
+    }
+    .stApp .masterx-status-dot,
+    .stApp .masterx-status-dot.offline {
+        background:#8FAF72 !important;
+        box-shadow:0 0 0 5px rgba(143,175,114,.16) !important;
+    }
+    .stApp [data-testid="stMarkdownContainer"] div[style*="background"] hr,
+    .stApp [data-testid="stMarkdownContainer"] div[style*="background"] [style*="border"] {
+        border-color:#8FAF72 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
