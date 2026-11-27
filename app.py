@@ -5054,49 +5054,23 @@ elif page == "Index File":
                             "HIGH": "{:.2f}",
                             "LOW": "{:.2f}",
                         }, na_rep="—")
+                        .apply(
+                            lambda row: [
+                                "background-color: #FFFFFF; color: #54382F; font-weight: 700;"
+                                if row.name % 2 == 0
+                                else "background-color: #FCE1D4; color: #54382F; font-weight: 700;"
+                                for _ in row
+                            ],
+                            axis=1
+                        )
                         .set_table_styles([
                             {
-                                "selector": "thead th",
+                                "selector": "th",
                                 "props": [
                                     ("background-color", "#EFC2AC"),
                                     ("color", "#54382F"),
                                     ("font-weight", "800"),
                                     ("border", "1px solid #D79B7E"),
-                                    ("padding", "11px 12px"),
-                                ],
-                            },
-                            {
-                                "selector": "tbody th",
-                                "props": [
-                                    ("background-color", "#F5D8C9"),
-                                    ("color", "#54382F"),
-                                    ("font-weight", "700"),
-                                    ("border", "1px solid #E7BBA7"),
-                                ],
-                            },
-                            {
-                                "selector": "td",
-                                "props": [
-                                    ("background-color", "#FFFFFF"),
-                                    ("color", "#54382F"),
-                                    ("font-weight", "700"),
-                                    ("border-bottom", "1px solid #E7BBA7"),
-                                    ("padding", "9px 12px"),
-                                ],
-                            },
-                            {
-                                "selector": "tbody tr:nth-child(even) td",
-                                "props": [("background-color", "#FCE1D4")],
-                            },
-                            {
-                                "selector": "table",
-                                "props": [
-                                    ("background-color", "#FFF1E9"),
-                                    ("border-collapse", "separate"),
-                                    ("border-spacing", "0"),
-                                    ("border", "1px solid #DDA58D"),
-                                    ("border-radius", "10px"),
-                                    ("overflow", "hidden"),
                                 ],
                             },
                         ])
