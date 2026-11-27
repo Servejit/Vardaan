@@ -4954,7 +4954,9 @@ with st.sidebar:
         """
         <div style="
             padding: 0.55rem 0 0.9rem;
-            border-bottom: 1px solid #d5dfeb;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
             margin-bottom: 0.9rem;
         ">
             <div style="color:#71849a;font-size:0.68rem;font-weight:800;
