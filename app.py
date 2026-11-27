@@ -2126,6 +2126,48 @@ def get_trstar_master_symbols(workbook_bytes):
 
 
 def render_trstar_dashboard():
+
+    st.markdown(
+        """
+        <style>
+        /* TR.Star peach theme: sidebar, action buttons and bottom dashboard navigation */
+        [data-testid="stSidebar"] > div:first-child {
+            background: #FBE2D5 !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadio"] label,
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+            color: #5B4035 !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+            background: #F4C7AB !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stSidebar"] button,
+        [data-testid="stMain"] button,
+        [data-testid="stBottom"] button,
+        [data-testid="stFormSubmitButton"] button {
+            background: #F4C7AB !important;
+            color: #5B4035 !important;
+            border: 1px solid #E9B99D !important;
+        }
+        [data-testid="stSidebar"] button:hover,
+        [data-testid="stMain"] button:hover {
+            background: #EFAF91 !important;
+            color: #4A3026 !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label:has(input:checked) {
+            background: #F4C7AB !important;
+            border-radius: 8px !important;
+        }
+        [data-testid="stMainBlockContainer"] [data-testid="stRadio"] label,
+        [data-testid="stSidebar"] [data-testid="stRadio"] label {
+            border-color: #E9B99D !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     """Display every stock in Master with its current NSE OHLC, change and LTP."""
     st.title("TR.Star")
 
