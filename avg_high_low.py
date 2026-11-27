@@ -674,12 +674,7 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
                      "Avg.Low", "Avg.High", "% Down Avg.Low", "% Up Avg.High",
                      "5 Lowest Lows", "5 Highest Highs"]
             frame = frame[order].rename(columns={"Stock": "Stock Name"})
-            if buy_events:
-                theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
-            elif sell_events:
-                theme = {"head":"#287BC4","head_text":"#FFFFFF","canvas":"#F2F8FF","stripe":"#EAF4FF","text":"#123B70","border":"#B8D9FF"}
-            else:
-                theme = {"head":"#B43B91","head_text":"#FFF8FD","canvas":"#FFF5FC","stripe":"#FCE8F7","text":"#3F1738","border":"#E7A5D6"}
+            theme = {"head":"#658B4E","head_text":"#365B3B","canvas":"#F4F8EF","stripe":"#DDEBCF","text":"#365B3B","border":"#C8DDB5"}
             display_frame = frame.style.format({
                 "Open": _price, "High": _price, "Low": _price, "Prev. Close": _price, "Live Price": _price,
                 "% Chg": lambda value: "—" if pd.isna(value) else f"{value:+.2f}%",
@@ -692,27 +687,12 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
 
             # Streamlit's interactive dataframe may ignore table-level CSS.
             # Apply theme colors directly to cells for reliable rendering.
-            if buy_events:
-                palette = {
-                    "background": "#FFF5FC", "alternate": "#FCE8F7",
-                    "text": "#3F1738", "border": "#E7A5D6",
-                    "stock": "#8A246D", "heading": "#B43B91",
-                    "heading_text": "#FFF8FD",
-                }
-            elif sell_events:
-                palette = {
-                    "background": "#F2F8FF", "alternate": "#EAF4FF",
-                    "text": "#123B70", "border": "#B8D9FF",
-                    "stock": "#174F85", "heading": "#287BC4",
-                    "heading_text": "#FFFFFF",
-                }
-            else:
-                palette = {
-                    "background": "#FFF5FC", "alternate": "#FCE8F7",
-                    "text": "#3F1738", "border": "#E7A5D6",
-                    "stock": "#8A246D", "heading": "#B43B91",
-                    "heading_text": "#FFF8FD",
-                }
+            palette = {
+                "background": "#F4F8EF", "alternate": "#DDEBCF",
+                "text": "#365B3B", "border": "#C8DDB5",
+                "stock": "#365B3B", "heading": "#DDEBCF",
+                "heading_text": "#365B3B",
+            }
 
             def theme_row(row):
                 background = palette["alternate"] if row.name % 2 else palette["background"]
@@ -824,3 +804,87 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
             )
         else:
             st.info("No market data is available for the scanned stocks.")
+
+        # Final Avg High Low dashboard override: Pistachio across every component.
+        st.markdown("""
+        <style>
+        .stApp {
+          background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 52%,#E7F0D9 100%)!important;
+          color:#365B3B!important;
+          --brand-flower-color:#8FAF72!important;
+          --signal-nav-border:#C8DDB5!important;
+          --signal-nav-accent:#658B4E!important;
+          --signal-nav-soft:#DDEBCF!important;
+          --signal-nav-canvas:#F4F8EF!important;
+          --signal-nav-text:#365B3B!important;
+        }
+        [data-testid="stHeader"]{background:rgba(251,253,247,.97)!important;border-bottom:1px solid #C8DDB5!important}
+        [data-testid="stSidebar"],[data-testid="stSidebar"]>div:first-child{
+          background:linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 54%,#E7F0D9 100%)!important;
+          border-right:1.5px solid #C8DDB5!important;
+        }
+        [data-testid="stSidebar"] *{color:#365B3B!important;-webkit-text-fill-color:#365B3B!important}
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label,
+        [data-testid="stSidebar"] [data-baseweb="select"]>div,
+        [data-testid="stSidebar"] input,[data-testid="stSidebar"] textarea{
+          background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 100%)!important;
+          border:1px solid #C8DDB5!important;color:#365B3B!important;
+        }
+        [data-testid="stSidebar"] [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked){
+          background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%)!important;border:1.5px solid #658B4E!important;
+          box-shadow:inset 4px 0 0 #658B4E!important;
+        }
+        .stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp p,
+        .stApp [data-testid="stMarkdownContainer"]{color:#365B3B!important}
+        .stApp h1{color:#365B3B!important;-webkit-text-fill-color:#365B3B!important}
+        .stApp h1::before{
+          background:linear-gradient(110deg,#8FAF72 0%,#B7D7A8 30%,rgba(255,255,255,.98) 48%,#658B4E 66%,#8FAF72 100%)!important;
+          background-size:300% 300%!important;
+        }
+        .stApp [data-testid="stButton"] button,.stApp [data-testid="stDownloadButton"] button,
+        .stApp [data-testid="stFormSubmitButton"] button,.stApp button[kind]{
+          background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 55%,#B7D7A8 100%)!important;
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+          border:1.5px solid #8FAF72!important;border-radius:10px!important;font-weight:800!important;
+          box-shadow:0 3px 9px rgba(54,91,59,.12)!important;
+        }
+        .stApp [data-testid="stSelectbox"] [data-baseweb="select"]>div,
+        .stApp [data-testid="stMultiSelect"] [data-baseweb="select"]>div,
+        .stApp input:not([type=radio]):not([type=checkbox]),.stApp textarea{
+          background:#F4F8EF!important;border:1.5px solid #8FAF72!important;color:#365B3B!important;
+          -webkit-text-fill-color:#365B3B!important;
+        }
+        [data-testid="stExpander"],[data-testid="stExpander"] details,
+        [data-testid="stExpander"] [data-testid="stExpanderDetails"]{
+          background:#F4F8EF!important;border:1.5px solid #C8DDB5!important;border-radius:13px!important;
+          color:#365B3B!important;
+        }
+        [data-testid="stExpander"] details>summary{
+          background:linear-gradient(110deg,#DDEBCF 0%,#B7D7A8 100%)!important;color:#365B3B!important;
+        }
+        [data-testid="stExpander"] details>summary *{color:#365B3B!important;-webkit-text-fill-color:#365B3B!important}
+        [data-testid="stDataFrame"],[data-testid="stTable"]{background:#F4F8EF!important;border:1px solid #C8DDB5!important}
+        .ahl-hero,.ahl-card,.ahl-card.ahl-card-sell{
+          color:#365B3B!important;
+          background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 48%,#DDEBCF 100%) padding-box,
+                     linear-gradient(110deg,#8FAF72 0%,#DDEBCF 45%,#658B4E 100%) border-box!important;
+          border:2px solid transparent!important;box-shadow:0 9px 22px rgba(54,91,59,.12)!important;
+        }
+        .ahl-hero *,.ahl-card *,.ahl-card-sell *{
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;text-shadow:none!important;
+        }
+        .ahl-kicker,.ahl-sub,.ahl-brand,.ahl-label,.ahl-section,.ahl-symbol,.ahl-value,.ahl-target{
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+        }
+        .ahl-side{background:#DDEBCF!important;color:#365B3B!important;border:1px solid #8FAF72!important}
+        .ahl-divider,.ahl-card-sell .ahl-divider{background:linear-gradient(90deg,transparent,#8FAF72,#DDEBCF,#8FAF72,transparent)!important}
+        .ahl-table-wrap{border:1px solid #C8DDB5!important;background:#F4F8EF!important}
+        .ahl-table-wrap table.ahl-data-table{background:#F4F8EF!important;color:#365B3B!important}
+        .ahl-table-wrap table.ahl-data-table thead th{background:#DDEBCF!important;color:#365B3B!important;border-color:#C8DDB5!important}
+        .ahl-table-wrap table.ahl-data-table tbody td{background:#F4F8EF!important;color:#365B3B!important;border-color:#C8DDB5!important}
+        .ahl-table-wrap table.ahl-data-table tbody tr:nth-child(even) td{background:#DDEBCF!important}
+        .ahl-table-wrap table.ahl-data-table tbody tr:hover td{background:#B7D7A8!important;color:#365B3B!important}
+        .ahl-table-wrap table.ahl-data-table tbody td:first-child{color:#365B3B!important}
+        .ahl-section{color:#658B4E!important}
+        </style>
+        """, unsafe_allow_html=True)
