@@ -5101,7 +5101,11 @@ elif page == "Index File":
                             },
                         ])
                     )
-                    st.table(peach_table)
+                    st.dataframe(
+                        peach_table,
+                        use_container_width=True,
+                        hide_index=True
+                    )
                     st.download_button(
                         "Download H2L% / L2H% table as CSV",
                         data=displayed_table.to_csv(index=False, float_format="%.2f").encode("utf-8"),
