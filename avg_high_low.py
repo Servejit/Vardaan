@@ -888,3 +888,65 @@ def render_avg_high_low_dashboard(master_bytes, app_name="6THSENSE"):
         .ahl-section{color:#658B4E!important}
         </style>
         """, unsafe_allow_html=True)
+
+        /* Explicitly include every heading and every button in the Avg High Low dashboard. */
+        st.markdown("""
+        <style>
+        html body .stApp h1,html body .stApp h2,html body .stApp h3,
+        html body .stApp h4,html body .stApp h5,
+        html body .stApp .ahl-title,html body .stApp .ahl-section,
+        html body .stApp .ahl-kicker{
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+          background-color:transparent!important;
+          border-color:#C8DDB5!important;
+        }
+        html body .stApp .ahl-hero .ahl-title,
+        html body .stApp .ahl-hero .ahl-kicker,
+        html body .stApp .ahl-card .ahl-brand,
+        html body .stApp .ahl-card .ahl-symbol,
+        html body .stApp .ahl-card .ahl-label,
+        html body .stApp .ahl-card .ahl-value,
+        html body .stApp .ahl-card .ahl-target,
+        html body .stApp .ahl-card .ahl-side{
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+        }
+        html body .stApp [data-testid="stButton"] button,
+        html body .stApp [data-testid="stDownloadButton"] button,
+        html body .stApp [data-testid="stFormSubmitButton"] button,
+        html body .stApp [data-testid^="stBaseButton-"],
+        html body .stApp button[kind],
+        html body .stApp .ahl-sort-table thead th button{
+          background:linear-gradient(135deg,#FBFDF7 0%,#DDEBCF 55%,#B7D7A8 100%)!important;
+          background-color:#DDEBCF!important;
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+          border:1.5px solid #8FAF72!important;border-radius:10px!important;
+          box-shadow:0 3px 9px rgba(54,91,59,.12)!important;font-weight:850!important;
+        }
+        html body .stApp [data-testid="stButton"] button *,
+        html body .stApp [data-testid="stDownloadButton"] button *,
+        html body .stApp [data-testid="stFormSubmitButton"] button *,
+        html body .stApp .ahl-sort-table thead th button *{
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+        }
+        html body .stApp [data-testid="stButton"] button:hover,
+        html body .stApp [data-testid="stDownloadButton"] button:hover,
+        html body .stApp [data-testid="stFormSubmitButton"] button:hover,
+        html body .stApp [data-testid^="stBaseButton-"]:hover,
+        html body .stApp button[kind]:hover,
+        html body .stApp .ahl-sort-table thead th button:hover{
+          background:linear-gradient(135deg,#DDEBCF 0%,#B7D7A8 100%)!important;
+          border-color:#658B4E!important;color:#365B3B!important;
+          -webkit-text-fill-color:#365B3B!important;
+        }
+        html body .stApp [data-testid="stSidebar"] [data-testid="stButton"] button,
+        html body .stApp [data-testid="stSidebar"] [data-testid="stFormSubmitButton"] button,
+        html body .stApp [data-testid="stSidebar"] button[kind]{
+          background:linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 54%,#DDEBCF 100%)!important;
+          color:#365B3B!important;-webkit-text-fill-color:#365B3B!important;
+          border:1.5px solid #C8DDB5!important;
+        }
+        html body .stApp .ahl-sort-table thead th{
+          background:#DDEBCF!important;color:#365B3B!important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
