@@ -6258,3 +6258,120 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+
+# Final application-wide Pistachio styling for dropdowns, menus and their text.
+st.markdown(
+    """
+    <style>
+    /* Selectbox and multiselect closed control */
+    .stApp [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+    .stApp [data-testid="stMultiSelect"] [data-baseweb="select"] > div,
+    .stApp [data-testid="stSelectbox"] [role="combobox"],
+    .stApp [data-testid="stMultiSelect"] [role="combobox"],
+    .stApp [data-baseweb="select"] > div {
+        background:#F4F8EF !important;
+        background-color:#F4F8EF !important;
+        border:1.5px solid #8FAF72 !important;
+        color:#365B3B !important;
+        box-shadow:none !important;
+    }
+    .stApp [data-baseweb="select"] *,
+    .stApp [data-testid="stSelectbox"] *,
+    .stApp [data-testid="stMultiSelect"] * {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    .stApp [data-baseweb="select"] input {
+        background:transparent !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        caret-color:#365B3B !important;
+    }
+    .stApp [data-baseweb="select"] svg {
+        fill:#658B4E !important;
+        color:#658B4E !important;
+    }
+    /* Dropdown popover panel and list */
+    [data-baseweb="popover"],
+    [data-baseweb="popover"] > div,
+    [data-baseweb="menu"],
+    [role="listbox"],
+    ul[role="listbox"] {
+        background:#F4F8EF !important;
+        background-color:#F4F8EF !important;
+        border:1px solid #C8DDB5 !important;
+        color:#365B3B !important;
+        box-shadow:0 8px 22px rgba(54,91,59,.16) !important;
+    }
+    [data-baseweb="popover"] *,
+    [data-baseweb="menu"] *,
+    [role="listbox"] * {
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    [role="option"],
+    [data-baseweb="menu"] li,
+    [data-baseweb="menu"] [role="menuitem"] {
+        background:#F4F8EF !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    [role="option"]:hover,
+    [role="option"][aria-selected="true"],
+    [data-baseweb="menu"] li:hover,
+    [data-baseweb="menu"] [role="menuitem"]:hover {
+        background:#DDEBCF !important;
+        background-color:#DDEBCF !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    [role="option"][aria-selected="true"] {
+        box-shadow:inset 3px 0 0 #658B4E !important;
+    }
+    /* Multiselect selected-value chips */
+    .stApp [data-testid="stMultiSelect"] [data-baseweb="tag"] {
+        background:#DDEBCF !important;
+        border:1px solid #8FAF72 !important;
+        color:#365B3B !important;
+    }
+    .stApp [data-testid="stMultiSelect"] [data-baseweb="tag"] *,
+    .stApp [data-testid="stMultiSelect"] [data-baseweb="tag"] svg {
+        color:#365B3B !important;
+        fill:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+    }
+    /* Text inputs, text areas and number inputs */
+    .stApp input:not([type="checkbox"]):not([type="radio"]),
+    .stApp textarea,
+    .stApp [data-baseweb="input"] > div,
+    .stApp [data-baseweb="textarea"] > div,
+    .stApp [data-testid="stNumberInput"] [data-baseweb="input"] > div {
+        background:#F4F8EF !important;
+        background-color:#F4F8EF !important;
+        border-color:#8FAF72 !important;
+        color:#365B3B !important;
+        -webkit-text-fill-color:#365B3B !important;
+        caret-color:#365B3B !important;
+    }
+    .stApp input::placeholder,
+    .stApp textarea::placeholder {
+        color:#658B4E !important;
+        -webkit-text-fill-color:#658B4E !important;
+        opacity:.85 !important;
+    }
+    /* Native select menus where the browser exposes these styles */
+    .stApp select,
+    .stApp option {
+        background:#F4F8EF !important;
+        color:#365B3B !important;
+    }
+    .stApp select:focus,
+    .stApp [data-baseweb="select"] > div:focus-within {
+        border-color:#658B4E !important;
+        box-shadow:0 0 0 2px rgba(183,215,168,.35) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
