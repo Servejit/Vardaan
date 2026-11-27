@@ -2208,19 +2208,33 @@ def render_trstar_dashboard():
         "background-color: #FBE2D5; border-radius: 12px;}</style>",
         unsafe_allow_html=True,
     )
-    st.dataframe(
-        styled_table,
-        use_container_width=True,
-        hide_index=True,
-        height=min(720, 42 + 35 * min(len(table), 19)),
-        column_config={
-            "Stock": st.column_config.TextColumn("Stock", width="medium"),
-            "Open": st.column_config.TextColumn("Open", width="small"),
-            "High": st.column_config.TextColumn("High", width="small"),
-            "Low": st.column_config.TextColumn("Low", width="small"),
-            "% Chg": st.column_config.TextColumn("% Chg", width="small"),
-            "Price": st.column_config.TextColumn("Price", width="small"),
-        },
+    styled_table = styled_table.hide(axis="index")
+    st.markdown(
+        """
+        <style>
+        .trstar-table-wrap {width: 100%; overflow-x: auto; border-radius: 8px;}
+        .trstar-table-wrap table {width: 100%; border-collapse: collapse; font-size: 14px;}
+        .trstar-table-wrap thead th {
+            background-color: #F4C7AB !important;
+            color: #5B4035 !important;
+            font-weight: 700 !important;
+            padding: 10px 8px !important;
+            border-bottom: 2px solid #E9C3AE !important;
+            text-align: left !important;
+        }
+        .trstar-table-wrap tbody td {
+            color: #5B4035 !important;
+            padding: 8px !important;
+            border-bottom: 1px solid #F0DED3 !important;
+            white-space: nowrap;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="trstar-table-wrap">{styled_table.to_html()}</div>',
+        unsafe_allow_html=True,
     )
 
 
