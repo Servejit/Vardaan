@@ -21,7 +21,6 @@ from supabase import create_client, ClientOptions
 
 
 @st.cache_data(ttl=60, show_spinner=False)
-@st.cache_data(ttl=60, show_spinner=False)
 def fetch_nse_index_constituent_movers(index_name):
     """
     Get index members from a separate index-constituent service and rank them
@@ -106,7 +105,44 @@ def fetch_nse_index_constituent_movers(index_name):
                     "%CHANGE": ((price - previous) / previous) * 100,
                 }
             except Exception:
-                return None
+                pass
+
+            # Fallback: yfinance's fast quote, then daily history if needed.
+            try:
+                import yfinance as yf
+                fast = yf.Ticker(ticker).fast_info
+                price = fast.get("last_price")
+                previous = fast.get("previous_close")
+                if price is not None and previous not in (None, 0):
+                    price = float(price)
+                    previous = float(previous)
+                    if price > 0 and previous > 0:
+                        return {
+                            "STOCK": symbol,
+                            "CURRENT": price,
+                            "%CHANGE": ((price - previous) / previous) * 100,
+                        }
+            except Exception:
+                pass
+
+            try:
+                import yfinance as yf
+                history = yf.Ticker(ticker).history(
+                    period="5d", interval="1d", auto_adjust=False
+                )
+                closes = pd.to_numeric(history["Close"], errors="coerce").dropna()
+                if len(closes) >= 2:
+                    price = float(closes.iloc[-1])
+                    previous = float(closes.iloc[-2])
+                    if price > 0 and previous > 0:
+                        return {
+                            "STOCK": symbol,
+                            "CURRENT": price,
+                            "%CHANGE": ((price - previous) / previous) * 100,
+                        }
+            except Exception:
+                pass
+            return None
 
         quotes = []
         # Limit concurrency to avoid overloading the free quote endpoint.
