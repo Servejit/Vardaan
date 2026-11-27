@@ -3028,7 +3028,7 @@ def render_index_toppers_dashboard():
 
 
 
-def render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=False):
+def render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=False, sidebar_background=False):
     """Render a light, readable table with an accent inherited from the top signal card."""
     if not rows:
         return
@@ -3057,10 +3057,14 @@ def render_accent_table(rows, accent, ink, tint, min_width=720, force_pistachio=
         row_background = "#FBFDF7" if row_number % 2 == 0 else "#DDEBCF"
         body_rows.append(f'<tr style="background:{row_background};">{cells}</tr>')
 
+    outer_background = (
+        "linear-gradient(180deg,#FBFDF7 0%,#F4F8EF 54%,#E7F0D9 100%)"
+        if sidebar_background else
+        "linear-gradient(115deg,#DDEBCF 0%,#FBFDF7 22%,#B7D7A8 52%,#F4F8EF 78%,#DDEBCF 100%)"
+    )
     table_html = f"""
     <div class="signal-shimmer-surface" style="position:relative;padding:2px;border-radius:13px;overflow:hidden;
-                background:linear-gradient(115deg,#DDEBCF 0%,#FBFDF7 22%,
-                #B7D7A8 52%,#F4F8EF 78%,#DDEBCF 100%);
+                background:{outer_background};
                 box-shadow:0 5px 18px rgba(54,91,59,.10),0 0 0 1px #C8DDB5;">
       <div style="overflow-x:auto;border-radius:11px;background:#F4F8EF;">
         <table style="width:100%;min-width:{min_width}px;border-collapse:separate;
@@ -3806,7 +3810,7 @@ def render_autogreen_dashboard():
 
     st.subheader("Target Stocks")
     if target_table_rows:
-        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680, force_pistachio=True)
+        render_accent_table(target_table_rows, metric_ink, metric_accent_text, metric_tint, min_width=680, force_pistachio=True, sidebar_background=True)
     else:
         st.info("No four qualified target stocks with a readable numeric value are available yet.")
 
