@@ -5957,6 +5957,38 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+# AutoGreen keeps its original green navigation palette; TR.Star remains peach.
+if _bottom_nav_page == "AutoGreen":
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label {{
+            background:linear-gradient(110deg,{_bottom_nav_theme["canvas"]} 0%,{_bottom_nav_theme["tint"]} 100%) !important;
+            border:1px solid {_bottom_nav_theme["border"]} !important;
+            box-shadow:0 2px 8px rgba(54,91,59,.12) !important;
+            color:{_bottom_nav_theme["accent_text"]} !important;
+        }}
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:hover {{
+            background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,{_bottom_nav_theme["canvas"]} 100%) !important;
+            border-color:{_bottom_nav_theme["accent"]} !important;
+        }}
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label:has(input:checked) {{
+            background:linear-gradient(110deg,{_bottom_nav_theme["tint"]} 0%,#FFFFFF 100%) !important;
+            border:1.5px solid {_bottom_nav_theme["accent"]} !important;
+            box-shadow:inset 4px 0 0 {_bottom_nav_theme["accent"]},0 3px 10px rgba(54,91,59,.16) !important;
+        }}
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label,
+        [data-testid="stMainBlockContainer"] .st-key-vardaan-bottom-nav [data-testid="stRadio"] [role="radiogroup"] label * {{
+            color:{_bottom_nav_theme["accent_text"]} !important;
+            -webkit-text-fill-color:{_bottom_nav_theme["accent_text"]} !important;
+        }}
+        .vardaan-bottom-nav-label {{ color:{_bottom_nav_theme["soft_text"]} !important; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 with st.container(key="vardaan-bottom-nav"):
     st.markdown(
         '<div class="vardaan-bottom-nav-label">DASHBOARDS</div>',
