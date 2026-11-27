@@ -22,74 +22,111 @@ from supabase import create_client, ClientOptions
 
 @st.cache_data(ttl=60, show_spinner=False)
 @st.cache_data(ttl=60, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def fetch_nse_index_constituent_movers(index_name):
-    """Fetch current NSE constituent prices and percentage changes for one index."""
-    import time as _time
-    index_label = " ".join(str(index_name).replace("\\n", " ").split()).strip()
-    try:
-        session = requests.Session()
-        user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/134.0.0.0 Safari/537.36")
-        headers = {
-            "User-Agent": user_agent,
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Host": "www.nseindia.com",
-            "X-Requested-With": "XMLHttpRequest",
-            "DNT": "1",
-        }
-        session.get("https://www.nseindia.com/", headers=headers, timeout=15)
-        _time.sleep(0.4)
-        page_url = "https://www.nseindia.com/market-data/live-equity-market"
-        page_headers = dict(headers)
-        page_headers["Referer"] = "https://www.nseindia.com/"
-        session.get(page_url, headers=page_headers, timeout=15)
-        api_headers = dict(headers)
-        api_headers["Referer"] = page_url
-        api_url = "https://www.nseindia.com/api/equity-stockIndices"
-        last_error = ""
-        for attempt in range(2):
-            try:
-                response = session.get(
-                    api_url, params={"index": index_label.upper()},
-                    headers=api_headers, timeout=20
-                )
-                if response.status_code in (401, 403, 429) and attempt == 0:
-                    session.get("https://www.nseindia.com/", headers=headers, timeout=15)
-                    _time.sleep(1.0)
-                    continue
-                response.raise_for_status()
-                payload = response.json()
-                rows = payload.get("data", []) if isinstance(payload, dict) else []
-                if not isinstance(rows, list) or not rows:
-                    return [], f"NSE returned no constituent rows for index '{index_label}'."
-                movers = []
-                for item in rows:
-                    symbol = str(item.get("symbol", "")).strip()
-                    if not symbol or symbol.upper() == index_label.upper():
-                        continue
-                    try:
-                        last_price = float(str(item.get("lastPrice", "")).replace(",", "").strip())
-                        pct_change = float(str(item.get("pChange", "")).replace(",", "").replace("%", "").strip())
-                    except (TypeError, ValueError):
-                        continue
-                    if last_price > 0:
-                        movers.append({"STOCK": symbol, "CURRENT": last_price, "%CHANGE": pct_change})
-                movers.sort(key=lambda row: row["%CHANGE"], reverse=True)
-                if not movers:
-                    return [], f"NSE returned no usable live stock quotes for '{index_label}'."
-                return movers, ""
-            except Exception as exc:
-                last_error = str(exc)
-                if attempt == 0:
-                    _time.sleep(0.8)
-        return [], f"NSE request failed for '{index_label}': {last_error}"
-    except Exception as exc:
-        return [], f"NSE connection failed for '{index_label}': {exc}"
+    """
+    Get index members from a separate index-constituent service and rank them
+    using Yahoo Finance live/delayed quote metadata. NSE's blocked API is not used.
+    """
+    import re
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
+    def normalize(value):
+        return re.sub(r"[^A-Z0-9]", "", str(value).upper())
+
+    index_label = str(index_name).strip()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/134.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+
+    try:
+        index_response = requests.get(
+            "https://api.dharun.dev/v1/indices",
+            headers=headers,
+            timeout=15,
+        )
+        index_response.raise_for_status()
+        index_payload = index_response.json()
+        available_indices = index_payload.get("data", [])
+        target_key = normalize(index_label)
+        matched = next(
+            (item for item in available_indices if normalize(item.get("name", "")) == target_key),
+            None,
+        )
+        if matched is None:
+            return [], (
+                f"Constituent list not available for '{index_label}' in the free index source. "
+                "This source currently covers 31 NSE indices."
+            )
+
+        members_response = requests.get(
+            f"https://api.dharun.dev/v1/indices/{matched.get('id')}",
+            headers=headers,
+            timeout=20,
+        )
+        members_response.raise_for_status()
+        members_payload = members_response.json()
+        index_data = members_payload.get("data", {})
+        members = index_data.get("members", []) if isinstance(index_data, dict) else []
+        symbols = sorted({
+            str(member.get("symbol", "")).strip()
+            for member in members
+            if str(member.get("symbol", "")).strip()
+        })
+        if not symbols:
+            return [], f"No constituent symbols were returned for '{index_label}'."
+
+        def get_quote(symbol):
+            ticker = f"{symbol}.NS"
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+            try:
+                response = requests.get(
+                    url,
+                    params={"range": "1d", "interval": "1m"},
+                    headers=headers,
+                    timeout=12,
+                )
+                response.raise_for_status()
+                chart = response.json().get("chart", {})
+                result = (chart.get("result") or [None])[0]
+                if not result:
+                    return None
+                meta = result.get("meta", {})
+                price = meta.get("regularMarketPrice")
+                previous = meta.get("chartPreviousClose") or meta.get("previousClose")
+                if price is None or previous in (None, 0):
+                    return None
+                price = float(price)
+                previous = float(previous)
+                if price <= 0 or previous <= 0:
+                    return None
+                return {
+                    "STOCK": symbol,
+                    "CURRENT": price,
+                    "%CHANGE": ((price - previous) / previous) * 100,
+                }
+            except Exception:
+                return None
+
+        quotes = []
+        # Limit concurrency to avoid overloading the free quote endpoint.
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = [executor.submit(get_quote, symbol) for symbol in symbols]
+            for future in as_completed(futures):
+                quote = future.result()
+                if quote is not None:
+                    quotes.append(quote)
+
+        quotes.sort(key=lambda row: row["%CHANGE"], reverse=True)
+        if not quotes:
+            return [], (
+                f"Constituents found ({len(symbols)}), but Yahoo Finance did not return "
+                f"usable current quotes for '{index_label}'."
+            )
+        return quotes, ""
+    except Exception as exc:
+        return [], f"Constituent/quote fetch failed for '{index_label}': {exc}"
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -5135,6 +5172,10 @@ elif page == "Index File":
                                 "%CHANGE": mover["%CHANGE"],
                             })
 
+                    st.caption(
+                        f"Showing {len(top_mover_rows)} of 9 stocks. "
+                        "Index members: published NSE constituent lists; price/change: Yahoo Finance."
+                    )
                     if top_mover_rows:
                         top_movers_table = pd.DataFrame(top_mover_rows)
                         top_movers_builder = GridOptionsBuilder.from_dataframe(top_movers_table)
