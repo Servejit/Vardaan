@@ -4401,8 +4401,9 @@ def render_autogreen_dashboard():
                           margin-top:9px;position:relative;z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.25);">
                 {rank_label}
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,{border_colour},rgba(255,255,255,.42),{border_colour},transparent);
-                          margin:19px 0 17px;position:relative;z-index:1;"></div>
+              <div style="height:0;border-top:3px solid #FFFFFF !important;
+                          box-shadow:0 0 7px #FFFFFF,0 0 15px {accent_colour},0 0 22px {shimmer_colour};
+                          margin:19px 0 17px;position:relative;z-index:2;opacity:1;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
                           align-items:center;gap:18px;position:relative;z-index:1;">
                 <div style="min-width:0;">
