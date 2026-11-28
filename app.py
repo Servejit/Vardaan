@@ -2596,6 +2596,14 @@ def render_trstar_dashboard():
         elif c_b_value > d_b_value and o2h_value > o2l_value:
             sell_signal_rows.append(signal_row)
 
+    # Show the lowest TR.t stock first in each signal card.
+    def signal_tr_sort_value(signal_row):
+        value = signal_abs_number(signal_row.get("TR.t"))
+        return value if value is not None else float("inf")
+
+    buy_signal_rows.sort(key=signal_tr_sort_value)
+    sell_signal_rows.sort(key=signal_tr_sort_value)
+
     def render_trstar_signal_card(title, signal_rows, signal_type):
         card_rows_html = []
         for signal_row in signal_rows:
