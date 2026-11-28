@@ -2337,6 +2337,11 @@ def render_trstar_dashboard():
             background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 42%,#DDEBCF 100%);
             box-shadow:0 10px 28px rgba(101,139,78,.18),0 0 18px rgba(183,215,168,.24);
         }
+        /* TR.Star stock cards: force each card's own alphabet colour over generic pistachio styling. */
+        .index-topper-card[style*="--trstar-card-light"] {
+            background-image:linear-gradient(135deg,var(--trstar-card-light) 0%,var(--trstar-card-lighter) 52%,var(--trstar-card-soft) 100%) !important;
+            background-color:var(--trstar-card-light) !important;
+        }
         .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:var(--trstar-ink,#365B3B);text-align:center;}
         .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:var(--trstar-ink,#365B3B);letter-spacing:.7px;}
         .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:var(--trstar-ink,#365B3B);
@@ -2703,6 +2708,9 @@ def render_trstar_dashboard():
             + "--trstar-muted:" + muted_color + ";"
             + "--trstar-light:" + light_color + ";"
             + "--trstar-lighter:" + lighter_color + ";"
+            + "--trstar-card-light:" + card_light + ";"
+            + "--trstar-card-lighter:" + card_lighter + ";"
+            + "--trstar-card-soft:" + card_soft + ";"
         )
 
     def render_trstar_index_style_card(signal_row, signal_type):
