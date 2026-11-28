@@ -697,6 +697,32 @@ def get_autogreen_master_bytes():
     return workbook_bytes
 
 
+
+def _normalize_quote_ohlc(price, open_price, high, low):
+    """Ensure a quote's session range contains its own price and opening price.
+
+    This is a defensive consistency check for mixed/incomplete Yahoo candles.
+    It never changes the traded price; it only expands an impossible range.
+    """
+    price = _autogreen_number(price)
+    open_price = _autogreen_number(open_price)
+    high = _autogreen_number(high)
+    low = _autogreen_number(low)
+
+    observed = [value for value in (price, open_price, high, low) if value is not None]
+    if not observed:
+        return open_price, high, low
+
+    if price is not None:
+        high = price if high is None else max(high, price)
+        low = price if low is None else min(low, price)
+    if open_price is not None:
+        high = open_price if high is None else max(high, open_price)
+        low = open_price if low is None else min(low, open_price)
+    if high is not None and low is not None and high < low:
+        high, low = max(high, low), min(high, low)
+    return open_price, high, low
+
 def _autogreen_number(value):
     """Convert Excel numeric cells and formatted numeric strings safely."""
     if value is None:
@@ -2015,6 +2041,9 @@ def get_autogreen_live_prices(symbols):
                     if daily_low is not None and daily_low > 0:
                         low = daily_low
 
+            # Keep the displayed live price/open inside the same session range.
+            open_price, high, low = _normalize_quote_ohlc(price, open_price, high, low)
+
             # True Range percentage for today, yesterday and the prior session.
             # TR = ((session High - session Low) / session Low) * 100.
             def _tr_percent(session_high, session_low):
@@ -2246,6 +2275,10 @@ def get_trstar_live_prices(symbols):
                     low = min(low, _autogreen_number(lows.min())) if low is not None else _autogreen_number(lows.min())
                 if open_price is None and len(opens):
                     open_price = _autogreen_number(opens.iloc[0])
+
+            # Prevent impossible OHLC combinations when Yahoo's latest close
+            # is newer than its reported session high/low candle values.
+            open_price, high, low = _normalize_quote_ohlc(price, open_price, high, low)
 
             def tr_percent(session_high, session_low):
                 h = _autogreen_number(session_high)
