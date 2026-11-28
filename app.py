@@ -2387,7 +2387,7 @@ def render_trstar_dashboard():
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <style>
         html, body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
-        .trstar-table-wrap { width: 100%; max-height: 570px; overflow-x: auto; overflow-y: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; }
+        .trstar-table-wrap { width: 100%; overflow-x: auto; overflow-y: visible; border-radius: 8px; -webkit-overflow-scrolling: touch; }
         .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .trstar-table-wrap thead th {
           position: sticky;
@@ -2527,7 +2527,7 @@ def render_trstar_dashboard():
     """.replace("__TRSTAR_TABLE__", styled_table.hide(axis="index").to_html())
     components.html(
         sortable_table_html,
-        height=min(max(150, len(table) * 38 + 65), 650),
+        height=max(150, len(table) * 38 + 65),
         scrolling=True,
     )
 
