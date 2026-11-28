@@ -3014,7 +3014,7 @@ def render_index_toppers_dashboard():
     .index-topper-hero {
         padding:23px 25px;margin:5px 0 18px;border-radius:20px;
         color:#365B3B;border:1px solid #8FAF72;
-        background:#B7D7A8;
+        background:#DDEBCF;
         box-shadow:0 12px 30px rgba(54,91,59,.12),inset 0 1px 0 rgba(255,255,255,.35);
     }
     .index-topper-kicker {font-size:10px;font-weight:900;letter-spacing:2.5px;color:#365B3B;}
