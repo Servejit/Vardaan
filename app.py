@@ -2755,7 +2755,7 @@ def render_trstar_dashboard():
             '<path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>'
             '<path d="M34 64 Q60 69 86 64"/></g></svg>'
             '</div>'
-            f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
+            f'<div class="index-topper-pill" style="background:{badge_background};">{"Buy Signal" if is_buy else "Sell Signal"}</div>'
             '</div>'
             '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
             '<div><div class="index-topper-metric-label">ENTREY PRICE</div>'
