@@ -2324,7 +2324,22 @@ def render_trstar_dashboard():
             50% { background-position:100% 50%; filter:brightness(1.12); }
             100% { background-position:0% 50%; filter:brightness(1); }
         }
-        </style>
+        
+        /* Reuse the exact light Pistachio Index Toppers signal-card design in TR.Star. */
+        .index-topper-card {
+            position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
+            color:#365B3B;border:2px solid #8FAF72;
+            background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 42%,#DDEBCF 100%);
+            box-shadow:0 10px 28px rgba(101,139,78,.18),0 0 18px rgba(183,215,168,.24);
+        }
+        .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#365B3B;text-align:center;}
+        .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#365B3B;letter-spacing:.7px;}
+        .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#365B3B;
+            background:linear-gradient(110deg,#B7D7A8,#DDEBCF);border:1px solid #8FAF72;padding:8px 13px;border-radius:999px;}
+        .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#658B4E;}
+        .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#365B3B;margin-top:5px;}
+        .index-topper-target {color:#658B4E !important;}
+</style>
         """,
         unsafe_allow_html=True,
     )
