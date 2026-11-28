@@ -2035,14 +2035,25 @@ def get_autogreen_live_prices(symbols):
                 period="3mo", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
-            # Select OHLC from the daily candle matching the intraday session date.
+            # User-requested historical snapshot: all quote fields use the
+            # 27-Nov-2026 NSE session, not the app/server's current date.
+            target_quote_date = "2026-11-27"
             daily_quote = None
             if daily is not None and not daily.empty and {"Open", "High", "Low", "Close"}.issubset(daily.columns):
                 daily_clean = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
                 daily_dates_for_quote = _autogreen_market_dates(daily_clean.index)
-                matched_daily = daily_clean[daily_dates_for_quote == latest_session_date]
+                matched_daily = daily_clean[[str(session_date) == target_quote_date for session_date in daily_dates_for_quote]]
                 if not matched_daily.empty:
                     daily_quote = matched_daily.iloc[-1]
+                    latest_session_date = _autogreen_market_dates(matched_daily.index)[-1]
+                    # Historical snapshot price is that session's official daily close.
+                    price = _autogreen_number(daily_quote.get("Close"))
+                    # Don't blend today's/intraday candles into this historical date.
+                    current_session = matched_daily
+                    closes = current_session["Close"].dropna()
+                    highs = current_session["High"].dropna()
+                    opens = current_session["Open"].dropna()
+                    lows = current_session["Low"].dropna()
             if daily_quote is not None:
                 open_price = _autogreen_number(daily_quote.get("Open"))
                 high = _autogreen_number(daily_quote.get("High"))
@@ -2289,10 +2300,11 @@ def get_trstar_live_prices(symbols):
                 low = _autogreen_number(lows.min()) if len(lows) else None
                 open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
 
-            # Daily Open/High/Low must be from the exact quote date.
-            quote_date = _autogreen_market_dates(intraday.index)[-1] if intraday is not None else latest_date
+            # Force every stock to the requested 27-Nov-2026 historical session.
+            quote_date = "2026-11-27"
             daily_quote_dates = _autogreen_market_dates(daily.index)
-            matched_daily = daily[daily_quote_dates == quote_date]
+            matched_daily = daily[[str(session_date) == quote_date for session_date in daily_quote_dates]]
+            intraday = None  # historical daily close is the displayed price
             if not matched_daily.empty:
                 session_daily = matched_daily.iloc[-1]
                 open_price = _autogreen_number(session_daily.get("Open"))
