@@ -2294,6 +2294,44 @@ def render_trstar_dashboard():
         except (TypeError, ValueError):
             change_text = "—"
 
+        # Keep only stocks meeting every requested TR comparison.
+        def tr_number(key):
+            try:
+                value = quote.get(key)
+                return float(value) if value is not None else None
+            except (TypeError, ValueError):
+                return None
+
+        tr_t = tr_number("tr_t")
+        tr_y = tr_number("tr_y")
+        tr_py = tr_number("tr_py")
+        tr7 = tr_number("tr7")
+        tr20 = tr_number("tr20")
+        high_raw = quote.get("high")
+        low_raw = quote.get("low")
+        try:
+            high_raw = float(high_raw)
+            low_raw = float(low_raw)
+        except (TypeError, ValueError):
+            continue
+
+        tr_values = (tr_t, tr_y, tr_py, tr7, tr20)
+        if any(value is None for value in tr_values):
+            continue
+        if not (
+            tr_t < tr_y
+            and tr_t < tr_py
+            and tr_t < tr7
+            and tr_y < tr_py
+            and tr_y < tr7
+            and tr7 < tr20
+        ):
+            continue
+
+        target_gap_pct = tr7 - tr_t
+        high_limit = high_raw + high_raw * target_gap_pct / 100
+        low_limit = low_raw - low_raw * target_gap_pct / 100
+
         rows.append({
             "Stock": symbol,
             "Open": display_price(quote.get("open")),
@@ -2306,9 +2344,11 @@ def render_trstar_dashboard():
             "TR.py": display_price(quote.get("tr_py")),
             "TR7": display_price(quote.get("tr7")),
             "TR20": display_price(quote.get("tr20")),
+            "High Limit": display_price(high_limit),
+            "Low Limit": display_price(low_limit),
         })
 
-    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20"])
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit"])
     styled_table = (
         table.style
         .set_table_styles([
