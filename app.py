@@ -2178,6 +2178,128 @@ def get_trstar_master_symbols(workbook_bytes):
         workbook.close()
 
 
+@st.cache_data(ttl=10, max_entries=1, show_spinner=False)
+def get_trstar_live_prices(symbols):
+    """TR.Star quotes with daily-history fallback so every Master stock gets historical TR values."""
+    import yfinance as yf
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    def fetch_one(symbol):
+        empty = {
+            "price": None, "open": None, "high": None, "low": None,
+            "previous_close": None, "change_pct": None,
+            "tr_t": None, "tr_y": None, "tr_py": None,
+            "tr7": None, "tr20": None
+        }
+        try:
+            ticker = yf.Ticker(f"{symbol}.NS")
+
+            # Daily candles are the reliable source for yesterday, prior day,
+            # and the 7/20-session averages. They also provide OHLC fallback
+            # when Yahoo has no intraday bars for an individual stock.
+            daily = ticker.history(
+                period="3mo", interval="1d", auto_adjust=False,
+                actions=False, prepost=False, timeout=20
+            )
+            if daily is None or daily.empty or not {"High", "Low", "Close"}.issubset(daily.columns):
+                return symbol, empty
+
+            daily = daily.dropna(subset=["High", "Low", "Close"]).sort_index().copy()
+            if daily.empty:
+                return symbol, empty
+
+            latest_index = daily.index[-1]
+            latest_date = latest_index.date()
+            latest = daily.iloc[-1]
+            open_price = _autogreen_number(latest.get("Open"))
+            high = _autogreen_number(latest.get("High"))
+            low = _autogreen_number(latest.get("Low"))
+            price = _autogreen_number(latest.get("Close"))
+
+            # Intraday data, when available, updates the current day's live OHLC.
+            intraday = None
+            for period, interval in (("1d", "1m"), ("5d", "5m")):
+                try:
+                    candidate = ticker.history(
+                        period=period, interval=interval, auto_adjust=False,
+                        actions=False, prepost=False, timeout=15
+                    )
+                    if candidate is not None and not candidate.empty and "Close" in candidate:
+                        candidate = candidate.dropna(subset=["Close"])
+                        same_day = candidate[candidate.index.date == latest_date]
+                        if not same_day.empty:
+                            intraday = same_day
+                            break
+                except Exception:
+                    continue
+
+            if intraday is not None:
+                closes = intraday["Close"].dropna()
+                highs = intraday["High"].dropna() if "High" in intraday else []
+                lows = intraday["Low"].dropna() if "Low" in intraday else []
+                opens = intraday["Open"].dropna() if "Open" in intraday else []
+                if not closes.empty:
+                    price = _autogreen_number(closes.iloc[-1])
+                if len(highs):
+                    high = max(high, _autogreen_number(highs.max())) if high is not None else _autogreen_number(highs.max())
+                if len(lows):
+                    low = min(low, _autogreen_number(lows.min())) if low is not None else _autogreen_number(lows.min())
+                if open_price is None and len(opens):
+                    open_price = _autogreen_number(opens.iloc[0])
+
+            def tr_percent(session_high, session_low):
+                h = _autogreen_number(session_high)
+                l = _autogreen_number(session_low)
+                return ((h - l) / l) * 100 if h is not None and l is not None and l > 0 else None
+
+            # Replace latest daily candle with the freshest available session range.
+            daily.loc[latest_index, "High"] = high
+            daily.loc[latest_index, "Low"] = low
+
+            tr_t = tr_percent(high, low)
+            tr_y = tr_py = None
+            if len(daily) >= 2:
+                previous = daily.iloc[-2]
+                tr_y = tr_percent(previous.get("High"), previous.get("Low"))
+            if len(daily) >= 3:
+                previous_previous = daily.iloc[-3]
+                tr_py = tr_percent(previous_previous.get("High"), previous_previous.get("Low"))
+
+            daily_tr = [
+                tr_percent(row.get("High"), row.get("Low"))
+                for _, row in daily.tail(20).iterrows()
+            ]
+            valid = [value for value in daily_tr if value is not None]
+            tr7 = sum(valid[-7:]) / 7 if len(valid) >= 7 else None
+            tr20 = sum(valid[-20:]) / 20 if len(valid) >= 20 else None
+
+            previous_close = _autogreen_number(daily.iloc[-2].get("Close")) if len(daily) >= 2 else None
+            change_pct = (
+                ((price - previous_close) / previous_close) * 100
+                if price is not None and previous_close is not None and previous_close > 0
+                else None
+            )
+            return symbol, {
+                "price": price, "open": open_price, "high": high, "low": low,
+                "previous_close": previous_close, "change_pct": change_pct,
+                "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py,
+                "tr7": tr7, "tr20": tr20
+            }
+        except Exception:
+            return symbol, empty
+
+    results = {}
+    unique_symbols = list(dict.fromkeys(symbols))
+    if not unique_symbols:
+        return results
+    with ThreadPoolExecutor(max_workers=min(5, len(unique_symbols))) as pool:
+        futures = [pool.submit(fetch_one, symbol) for symbol in unique_symbols]
+        for future in as_completed(futures):
+            symbol, quote = future.result()
+            results[symbol] = quote
+    return results
+
+
 def render_trstar_dashboard():
 
     st.markdown(
@@ -2277,7 +2399,7 @@ def render_trstar_dashboard():
         return
 
     with st.spinner(f"Loading market prices for {len(symbols)} stocks..."):
-        quotes = get_autogreen_live_prices(symbols)
+        quotes = get_trstar_live_prices(symbols)
 
     rows = []
     for symbol in symbols:
