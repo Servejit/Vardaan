@@ -1138,7 +1138,6 @@ def render_stock_of_the_day():
         unsafe_allow_html=True,
     )
     st.title("6thSense-Vardaan")
-    signal_cards_placeholder = st.container()
 
     try:
         master_bytes = get_autogreen_master_bytes()
@@ -2390,6 +2389,7 @@ def render_trstar_dashboard():
 
 
     st.title("6thSense-Vardaan")
+    signal_cards_placeholder = st.container()
 
     market_now = datetime.now(ZoneInfo("Asia/Kolkata"))
     market_open = (
@@ -2703,6 +2703,8 @@ def render_trstar_dashboard():
                     '<div style="font-size:13px;color:#658B4E;">No qualified SELL stock is available.</div></div>',
                     unsafe_allow_html=True,
                 )
+    
+    
 
     # Add the same two Master c-value columns to every stock in the All Stocks table.
     all_master_values = get_index_toppers_master_values(
