@@ -2479,6 +2479,46 @@ def render_trstar_dashboard():
 
     table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit"])
 
+    # Show only stocks that pass all six TR conditions in a separate target table.
+    target_rows = [
+        row for row in rows
+        if row["High Limit"] != "—" and row["Low Limit"] != "—"
+    ]
+    st.subheader("Target Stocks")
+    if target_rows:
+        target_table = pd.DataFrame(target_rows, columns=table.columns)
+        target_styled_table = (
+            target_table.style
+            .set_table_styles([
+                {"selector": "th", "props": [
+                    ("background-color", "#B7D7A8"),
+                    ("color", "#365B3B"),
+                    ("font-weight", "700"),
+                    ("border-bottom", "1px solid #8FAF72"),
+                ]},
+                {"selector": "td", "props": [
+                    ("color", "#365B3B"),
+                    ("border-bottom", "1px solid #C8DDB5"),
+                ]},
+            ])
+            .apply(
+                lambda row: [
+                    "background-color: #FFFFFF" if row.name % 2 == 0
+                    else "background-color: #DDEBCF"
+                    for _ in row
+                ],
+                axis=1,
+            )
+            .hide(axis="index")
+        )
+        st.dataframe(
+            target_styled_table,
+            use_container_width=True,
+            hide_index=True,
+        )
+    else:
+        st.info("No stocks currently meet all six TR conditions.")
+
     styled_table = (
         table.style
         .set_table_styles([
