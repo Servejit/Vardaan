@@ -3606,8 +3606,29 @@ def render_index_toppers_dashboard():
                 else entry_based_target
             )
             target = min(entry_based_target, open_based_cap)
+
+            # Use the same approved A-Z palette as the TR.Star cards.
+            _index_topper_palette = {"A":"#E63946","B":"#1769AA","C":"#7B2CBF","D":"#168B45","E":"#F28C18","F":"#D633A6","G":"#526B16","H":"#00A6C7","I":"#343A9B","J":"#F05A28","K":"#A2B51C","L":"#087F8C","M":"#8B4513","N":"#C2185B","O":"#6B8E23","P":"#49306B","Q":"#C49A00","R":"#8B0000","S":"#4F7942","T":"#005F73","U":"#5967D8","V":"#A0522D","W":"#365A7A","X":"#9C27B0","Y":"#B8860B","Z":"#36454F"}
+            _index_topper_base = _index_topper_palette.get(
+                str(top_choice["Stock Name"]).strip()[:1].upper(), "#485765"
+            )
+            _index_topper_rgb = tuple(
+                int(_index_topper_base[i:i + 2], 16) for i in (1, 3, 5)
+            )
+            def _index_topper_blend(amount):
+                return "#{:02X}{:02X}{:02X}".format(*(
+                    round(channel + (255 - channel) * amount)
+                    for channel in _index_topper_rgb
+                ))
+            top_choice_card_style = (
+                f"--trstar-base:{_index_topper_base};"
+                f"--trstar-card-light:{_index_topper_blend(0.88)};"
+                f"--trstar-card-lighter:{_index_topper_blend(0.94)};"
+                f"--trstar-card-soft:{_index_topper_blend(0.97)};"
+                f"--trstar-ink:#365B3B;"
+            )
             st.markdown(f"""
-            <div class="index-topper-card">
+            <div class="index-topper-card" style="{top_choice_card_style}">
               <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;">
                 <div class="index-topper-symbol">{html.escape(top_choice["Stock Name"])}</div>
