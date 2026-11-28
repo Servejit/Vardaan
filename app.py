@@ -3702,10 +3702,10 @@ def render_index_toppers_dashboard():
               </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,var(--trstar-base),#FFFFFF,var(--trstar-base),transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
-                <div><div class="index-topper-metric-label">ENTRY PRICE</div>
-                  <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
-                <div><div class="index-topper-metric-label">TARGET PRICE</div>
-                  <div class="index-topper-metric-value index-topper-target">₹{target:,.2f}</div></div>
+                <div><div class="index-topper-metric-label" style="color:#FFFFFF;opacity:.84;">ENTRY PRICE</div>
+                  <div class="index-topper-metric-value" style="color:#FFFFFF;text-shadow:0 2px 10px rgba(0,0,0,.22);">₹{entry:,.2f}</div></div>
+                <div><div class="index-topper-metric-label" style="color:#FFFFFF;opacity:.84;">TARGET PRICE</div>
+                  <div class="index-topper-metric-value index-topper-target" style="color:var(--trstar-base);text-shadow:0 0 12px var(--trstar-base);">₹{target:,.2f}</div></div>
               </div>
             </div>
             """, unsafe_allow_html=True)
