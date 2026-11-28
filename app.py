@@ -573,7 +573,7 @@ def load_live_yahoo_index_csv():
             return group, ticker, None
 
         # Use only the latest trading session for current OHLC values.
-        latest_date = history.index[-1].date()
+        latest_date = _autogreen_market_dates(history.index)[-1]
         current_session = history[_autogreen_market_dates(history.index) == latest_date]
         previous_sessions = history[history.index.date < latest_date]
         if current_session.empty:
@@ -724,6 +724,8 @@ def _validate_quote_ohlc(price, open_price, high, low):
     if open_price > high or open_price < low:
         return None, None, None
     return open_price, high, low
+
+
 def _autogreen_number(value):
     """Convert Excel numeric cells and formatted numeric strings safely."""
     if value is None:
@@ -2001,7 +2003,7 @@ def get_autogreen_live_prices(symbols):
                 return symbol, empty
 
             # The 5-day fallback must use only its latest session for today's OHLC.
-            latest_session_date = history.index[-1].date()
+            latest_session_date = _autogreen_market_dates(history.index)[-1]
             current_session = history[
                 _autogreen_market_dates(history.index) == latest_session_date
             ]
@@ -2025,7 +2027,6 @@ def get_autogreen_live_prices(symbols):
             )
             # Use the intraday session OHLC as one source; never mix daily and intraday fields.
             open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
-            open_price, high, low = _normalize_quote_ohlc(price, open_price, high, low)
 
             # True Range percentage for today, yesterday and the prior session.
             # TR = ((session High - session Low) / session Low) * 100.
@@ -2045,7 +2046,7 @@ def get_autogreen_live_prices(symbols):
                 # Use the current live session's latest High/Low in the averages.
                 current_rows = [
                     session_date == latest_session_date
-                    for session_date in daily_sessions.index.date
+                    for session_date in _autogreen_market_dates(daily_sessions.index)
                 ]
                 if any(current_rows):
                     current_index = daily_sessions.index[current_rows][-1]
@@ -2055,7 +2056,7 @@ def get_autogreen_live_prices(symbols):
                         daily_sessions.loc[current_index, "Low"] = low
 
                 prior_sessions = daily_sessions[
-                    [session_date < latest_session_date for session_date in daily_sessions.index.date]
+                    [session_date < latest_session_date for session_date in _autogreen_market_dates(daily_sessions.index)]
                 ]
                 if len(prior_sessions) >= 1:
                     prior = prior_sessions.iloc[-1]
@@ -2221,7 +2222,7 @@ def get_trstar_live_prices(symbols):
                 return symbol, empty
 
             latest_index = daily.index[-1]
-            latest_date = latest_index.date()
+            latest_date = _autogreen_market_dates(daily.index)[-1]
             latest = daily.iloc[-1]
             open_price = _autogreen_number(latest.get("Open"))
             high = _autogreen_number(latest.get("High"))
