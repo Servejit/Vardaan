@@ -2436,6 +2436,10 @@ def render_trstar_dashboard():
     </head>
     <body>
       <div class="trstar-table-wrap">__TRSTAR_TABLE__</div>
+      <div class="trstar-sort-menu" id="trstar-sort-menu">
+        <button type="button" data-direction="asc" id="trstar-ascending">A to Z</button>
+        <button type="button" data-direction="desc" id="trstar-descending">Z to A</button>
+      </div>
       <script>
         (() => {
           const table = document.querySelector(".trstar-table-wrap table");
@@ -2474,35 +2478,46 @@ def render_trstar_dashboard():
             rows.forEach(row => tbody.appendChild(row));
           }
 
-          const sortDirections = {};
+          function closeMenu() {
+            menu.style.display = "none";
+            activeColumn = -1;
+          }
+          function openMenu(header, columnIndex) {
+            activeColumn = columnIndex;
+            const rect = header.getBoundingClientRect();
+            menu.style.display = "block";
+            const menuWidth = 180;
+            menu.style.left = Math.max(6, Math.min(rect.left, window.innerWidth - menuWidth - 6)) + "px";
+            menu.style.top = Math.min(rect.bottom + 4, window.innerHeight - 92) + "px";
+            const ascending = document.getElementById("trstar-ascending");
+            const descending = document.getElementById("trstar-descending");
+            if (isStockColumn(columnIndex)) {
+              ascending.innerText = "A to Z";
+              descending.innerText = "Z to A";
+            } else {
+              ascending.innerText = "Low to High";
+              descending.innerText = "High to Low";
+            }
+          }
           headers.forEach((header, index) => {
-            header.setAttribute("title", "Tap heading to sort; tap again to reverse");
-            header.addEventListener("click", () => {
-              const direction = sortDirections[index] === "asc" ? "desc" : "asc";
-              sortDirections[index] = direction;
-              sortRows(index, direction);
+            header.setAttribute("title", "Tap to choose sorting");
+            header.addEventListener("click", event => {
+              event.stopPropagation();
+              openMenu(header, index);
             });
           });
-          function sortRows(columnIndex, direction) {
-            const rows = Array.from(tbody.rows);
-            rows.sort((rowA, rowB) => {
-              const aText = rowA.cells[columnIndex].innerText.trim();
-              const bText = rowB.cells[columnIndex].innerText.trim();
-              if (isStockColumn(columnIndex)) {
-                return aText.localeCompare(bText, undefined, {numeric: true, sensitivity: "base"}) *
-                  (direction === "asc" ? 1 : -1);
-              }
-              const aNumber = numericValue(aText);
-              const bNumber = numericValue(bText);
-              const aMissing = aNumber === null;
-              const bMissing = bNumber === null;
-              if (aMissing && bMissing) return 0;
-              if (aMissing) return 1;
-              if (bMissing) return -1;
-              return (aNumber - bNumber) * (direction === "asc" ? 1 : -1);
+          menu.querySelectorAll("button").forEach(button => {
+            button.addEventListener("click", event => {
+              event.stopPropagation();
+              if (activeColumn >= 0) sortRows(activeColumn, button.dataset.direction);
+              closeMenu();
             });
-            rows.forEach(row => tbody.appendChild(row));
-          }
+          });
+          document.addEventListener("click", event => {
+            if (!menu.contains(event.target)) closeMenu();
+          });
+          window.addEventListener("resize", closeMenu);
+          window.addEventListener("scroll", closeMenu, true);
 
         })();
       </script>
