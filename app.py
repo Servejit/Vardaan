@@ -2436,10 +2436,6 @@ def render_trstar_dashboard():
     </head>
     <body>
       <div class="trstar-table-wrap">__TRSTAR_TABLE__</div>
-      <div class="trstar-sort-menu" id="trstar-sort-menu">
-        <button type="button" data-direction="asc" id="trstar-ascending">A to Z</button>
-        <button type="button" data-direction="desc" id="trstar-descending">Z to A</button>
-      </div>
       <script>
         (() => {
           const table = document.querySelector(".trstar-table-wrap table");
@@ -2459,30 +2455,34 @@ def render_trstar_dashboard():
             const number = Number(cleaned);
             return Number.isFinite(number) ? number : null;
           }
-          function closeMenu() {
-            menu.style.display = "none";
-            activeColumn = -1;
-            activeHeader = null;
+          function sortRows(columnIndex, direction) {
+            const rows = Array.from(tbody.rows);
+            rows.sort((rowA, rowB) => {
+              const aText = rowA.cells[columnIndex].innerText.trim();
+              const bText = rowB.cells[columnIndex].innerText.trim();
+              if (isStockColumn(columnIndex)) {
+                return aText.localeCompare(bText, undefined, {numeric: true, sensitivity: "base"}) *
+                  (direction === "asc" ? 1 : -1);
+              }
+              const aNumber = numericValue(aText);
+              const bNumber = numericValue(bText);
+              if (aNumber === null && bNumber === null) return 0;
+              if (aNumber === null) return 1;
+              if (bNumber === null) return -1;
+              return (aNumber - bNumber) * (direction === "asc" ? 1 : -1);
+            });
+            rows.forEach(row => tbody.appendChild(row));
           }
-          function openMenu(header, columnIndex) {
-            activeHeader = header;
-            activeColumn = columnIndex;
-            const rect = header.getBoundingClientRect();
-            menu.style.display = "block";
-            const menuWidth = 180;
-            const left = Math.max(6, Math.min(rect.left, window.innerWidth - menuWidth - 6));
-            menu.style.left = left + "px";
-            menu.style.top = Math.min(rect.bottom + 4, window.innerHeight - 92) + "px";
-            const ascending = document.getElementById("trstar-ascending");
-            const descending = document.getElementById("trstar-descending");
-            if (isStockColumn(columnIndex)) {
-              ascending.innerText = "A to Z";
-              descending.innerText = "Z to A";
-            } else {
-              ascending.innerText = "Low to High";
-              descending.innerText = "High to Low";
-            }
-          }
+
+          const sortDirections = {};
+          headers.forEach((header, index) => {
+            header.setAttribute("title", "Tap heading to sort; tap again to reverse");
+            header.addEventListener("click", () => {
+              const direction = sortDirections[index] === "asc" ? "desc" : "asc";
+              sortDirections[index] = direction;
+              sortRows(index, direction);
+            });
+          });
           function sortRows(columnIndex, direction) {
             const rows = Array.from(tbody.rows);
             rows.sort((rowA, rowB) => {
@@ -2504,25 +2504,6 @@ def render_trstar_dashboard():
             rows.forEach(row => tbody.appendChild(row));
           }
 
-          headers.forEach((header, index) => {
-            header.setAttribute("title", "Tap to choose sorting");
-            header.addEventListener("click", event => {
-              event.stopPropagation();
-              openMenu(header, index);
-            });
-          });
-          menu.querySelectorAll("button").forEach(button => {
-            button.addEventListener("click", event => {
-              event.stopPropagation();
-              if (activeColumn >= 0) sortRows(activeColumn, button.dataset.direction);
-              closeMenu();
-            });
-          });
-          document.addEventListener("click", event => {
-            if (!menu.contains(event.target)) closeMenu();
-          });
-          window.addEventListener("resize", closeMenu);
-          window.addEventListener("scroll", closeMenu, true);
         })();
       </script>
     </body>
