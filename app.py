@@ -2395,7 +2395,7 @@ def render_trstar_dashboard():
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <style>
         html, body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
-        .trstar-table-wrap { width: 100%; overflow-x: auto; overflow-y: visible; border-radius: 8px; -webkit-overflow-scrolling: touch; }
+        .trstar-table-wrap { width: 100%; height: 500px; overflow-x: auto; overflow-y: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; }
         .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .trstar-table-wrap thead th {
           position: sticky;
@@ -2457,28 +2457,8 @@ def render_trstar_dashboard():
           const headers = Array.from(table.tHead.rows[0].cells);
           const tbody = table.tBodies[0];
           const tableWrap = document.querySelector(".trstar-table-wrap");
-          const rowsPerPage = 10;
-          const moreButton = document.createElement("button");
-          moreButton.type = "button";
-          moreButton.textContent = "Show More";
-          moreButton.style.cssText = "display:block;margin:10px auto 4px;padding:9px 22px;border:1px solid #8FAF72;border-radius:7px;background:#B7D7A8;color:#365B3B;font-weight:700;font-size:14px;cursor:pointer;";
-          tableWrap.insertAdjacentElement("afterend", moreButton);
-          let expanded = false;
-          function updateRowsView() {
-            Array.from(tbody.rows).forEach((row, index) => {
-              row.style.display = expanded || index < rowsPerPage ? "" : "none";
-            });
-            moreButton.textContent = expanded ? "Show Less" : "Show More";
-            const visibleHeight = expanded
-              ? Math.max(150, table.offsetHeight + moreButton.offsetHeight + 24)
-              : Math.max(150, Math.min(tbody.rows.length, rowsPerPage) * 38 + 105);
-            window.parent.postMessage({isStreamlitMessage:true, type:"streamlit:setFrameHeight", height:visibleHeight}, "*");
-          }
-          moreButton.addEventListener("click", () => {
-            expanded = !expanded;
-            updateRowsView();
-          });
-          updateRowsView();
+          // All rows stay in the table; the wrapper provides Index Toppers-style vertical scrolling.
+          window.parent.postMessage({isStreamlitMessage:true, type:"streamlit:setFrameHeight", height:520}, "*");
           let activeColumn = -1;
           let activeHeader = null;
 
@@ -2560,7 +2540,7 @@ def render_trstar_dashboard():
         components.html(
             sortable_table_html,
             height=520,
-            scrolling=True,
+            scrolling=False,
         )
 
 def get_index_toppers_master_values(symbols):
