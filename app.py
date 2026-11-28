@@ -2562,6 +2562,10 @@ def render_trstar_dashboard():
             target_styled_table,
             use_container_width=True,
             hide_index=True,
+            column_config={
+                "16< D-B / Avg.4 (c)": st.column_config.Column(width="small"),
+                "16> C-B / Avg.4 (c)": st.column_config.Column(width="small"),
+            },
         )
     else:
         st.info("No stocks currently meet all six TR conditions.")
@@ -2623,6 +2627,18 @@ def render_trstar_dashboard():
         html, body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
         .trstar-table-wrap { width: 100%; height: 500px; overflow-x: auto; overflow-y: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; }
         .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        /* Keep the two long Master c-value columns the same compact width as data columns. */
+        .trstar-table-wrap thead th:nth-last-child(-n+2),
+        .trstar-table-wrap tbody td:nth-last-child(-n+2) {
+          width: 100px !important;
+          min-width: 100px !important;
+          max-width: 100px !important;
+          box-sizing: border-box;
+        }
+        .trstar-table-wrap thead th:nth-last-child(-n+2) {
+          white-space: normal !important;
+          overflow-wrap: anywhere;
+        }
         .trstar-table-wrap thead th {
           position: sticky;
           top: 0;
