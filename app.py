@@ -2076,15 +2076,14 @@ def get_autogreen_live_prices(symbols):
                 if len(valid_tr_values) >= 20:
                     tr20 = sum(valid_tr_values[-20:]) / 20
 
-            daily_closes = (
-                daily["Close"].dropna()
-                if daily is not None and not daily.empty and "Close" in daily
-                else []
-            )
-            previous_close = (
-                _autogreen_number(daily_closes.iloc[-2])
-                if len(daily_closes) >= 2 else None
-            )
+            quote_date = latest_session_date
+            previous_close = None
+            if daily is not None and not daily.empty and "Close" in daily:
+                daily_valid = daily.dropna(subset=["Close"]).sort_index()
+                daily_dates = _autogreen_market_dates(daily_valid.index)
+                prior_daily = daily_valid[daily_dates < quote_date]
+                if not prior_daily.empty:
+                    previous_close = _autogreen_number(prior_daily["Close"].iloc[-1])
 
             # If Yahoo supplies only one daily candle, use its explicit prior close.
             if previous_close is None:
@@ -2103,6 +2102,7 @@ def get_autogreen_live_prices(symbols):
             )
             return symbol, {
                 "price": price, "open": open_price, "high": high, "low": low,
+                "quote_date": str(quote_date),
                 "previous_close": previous_close, "change_pct": change_pct,
                 "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py,
                 "tr7": tr7, "tr20": tr20
@@ -2287,7 +2287,13 @@ def get_trstar_live_prices(symbols):
             tr7 = sum(valid[-7:]) / 7 if len(valid) >= 7 else None
             tr20 = sum(valid[-20:]) / 20 if len(valid) >= 20 else None
 
-            previous_close = _autogreen_number(daily.iloc[-2].get("Close")) if len(daily) >= 2 else None
+            quote_date = _autogreen_market_dates(intraday.index)[-1] if intraday is not None else latest_date
+            daily_dates = _autogreen_market_dates(daily.index)
+            prior_daily = daily[daily_dates < quote_date]
+            previous_close = (
+                _autogreen_number(prior_daily["Close"].iloc[-1])
+                if not prior_daily.empty else None
+            )
             change_pct = (
                 ((price - previous_close) / previous_close) * 100
                 if price is not None and previous_close is not None and previous_close > 0
@@ -2295,6 +2301,7 @@ def get_trstar_live_prices(symbols):
             )
             return symbol, {
                 "price": price, "open": open_price, "high": high, "low": low,
+                "quote_date": str(quote_date),
                 "previous_close": previous_close, "change_pct": change_pct,
                 "tr_t": tr_t, "tr_y": tr_y, "tr_py": tr_py,
                 "tr7": tr7, "tr20": tr20
