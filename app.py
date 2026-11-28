@@ -2342,6 +2342,11 @@ def render_trstar_dashboard():
             background-image:linear-gradient(135deg,var(--trstar-card-light) 0%,var(--trstar-card-lighter) 52%,var(--trstar-card-soft) 100%) !important;
             background-color:var(--trstar-card-light) !important;
         }
+        .index-topper-card[style*="--trstar-base"] {
+            border:1px solid var(--trstar-base) !important;
+            border-color:var(--trstar-base) !important;
+            position:relative !important;
+        }
         .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:var(--trstar-ink,#365B3B);text-align:center;}
         .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:var(--trstar-ink,#365B3B);letter-spacing:.7px;}
         .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:var(--trstar-ink,#365B3B);
@@ -3669,9 +3674,9 @@ def render_index_toppers_dashboard():
                 ))
             top_choice_card_style = (
                 f"--trstar-base:{_index_topper_base};"
-                f"--trstar-card-light:{_index_topper_blend(0.88)};"
-                f"--trstar-card-lighter:{_index_topper_blend(0.94)};"
-                f"--trstar-card-soft:{_index_topper_blend(0.97)};"
+                f"--trstar-card-light:{_index_topper_blend(0.35)};"
+                f"--trstar-card-lighter:{_index_topper_blend(0.45)};"
+                f"--trstar-card-soft:{_index_topper_blend(0.25)};"
                 f"--trstar-ink:#365B3B;"
             )
             st.markdown(f"""
