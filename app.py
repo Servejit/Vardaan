@@ -2538,6 +2538,23 @@ def render_trstar_dashboard():
     else:
         st.info("No stocks currently meet all six TR conditions.")
 
+    # Add the same two Master c-value columns to every stock in the All Stocks table.
+    all_master_values = get_index_toppers_master_values(
+        [row["Stock"] for row in rows]
+    ) if rows else {}
+    for stock_row in rows:
+        master_values = all_master_values.get(
+            normalize_stock_symbol(stock_row["Stock"]), {}
+        )
+        stock_row["16< D-B / Avg.4 (c)"] = master_values.get(
+            "16< D-B / Avg.4", "—"
+        ).lstrip("+")
+        stock_row["16> C-B / Avg.4 (c)"] = master_values.get(
+            "16> C-B / Avg.4", "—"
+        ).lstrip("+")
+    all_stock_value_columns = ["16< D-B / Avg.4 (c)", "16> C-B / Avg.4 (c)"]
+    table = pd.DataFrame(rows, columns=list(table.columns) + all_stock_value_columns)
+
     styled_table = (
         table.style
         .set_table_styles([
