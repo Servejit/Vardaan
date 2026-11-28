@@ -2357,18 +2357,6 @@ def render_trstar_dashboard():
 
     table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit"])
 
-    # Stock dropdown: show the complete Master list by default, or focus
-    # the table on one selected stock.
-    stock_options = ["All Stocks"] + [str(symbol) for symbol in symbols]
-    selected_stock = st.selectbox(
-        "Stock List",
-        options=stock_options,
-        index=0,
-        key="trstar_stock_list",
-    )
-    if selected_stock != "All Stocks":
-        table = table[table["Stock"] == selected_stock].reset_index(drop=True)
-
     styled_table = (
         table.style
         .set_table_styles([
@@ -2545,11 +2533,12 @@ def render_trstar_dashboard():
     </body>
     </html>
     """.replace("__TRSTAR_TABLE__", styled_table.hide(axis="index").to_html())
-    components.html(
-        sortable_table_html,
-        height=max(150, len(table) * 38 + 65),
-        scrolling=True,
-    )
+    with st.expander("All Stocks", expanded=False):
+        components.html(
+            sortable_table_html,
+            height=max(150, len(table) * 38 + 65),
+            scrolling=True,
+        )
 
 def get_index_toppers_master_values(symbols):
     """Read the two Index Toppers metrics from the same Master sheet and symbol column used by the Master dashboard."""
