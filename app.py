@@ -2570,6 +2570,123 @@ def render_trstar_dashboard():
     else:
         st.info("No stocks currently meet all six TR conditions.")
 
+    # Build BUY / SELL signal cards from qualified Target Stocks.
+    # BUY: absolute D-B > C-B and absolute O2L% > O2H%.
+    # SELL: absolute C-B > D-B and absolute O2H% > O2L%.
+    def signal_abs_number(value):
+        try:
+            cleaned = str(value).strip().replace("₹", "").replace("%", "").replace(",", "").replace("+", "")
+            if cleaned in ("", "—", "-", "None", "nan"):
+                return None
+            return abs(float(cleaned))
+        except (TypeError, ValueError):
+            return None
+
+    def signal_price_number(value):
+        try:
+            cleaned = str(value).strip().replace("₹", "").replace(",", "").replace("+", "")
+            if cleaned in ("", "—", "-", "None", "nan"):
+                return None
+            return float(cleaned)
+        except (TypeError, ValueError):
+            return None
+
+    buy_signal_rows = []
+    sell_signal_rows = []
+    for signal_row in target_rows:
+        d_b_value = signal_abs_number(signal_row.get("16< D-B / Avg.4 (c)"))
+        c_b_value = signal_abs_number(signal_row.get("16> C-B / Avg.4 (c)"))
+        o2l_value = signal_abs_number(signal_row.get("O2L%"))
+        o2h_value = signal_abs_number(signal_row.get("O2H%"))
+        entry_price = signal_price_number(signal_row.get("Price"))
+
+        # Exclude missing values, ties, mixed comparisons, and missing prices/targets.
+        if None in (d_b_value, c_b_value, o2l_value, o2h_value, entry_price):
+            continue
+
+        if (
+            d_b_value > c_b_value
+            and o2l_value > o2h_value
+            and signal_price_number(signal_row.get("High Limit")) is not None
+        ):
+            buy_signal_rows.append(signal_row)
+        elif (
+            c_b_value > d_b_value
+            and o2h_value > o2l_value
+            and signal_price_number(signal_row.get("Low Limit")) is not None
+        ):
+            sell_signal_rows.append(signal_row)
+
+    def render_trstar_index_style_card(signal_row, signal_type):
+        is_buy = signal_type == "BUY"
+        target_label = "HIGH LIMIT" if is_buy else "LOW LIMIT"
+        target_value = signal_row.get("High Limit") if is_buy else signal_row.get("Low Limit")
+        entry_value = signal_row.get("Price", "—")
+        badge_background = (
+            "linear-gradient(110deg,#B7D7A8,#DDEBCF)"
+            if is_buy else "linear-gradient(110deg,#DDEBCF,#B7D7A8)"
+        )
+        return (
+            '<div class="index-topper-card">'
+            '<div class="index-topper-card-label">6THSENSE · TR.STAR SIGNAL</div>'
+            '<div style="display:flex;align-items:center;justify-content:space-between;'
+            'gap:12px;margin-top:16px;flex-wrap:wrap;">'
+            f'<div class="index-topper-symbol">{html.escape(str(signal_row.get("Stock", "—")))}</div>'
+            f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
+            '</div>'
+            '<div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>'
+            '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
+            '<div><div class="index-topper-metric-label">ENTRY PRICE · LIVE</div>'
+            f'<div class="index-topper-metric-value">₹{html.escape(str(entry_value))}</div></div>'
+            f'<div><div class="index-topper-metric-label">TARGET PRICE · {target_label}</div>'
+            f'<div class="index-topper-metric-value index-topper-target">₹{html.escape(str(target_value))}</div></div>'
+            '</div>'
+            '<div style="font-size:11px;color:#658B4E;margin-top:14px;letter-spacing:.4px;">'
+            f'D-B {html.escape(str(signal_row.get("16< D-B / Avg.4 (c)", "—")))}'
+            f' · C-B {html.escape(str(signal_row.get("16> C-B / Avg.4 (c)", "—")))}'
+            f' · O2L {html.escape(str(signal_row.get("O2L%", "—")))}'
+            f' · O2H {html.escape(str(signal_row.get("O2H%", "—")))}'
+            '</div></div>'
+        )
+
+    st.markdown(
+        "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
+        "border-radius:8px;font-size:1.15rem;font-weight:800;margin:18px 0 10px 0;'>"
+        "TR.Star Signal Cards</div>",
+        unsafe_allow_html=True,
+    )
+    buy_card_col, sell_card_col = st.columns(2)
+    with buy_card_col:
+        if buy_signal_rows:
+            for signal_row in buy_signal_rows:
+                st.markdown(
+                    render_trstar_index_style_card(signal_row, "BUY"),
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.markdown(
+                '<div class="index-topper-card" style="text-align:center;">'
+                '<div class="index-topper-card-label">6THSENSE · TR.STAR BUY SIGNAL</div>'
+                '<div style="font-size:22px;font-weight:950;margin:14px 0;color:#365B3B;">NO BUY SIGNAL</div>'
+                '<div style="font-size:13px;color:#658B4E;">No qualified BUY stock is available.</div></div>',
+                unsafe_allow_html=True,
+            )
+    with sell_card_col:
+        if sell_signal_rows:
+            for signal_row in sell_signal_rows:
+                st.markdown(
+                    render_trstar_index_style_card(signal_row, "SELL"),
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.markdown(
+                '<div class="index-topper-card" style="text-align:center;">'
+                '<div class="index-topper-card-label">6THSENSE · TR.STAR SELL SIGNAL</div>'
+                '<div style="font-size:22px;font-weight:950;margin:14px 0;color:#365B3B;">NO SELL SIGNAL</div>'
+                '<div style="font-size:13px;color:#658B4E;">No qualified SELL stock is available.</div></div>',
+                unsafe_allow_html=True,
+            )
+
     # Add the same two Master c-value columns to every stock in the All Stocks table.
     all_master_values = get_index_toppers_master_values(
         [row["Stock"] for row in rows]
