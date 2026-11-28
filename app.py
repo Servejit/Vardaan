@@ -574,7 +574,7 @@ def load_live_yahoo_index_csv():
 
         # Use only the latest trading session for current OHLC values.
         latest_date = history.index[-1].date()
-        current_session = history[history.index.date == latest_date]
+        current_session = history[_autogreen_market_dates(history.index) == latest_date]
         previous_sessions = history[history.index.date < latest_date]
         if current_session.empty:
             return group, ticker, None
@@ -698,31 +698,32 @@ def get_autogreen_master_bytes():
 
 
 
-def _normalize_quote_ohlc(price, open_price, high, low):
-    """Ensure a quote's session range contains its own price and opening price.
 
-    This is a defensive consistency check for mixed/incomplete Yahoo candles.
-    It never changes the traded price; it only expands an impossible range.
+def _autogreen_market_dates(index):
+    """Return candle dates in the NSE exchange timezone (Asia/Kolkata)."""
+    try:
+        if getattr(index, "tz", None) is not None:
+            return index.tz_convert("Asia/Kolkata").date
+        return index.date
+    except Exception:
+        return index.date
+
+
+def _validate_quote_ohlc(price, open_price, high, low):
+    """Return OHLC only when all values form a valid range around the price.
+
+    Do not manufacture a High/Low by stretching the source values. If the
+    feed gives an impossible combination, suppress the OHLC fields instead.
     """
-    price = _autogreen_number(price)
-    open_price = _autogreen_number(open_price)
-    high = _autogreen_number(high)
-    low = _autogreen_number(low)
-
-    observed = [value for value in (price, open_price, high, low) if value is not None]
-    if not observed:
-        return open_price, high, low
-
-    if price is not None:
-        high = price if high is None else max(high, price)
-        low = price if low is None else min(low, price)
-    if open_price is not None:
-        high = open_price if high is None else max(high, open_price)
-        low = open_price if low is None else min(low, open_price)
-    if high is not None and low is not None and high < low:
-        high, low = max(high, low), min(high, low)
+    values = [_autogreen_number(v) for v in (price, open_price, high, low)]
+    price, open_price, high, low = values
+    if any(v is None or v <= 0 for v in values):
+        return None, None, None
+    if high < low or high < price or low > price:
+        return None, None, None
+    if open_price > high or open_price < low:
+        return None, None, None
     return open_price, high, low
-
 def _autogreen_number(value):
     """Convert Excel numeric cells and formatted numeric strings safely."""
     if value is None:
@@ -2002,7 +2003,7 @@ def get_autogreen_live_prices(symbols):
             # The 5-day fallback must use only its latest session for today's OHLC.
             latest_session_date = history.index[-1].date()
             current_session = history[
-                history.index.date == latest_session_date
+                _autogreen_market_dates(history.index) == latest_session_date
             ]
             if current_session.empty:
                 return symbol, empty
@@ -2022,26 +2023,8 @@ def get_autogreen_live_prices(symbols):
                 period="3mo", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
-            # Keep today's OHLC internally consistent: prefer all four values
-            # from the same current-session daily candle, not a mix of daily and
-            # 1-minute bars. Intraday OHLC above remains the fallback.
-            if daily is not None and not daily.empty:
-                daily_session_rows = daily[
-                    daily.index.date == latest_session_date
-                ]
-                if not daily_session_rows.empty:
-                    daily_session = daily_session_rows.iloc[-1]
-                    daily_open = _autogreen_number(daily_session.get("Open"))
-                    daily_high = _autogreen_number(daily_session.get("High"))
-                    daily_low = _autogreen_number(daily_session.get("Low"))
-                    if daily_open is not None and daily_open > 0:
-                        open_price = daily_open
-                    if daily_high is not None and daily_high > 0:
-                        high = daily_high
-                    if daily_low is not None and daily_low > 0:
-                        low = daily_low
-
-            # Keep the displayed live price/open inside the same session range.
+            # Use the intraday session OHLC as one source; never mix daily and intraday fields.
+            open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
             open_price, high, low = _normalize_quote_ohlc(price, open_price, high, low)
 
             # True Range percentage for today, yesterday and the prior session.
@@ -2255,7 +2238,7 @@ def get_trstar_live_prices(symbols):
                     )
                     if candidate is not None and not candidate.empty and "Close" in candidate:
                         candidate = candidate.dropna(subset=["Close"])
-                        same_day = candidate[candidate.index.date == latest_date]
+                        same_day = candidate[_autogreen_market_dates(candidate.index) == latest_date]
                         if not same_day.empty:
                             intraday = same_day
                             break
@@ -2263,22 +2246,19 @@ def get_trstar_live_prices(symbols):
                     continue
 
             if intraday is not None:
+                # Select the complete OHLC set from intraday candles only.
                 closes = intraday["Close"].dropna()
                 highs = intraday["High"].dropna() if "High" in intraday else []
                 lows = intraday["Low"].dropna() if "Low" in intraday else []
                 opens = intraday["Open"].dropna() if "Open" in intraday else []
-                if not closes.empty:
-                    price = _autogreen_number(closes.iloc[-1])
-                if len(highs):
-                    high = max(high, _autogreen_number(highs.max())) if high is not None else _autogreen_number(highs.max())
-                if len(lows):
-                    low = min(low, _autogreen_number(lows.min())) if low is not None else _autogreen_number(lows.min())
-                if open_price is None and len(opens):
-                    open_price = _autogreen_number(opens.iloc[0])
+                price = _autogreen_number(closes.iloc[-1]) if not closes.empty else None
+                high = _autogreen_number(highs.max()) if len(highs) else None
+                low = _autogreen_number(lows.min()) if len(lows) else None
+                open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
 
-            # Prevent impossible OHLC combinations when Yahoo's latest close
-            # is newer than its reported session high/low candle values.
-            open_price, high, low = _normalize_quote_ohlc(price, open_price, high, low)
+            # Daily fallback remains a complete daily candle; validate without
+            # mixing any fields from another interval.
+            open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
 
             def tr_percent(session_high, session_low):
                 h = _autogreen_number(session_high)
