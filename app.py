@@ -2702,7 +2702,7 @@ def render_trstar_dashboard():
             + card_lighter + " 52%,"
             + card_soft + " 100%) !important;"
             + "background-color:" + card_light + " !important;"
-            + "border:2px solid " + base_color + " !important;"
+            + "border:3px solid " + base_color + " !important;"
             + "--trstar-base:" + base_color + ";"
             + "--trstar-ink:" + ink_color + ";"
             + "--trstar-muted:" + muted_color + ";"
