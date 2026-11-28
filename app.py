@@ -2311,26 +2311,33 @@ def render_trstar_dashboard():
         low_raw = quote.get("low")
         try:
             high_raw = float(high_raw)
+        except (TypeError, ValueError):
+            high_raw = None
+        try:
             low_raw = float(low_raw)
         except (TypeError, ValueError):
-            continue
+            low_raw = None
 
+        # Show every symbol from Master. Calculate target limits only
+        # when all TR values exist and the requested TR conditions match.
         tr_values = (tr_t, tr_y, tr_py, tr7, tr20)
-        if any(value is None for value in tr_values):
-            continue
-        if not (
-            tr_t < tr_y
+        qualifies = (
+            all(value is not None for value in tr_values)
+            and tr_t < tr_y
             and tr_t < tr_py
             and tr_t < tr7
             and tr_y < tr_py
             and tr_y < tr7
             and tr7 < tr20
-        ):
-            continue
-
-        target_gap_pct = tr7 - tr_t
-        high_limit = high_raw + high_raw * target_gap_pct / 100
-        low_limit = low_raw - low_raw * target_gap_pct / 100
+        )
+        high_limit = None
+        low_limit = None
+        if qualifies:
+            target_gap_pct = tr7 - tr_t
+            if high_raw is not None:
+                high_limit = high_raw + high_raw * target_gap_pct / 100
+            if low_raw is not None:
+                low_limit = low_raw - low_raw * target_gap_pct / 100
 
         rows.append({
             "Stock": symbol,
