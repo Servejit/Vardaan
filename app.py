@@ -3697,7 +3697,7 @@ def render_index_toppers_dashboard():
                 </div>
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,var(--trstar-base),#FFFFFF,var(--trstar-base),transparent);margin:20px 0 17px;"></div>
+              <div style="height:0;margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
                 <div><div class="index-topper-metric-label">ENTRY PRICE</div>
                   <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
