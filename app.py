@@ -7211,7 +7211,7 @@ st.markdown(
         color:#658B4E !important;
         fill:currentColor !important;
     }
-    /* Moving white shimmer travels around each stock's alphabet-coloured card border. */
+    /* Moving white shimmer travels around each stock's thin alphabet-coloured card border. */
     @property --trstar-border-angle {
         syntax: "<angle>";
         inherits: false;
@@ -7222,7 +7222,7 @@ st.markdown(
     }
     .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
         position:relative !important;
-        border:3px solid var(--trstar-base) !important;
+        border:1px solid var(--trstar-base) !important;
         border-color:var(--trstar-base) !important;
         outline:0 !important;
         box-shadow:0 8px 22px rgba(0,0,0,.10) !important;
@@ -7232,7 +7232,7 @@ st.markdown(
         content:"";
         position:absolute;
         inset:-1px;
-        padding:3px;
+        padding:1px;
         border-radius:inherit;
         pointer-events:none;
         background:conic-gradient(from var(--trstar-border-angle), var(--trstar-base) 0deg 292deg, #FFFFFF 322deg, var(--trstar-base) 350deg 360deg);
