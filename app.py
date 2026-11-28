@@ -2456,6 +2456,29 @@ def render_trstar_dashboard():
           if (!table || !table.tHead || !table.tBodies.length || !menu) return;
           const headers = Array.from(table.tHead.rows[0].cells);
           const tbody = table.tBodies[0];
+          const tableWrap = document.querySelector(".trstar-table-wrap");
+          const rowsPerPage = 10;
+          const moreButton = document.createElement("button");
+          moreButton.type = "button";
+          moreButton.textContent = "Show More";
+          moreButton.style.cssText = "display:block;margin:10px auto 4px;padding:9px 22px;border:1px solid #8FAF72;border-radius:7px;background:#B7D7A8;color:#365B3B;font-weight:700;font-size:14px;cursor:pointer;";
+          tableWrap.insertAdjacentElement("afterend", moreButton);
+          let expanded = false;
+          function updateRowsView() {
+            Array.from(tbody.rows).forEach((row, index) => {
+              row.style.display = expanded || index < rowsPerPage ? "" : "none";
+            });
+            moreButton.textContent = expanded ? "Show Less" : "Show More";
+            const visibleHeight = expanded
+              ? Math.max(150, table.offsetHeight + moreButton.offsetHeight + 24)
+              : Math.max(150, Math.min(tbody.rows.length, rowsPerPage) * 38 + 105);
+            window.parent.postMessage({isStreamlitMessage:true, type:"streamlit:setFrameHeight", height:visibleHeight}, "*");
+          }
+          moreButton.addEventListener("click", () => {
+            expanded = !expanded;
+            updateRowsView();
+          });
+          updateRowsView();
           let activeColumn = -1;
           let activeHeader = null;
 
@@ -2536,8 +2559,8 @@ def render_trstar_dashboard():
     with st.expander("All Stocks", expanded=False):
         components.html(
             sortable_table_html,
-            height=max(150, len(table) * 38 + 65),
-            scrolling=True,
+            height=520,
+            scrolling=False,
         )
 
 def get_index_toppers_master_values(symbols):
