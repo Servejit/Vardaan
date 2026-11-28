@@ -2337,13 +2337,14 @@ def render_trstar_dashboard():
             background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 42%,#DDEBCF 100%);
             box-shadow:0 10px 28px rgba(101,139,78,.18),0 0 18px rgba(183,215,168,.24);
         }
-        .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#365B3B;text-align:center;}
-        .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#365B3B;letter-spacing:.7px;}
-        .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#365B3B;
-            background:linear-gradient(110deg,#B7D7A8,#DDEBCF);border:1px solid #8FAF72;padding:8px 13px;border-radius:999px;}
-        .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:#658B4E;}
-        .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:#365B3B;margin-top:5px;}
-        .index-topper-target {color:#658B4E !important;}
+        .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:var(--trstar-ink,#365B3B);text-align:center;}
+        .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:var(--trstar-ink,#365B3B);letter-spacing:.7px;}
+        .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:var(--trstar-ink,#365B3B);
+            background:linear-gradient(110deg,var(--trstar-light,#B7D7A8),var(--trstar-lighter,#DDEBCF)) !important;
+            border:1px solid var(--trstar-base,#8FAF72);padding:8px 13px;border-radius:999px;}
+        .index-topper-metric-label {font-size:10px;font-weight:850;letter-spacing:1.3px;color:var(--trstar-muted,#658B4E);}
+        .index-topper-metric-value {font-size:clamp(21px,3vw,28px);font-weight:950;color:var(--trstar-ink,#365B3B);margin-top:5px;}
+        .index-topper-target {color:var(--trstar-base,#658B4E) !important;}
 </style>
         """,
         unsafe_allow_html=True,
@@ -2676,16 +2677,27 @@ def render_trstar_dashboard():
             blended = tuple(round(channel + (255 - channel) * amount) for channel in rgb)
             return "#{:02X}{:02X}{:02X}".format(*blended)
 
-        # Use a stronger tint so each card visibly reflects its assigned alphabet colour.
-        light_color = blend_with_white(0.35)
-        lighter_color = blend_with_white(0.45)
+        def blend_with_black(amount):
+            blended = tuple(round(channel * (1 - amount)) for channel in rgb)
+            return "#{:02X}{:02X}{:02X}".format(*blended)
+
+        light_color = blend_with_white(0.72)
+        lighter_color = blend_with_white(0.82)
+        soft_color = blend_with_white(0.64)
+        ink_color = blend_with_black(0.38)
+        muted_color = blend_with_black(0.22)
         return (
             "background:linear-gradient(135deg,"
             + light_color + " 0%,"
             + lighter_color + " 52%,"
-            + blend_with_white(0.25) + " 100%) !important;"
-            + "background-color:" + blend_with_white(0.35) + " !important;"
+            + soft_color + " 100%) !important;"
+            + "background-color:" + light_color + " !important;"
             + "border:2px solid " + base_color + " !important;"
+            + "--trstar-base:" + base_color + ";"
+            + "--trstar-ink:" + ink_color + ";"
+            + "--trstar-muted:" + muted_color + ";"
+            + "--trstar-light:" + light_color + ";"
+            + "--trstar-lighter:" + lighter_color + ";"
         )
 
     def render_trstar_index_style_card(signal_row, signal_type):
@@ -2693,10 +2705,17 @@ def render_trstar_dashboard():
         target_label = "HIGH LIMIT" if is_buy else "LOW LIMIT"
         target_value = signal_row.get("High Limit") if is_buy else signal_row.get("Low Limit")
         entry_value = signal_row.get("Price", "—")
-        badge_background = (
-            "linear-gradient(110deg,#B7D7A8,#DDEBCF)"
-            if is_buy else "linear-gradient(110deg,#DDEBCF,#B7D7A8)"
+        stock_base = _TRSTAR_ALPHABET_COLORS.get(
+            str(signal_row.get("Stock", "")).strip()[:1].upper(), "#485765"
         )
+        stock_rgb = tuple(int(stock_base[i:i + 2], 16) for i in (1, 3, 5))
+        badge_light = "#{:02X}{:02X}{:02X}".format(
+            *(round(channel + (255 - channel) * 0.72) for channel in stock_rgb)
+        )
+        badge_lighter = "#{:02X}{:02X}{:02X}".format(
+            *(round(channel + (255 - channel) * 0.82) for channel in stock_rgb)
+        )
+        badge_background = f"linear-gradient(110deg,{badge_light},{badge_lighter})"
         return (
             f'<div class="index-topper-card" style="{trstar_stock_card_style(signal_row.get("Stock", ""))}">'
             '<div class="index-topper-card-label">6THSENSE-VARDAAN</div>'
@@ -2708,7 +2727,7 @@ def render_trstar_dashboard():
             'style="display:block;width:76px;height:52px;margin:7px 0 0;overflow:visible;" '
             'xmlns="http://www.w3.org/2000/svg">'
             '<defs><linearGradient id="trstarFlowerShimmer" x1="-100%" y1="0%" x2="0%" y2="0%">'
-            '<stop offset="0%" stop-color="#658B4E"/><stop offset="38%" stop-color="#658B4E"/>'
+            f'<stop offset="0%" stop-color="{stock_base}"/><stop offset="38%" stop-color="{stock_base}"/>'
             '<stop offset="50%" stop-color="#FFFFFF"/><stop offset="62%" stop-color="#658B4E"/>'
             '<stop offset="100%" stop-color="#658B4E"/>'
             '<animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>'
@@ -2744,7 +2763,7 @@ def render_trstar_dashboard():
             f'<div><div class="index-topper-metric-label">TARGET PRICE</div>'
             f'<div class="index-topper-metric-value index-topper-target">₹{html.escape(str(target_value))}</div></div>'
             '</div>'
-            '<div style="font-size:11px;color:#658B4E;margin-top:14px;letter-spacing:.4px;">'
+            '<div style="font-size:11px;color:var(--trstar-muted);margin-top:14px;letter-spacing:.4px;">'
             f'D-B {html.escape(str(signal_row.get("16< D-B / Avg.4 (c)", "—")))}'
             f' · C-B {html.escape(str(signal_row.get("16> C-B / Avg.4 (c)", "—")))}'
             f' · O2L {html.escape(str(signal_row.get("O2L%", "—")))}'
