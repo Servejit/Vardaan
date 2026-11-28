@@ -2728,8 +2728,9 @@ def render_trstar_dashboard():
             'xmlns="http://www.w3.org/2000/svg">'
             '<defs><linearGradient id="trstarFlowerShimmer" x1="-100%" y1="0%" x2="0%" y2="0%">'
             f'<stop offset="0%" stop-color="{stock_base}"/><stop offset="38%" stop-color="{stock_base}"/>'
-            '<stop offset="50%" stop-color="#FFFFFF"/><stop offset="62%" stop-color="#658B4E"/>'
-            '<stop offset="100%" stop-color="#658B4E"/>'
+            '<stop offset="50%" stop-color="#FFFFFF"/>'
+            f'<stop offset="62%" stop-color="{stock_base}"/>'
+            f'<stop offset="100%" stop-color="{stock_base}"/>'
             '<animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>'
             '<animate attributeName="x2" values="0%;200%;0%" dur="4.2s" repeatCount="indefinite"/>'
             '</linearGradient></defs>'
@@ -2745,8 +2746,9 @@ def render_trstar_dashboard():
             '</div>'
             '<defs><linearGradient id="trstarFlowerShimmer" x1="-100%" y1="0%" x2="0%" y2="0%">'
             '<stop offset="0%" stop-color="#658B4E"/><stop offset="38%" stop-color="#658B4E"/>'
-            '<stop offset="50%" stop-color="#FFFFFF"/><stop offset="62%" stop-color="#658B4E"/>'
-            '<stop offset="100%" stop-color="#658B4E"/>'
+            '<stop offset="50%" stop-color="#FFFFFF"/>'
+            f'<stop offset="62%" stop-color="{stock_base}"/>'
+            f'<stop offset="100%" stop-color="{stock_base}"/>'
             '<animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>'
             '<animate attributeName="x2" values="0%;200%;0%" dur="4.2s" repeatCount="indefinite"/>'
             '</linearGradient></defs>'
@@ -3498,14 +3500,16 @@ def render_index_toppers_dashboard():
                            linear-gradient(115deg,#365B3B 0%,#658B4E 48%,#4D7440 100%) !important;
                 box-shadow:0 14px 34px rgba(194,65,12,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
             }
-            .index-topper-kicker,.index-topper-metric-label { color:#C8DDB5 !important; }
+            .index-topper-kicker { color:#C8DDB5 !important; }
+            .index-topper-metric-label { color:var(--trstar-muted,#C8DDB5) !important; }
             .index-topper-sub { color:#DDEBCF !important; }
-            .index-topper-card-label { color:#C8DDB5 !important; }
+            .index-topper-card-label { color:var(--trstar-ink,#C8DDB5) !important; }
             .index-topper-pill {
-                color:#365B3B !important;
-                background:linear-gradient(110deg,#DDEBCF,#B7D7A8) !important;
+                color:var(--trstar-ink,#365B3B) !important;
+                background:linear-gradient(110deg,var(--trstar-light,#DDEBCF),var(--trstar-lighter,#B7D7A8)) !important;
+                border-color:var(--trstar-base,#8FAF72) !important;
             }
-            .index-topper-target { color:#C8DDB5 !important; }
+            .index-topper-target { color:var(--trstar-base,#C8DDB5) !important; }
             .index-topper-table-wrap { border-color:#8FAF72 !important; background:#F4F8EF !important; }
             .index-topper-table { color:#365B3B !important; }
             .index-topper-table th {
