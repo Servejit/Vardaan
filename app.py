@@ -2655,15 +2655,23 @@ def render_trstar_dashboard():
             f'<div class="index-topper-symbol">{html.escape(str(signal_row.get("Stock", "—")))}</div>'
             f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
             '</div>'
-            '<style>'
-            '@keyframes dependentSignalShimmer {0%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.12)}100%{background-position:0% 50%;filter:brightness(1)}}'
-            '.trstar-card-flower{display:block;width:76px;height:52px;margin:9px auto 15px;position:relative;'
-            'background:linear-gradient(110deg,var(--brand-flower-color,#C58A3A) 0%,var(--brand-flower-color,#C58A3A) 30%,rgba(255,255,255,.96) 48%,var(--brand-flower-color,#C58A3A) 66%,var(--brand-flower-color,#C58A3A) 100%);'
-            'background-size:300% 300%;animation:dependentSignalShimmer 4.2s linear infinite;'
-            '-webkit-mask:url(data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 72%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z%27/%3E%3Cpath d=%27M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z%27/%3E%3Cpath d=%27M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z%27/%3E%3Cpath d=%27M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z%27/%3E%3Cpath d=%27M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z%27/%3E%3Cpath d=%27M34 64 Q60 69 86 64%27/%3E%3C/svg%3E) center/contain no-repeat;'
-            'mask:url(data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 120 72%27 fill=%27none%27 stroke=%27white%27 stroke-width=%273%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z%27/%3E%3Cpath d=%27M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z%27/%3E%3Cpath d=%27M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z%27/%3E%3Cpath d=%27M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z%27/%3E%3Cpath d=%27M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z%27/%3E%3Cpath d=%27M34 64 Q60 69 86 64%27/%3E%3C/svg%3E) center/contain no-repeat;}'
-            '</style>'
-            '<div class="trstar-card-flower" aria-hidden="true"></div>'
+            '<svg aria-hidden="true" viewBox="0 0 120 72" width="76" height="52"
+            'style="display:block;width:76px;height:52px;margin:9px auto 15px;overflow:visible;"
+            'xmlns="http://www.w3.org/2000/svg">'
+            '<defs><linearGradient id="trstarFlowerShimmer" x1="-100%" y1="0%" x2="0%" y2="0%">
+            '<stop offset="0%" stop-color="#658B4E"/><stop offset="38%" stop-color="#658B4E"/>
+            '<stop offset="50%" stop-color="#FFFFFF"/><stop offset="62%" stop-color="#658B4E"/>
+            '<stop offset="100%" stop-color="#658B4E"/>
+            '<animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>
+            '<animate attributeName="x2" values="0%;200%;0%" dur="4.2s" repeatCount="indefinite"/>
+            '</linearGradient></defs>'
+            '<g fill="none" stroke="url(#trstarFlowerShimmer)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+            '<path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>
+            '<path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>
+            '<path d="M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z"/>
+            '<path d="M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z"/>
+            '<path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>
+            '<path d="M34 64 Q60 69 86 64"/></g></svg>'
             '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
             '<div><div class="index-topper-metric-label">ENTREY PRICE</div>'
             f'<div class="index-topper-metric-value">₹{html.escape(str(entry_value))}</div></div>'
