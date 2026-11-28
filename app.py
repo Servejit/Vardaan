@@ -2505,7 +2505,11 @@ def render_trstar_dashboard():
         unsafe_allow_html=True,
     )
     if target_rows:
-        target_table = pd.DataFrame(target_rows, columns=list(table.columns) + target_value_columns)
+        target_table_columns = list(table.columns) + [
+            "16< D-B / Avg.4 (c)",
+            "16> C-B / Avg.4 (c)",
+        ]
+        target_table = pd.DataFrame(target_rows).reindex(columns=target_table_columns)
         target_styled_table = (
             target_table.style
             .set_table_styles([
