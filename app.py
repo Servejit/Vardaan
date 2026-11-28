@@ -2747,7 +2747,7 @@ def render_trstar_dashboard():
             '<animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>'
             '<animate attributeName="x2" values="0%;200%;0%" dur="4.2s" repeatCount="indefinite"/>'
             '</linearGradient></defs>'
-            f'<g fill="none" stroke="{stock_base}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'
+            '<g fill="none" stroke="url(#trstarFlowerShimmer)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'
             '<path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>'
             '<path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>'
             '<path d="M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z"/>'
