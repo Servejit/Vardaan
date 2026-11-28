@@ -7211,23 +7211,39 @@ st.markdown(
         color:#658B4E !important;
         fill:currentColor !important;
     }
-    /* Animated alphabet-colour glow around each TR.Star signal card. */
-    @keyframes trstarAlphabetBorderGlow {
-        0%, 100% {
-            box-shadow:0 0 0 1px var(--trstar-base), 0 0 5px var(--trstar-base) !important;
-        }
-        50% {
-            box-shadow:0 0 0 2px var(--trstar-base), 0 0 15px var(--trstar-base) !important;
-        }
+    /* Moving white shimmer travels around each stock's alphabet-coloured card border. */
+    @property --trstar-border-angle {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+    }
+    @keyframes trstarBorderShimmer {
+        to { --trstar-border-angle: 360deg; }
     }
     .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
+        position:relative !important;
         border:3px solid var(--trstar-base) !important;
         border-color:var(--trstar-base) !important;
         outline:0 !important;
-        animation:trstarAlphabetBorderGlow 2.2s ease-in-out infinite !important;
+        box-shadow:0 8px 22px rgba(0,0,0,.10) !important;
+        animation:none !important;
+    }
+    .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"]::after {
+        content:"";
+        position:absolute;
+        inset:-1px;
+        padding:3px;
+        border-radius:inherit;
+        pointer-events:none;
+        background:conic-gradient(from var(--trstar-border-angle), var(--trstar-base) 0deg 292deg, #FFFFFF 322deg, var(--trstar-base) 350deg 360deg);
+        -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+        -webkit-mask-composite:xor;
+        mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+        mask-composite:exclude;
+        animation:trstarBorderShimmer 3.8s linear infinite;
     }
     @media (prefers-reduced-motion: reduce) {
-        .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
+        .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"]::after {
             animation:none !important;
         }
     }
