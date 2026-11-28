@@ -2638,6 +2638,54 @@ def render_trstar_dashboard():
         ):
             sell_signal_rows.append(signal_row)
 
+    _TRSTAR_ALPHABET_COLORS = {
+        "A": "#D94F70",
+        "B": "#2878C8",
+        "C": "#8154B8",
+        "D": "#27865B",
+        "E": "#D98B20",
+        "F": "#C13C9B",
+        "G": "#47752C",
+        "H": "#39A9D6",
+        "I": "#454DAD",
+        "J": "#E87555",
+        "K": "#9BAF27",
+        "L": "#238F91",
+        "M": "#B85A27",
+        "N": "#B85C78",
+        "O": "#788C35",
+        "P": "#633C91",
+        "Q": "#B99A20",
+        "R": "#A92D42",
+        "S": "#729B79",
+        "T": "#287C75",
+        "U": "#7888D8",
+        "V": "#A1A34A",
+        "W": "#54758E",
+        "X": "#873E70",
+        "Y": "#D4B84C",
+        "Z": "#485765"
+}
+
+    def trstar_stock_card_style(stock_name):
+        first_letter = str(stock_name or "").strip()[:1].upper()
+        base_color = _TRSTAR_ALPHABET_COLORS.get(first_letter, "#485765")
+        rgb = tuple(int(base_color[i:i + 2], 16) for i in (1, 3, 5))
+
+        def blend_with_white(amount):
+            blended = tuple(round(channel + (255 - channel) * amount) for channel in rgb)
+            return "#{:02X}{:02X}{:02X}".format(*blended)
+
+        light_color = blend_with_white(0.88)
+        lighter_color = blend_with_white(0.94)
+        return (
+            "background:linear-gradient(135deg,"
+            + light_color + " 0%,"
+            + lighter_color + " 52%,"
+            + blend_with_white(0.84) + " 100%);"
+            + "border:2px solid " + base_color + ";"
+        )
+
     def render_trstar_index_style_card(signal_row, signal_type):
         is_buy = signal_type == "BUY"
         target_label = "HIGH LIMIT" if is_buy else "LOW LIMIT"
@@ -2648,7 +2696,7 @@ def render_trstar_dashboard():
             if is_buy else "linear-gradient(110deg,#DDEBCF,#B7D7A8)"
         )
         return (
-            '<div class="index-topper-card">'
+            f'<div class="index-topper-card" style="{trstar_stock_card_style(signal_row.get("Stock", ""))}">'
             '<div class="index-topper-card-label">6THSENSE-VARDAAN</div>'
             '<div style="display:flex;align-items:flex-start;justify-content:space-between;'
             'gap:12px;margin-top:16px;flex-wrap:wrap;">'
