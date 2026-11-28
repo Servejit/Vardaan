@@ -2528,6 +2528,23 @@ def render_trstar_dashboard():
         except (TypeError, ValueError, ZeroDivisionError):
             o2l_pct = "—"
 
+        # H2L% and L2H% use Price, High and Low from this same quote session.
+        try:
+            price_for_h2l_l2h = float(quote.get("price"))
+            high_for_h2l_l2h = float(quote.get("high"))
+            low_for_h2l_l2h = float(quote.get("low"))
+            h2l_pct = (
+                f"{((price_for_h2l_l2h - high_for_h2l_l2h) / high_for_h2l_l2h) * 100:+.2f}%"
+                if high_for_h2l_l2h > 0 else "—"
+            )
+            l2h_pct = (
+                f"{((price_for_h2l_l2h - low_for_h2l_l2h) / low_for_h2l_l2h) * 100:+.2f}%"
+                if low_for_h2l_l2h > 0 else "—"
+            )
+        except (TypeError, ValueError, ZeroDivisionError):
+            h2l_pct = "—"
+            l2h_pct = "—"
+
         rows.append({
             "Stock": symbol,
             "Open": display_price(quote.get("open")),
@@ -2535,6 +2552,8 @@ def render_trstar_dashboard():
             "Low": display_price(quote.get("low")),
             "% Chg": change_text,
             "Price": display_price(quote.get("price")),
+            "H2L%": h2l_pct,
+            "L2H%": l2h_pct,
             "TR.t": display_price(quote.get("tr_t")),
             "TR.y": display_price(quote.get("tr_y")),
             "TR.py": display_price(quote.get("tr_py")),
@@ -2546,7 +2565,7 @@ def render_trstar_dashboard():
             "O2L%": o2l_pct,
         })
 
-    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit", "O2H%", "O2L%"])
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "H2L%", "L2H%", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit", "O2H%", "O2L%"])
 
     # Show only stocks that pass all six TR conditions in a separate target table.
     target_rows = [
