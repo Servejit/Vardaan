@@ -2666,14 +2666,14 @@ def render_trstar_dashboard():
         )
 
     with signal_cards_placeholder:
-        st.markdown(
-            "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
-            "border-radius:8px;font-size:1.15rem;font-weight:800;margin:18px 0 10px 0;'>"
-            "TR.Star Signal Cards</div>",
-            unsafe_allow_html=True,
-        )
         buy_card_col, sell_card_col = st.columns(2)
         with buy_card_col:
+            st.markdown(
+                "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
+                "border-radius:8px;font-size:1.15rem;font-weight:800;margin:8px 0 10px 0;'>"
+                "Buy Signal</div>",
+                unsafe_allow_html=True,
+            )
             if buy_signal_rows:
                 for signal_row in buy_signal_rows:
                     st.markdown(
@@ -2689,6 +2689,12 @@ def render_trstar_dashboard():
                     unsafe_allow_html=True,
                 )
         with sell_card_col:
+            st.markdown(
+                "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
+                "border-radius:8px;font-size:1.15rem;font-weight:800;margin:8px 0 10px 0;'>"
+                "Sell Signal</div>",
+                unsafe_allow_html=True,
+            )
             if sell_signal_rows:
                 for signal_row in sell_signal_rows:
                     st.markdown(
