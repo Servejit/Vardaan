@@ -3697,15 +3697,15 @@ def render_index_toppers_dashboard():
                 </div>
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
-              <div style="font-size:11px;color:#365B3B;margin-top:8px;letter-spacing:.8px;">
-                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
-              </div>
               <div style="height:1px;background:linear-gradient(90deg,transparent,var(--trstar-base),#FFFFFF,var(--trstar-base),transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
                 <div><div class="index-topper-metric-label">ENTRY PRICE</div>
                   <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
                 <div><div class="index-topper-metric-label">TARGET PRICE</div>
                   <div class="index-topper-metric-value index-topper-target">₹{target:,.2f}</div></div>
+              </div>
+              <div style="font-size:11px;color:#365B3B;margin-top:12px;letter-spacing:.8px;line-height:1.7;">
+                {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
               </div>
             </div>
             """, unsafe_allow_html=True)
