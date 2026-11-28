@@ -2048,7 +2048,7 @@ def get_autogreen_live_prices(symbols):
                     high = _autogreen_number(daily_quote.get("High"))
                     low = _autogreen_number(daily_quote.get("Low"))
                     current_session = daily_clean.iloc[[-1]]
-                        open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
+                    open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
 
             # True Range percentage for today, yesterday and the prior session.
             # TR = ((session High - session Low) / session Low) * 100.
