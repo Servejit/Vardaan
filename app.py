@@ -3383,13 +3383,6 @@ def render_index_toppers_dashboard():
 
     st.title("6thSense-Vardaan")
 
-    st.markdown("""
-    <div class="index-topper-hero">
-      <div class="index-topper-kicker">6THSENSE · LIVE MARKET SELECTION</div>
-      <div class="index-topper-title">Index Toppers</div>
-    </div>
-    """, unsafe_allow_html=True)
-
     index_specs = [
         ("NIFTY 50", "50"),
         ("NIFTY NEXT 50", "NEXT 50"),
