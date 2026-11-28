@@ -2676,14 +2676,15 @@ def render_trstar_dashboard():
             blended = tuple(round(channel + (255 - channel) * amount) for channel in rgb)
             return "#{:02X}{:02X}{:02X}".format(*blended)
 
-        light_color = blend_with_white(0.70)
-        lighter_color = blend_with_white(0.80)
+        # Use a stronger tint so each card visibly reflects its assigned alphabet colour.
+        light_color = blend_with_white(0.35)
+        lighter_color = blend_with_white(0.45)
         return (
             "background:linear-gradient(135deg,"
             + light_color + " 0%,"
             + lighter_color + " 52%,"
-            + blend_with_white(0.58) + " 100%) !important;"
-            + "background-color:" + blend_with_white(0.68) + " !important;"
+            + blend_with_white(0.25) + " 100%) !important;"
+            + "background-color:" + blend_with_white(0.35) + " !important;"
             + "border:2px solid " + base_color + " !important;"
         )
 
