@@ -7211,6 +7211,12 @@ st.markdown(
         color:#658B4E !important;
         fill:currentColor !important;
     }
+    /* TR.Star cards must keep their stock-alphabet border; override the global pistachio card rule. */
+    .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
+        border:3px solid var(--trstar-base) !important;
+        border-color:var(--trstar-base) !important;
+        outline:0 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
