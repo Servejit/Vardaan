@@ -2644,23 +2644,18 @@ def render_trstar_dashboard():
         ):
             sell_signal_rows.append(signal_row)
 
-    # Put the strongest matching values first in each signal column.
-    # BUY: highest absolute D-B first, then highest absolute O2L%.
-    buy_signal_rows.sort(
-        key=lambda row: (
-            -(signal_abs_number(row.get("16< D-B / Avg.4 (c)")) or 0.0),
-            -(signal_abs_number(row.get("O2L%")) or 0.0),
+    # Sort both card groups by TR.t: the lowest numeric TR.t is shown first.
+    # Stocks with unavailable TR.t values are kept at the bottom.
+    def trstar_tr_t_sort_key(row):
+        tr_t_value = signal_price_number(row.get("TR.t"))
+        return (
+            tr_t_value is None,
+            tr_t_value if tr_t_value is not None else float("inf"),
             str(row.get("Stock", "")).casefold(),
         )
-    )
-    # SELL uses the corresponding SELL-side measures.
-    sell_signal_rows.sort(
-        key=lambda row: (
-            -(signal_abs_number(row.get("16> C-B / Avg.4 (c)")) or 0.0),
-            -(signal_abs_number(row.get("O2H%")) or 0.0),
-            str(row.get("Stock", "")).casefold(),
-        )
-    )
+
+    buy_signal_rows.sort(key=trstar_tr_t_sort_key)
+    sell_signal_rows.sort(key=trstar_tr_t_sort_key)
 
     _TRSTAR_ALPHABET_COLORS = {
         "A": "#E63946",
