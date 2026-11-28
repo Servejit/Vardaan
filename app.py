@@ -3279,6 +3279,40 @@ def render_index_toppers_dashboard():
         background:linear-gradient(135deg,#FBFDF7 0%,#F4F8EF 42%,#DDEBCF 100%);
         box-shadow:0 10px 28px rgba(101,139,78,.18),0 0 18px rgba(183,215,168,.24);
     }
+    /* Index Toppers uses the same alphabet-tinted card and thin shimmering outline as TR.Star. */
+    .index-topper-card[style*="--trstar-card-light"] {
+        background-image:linear-gradient(135deg,var(--trstar-card-light) 0%,var(--trstar-card-lighter) 52%,var(--trstar-card-soft) 100%) !important;
+        background-color:var(--trstar-card-light) !important;
+    }
+    @property --index-topper-border-angle {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+    }
+    @keyframes indexTopperBorderShimmer {
+        to { --index-topper-border-angle:360deg; }
+    }
+    .index-topper-card[style*="--trstar-base"] {
+        border:1px solid var(--trstar-base) !important;
+        position:relative;
+    }
+    .index-topper-card[style*="--trstar-base"]::after {
+        content:"";
+        position:absolute;
+        inset:-1px;
+        padding:1px;
+        border-radius:inherit;
+        pointer-events:none;
+        background:conic-gradient(from var(--index-topper-border-angle),var(--trstar-base) 0deg 292deg,#FFFFFF 322deg,var(--trstar-base) 350deg 360deg);
+        -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+        -webkit-mask-composite:xor;
+        mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+        mask-composite:exclude;
+        animation:indexTopperBorderShimmer 3.8s linear infinite;
+    }
+    @media (prefers-reduced-motion:reduce) {
+        .index-topper-card[style*="--trstar-base"]::after { animation:none !important; }
+    }
     .index-topper-card-label {font-size:11px;font-weight:950;letter-spacing:2.4px;color:#365B3B;text-align:center;}
     .index-topper-symbol {font-size:clamp(26px,4vw,35px);font-weight:950;color:#365B3B;letter-spacing:.7px;}
     .index-topper-pill {font-size:11px;font-weight:950;letter-spacing:1.1px;color:#365B3B;
@@ -3631,13 +3665,31 @@ def render_index_toppers_dashboard():
             <div class="index-topper-card" style="{top_choice_card_style}">
               <div class="index-topper-card-label">6THSENSE · INDEX TOPPERS SIGNAL</div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;">
-                <div class="index-topper-symbol">{html.escape(top_choice["Stock Name"])}</div>
+                <div style="display:flex;flex-direction:column;align-items:flex-start;">
+                  <div class="index-topper-symbol">{html.escape(top_choice["Stock Name"])}</div>
+                  <svg aria-hidden="true" viewBox="0 0 120 72" width="76" height="52" style="display:block;width:76px;height:52px;margin:7px 0 0;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="indexTopperFlowerShimmer" x1="-100%" y1="0%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="{_index_topper_base}"/><stop offset="38%" stop-color="{_index_topper_base}"/>
+                      <stop offset="50%" stop-color="#FFFFFF"/><stop offset="62%" stop-color="{_index_topper_base}"/><stop offset="100%" stop-color="{_index_topper_base}"/>
+                      <animate attributeName="x1" values="-100%;100%;-100%" dur="4.2s" repeatCount="indefinite"/>
+                      <animate attributeName="x2" values="0%;200%;0%" dur="4.2s" repeatCount="indefinite"/>
+                    </linearGradient></defs>
+                    <g fill="none" stroke="url(#indexTopperFlowerShimmer)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z"/>
+                      <path d="M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z"/>
+                      <path d="M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z"/>
+                      <path d="M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z"/>
+                      <path d="M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z"/>
+                      <path d="M34 64 Q60 69 86 64"/>
+                    </g>
+                  </svg>
+                </div>
                 <div class="index-topper-pill">TOP CHOICE</div>
               </div>
               <div style="font-size:11px;color:#365B3B;margin-top:8px;letter-spacing:.8px;">
                 {html.escape(top_choice["Index"])} · Live % Chg {top_choice["% Chg"]:+.2f}% · O2L {top_choice["O2L%"]:+.2f}% · O2H {top_choice["O2H%"]:+.2f}%{top_choice_master_line}
               </div>
-              <div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>
+              <div style="height:1px;background:linear-gradient(90deg,transparent,var(--trstar-base),#FFFFFF,var(--trstar-base),transparent);margin:20px 0 17px;"></div>
               <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
                 <div><div class="index-topper-metric-label">ENTRY PRICE</div>
                   <div class="index-topper-metric-value">₹{entry:,.2f}</div></div>
