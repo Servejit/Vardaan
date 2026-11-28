@@ -710,18 +710,20 @@ def _autogreen_market_dates(index):
 
 
 def _validate_quote_ohlc(price, open_price, high, low):
-    """Return OHLC only when all values form a valid range around the price.
+    """Validate the session OHLC independently from the displayed last price.
 
-    Do not manufacture a High/Low by stretching the source values. If the
-    feed gives an impossible combination, suppress the OHLC fields instead.
+    A delayed live tick can sit outside a stale/incomplete candle range. Keep
+    the last price visible; suppress only an invalid OHLC set rather than
+    blanking all four quote fields.
     """
-    values = [_autogreen_number(v) for v in (price, open_price, high, low)]
-    price, open_price, high, low = values
-    if any(v is None or v <= 0 for v in values):
+    open_price, high, low = (
+        _autogreen_number(open_price),
+        _autogreen_number(high),
+        _autogreen_number(low),
+    )
+    if any(value is None or value <= 0 for value in (open_price, high, low)):
         return None, None, None
-    if high < low or high < price or low > price:
-        return None, None, None
-    if open_price > high or open_price < low:
+    if high < low or open_price < low or open_price > high:
         return None, None, None
     return open_price, high, low
 
@@ -1994,6 +1996,14 @@ def get_autogreen_live_prices(symbols):
                 history = ticker.history(
                     period="5d", interval="5m", auto_adjust=False,
                     actions=False, prepost=False, timeout=15
+                )
+            if history is None or history.empty or "Close" not in history:
+                # Intraday feeds can be empty (market closed, Yahoo outage, or
+                # symbol-specific delay). Fall back to a complete daily candle
+                # instead of returning an empty quote and hiding every price.
+                history = ticker.history(
+                    period="3mo", interval="1d", auto_adjust=False,
+                    actions=False, prepost=False, timeout=20
                 )
             if history is None or history.empty or "Close" not in history:
                 return symbol, empty
