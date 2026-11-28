@@ -7211,11 +7211,25 @@ st.markdown(
         color:#658B4E !important;
         fill:currentColor !important;
     }
-    /* TR.Star cards must keep their stock-alphabet border; override the global pistachio card rule. */
+    /* Animated alphabet-colour glow around each TR.Star signal card. */
+    @keyframes trstarAlphabetBorderGlow {
+        0%, 100% {
+            box-shadow:0 0 0 1px var(--trstar-base), 0 0 5px var(--trstar-base) !important;
+        }
+        50% {
+            box-shadow:0 0 0 2px var(--trstar-base), 0 0 15px var(--trstar-base) !important;
+        }
+    }
     .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
         border:3px solid var(--trstar-base) !important;
         border-color:var(--trstar-base) !important;
         outline:0 !important;
+        animation:trstarAlphabetBorderGlow 2.2s ease-in-out infinite !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .stApp [data-testid="stMarkdownContainer"] .index-topper-card[style*="--trstar-base"] {
+            animation:none !important;
+        }
     }
     </style>
     """,
