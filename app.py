@@ -2387,10 +2387,11 @@ def render_trstar_dashboard():
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <style>
         html, body { margin: 0; padding: 0; background: transparent; font-family: sans-serif; }
-        .trstar-table-wrap { width: 100%; overflow-x: auto; border-radius: 8px; }
+        .trstar-table-wrap { width: 100%; max-height: 570px; overflow-x: auto; overflow-y: auto; border-radius: 8px; -webkit-overflow-scrolling: touch; }
         .trstar-table-wrap table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .trstar-table-wrap thead th {
-          position: relative;
+          position: sticky;
+          top: 0;
           background-color: #B7D7A8 !important;
           color: #365B3B !important;
           font-weight: 700 !important;
