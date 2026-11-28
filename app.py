@@ -575,7 +575,7 @@ def load_live_yahoo_index_csv():
         # Use only the latest trading session for current OHLC values.
         latest_date = _autogreen_market_dates(history.index)[-1]
         current_session = history[_autogreen_market_dates(history.index) == latest_date]
-        previous_sessions = history[history.index.date < latest_date]
+        previous_sessions = history[_autogreen_market_dates(history.index) < latest_date]
         if current_session.empty:
             return group, ticker, None
 
