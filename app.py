@@ -2484,7 +2484,12 @@ def render_trstar_dashboard():
         row for row in rows
         if row["High Limit"] != "—" and row["Low Limit"] != "—"
     ]
-    st.subheader("Target Stocks")
+    st.markdown(
+        "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
+        "border-radius:8px;font-size:1.25rem;font-weight:700;margin:8px 0 12px 0;'>"
+        "Target Stocks</div>",
+        unsafe_allow_html=True,
+    )
     if target_rows:
         target_table = pd.DataFrame(target_rows, columns=table.columns)
         target_styled_table = (
