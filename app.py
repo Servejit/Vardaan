@@ -2025,7 +2025,29 @@ def get_autogreen_live_prices(symbols):
                 period="3mo", interval="1d", auto_adjust=False,
                 actions=False, prepost=False, timeout=15
             )
-            # Use the intraday session OHLC as one source; never mix daily and intraday fields.
+            # Select OHLC from the daily candle matching the intraday session date.
+            daily_quote = None
+            if daily is not None and not daily.empty and {"Open", "High", "Low", "Close"}.issubset(daily.columns):
+                daily_clean = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
+                daily_dates_for_quote = _autogreen_market_dates(daily_clean.index)
+                matched_daily = daily_clean[daily_dates_for_quote == latest_session_date]
+                if not matched_daily.empty:
+                    daily_quote = matched_daily.iloc[-1]
+            if daily_quote is not None:
+                open_price = _autogreen_number(daily_quote.get("Open"))
+                high = _autogreen_number(daily_quote.get("High"))
+                low = _autogreen_number(daily_quote.get("Low"))
+            else:
+                # Intraday date has no matching daily candle: use one complete daily row instead.
+                if daily is not None and not daily.empty:
+                    daily_clean = daily.dropna(subset=["Open", "High", "Low", "Close"]).sort_index()
+                    if not daily_clean.empty:
+                        daily_quote = daily_clean.iloc[-1]
+                        latest_session_date = _autogreen_market_dates(daily_clean.index)[-1]
+                        price = _autogreen_number(daily_quote.get("Close"))
+                        open_price = _autogreen_number(daily_quote.get("Open"))
+                        high = _autogreen_number(daily_quote.get("High"))
+                        low = _autogreen_number(daily_quote.get("Low"))
             open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
 
             # True Range percentage for today, yesterday and the prior session.
@@ -2257,8 +2279,24 @@ def get_trstar_live_prices(symbols):
                 low = _autogreen_number(lows.min()) if len(lows) else None
                 open_price = _autogreen_number(opens.iloc[0]) if len(opens) else None
 
-            # Daily fallback remains a complete daily candle; validate without
-            # mixing any fields from another interval.
+            # Daily Open/High/Low must be from the exact quote date.
+            quote_date = _autogreen_market_dates(intraday.index)[-1] if intraday is not None else latest_date
+            daily_quote_dates = _autogreen_market_dates(daily.index)
+            matched_daily = daily[daily_quote_dates == quote_date]
+            if not matched_daily.empty:
+                session_daily = matched_daily.iloc[-1]
+                open_price = _autogreen_number(session_daily.get("Open"))
+                high = _autogreen_number(session_daily.get("High"))
+                low = _autogreen_number(session_daily.get("Low"))
+            else:
+                # If the dates disagree, display the complete daily candle and its close only.
+                quote_date = latest_date
+                session_daily = daily.iloc[-1]
+                price = _autogreen_number(session_daily.get("Close"))
+                open_price = _autogreen_number(session_daily.get("Open"))
+                high = _autogreen_number(session_daily.get("High"))
+                low = _autogreen_number(session_daily.get("Low"))
+                intraday = None
             open_price, high, low = _validate_quote_ohlc(price, open_price, high, low)
 
             def tr_percent(session_high, session_low):
@@ -2287,7 +2325,6 @@ def get_trstar_live_prices(symbols):
             tr7 = sum(valid[-7:]) / 7 if len(valid) >= 7 else None
             tr20 = sum(valid[-20:]) / 20 if len(valid) >= 20 else None
 
-            quote_date = _autogreen_market_dates(intraday.index)[-1] if intraday is not None else latest_date
             daily_dates = _autogreen_market_dates(daily.index)
             prior_daily = daily[daily_dates < quote_date]
             previous_close = (
