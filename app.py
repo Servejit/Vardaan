@@ -2681,9 +2681,9 @@ def render_trstar_dashboard():
             blended = tuple(round(channel * (1 - amount)) for channel in rgb)
             return "#{:02X}{:02X}{:02X}".format(*blended)
 
-        light_color = blend_with_white(0.72)
-        lighter_color = blend_with_white(0.82)
-        soft_color = blend_with_white(0.64)
+        light_color = blend_with_white(0.35)
+        lighter_color = blend_with_white(0.45)
+        soft_color = blend_with_white(0.25)
         ink_color = blend_with_black(0.38)
         muted_color = blend_with_black(0.22)
         return (
@@ -2710,10 +2710,10 @@ def render_trstar_dashboard():
         )
         stock_rgb = tuple(int(stock_base[i:i + 2], 16) for i in (1, 3, 5))
         badge_light = "#{:02X}{:02X}{:02X}".format(
-            *(round(channel + (255 - channel) * 0.72) for channel in stock_rgb)
+            *(round(channel + (255 - channel) * 0.35) for channel in stock_rgb)
         )
         badge_lighter = "#{:02X}{:02X}{:02X}".format(
-            *(round(channel + (255 - channel) * 0.82) for channel in stock_rgb)
+            *(round(channel + (255 - channel) * 0.45) for channel in stock_rgb)
         )
         badge_background = f"linear-gradient(110deg,{badge_light},{badge_lighter})"
         return (
