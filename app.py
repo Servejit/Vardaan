@@ -2326,6 +2326,11 @@ def render_trstar_dashboard():
         }
         
         /* Reuse the exact light Pistachio Index Toppers signal-card design in TR.Star. */
+        @keyframes trstarFlowerShimmer {
+            0% { background-position:0% 50%; filter:brightness(1); }
+            50% { background-position:100% 50%; filter:brightness(1.2); }
+            100% { background-position:0% 50%; filter:brightness(1); }
+        }
         .index-topper-card {
             position:relative;overflow:hidden;margin:12px 0 20px;padding:23px 24px;border-radius:20px;
             color:#365B3B;border:2px solid #8FAF72;
@@ -2650,7 +2655,12 @@ def render_trstar_dashboard():
             f'<div class="index-topper-symbol">{html.escape(str(signal_row.get("Stock", "—")))}</div>'
             f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
             '</div>'
-            '<div style="height:1px;background:linear-gradient(90deg,#8FAF72 0%,#B7D7A8 20%,#FFFFFF 50%,#B7D7A8 80%,#8FAF72 100%);box-shadow:0 0 12px rgba(183,215,168,.9);height:3px;margin:20px 0 17px;"></div>'
+            '<div aria-hidden="true" style="width:58px;height:36px;margin:10px auto 16px;'
+            'background:linear-gradient(110deg,#658B4E 0%,#B7D7A8 30%,#FFFFFF 48%,#B7D7A8 66%,#658B4E 100%);'
+            'background-size:300% 300%;animation:trstarFlowerShimmer 4.2s linear infinite;'
+            '-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 120 72\' fill=\'none\' stroke=\'white\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z\'/%3E%3Cpath d=\'M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z\'/%3E%3Cpath d=\'M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z\'/%3E%3Cpath d=\'M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z\'/%3E%3Cpath d=\'M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z\'/%3E%3Cpath d=\'M34 64 Q60 69 86 64\'/%3E%3C/svg%3E") center/contain no-repeat;'
+            'mask:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 120 72\' fill=\'none\' stroke=\'white\' stroke-width=\'3\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M60 58 C43 43 43 24 60 8 C77 24 77 43 60 58Z\'/%3E%3Cpath d=\'M55 58 C34 51 22 35 27 20 C43 26 54 40 55 58Z\'/%3E%3Cpath d=\'M65 58 C86 51 98 35 93 20 C77 26 66 40 65 58Z\'/%3E%3Cpath d=\'M49 59 C30 60 16 52 10 40 C28 38 43 45 49 59Z\'/%3E%3Cpath d=\'M71 59 C90 60 104 52 110 40 C92 38 77 45 71 59Z\'/%3E%3Cpath d=\'M34 64 Q60 69 86 64\'/%3E%3C/svg%3E") center/contain no-repeat;'
+            'filter:drop-shadow(0 0 5px rgba(183,215,168,.9));"></div>'
             '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
             '<div><div class="index-topper-metric-label">ENTREY PRICE</div>'
             f'<div class="index-topper-metric-value">₹{html.escape(str(entry_value))}</div></div>'
