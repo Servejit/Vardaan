@@ -3481,7 +3481,11 @@ def render_index_toppers_dashboard():
             }
             .index-topper-kicker,.index-topper-metric-label { color:#C8DDB5 !important; }
             .index-topper-sub { color:#DDEBCF !important; }
-            /* TR.Star cards keep their individual A-Z colours on mobile. */
+            .index-topper-card {
+                background:linear-gradient(130deg,#365B3B 0%,#658B4E 48%,#4D7440 100%) padding-box,
+                           linear-gradient(115deg,#8FAF72 0%,#B7D7A8 35%,#FFFFFF 52%,#A9C78E 75%,#365B3B 100%) border-box !important;
+                box-shadow:0 12px 32px rgba(194,65,12,.24),0 0 25px rgba(249,115,22,.2) !important;
+            }
             .index-topper-card-label { color:#C8DDB5 !important; }
             .index-topper-pill {
                 color:#365B3B !important;
