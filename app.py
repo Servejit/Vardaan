@@ -2560,7 +2560,7 @@ def render_trstar_dashboard():
         components.html(
             sortable_table_html,
             height=520,
-            scrolling=False,
+            scrolling=True,
         )
 
 def get_index_toppers_master_values(symbols):
