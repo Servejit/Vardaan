@@ -2484,6 +2484,20 @@ def render_trstar_dashboard():
         row for row in rows
         if row["High Limit"] != "—" and row["Low Limit"] != "—"
     ]
+    target_master_values = get_index_toppers_master_values(
+        [row["Stock"] for row in target_rows]
+    ) if target_rows else {}
+    target_value_columns = ["16< D-B / Avg.4 (c)", "16> C-B / Avg.4 (c)"]
+    for target_row in target_rows:
+        master_values = target_master_values.get(
+            normalize_stock_symbol(target_row["Stock"]), {}
+        )
+        target_row[target_value_columns[0]] = master_values.get(
+            "16< D-B / Avg.4", "—"
+        ).lstrip("+")
+        target_row[target_value_columns[1]] = master_values.get(
+            "16> C-B / Avg.4", "—"
+        ).lstrip("+")
     st.markdown(
         "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
         "border-radius:8px;font-size:1.25rem;font-weight:700;margin:8px 0 12px 0;'>"
@@ -2491,7 +2505,7 @@ def render_trstar_dashboard():
         unsafe_allow_html=True,
     )
     if target_rows:
-        target_table = pd.DataFrame(target_rows, columns=table.columns)
+        target_table = pd.DataFrame(target_rows, columns=list(table.columns) + target_value_columns)
         target_styled_table = (
             target_table.style
             .set_table_styles([
