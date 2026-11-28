@@ -2681,17 +2681,22 @@ def render_trstar_dashboard():
             blended = tuple(round(channel * (1 - amount)) for channel in rgb)
             return "#{:02X}{:02X}{:02X}".format(*blended)
 
-        light_color = blend_with_white(0.35)
-        lighter_color = blend_with_white(0.45)
-        soft_color = blend_with_white(0.25)
+        # Keep all existing text, pill, and metric shades unchanged.
+        light_color = blend_with_white(0.72)
+        lighter_color = blend_with_white(0.82)
+        soft_color = blend_with_white(0.64)
+        # Use stronger alphabet tint only for the card background.
+        card_light = blend_with_white(0.35)
+        card_lighter = blend_with_white(0.45)
+        card_soft = blend_with_white(0.25)
         ink_color = blend_with_black(0.38)
         muted_color = blend_with_black(0.22)
         return (
             "background:linear-gradient(135deg,"
-            + light_color + " 0%,"
-            + lighter_color + " 52%,"
-            + soft_color + " 100%) !important;"
-            + "background-color:" + light_color + " !important;"
+            + card_light + " 0%,"
+            + card_lighter + " 52%,"
+            + card_soft + " 100%) !important;"
+            + "background-color:" + card_light + " !important;"
             + "border:2px solid " + base_color + " !important;"
             + "--trstar-base:" + base_color + ";"
             + "--trstar-ink:" + ink_color + ";"
@@ -2710,10 +2715,10 @@ def render_trstar_dashboard():
         )
         stock_rgb = tuple(int(stock_base[i:i + 2], 16) for i in (1, 3, 5))
         badge_light = "#{:02X}{:02X}{:02X}".format(
-            *(round(channel + (255 - channel) * 0.35) for channel in stock_rgb)
+            *(round(channel + (255 - channel) * 0.72) for channel in stock_rgb)
         )
         badge_lighter = "#{:02X}{:02X}{:02X}".format(
-            *(round(channel + (255 - channel) * 0.45) for channel in stock_rgb)
+            *(round(channel + (255 - channel) * 0.82) for channel in stock_rgb)
         )
         badge_background = f"linear-gradient(110deg,{badge_light},{badge_lighter})"
         return (
