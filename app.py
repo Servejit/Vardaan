@@ -2461,6 +2461,17 @@ def render_trstar_dashboard():
             if low_raw is not None:
                 low_limit = low_raw - low_raw * target_gap_pct / 100
 
+        # Today's O2H% = ((Today High - Today Open) / Today Open) * 100.
+        try:
+            open_for_o2h = float(quote.get("open"))
+            high_for_o2h = float(quote.get("high"))
+            o2h_pct = (
+                f"{((high_for_o2h - open_for_o2h) / open_for_o2h) * 100:.2f}%"
+                if open_for_o2h > 0 else "—"
+            )
+        except (TypeError, ValueError, ZeroDivisionError):
+            o2h_pct = "—"
+
         # Today's O2L% = ((Today Low - Today Open) / Today Open) * 100.
         try:
             open_for_o2l = float(quote.get("open"))
@@ -2486,10 +2497,11 @@ def render_trstar_dashboard():
             "TR20": display_price(quote.get("tr20")),
             "High Limit": display_price(high_limit),
             "Low Limit": display_price(low_limit),
+            "O2H%": o2h_pct,
             "O2L%": o2l_pct,
         })
 
-    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit", "O2L%"])
+    table = pd.DataFrame(rows, columns=["Stock", "Open", "High", "Low", "% Chg", "Price", "TR.t", "TR.y", "TR.py", "TR7", "TR20", "High Limit", "Low Limit", "O2H%", "O2L%"])
 
     # Show only stocks that pass all six TR conditions in a separate target table.
     target_rows = [
