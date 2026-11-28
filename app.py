@@ -2538,134 +2538,134 @@ def render_trstar_dashboard():
         target_row[target_value_columns[1]] = master_values.get(
             "16> C-B / Avg.4", "—"
         ).lstrip("+")
-    with signal_cards_placeholder:
-        st.markdown(
-            "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
-            "border-radius:8px;font-size:1.25rem;font-weight:700;margin:8px 0 12px 0;'>"
-            "Target Stocks</div>",
-            unsafe_allow_html=True,
+    st.markdown(
+        "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
+        "border-radius:8px;font-size:1.25rem;font-weight:700;margin:8px 0 12px 0;'>"
+        "Target Stocks</div>",
+        unsafe_allow_html=True,
+    )
+    if target_rows:
+        target_table_columns = list(table.columns) + [
+            "16< D-B / Avg.4 (c)",
+            "16> C-B / Avg.4 (c)",
+        ]
+        target_table = pd.DataFrame(target_rows).reindex(columns=target_table_columns)
+        target_styled_table = (
+            target_table.style
+            .set_table_styles([
+                {"selector": "th", "props": [
+                    ("background-color", "#B7D7A8"),
+                    ("color", "#365B3B"),
+                    ("font-weight", "700"),
+                    ("border-bottom", "1px solid #8FAF72"),
+                ]},
+                {"selector": "td", "props": [
+                    ("color", "#365B3B"),
+                    ("border-bottom", "1px solid #C8DDB5"),
+                ]},
+            ])
+            .apply(
+                lambda row: [
+                    "background-color: #FFFFFF" if row.name % 2 == 0
+                    else "background-color: #DDEBCF"
+                    for _ in row
+                ],
+                axis=1,
+            )
+            .hide(axis="index")
         )
-        if target_rows:
-            target_table_columns = list(table.columns) + [
-                "16< D-B / Avg.4 (c)",
-                "16> C-B / Avg.4 (c)",
-            ]
-            target_table = pd.DataFrame(target_rows).reindex(columns=target_table_columns)
-            target_styled_table = (
-                target_table.style
-                .set_table_styles([
-                    {"selector": "th", "props": [
-                        ("background-color", "#B7D7A8"),
-                        ("color", "#365B3B"),
-                        ("font-weight", "700"),
-                        ("border-bottom", "1px solid #8FAF72"),
-                    ]},
-                    {"selector": "td", "props": [
-                        ("color", "#365B3B"),
-                        ("border-bottom", "1px solid #C8DDB5"),
-                    ]},
-                ])
-                .apply(
-                    lambda row: [
-                        "background-color: #FFFFFF" if row.name % 2 == 0
-                        else "background-color: #DDEBCF"
-                        for _ in row
-                    ],
-                    axis=1,
-                )
-                .hide(axis="index")
-            )
-            st.dataframe(
-                target_styled_table,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "16< D-B / Avg.4 (c)": st.column_config.Column(width="small"),
-                    "16> C-B / Avg.4 (c)": st.column_config.Column(width="small"),
-                },
-            )
-        else:
-            st.info("No stocks currently meet all six TR conditions.")
-    
-        # Build BUY / SELL signal cards from qualified Target Stocks.
-        # BUY: absolute D-B > C-B and absolute O2L% > O2H%.
-        # SELL: absolute C-B > D-B and absolute O2H% > O2L%.
-        def signal_abs_number(value):
-            try:
-                cleaned = str(value).strip().replace("₹", "").replace("%", "").replace(",", "").replace("+", "")
-                if cleaned in ("", "—", "-", "None", "nan"):
-                    return None
-                return abs(float(cleaned))
-            except (TypeError, ValueError):
+        st.dataframe(
+            target_styled_table,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "16< D-B / Avg.4 (c)": st.column_config.Column(width="small"),
+                "16> C-B / Avg.4 (c)": st.column_config.Column(width="small"),
+            },
+        )
+    else:
+        st.info("No stocks currently meet all six TR conditions.")
+
+    # Build BUY / SELL signal cards from qualified Target Stocks.
+    # BUY: absolute D-B > C-B and absolute O2L% > O2H%.
+    # SELL: absolute C-B > D-B and absolute O2H% > O2L%.
+    def signal_abs_number(value):
+        try:
+            cleaned = str(value).strip().replace("₹", "").replace("%", "").replace(",", "").replace("+", "")
+            if cleaned in ("", "—", "-", "None", "nan"):
                 return None
-    
-        def signal_price_number(value):
-            try:
-                cleaned = str(value).strip().replace("₹", "").replace(",", "").replace("+", "")
-                if cleaned in ("", "—", "-", "None", "nan"):
-                    return None
-                return float(cleaned)
-            except (TypeError, ValueError):
+            return abs(float(cleaned))
+        except (TypeError, ValueError):
+            return None
+
+    def signal_price_number(value):
+        try:
+            cleaned = str(value).strip().replace("₹", "").replace(",", "").replace("+", "")
+            if cleaned in ("", "—", "-", "None", "nan"):
                 return None
-    
-        buy_signal_rows = []
-        sell_signal_rows = []
-        for signal_row in target_rows:
-            d_b_value = signal_abs_number(signal_row.get("16< D-B / Avg.4 (c)"))
-            c_b_value = signal_abs_number(signal_row.get("16> C-B / Avg.4 (c)"))
-            o2l_value = signal_abs_number(signal_row.get("O2L%"))
-            o2h_value = signal_abs_number(signal_row.get("O2H%"))
-            entry_price = signal_price_number(signal_row.get("Price"))
-    
-            # Exclude missing values, ties, mixed comparisons, and missing prices/targets.
-            if None in (d_b_value, c_b_value, o2l_value, o2h_value, entry_price):
-                continue
-    
-            if (
-                d_b_value > c_b_value
-                and o2l_value > o2h_value
-                and signal_price_number(signal_row.get("High Limit")) is not None
-            ):
-                buy_signal_rows.append(signal_row)
-            elif (
-                c_b_value > d_b_value
-                and o2h_value > o2l_value
-                and signal_price_number(signal_row.get("Low Limit")) is not None
-            ):
-                sell_signal_rows.append(signal_row)
-    
-        def render_trstar_index_style_card(signal_row, signal_type):
-            is_buy = signal_type == "BUY"
-            target_label = "HIGH LIMIT" if is_buy else "LOW LIMIT"
-            target_value = signal_row.get("High Limit") if is_buy else signal_row.get("Low Limit")
-            entry_value = signal_row.get("Price", "—")
-            badge_background = (
-                "linear-gradient(110deg,#B7D7A8,#DDEBCF)"
-                if is_buy else "linear-gradient(110deg,#DDEBCF,#B7D7A8)"
-            )
-            return (
-                '<div class="index-topper-card">'
-                '<div class="index-topper-card-label">6THSENSE · TR.STAR SIGNAL</div>'
-                '<div style="display:flex;align-items:center;justify-content:space-between;'
-                'gap:12px;margin-top:16px;flex-wrap:wrap;">'
-                f'<div class="index-topper-symbol">{html.escape(str(signal_row.get("Stock", "—")))}</div>'
-                f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
-                '</div>'
-                '<div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>'
-                '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
-                '<div><div class="index-topper-metric-label">ENTRY PRICE · LIVE</div>'
-                f'<div class="index-topper-metric-value">₹{html.escape(str(entry_value))}</div></div>'
-                f'<div><div class="index-topper-metric-label">TARGET PRICE · {target_label}</div>'
-                f'<div class="index-topper-metric-value index-topper-target">₹{html.escape(str(target_value))}</div></div>'
-                '</div>'
-                '<div style="font-size:11px;color:#658B4E;margin-top:14px;letter-spacing:.4px;">'
-                f'D-B {html.escape(str(signal_row.get("16< D-B / Avg.4 (c)", "—")))}'
-                f' · C-B {html.escape(str(signal_row.get("16> C-B / Avg.4 (c)", "—")))}'
-                f' · O2L {html.escape(str(signal_row.get("O2L%", "—")))}'
-                f' · O2H {html.escape(str(signal_row.get("O2H%", "—")))}'
-                '</div></div>'
-            )
-    
+            return float(cleaned)
+        except (TypeError, ValueError):
+            return None
+
+    buy_signal_rows = []
+    sell_signal_rows = []
+    for signal_row in target_rows:
+        d_b_value = signal_abs_number(signal_row.get("16< D-B / Avg.4 (c)"))
+        c_b_value = signal_abs_number(signal_row.get("16> C-B / Avg.4 (c)"))
+        o2l_value = signal_abs_number(signal_row.get("O2L%"))
+        o2h_value = signal_abs_number(signal_row.get("O2H%"))
+        entry_price = signal_price_number(signal_row.get("Price"))
+
+        # Exclude missing values, ties, mixed comparisons, and missing prices/targets.
+        if None in (d_b_value, c_b_value, o2l_value, o2h_value, entry_price):
+            continue
+
+        if (
+            d_b_value > c_b_value
+            and o2l_value > o2h_value
+            and signal_price_number(signal_row.get("High Limit")) is not None
+        ):
+            buy_signal_rows.append(signal_row)
+        elif (
+            c_b_value > d_b_value
+            and o2h_value > o2l_value
+            and signal_price_number(signal_row.get("Low Limit")) is not None
+        ):
+            sell_signal_rows.append(signal_row)
+
+    def render_trstar_index_style_card(signal_row, signal_type):
+        is_buy = signal_type == "BUY"
+        target_label = "HIGH LIMIT" if is_buy else "LOW LIMIT"
+        target_value = signal_row.get("High Limit") if is_buy else signal_row.get("Low Limit")
+        entry_value = signal_row.get("Price", "—")
+        badge_background = (
+            "linear-gradient(110deg,#B7D7A8,#DDEBCF)"
+            if is_buy else "linear-gradient(110deg,#DDEBCF,#B7D7A8)"
+        )
+        return (
+            '<div class="index-topper-card">'
+            '<div class="index-topper-card-label">6THSENSE · TR.STAR SIGNAL</div>'
+            '<div style="display:flex;align-items:center;justify-content:space-between;'
+            'gap:12px;margin-top:16px;flex-wrap:wrap;">'
+            f'<div class="index-topper-symbol">{html.escape(str(signal_row.get("Stock", "—")))}</div>'
+            f'<div class="index-topper-pill" style="background:{badge_background};">{signal_type}</div>'
+            '</div>'
+            '<div style="height:1px;background:linear-gradient(90deg,transparent,#8FAF72,#B7D7A8,transparent);margin:20px 0 17px;"></div>'
+            '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
+            '<div><div class="index-topper-metric-label">ENTRY PRICE · LIVE</div>'
+            f'<div class="index-topper-metric-value">₹{html.escape(str(entry_value))}</div></div>'
+            f'<div><div class="index-topper-metric-label">TARGET PRICE · {target_label}</div>'
+            f'<div class="index-topper-metric-value index-topper-target">₹{html.escape(str(target_value))}</div></div>'
+            '</div>'
+            '<div style="font-size:11px;color:#658B4E;margin-top:14px;letter-spacing:.4px;">'
+            f'D-B {html.escape(str(signal_row.get("16< D-B / Avg.4 (c)", "—")))}'
+            f' · C-B {html.escape(str(signal_row.get("16> C-B / Avg.4 (c)", "—")))}'
+            f' · O2L {html.escape(str(signal_row.get("O2L%", "—")))}'
+            f' · O2H {html.escape(str(signal_row.get("O2H%", "—")))}'
+            '</div></div>'
+        )
+
+    with signal_cards_placeholder:
         st.markdown(
             "<div style='background:#B7D7A8;color:#365B3B;padding:10px 14px;"
             "border-radius:8px;font-size:1.15rem;font-weight:800;margin:18px 0 10px 0;'>"
@@ -2703,6 +2703,8 @@ def render_trstar_dashboard():
                     '<div style="font-size:13px;color:#658B4E;">No qualified SELL stock is available.</div></div>',
                     unsafe_allow_html=True,
                 )
+    
+    
     
     
 
